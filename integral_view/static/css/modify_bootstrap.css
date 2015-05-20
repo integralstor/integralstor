@@ -1,0 +1,17 @@
+
+.dropdown-menu {
+  font-size:13px;
+}
+
+.dropdown-menu > li >span {
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: bold;
+  text-decoration:underline;
+  font-size: 10px;
+  line-height: 1.42857143;
+  color: #333;
+  white-space: nowrap;
+  letter-spacing: 1px;
+}

@@ -1,0 +1,529 @@
+
+
+#container {
+
+/*  margin: auto;*/
+/*  width: 98%;*/
+  width: ;
+  background: #ffffff;
+  font-size:small;
+/*  font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;*/
+  font-family: Avant Garde, Arial, Sans-Serif;
+/*  font-family: Avant Garde, Arial, Sans-Serif;font-size: 0.8rem; font-weight: 200; line-height: 1.0;*/
+/*  font:family: Tahoma, Arial, "Trebuchet MS", Helvetica, sans-serif;*/
+/*  font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
+  text-align: left;
+  padding: 0px;
+  margin : 0px;
+  border-top: 0px solid black;
+  letter-spacing: 3px;
+  min-height: 100%;
+
+}
+#menu {
+
+  margin: auto;
+  float:left;
+  width:210px;
+  background: #fffffff;
+  font-size:small;
+/*  font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;*/
+  font-family: Avant Garde, Arial, Sans-Serif;
+/*  font:family: Tahoma, Arial, "Trebuchet MS", Helvetica, sans-serif;*/
+  text-align: left;
+  padding: 0px;
+  border-right:0px solid red;
+  letter-spacing: 1px;
+
+}
+
+li.selected {
+
+background: lightgray;
+
+}
+#contents {
+
+  float:left;
+  margin: auto;
+  background: #ffffff;
+  width:100%;
+  font-size:small;
+/*  font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;*/
+  font-family: Avant Garde, Arial, Sans-Serif;
+/*  font:family: Tahoma, Arial, "Trebuchet MS", Helvetica, sans-serif;*/
+  text-align: left;
+/*  padding: 10px;*/  
+border: 0px solid blue;
+  letter-spacing: 1px;
+  border: 0px solid #dddddd;
+/*  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-top-left-radius: 4px;*/
+
+}
+#footer {
+
+  margin: auto;
+/*  width: 100%;*/
+  width:100%;
+  clear:both;
+/*  float: left;*/
+  background: #ffffff;
+  font-size:small;
+/*  font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;*/
+  font-family: Avant Garde, Arial, Sans-Serif;
+/*  font:family: Tahoma, Arial, "Trebuchet MS", Helvetica, sans-serif;*/
+  text-align: left;
+  padding: 0px;
+  border: 0px solid #666;
+  letter-spacing: 3px;
+}
+.commandOutput {
+  background: #ffffff;
+  font-size:small;
+  font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;
+/*  font:family: Tahoma, Arial, "Trebuchet MS", Helvetica, sans-serif;*/
+  text-align: left;
+  border: 0px solid #666;
+  min-height: 100%;
+  letter-spacing: 1px;
+}
+
+table {
+  padding-top, padding-bottom: 5px;
+  margin-top, margin-bottom: 9px;
+  border : 0px solid;
+
+}
+
+table#header_table {
+  background: #ffffff;
+}
+#header-text {
+  /*font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
+  font-family: Avant Garde, Arial, Sans-Serif;font-size: 1.6rem; font-weight: 300; line-height: 1.625;
+}
+
+#topic-text{
+  /*font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
+  /*font-family: Avant Garde, Arial, Sans-Serif;font-size: 1.0rem; font-weight: 200; line-height: 1.0;*/
+  font-family: Avant Garde, Arial, Sans-Serif;font-size: 14px; font-weight: 200; line-height: 1.0;
+  display:block;
+  text-align:left;
+}
+#error-heading{
+  /*font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
+  font-family: Avant Garde, Arial, Sans-Serif;font-size: 1.6rem; font-weight: 200; line-height: 1.0;color:red;
+  display:block;
+  text-align:left;
+}
+#node-text{
+  /*font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
+  font-family: Avant Garde, Arial, Sans-Serif;font-size: 1.0rem; font-weight: 300; line-height: 1.0;
+  display:block;
+  text-align:center;
+}
+#p-node-text{
+  /*font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
+  font-family: Avant Garde, Arial, Sans-Serif;font-size: 12px; font-weight: 300; line-height: 1.0;
+  font-style:italic;
+}
+#instruction-text{
+  /*font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
+  font-family: Avant Garde, Arial, Sans-Serif;font-size: 12px; font-weight: 200; line-height: 1.0;
+  display:block;
+  text-align:left;
+  font-style:italic;
+}
+
+
+#p-instruction-text{
+  /*font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
+  /*font-family: Avant Garde, Arial, Sans-Serif;font-size: 0.8rem; font-weight: 200; line-height: 1.0;*/
+  font-family: Avant Garde, Arial, Sans-Serif;font-size: 10px; font-weight: 200; line-height: 1.0;
+  font-style:italic;
+}
+#warning-text{
+  /*font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
+  font-family: Avant Garde, Arial, Sans-Serif;font-size: 1.0rem; font-weight: 200; line-height: 1.0;color:red;
+  #text-align:center;
+}
+#p-warning-text{
+  /*font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
+  font-family: Avant Garde, Arial, Sans-Serif;font-size: 1.0rem; font-weight: 200; line-height: 1.0;color:red;
+}
+#p-warning-text-small{
+  /*font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
+  font-family: Avant Garde, Arial, Sans-Serif;font-size: 0.8rem; font-weight: 200; line-height: 1.0;color:red;
+}
+#error-text{
+  /*font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
+  font-family: Avant Garde, Arial, Sans-Serif;font-size: 10px; font-weight: 200; line-height: 1.625;color:red;
+}
+#p-error-text{
+  /*font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
+  font-family: Avant Garde, Arial, Sans-Serif;font-size: 0.8rem; font-weight: 200; line-height: 1.625;color:red;
+}
+
+td {
+  padding: 5px;
+  font-size:small;
+/*  font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;*/
+  font-family: Avant Garde, Arial, Sans-Serif;
+/*  font:family: Tahoma, Arial, "Trebuchet MS", Helvetica, sans-serif;*/
+  text-align: left;
+}
+td#header_table {
+  background: #eeeeee;
+}
+
+#resultDiv {
+  overflow : auto;
+}
+
+#a:link {color: #009900;}
+#a:visited {color: #999999;}
+#a:hover {color: #333333;}
+#a:focus {color: #333333;}
+#a:active {color: #009900;}
+
+submit {
+border-size: 0px;
+border-style: none;
+background: inherit;
+font: inherit;
+color: blue;
+cursor: hand;
+cursor: pointer;
+padding: 0px;
+}
+
+input {
+ color:#050;
+/*  font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;*/
+  font-family: Avant Garde, Arial, Sans-Serif;
+/*  font:family: Tahoma, Arial, "Trebuchet MS", Helvetica, sans-serif;*/
+ font: bold 84% 'trebuchet ms',helvetica,sans-serif;
+ background-color:#ffffff;
+ border:1px solid;
+ border-color: #696 #363 #363 #696;
+}
+.nav > li > a {
+  padding-left:10px;
+  padding-right:10px;
+}
+
+/*customization of Bootstrap*/
+.progress-bar[aria-valuenow="0"] {
+  color: #000;
+  min-width: 3%;
+  background: transparent;
+  box-shadow: none;
+}
+/*End of Bootstrap Customization*/
+/* Customization of AdminLTE css */
+
+/*Get the small box disks*/
+.small-box .disk-icon {
+  position: absolute;
+  top: auto;
+  bottom: 40px;
+  right: 5px;
+  z-index: 0;
+  font-size: 30px;
+  color: rgba(0, 0, 0, 0.15);
+  display: inline;
+}
+.small-box:hover .disk-icon {
+  animation-name: tansformAnimation;
+  animation-duration: .5s;
+  animation-iteration-count: 1;
+  animation-timing-function: ease;
+  animation-fill-mode: forwards;
+  -webkit-animation-name: tansformAnimation;
+  -webkit-animation-duration: .5s;
+  -webkit-animation-iteration-count: 1;
+  -webkit-animation-timing-function: ease;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-name: tansformAnimation;
+  -moz-animation-duration: .5s;
+  -moz-animation-iteration-count: 1;
+  -moz-animation-timing-function: ease;
+  -moz-animation-fill-mode: forwards;
+}
+@keyframes tansformAnimation {
+  from {
+    font-size: 30px;
+  }
+  to {
+    font-size: 35px;
+  }
+}
+@-webkit-keyframes tansformAnimation {
+  from {
+    font-size: 30px;
+  }
+  to {
+    font-size: 35px;
+  }
+}
+@media screen and (max-width: 480px) {
+  .small-box {
+    text-align: center;
+  }
+  .small-box .disk-icon {
+    display: none;
+  }
+  .small-box p {
+    font-size: 12px;
+  }
+}
+
+/*Transform the sub headings with uppercase*/
+.treeview-header span{
+  margin-left: 45px;
+  text-transform: uppercase;
+}
+
+/*Background color for the logo*/
+.skin-blue .logo{
+  background-color: #00acd6;
+}
+.skin-blue .logo:hover{
+  background-color:#00acd6;
+}
+
+/*Extra Utilities*/
+.white {
+  color : #FFFFFF !important;
+}
+.blue {
+  color: rgb(71, 143, 202) !important;
+}
+.orange{
+  color:#FFC545;
+}
+.green {
+  color: #69aa46 !important;
+}
+
+.red {
+  color: #dd5a43 !important;
+}
+
+.pink {
+  color : #c6699f !important ;
+}
+
+.lighter {
+  font-weight: lighter;
+}
+
+.middle {
+  margin-left: 50%;
+}
+.uppercase{
+  text-transform: uppercase;
+}
+.margin-top-100{
+  margin-top: 100px;
+}
+@media (min-height: 767px){
+  .margin-top-100{
+    margin-top: 10px;
+  }
+}
+.margin-left-1 {
+  margin-left: 1%;
+}
+.margin-left-5 {
+  margin-left: 5%;
+}
+.margin-left-10 {
+  margin-left: 10%;
+}
+.margin-left-20 {
+  margin-left: 20%;
+}
+.margin-left-30 {
+  margin-left: 30%;
+}
+.margin-left-40{
+  margin-left: 40%;
+}
+.margin-left-minus1 {
+  margin-left: -1%;
+}
+.margin-left-minus10 {
+  margin-left: -11%;
+}
+.disk-center {
+  margin-left: 13.6%;
+}
+.bigger-110 {
+  font-size: 110%;
+}
+
+.bigger-120 {
+  font-size: 120%;
+}
+
+.bigger-130 {
+  font-size: 130%;
+}
+
+.bigger-140 {
+  font-size: 140%;
+}
+
+.bigger-150 {
+  font-size: 150%;
+}
+
+.bigger-160 {
+  font-size: 160%;
+}
+
+.bigger-170 {
+  font-size: 170%;
+}
+
+.bigger-180 {
+  font-size: 180%;
+}
+
+.bigger-190 {
+  font-size: 190%;
+}
+
+.bigger-200 {
+  font-size: 200%;
+}
+
+.bigger-210 {
+  font-size: 210%;
+}
+
+.bigger-220 {
+  font-size: 220%;
+}
+
+.bigger-230 {
+  font-size: 230%;
+}
+
+.bigger-240 {
+  font-size: 240%;
+}
+
+.bigger-250 {
+  font-size: 250%;
+}
+
+.bigger-260 {
+  font-size: 260%;
+}
+
+.bigger-270 {
+  font-size: 270%;
+}
+
+.bigger-280 {
+  font-size: 280%;
+}
+
+.bigger-290 {
+  font-size: 290%;
+}
+
+.bigger-300 {
+  font-size: 300%;
+}
+.bigger-600 {
+  font-size: 600%;
+}
+.bigger-125 {
+  font-size: 125%;
+}
+
+.bigger-175 {
+  font-size: 175%;
+}
+
+.bigger-225 {
+  font-size: 225%;
+}
+
+.bigger-275 {
+  font-size: 275%;
+}
+
+.bigger-300 {
+  font-size: 300%;
+}
+
+.bigger-400 {
+  font-size: 400%;
+}
+.bigger-600 {
+  font-size: 600%;
+}
+.smaller-90 {
+  font-size: 90%;
+}
+
+.smaller-80 {
+  font-size: 80%;
+}
+
+.smaller-70 {
+  font-size: 70%;
+}
+
+.smaller-60 {
+  font-size: 60%;
+}
+
+.smaller-50 {
+  font-size: 50%;
+}
+
+.smaller-40 {
+  font-size: 40%;
+}
+
+.smaller-30 {
+  font-size: 30%;
+}
+
+.smaller-20 {
+  font-size: 20%;
+}
+
+.smaller-75 {
+  font-size: 75%;
+}
+
+/*End of Utilities*/
+
+/*Font Awesome Utilities*/
+
+.fa-2 {
+  font-size: 2em;
+}
+.fa-3 {
+  font-size: 4em;
+}
+.fa-4 {
+  font-size: 7em;
+}
+.fa-5 {
+  font-size: 12em;
+}
+.fa-6 {
+  font-size: 20em;
+}
+
+/*End of font awesome utilities*/

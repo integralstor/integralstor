@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{%block content%}
+
+<div class="row margin-top-100">
+  <div class="col-md-offset-3 col-md-6 col-sm-offset-3 sol-sm-6 col-xs-12">
+
+    {%if session_active%}
+      <div class="callout callout-danger">
+        <h4>Another User logged in !</h4>
+        <p>You are seeing this message, either because another user is already logged in to the application and doing some process or another user has loggedin to the system. If you login, then you might logout the other user and his process will be terminated.</p>
+      </div>
+    {%endif%}
+
+    <form role="form" action="/login/" method="post">
+        <div class="box box-solid box-primary">
+          <div class="box-header">
+            <h3 class="box-title">Login Integral View</h3>
+          </div>
+          <div class="box-body">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="id_username" >Username:</label>
+              <div class="input-group">
+              <span class="input-group-addon"><i class="fa fa-user"></i></span>
+              <input type="text"  name="username" class="form-control" id="id_username" placeholder="Enter username" required> 
+              </div>
+              {{ form.username.errors }}
+            </div>
+            <label for="id_password">Password:</label>
+            <div class="input-group">
+              <span class="input-group-addon"><i class="fa fa-cog"></i></span>
+              <input type="password"  name="password" class="form-control" id="id_password" placeholder="Enter password" required>
+              {{ form.password.errors }}
+            </div>
+            <div class="box-footer">
+              <div class="form-group">
+                  <button type="submit" class="btn btn-primary"><strong>Submit</strong></button>
+                </div>
+            </div>
+          </div>
+        </div>
+      </form>
+  </div>
+</div>
+
+
+{% if invalidUser %}
+<div class="row">
+  <div class="col-md-offset-3 col-md-6 col-sm-offset-3 col-sm-6 col-xs-12">
+    <p class="alert alert-danger"><strong> Invalid User or Password. Please try again</strong></p>
+  </div>
+</div>
+{% endif %}
+
+<script src="/static/jquery-ui-1.10.2.custom/js/jquery-1.9.1.js"></script>
+<script type="text/javascript">
+$(function() {
+  $("#id_username").focus();
+  });
+</script>
+
+{%endblock%}
