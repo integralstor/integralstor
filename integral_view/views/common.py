@@ -6,11 +6,11 @@ import django.template, django
 from django.conf import settings
 
 
-import integralstor
-from integralstor import command, db, common, batch, audit, alerts, ntp, mail
+import integralstor_common
+from integralstor_common import command, db, common, audit, alerts, ntp, mail, zfs
 
-import integralstor-unicell
-from integralstor-unicell import system_info
+import integralstor_unicell
+from integralstor_unicell import system_info
 
 from integral_view.utils import iv_logging
 
@@ -19,7 +19,7 @@ from integral_view.forms import common_forms
 from integral_view.samba import samba_settings
 from django.contrib.auth.decorators import login_required
 
-production = integralstor.common.is_production()
+production = common.is_production()
 
 @login_required    
 def show(request, page, info = None):
@@ -166,39 +166,38 @@ def show(request, page, info = None):
           disk_failures = 0
           #Default background color
           background_color = "bg-green" 
-          if not si[key]["in_cluster"]:
-            disk_new[key] = {}
-            disk_new[key]["disks"] = {}
-            for disk_key, disk_value in si[key]["disks"].iteritems():
-              #print disk_key, disk_value
-              if disk_value["rotational"]:
-                disk_new[key]["disks"][disk_key] = disk_value["status"]
-              #print disk_value["status"]
-              if disk_value["status"] != "PASSED":
-                disk_failures += 1
-              if disk_failures >= 1:
-                background_color = "bg-yellow"
-              if disk_failures >= 4:
-                background_color == "bg-red"
-          
-            if si[key]['node_status_str'] == "Degraded":
+          disk_new[key] = {}
+          disk_new[key]["disks"] = {}
+          for disk_key, disk_value in si[key]["disks"].iteritems():
+            #print disk_key, disk_value
+            if disk_value["rotational"]:
+              disk_new[key]["disks"][disk_key] = disk_value["status"]
+            #print disk_value["status"]
+            if disk_value["status"] != "PASSED":
+              disk_failures += 1
+            if disk_failures >= 1:
               background_color = "bg-yellow"
-            #print type(si[key]["pools"][0]["state"])
-            if si[key]["pools"][0]["state"] == unicode("ONLINE"):
+            if disk_failures >= 4:
               background_color == "bg-red"
-            disk_new[key]["background_color"] = background_color
-            disk_new[key]["name"] = si[key]["pools"][0]["name"]
-            sorted_disks = []
-            for key1,value1 in sorted(si[key]["disks"].iteritems(), key=lambda (k,v):v["position"]):
-              sorted_disks.append(key1)
-            disk_new[key]["disk_pos"] = sorted_disks
-            #print disk_new
-            #disk_new[key]["info"] = pool_status
+          
+          if si[key]['node_status_str'] == "Degraded":
+            background_color = "bg-yellow"
+          #print type(si[key]["pools"][0]["state"])
+          if si[key]["pools"][0]["state"] == unicode("ONLINE"):
+            background_color == "bg-red"
+          disk_new[key]["background_color"] = background_color
+          disk_new[key]["name"] = si[key]["pools"][0]["name"]
+          sorted_disks = []
+          for key1,value1 in sorted(si[key]["disks"].iteritems(), key=lambda (k,v):v["position"]):
+            sorted_disks.append(key1)
+          disk_new[key]["disk_pos"] = sorted_disks
+          #print disk_new
+          #disk_new[key]["info"] = pool_status
+          '''
           else:             
             disk_status[key] = {}
             if si[key]["node_status"] != -1:
               disk_status[key]["disks"] = {}
-              disk_status[key]["in_cluster"] = si[key]["in_cluster"]
               for disk_key, disk_value in si[key]["disks"].iteritems():
                 #print disk_key, disk_value
                 if disk_value["rotational"]:
@@ -229,6 +228,7 @@ def show(request, page, info = None):
               disk_status[key]["background_color"] = "bg-red"
               disk_status[key]["disk_pos"] = {}
               disk_status[key]["name"] = "Unknown"
+        '''
         
         template = "view_disk_status.html"
         return_dict["disk_status"] = disk_status
@@ -247,6 +247,9 @@ def show(request, page, info = None):
         if v["node_status"] != 0:
           num_nodes_bad += 1
           
+      pools, err = zfs.get_pools()
+      if pools:
+        return_dict["pools"] = pools            
       return_dict["num_nodes_bad"] = num_nodes_bad            
       return_dict["total_nodes"] = total_nodes            
       return_dict["nodes"] = nodes            

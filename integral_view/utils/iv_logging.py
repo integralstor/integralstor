@@ -1,7 +1,7 @@
 #Integral View's internal logging module that is an extention to the python/django loggin module
 
-import fractalio
-from fractalio import db, common
+import integralstor_common
+from integralstor_common import db, common
 
 db_path = common.get_db_path()
 

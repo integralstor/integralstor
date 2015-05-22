@@ -2,7 +2,7 @@
 import fractalio
 from fractalio import common
 
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 APP_DEBUG = False
@@ -11,7 +11,7 @@ APP_DEBUG = False
 PRODUCTION = False
 #DEVEL_APP_ROOT = '/opt/integral_view/integral-view'
 DEVEL_APP_ROOT = '/home/bkrram/fractalio/integral-view'
-PRODUCTION_APP_ROOT = '/opt/fractalio/integral_view'
+PRODUCTION_APP_ROOT = '/opt/integralstor/integralstor-unicell/integral_view'
 SALT_MASTER_CONFIG = '/etc/salt/master'
 APP_NAME = 'integral_view'
 
@@ -48,8 +48,8 @@ ALERTS_DIR = '%s/alerts'%BASE_CONF_ROOT
 LOGIN_URL = '/login/'
 
 DB_LOCATION = common.get_db_path()
-STATIC_DIR_PATH = '/opt/fractalio/integral_view/integral_view/static'
-TEMPLATE_DIR_PATH = "/opt/fractalio/integral_view/integral_view/templates"
+STATIC_DIR_PATH = '/opt/integralstor/integralstor-unicell/integral_view/integral_view/static'
+TEMPLATE_DIR_PATH = "/opt/integralstor/integralstor-unicell/integral_view/integral_view/templates"
 
 
 TEMPLATE_DEBUG = DEBUG

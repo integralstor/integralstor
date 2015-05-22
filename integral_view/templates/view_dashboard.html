@@ -1,0 +1,144 @@
+{% extends 'logged_in_base.html' %}
+
+
+{%block page-header%}
+  Dash Board
+  <br /><small>
+      Home 
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Dashboard
+  </small>
+{%endblock%}
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      </div>
+      <div class="modal-body" id="myModalBody">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%block contents%}
+
+{%for node_name, node_info  in system_info.items %}
+
+<p> Domain name - {{node_info.fqdn}}
+
+<p>Memory  Usage </p>
+<ul>
+<li>
+Total memory {{node_info.memory.mem_total.value}}{{node_info.memory.mem_total.unit}}, 
+Free memory {{node_info.memory.mem_free.value}}{{node_info.memory.mem_free.unit}}
+</ul>
+
+<p>CPU load average ({{node_info.load_avg.cpu_cores}} cores) </p>
+<ul>
+<li>
+1 minute : {{node_info.load_avg.1_min}}, 
+5 minute : {{node_info.load_avg.5_min}}, 
+15 minute : {{node_info.load_avg.15_min}}, 
+</ul>
+
+<p>Hardware status </p>
+<ul>
+{%for d in node_info.ipmi_status %}
+<li>{{d.component_name}} {{d.parameter_name}} {{d.reading}} {{d.status}}</li>
+{%endfor%}
+</ul>
+
+<p>Network interface status </p>
+<ul>
+{%for if_name, d in node_info.interfaces.items %}
+<li>{{if_name}} {{d.status}} {%if d.inet%} {%if d.inet.0.address %} {{d.inet.0.address}} {{ d.inet.0.broadcast}} {{ d.inet.0.netmask}} {%endif%}{%endif%}
+{%endfor%}
+</ul>
+
+<p>Disk status </p>
+<ul>
+{%for serial_number, d in node_info.disks.items %}
+<li> Serial number - {{serial_number}}, SMART status - {{d.status}}, rotational - {{d.rotational}}, capacity - {{d.capacity}}, name - {{d.name}}
+{%endfor%}
+</ul>
+
+<p>Pool status </p>
+<ul>
+{%for pool in pools%}
+<li> Pool name - {{pool.pool_name}}, State - {{pool.state}}
+{%endfor%}
+</ul>
+
+{%endfor%}
+<!--
+<div class="row margin-left-1">
+  <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+    <div class="box">
+      <div class="box-header">
+          <h3 class="box-title">Platform Status</h3>
+          <div class="box-tools pull-right">
+              <button data-original-title="Collapse" class="btn btn-default btn-sm" data-widget="collapse" data-toggle="tooltip" title=""><i class="fa fa-minus"></i></button>
+          </div>
+      </div>
+      <div class="box-body">
+        <br />
+          <table>
+            <thead>
+              <th> GRIDCell Name</th>
+              <th> Status </th>
+            </thead>
+            <tbody>
+               {%for k,v in nodes.items%}
+                <tr>
+                    <td><a href="/show/node_status/{{k}}" class="text">{{k}}</a> </td>
+                    <td> {%if v == 0%}<small class="label label-success white"><i class="fa fa-check-circle-o "></i> Online</small>{%else%}<small class="label label-danger white"><i class="fa fa-remove"></i> Degraded</small>{%endif%} </td>
+                  </tr>
+                {%endfor%}
+            </tbody>
+          </table>
+        </p>
+      </div><!-- /.box-body -->
+      <div class="box-footer">
+          <a href="/show/system_status" role="button" {%if num_nodes_bad > 0 %}class="btn btn-warning">More Details<i class="fa fa-bell-o"></i> {%else%}class="btn btn-success">More Details <i class="fa fa-arrow-right"></i>{%endif%} </a>
+      </div><!-- /.box-footer-->
+    </div>
+  </div>
+</div>
+-->
+<script type="text/javascript" src="/static/js/jquery.easypiechart.min.js"></script>
+<link rel="stylesheet"type="text/css" href="/static/css/jquery.easy-pie-chart.css">
+
+<script type="text/javascript">
+$(function() {
+    $('.chart').easyPieChart({
+      barColor : function(percent){
+                        if (percent <= 50)
+                          return '#008D4C'
+                        else if (percent >50 && percent <= 75)
+                          return '#F39C12'
+                        else 
+                          return '#F56954'
+                      },
+      lineCap : 'round',
+      lineWidth : 15,
+      trackColor: '#eee',
+      animate : true,
+      size : 150,
+    });
+});
+</script>
+{%endblock%}
+{%block help_header%}
+Dashboard
+{%endblock%}
+{%block help_body%}
+<p>The IntegralView dashboard is a one stop page that gives you an overall view of the status and health of the IntegralStor system. From this page, you can get an idea of the health of each GRIDCell, the storage pool and of all the data volumes.</p>
+{%endblock%}
+

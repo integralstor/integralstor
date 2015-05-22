@@ -9,8 +9,8 @@ import integral_view
 from integral_view.forms import admin_forms
 from integral_view.utils import iv_logging
 
-import fractalio
-from fractalio import audit, mail 
+import integralstor_common
+from integralstor_common import audit, mail 
 
 
 def login(request):

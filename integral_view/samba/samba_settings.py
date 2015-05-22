@@ -1,8 +1,8 @@
 
 import json,sqlite3
 
-import fractalio
-from fractalio import command, db, common, gluster_commands
+import integralstor_common
+from integralstor_common import command, db, common
 
 import local_users
 
@@ -219,7 +219,7 @@ def _generate_global_section(f, d):
   f.write("  ea support=yes\n")
   f.write("  level2 oplocks=yes\n")
   f.write("  posix locking=no\n")
-  f.write("  private dir=%s/lock\n"%fractalio.common.get_admin_vol_mountpoint())
+  f.write("  private dir=%s/lock\n"%integralstor-common.common.get_admin_vol_mountpoint())
   f.write("  load printers = no\n")
   #f.write("  socket options = TCP_NODELAY SO_RCVBUF=8192 SO_SNDBUF=8192\n")
   f.write("  map to guest = bad user\n")

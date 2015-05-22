@@ -1,6 +1,6 @@
 from django import forms
-import fractalio
-from fractalio import networking
+import integralstor_common
+from integralstor_common import networking
 
 class AuthADSettingsForm(forms.Form):
   security = forms.CharField(widget=forms.HiddenInput)

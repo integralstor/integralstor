@@ -2,8 +2,8 @@ import salt.client
 import sys, os, pwd, crypt
 
 
-import fractalio
-from fractalio import command 
+import integralstor_common
+from integralstor_common import command 
 
 def create_local_user(userid, name, pswd):
 

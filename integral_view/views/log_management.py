@@ -3,14 +3,14 @@ import zipfile, datetime
 import django, django.template
 from  django.contrib import auth
 
-import integralstor
-from integralstor import common, audit, alerts
+import integralstor_common
+from integralstor_common import common, audit, alerts
 
-import integralstor-unicell
-from integralstor-unicell import system_info
+import integralstor_unicell
+from integralstor_unicell import system_info
 
 import integral_view
-from integral_view.forms import volume_management_forms, log_management_forms
+from integral_view.forms import log_management_forms
 from integral_view.utils import iv_logging
 
 

@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 from integral_view.views.admin_auth  import login, logout, change_admin_password, configure_email_settings 
-from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node, hardware_scan 
-from integral_view.views.log_management import download_vol_log, download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level
+from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node
+from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level
 from integral_view.views.share_management import display_shares, create_share, samba_server_settings, save_samba_server_settings, view_share, edit_share, delete_share, edit_auth_method, view_local_users, create_local_user, change_local_user_password, delete_local_user
 from django.contrib.auth.decorators import login_required
 # Uncomment the next two lines to enable the admin:
@@ -39,7 +39,7 @@ urlpatterns = patterns('',
     url(r'^delete_share/', login_required(delete_share)),
     url(r'^auth_server_settings/', login_required(samba_server_settings)),
     url(r'^save_samba_server_settings/', login_required(save_samba_server_settings)),
-    url(r'^replace_disk/', login_required(replace_disk)),
+    #url(r'^replace_disk/', login_required(replace_disk)),
     url(r'^edit_integral_view_log_level/', login_required(edit_integral_view_log_level)),
     url(r'^show/([A-Za-z0-9_]+)/([a-zA-Z0-9_\-\.]*)', login_required(show),name="show_page"),
     url(r'^refresh_alerts/([0-9_]*)', login_required(refresh_alerts)),
@@ -48,6 +48,5 @@ urlpatterns = patterns('',
     url(r'^rotate_log/([A-Za-z_]+)', login_required(rotate_log)),
     url(r'^view_rotated_log_list/([A-Za-z_]+)', login_required(view_rotated_log_list)),
     url(r'^view_rotated_log_file/([A-Za-z_]+)', login_required(view_rotated_log_file)),
-    url(r'^first_login/', login_required(hardware_scan)),
 )
 

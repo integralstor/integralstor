@@ -7,8 +7,8 @@ from integral_view.samba import samba_settings, local_users
 
 import salt.client
 
-import fractalio
-from fractalio import volume_info, system_info, audit, networking
+import integralstor_common
+from integralstor_common import audit, networking
 
 def display_shares(request):
 

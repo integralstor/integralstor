@@ -3,8 +3,8 @@ from django import forms
 
 import re
 
-import fractalio
-import fractalio.networking
+import integralstor_common
+import integralstor_common.networking
 
 class MultipleServerField(forms.CharField):
 
