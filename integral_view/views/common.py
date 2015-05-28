@@ -296,7 +296,7 @@ def refresh_alerts(request, random=None):
     #this command will insert or update the row value if the row with the user exists.
     cmd = ["INSERT OR REPLACE INTO admin_alerts (user, last_refresh_time) values (?,?);", (request.user.username, datetime.now())]
     cmd_list.append(cmd)
-    test = db.execute_iud("%s/integral_view_config.db"%fractalio.common.get_db_path(), cmd_list)
+    test = db.execute_iud("%s/integral_view_config.db"%common.get_db_path(), cmd_list)
     if alerts.new_alerts():
       import json
       new_alerts = json.dumps([dict(alert=pn) for pn in alerts.load_alerts()])

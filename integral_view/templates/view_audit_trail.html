@@ -1,0 +1,71 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Logging
+    <br /><small>
+      Logging
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      {% if historical %}
+        Historical Audit trail
+      {%else %}
+        Audit trail
+      {%endif%}
+  </small>
+
+{%endblock%}
+
+
+{%block contents%}
+
+<div style="width:95%;position: relative; margin: 0px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<table  class="table table-hover">
+<thead>
+<tr>
+<th>
+Time
+</th>
+<th>
+Action
+</th>
+<th>
+Details
+</th>
+<th>
+Initiated from
+</th>
+</thead>
+{%for d in audit_list %}
+<tr>
+  <td>
+    {{d.time}}
+  </td>
+  <td>
+    {{d.action}}
+  </td>
+  <td>
+    {{d.action_str}}
+  </td>
+  <td>
+    {% if d.ip == "0.0.0.0"%}
+    Batch process
+    {%else%}
+    {{d.ip}}
+    {%endif%}
+  </td>
+</tr>
+{%endfor%}
+</table>
+</div>
+<br>
+{% if historical %}
+<a href="/view_rotated_log_list/audit_trail/" role="button" class="btn"> << Back to log list</a>
+{%endif%}
+
+
+{%endblock%}
+{%block help_header%}
+Audit trail
+{%endblock%}
+{%block help_body%}
+  <p>The IntegralView system keeps a record of all system modifications that have been done using Integral View. This audit trail page lists these actions along with the time when they were performed and the IP address from where the action was initiated. This can be used to track down potentially harmful actions.</p>
+{%endblock%}

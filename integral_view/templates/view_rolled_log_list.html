@@ -1,0 +1,56 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  {{page_header}}
+    <br /><small>
+      {{page_header}}
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      {{page_sub_header}}
+  </small>
+
+{%endblock%}
+
+
+{%block contents%}
+<span id="topic-text"> {{topic}}</span><br>
+
+
+{% if not log_file_list %}
+
+<p id="p-instructional-text"> There are no historical logs to display.</p><br>
+
+{%else%}
+
+<table class="table table-bordered table-hover" style="width:600px">
+  {%for d in log_file_list %} 
+  <tr>
+    <th colspan=2>
+      Date : {{d.date}} 
+    </th>
+  </tr>
+  {%for td in d.files %}
+  <tr>
+    <td>
+        File rolled at {{td.time }}
+    </td>
+    <td>
+      <form method="POST" action="/view_rotated_log_file/{{type}}/">
+      <input type="hidden" name="file_name" value="{{td.file_name}}">
+      <button type="submit" class="btn btn-default">View file</button>
+      </form>
+    </td>
+  </tr>
+  {%endfor%}
+  {%endfor%}
+</table>
+
+{%endif%}
+
+
+{%endblock%}
+{%block help_header%}
+View historical logs
+{%endblock%}
+{%block help_body%}
+<p>The IntegralStor system generates many types of logs as part of its normal functioning. Over time, these logs can grow in size. When a log grows too large, it can be rolled over so that the older log can be stored and a new file gets written to in its place.</p><p> This page is used to view the older rolled logs</p>
+{%endblock%}

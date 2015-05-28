@@ -1,0 +1,104 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Other Services
+  <br /><small>
+      Other Services 
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Email Settings
+
+  </small>
+{%endblock%}
+
+
+{%block contents%}
+
+{% if not_saved %}
+    <p id="p-error-text"> Error saving email settings. The following errors were reported : {{err}}</p><br>
+{% elif email_not_configured %}
+
+<p id="p-instructional-text"> Email settings have not been configured. </p><br>
+<a href="/configure_email_settings/" role="button" class="btn btn-primary">Configure email settings</a>
+
+{%else%}
+
+{% if saved %}
+<p id="p-instructional-text"> Email settings have successfully been updated. </p><br>
+  {% if err %}
+  <p id="p-error-text"> There may be some errors with this configuration. The test email did not go through. The following errors were reported : {{err}}</p><br>
+
+  {%else%}
+  <p id="p-instructional-text"> A test email has been sent using the new settings to the specified recipient list. Please check to confirm that the settings are correct.</p><br>
+  {%endif%}
+{%endif%}
+{%endif%}
+
+
+{% if not email_not_configured %}
+{{conf_message}}
+
+
+
+            <table class="table table-bordered">
+            <tr>
+              <th>
+              SMTP  server
+              </th>
+              <td>
+            {{ email_settings.server }}
+              </td>
+            </tr>
+            <tr>
+              <th>
+              SMTP  server port
+              </th>
+              <td>
+            {{ email_settings.port }}
+              </td>
+            </tr>
+            <tr>
+              <th>
+              SMTP  server username
+              </th>
+              <td>
+            {{ email_settings.username }}
+              </td>
+            </tr>
+            <tr>
+              <th>
+              Use TLS
+              </th>
+              <td>
+            {% if  email_settings.tls %} Yes {%else%} No {%endif%}
+              </td>
+            </tr>
+            <tr>
+              <th>
+              Send email on alerts 
+              </th>
+              <td>
+            {% if  email_settings.email_alerts %} Yes {%else%} No {%endif%}
+              </td>
+            </tr>
+            <tr>
+              <th>
+              Email recipient list
+              </th>
+              <td>
+            {{ email_settings.rcpt_list }}
+              </td>
+            </tr>
+            </table>
+
+<a href="/configure_email_settings/" role="button" class="btn btn-default">Modify..</a>
+
+{%endif%}
+
+
+{%endblock%}
+{%block help_header%}
+Email setting
+{%endblock%}
+{%block help_body%}
+<p>The administrator of an IntegralStor system can configure email settings for an email server and recipient email addresses if (s)he would like email alerts to be sent to them in case of errors in the system. This page provides details of the email settings that have been configured.</p>
+{%endblock%}

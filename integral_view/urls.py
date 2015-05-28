@@ -3,6 +3,7 @@ from integral_view.views.admin_auth  import login, logout, change_admin_password
 from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node
 from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level
 from integral_view.views.share_management import display_shares, create_share, samba_server_settings, save_samba_server_settings, view_share, edit_share, delete_share, edit_auth_method, view_local_users, create_local_user, change_local_user_password, delete_local_user
+from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share
 from django.contrib.auth.decorators import login_required
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -32,6 +33,9 @@ urlpatterns = patterns('',
     url(r'^create_local_user/', login_required(create_local_user)),
     url(r'^delete_local_user/', login_required(delete_local_user)),
     url(r'^change_local_user_password/', login_required(change_local_user_password)),
+    url(r'^view_nfs_shares/', login_required(view_nfs_shares)),
+    url(r'^view_nfs_share/', login_required(view_nfs_share)),
+    url(r'^delete_nfs_share/', login_required(delete_nfs_share)),
     url(r'^create_share/', login_required(create_share)),
     url(r'^view_share/', login_required(view_share)),
     url(r'^edit_share/', login_required(edit_share)),

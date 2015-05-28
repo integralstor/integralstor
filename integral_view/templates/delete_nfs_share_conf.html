@@ -1,0 +1,44 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  NFS Access
+  <br /><small>
+      NFS Access 
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Delete NFS Share
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+<!-- Modal -->
+<div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body" id="myModalBody">
+        <br><br><br>
+        <i class="fa fa-spinner fa-spin fa-4 blue"></i>
+        <br><br><br>
+        <p id="p-node-text">Processing.. Please wait.
+        <br><br><br>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p id="p-warning-text">Are you sure you want to delete the NFS share with path  "{{path}}"? </p>
+<br>
+<form action="/delete_nfs_share/" method="POST">
+<input type=hidden name="path" value="{{path}}">
+<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_nfs_shares'"> &nbsp;&nbsp;
+<button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and delete >></button>
+</form>
+
+
+{%endblock%}
+{%block help_header%}
+Deleting a NFS share
+{%endblock%}
+{%block help_body%}
+<p>Confirming this operation results in the specified NFS share being deleted from the system. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}
