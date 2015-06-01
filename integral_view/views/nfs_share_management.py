@@ -5,6 +5,9 @@ import integralstor_unicell
 from integralstor_common import zfs, audit
 from integralstor_unicell import nfs
 
+import integral_view
+from integral_view.forms import nfs_shares_forms
+  
 def view_nfs_shares(request):
   return_dict = {}
   try:
@@ -92,6 +95,92 @@ def delete_nfs_share(request):
     return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+def edit_nfs_share(request):
+  return_dict = {}
+  try:
+    if request.method == "GET":
+      #Return the conf page
+      path = request.GET["path"]
+      d, err = nfs.get_share(path)
+      if not d:
+        raise Exception('Could not find the specified share. Please use the menus. : %s'%err)
+      initial = {}
+      initial['path'] = d['path']
+      if 'clients' in d:
+        client_list = []
+        for client in d['clients']:
+          client_list.append(client['name'])
+        initial['clients'] = ','.join(client_list)
+      initial['readonly'] = False
+      initial['root_squash'] = False
+      initial['all_squash'] = False
+      if 'options' in d:
+        for option in d['options']:
+          if option == 'ro':
+            initial['readonly'] = True
+          elif option == 'root_squash':
+            initial['root_squash'] = True
+          elif option == 'all_squash':
+            initial['all_squash'] = True
+      form = nfs_shares_forms.ShareForm(initial=initial)
+      return_dict['form'] = form
+      return django.shortcuts.render_to_response("edit_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      form = nfs_shares_forms.ShareForm(request.POST)
+      path = request.POST["path"]
+      return_dict['form'] = form
+      if not form.is_valid():
+        return django.shortcuts.render_to_response("edit_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      cd = form.cleaned_data
+      try :
+        result, err = nfs.save_share(cd)
+        if not result:
+          if not err:
+            raise Exception('Unknown error!')
+          else:
+            raise Exception(err)
+      except Exception, e:
+        return_dict["error"] = "Error saving NFS share information - %s"%str(e)
+        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+ 
+      audit_str = "Edited NFS share %s"%path
+      audit.audit("edit_nfs_share", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_nfs_shares?action=saved')
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def create_nfs_share(request):
-  pass
+  return_dict = {}
+  try:
+    if request.method == "GET":
+      #Return the conf page
+      form = nfs_shares_forms.ShareForm()
+      return_dict['form'] = form
+      return django.shortcuts.render_to_response("create_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      form = nfs_shares_forms.ShareForm(request.POST)
+      path = request.POST["path"]
+      return_dict['form'] = form
+      if not form.is_valid():
+        return django.shortcuts.render_to_response("create_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      cd = form.cleaned_data
+      try :
+        result, err = nfs.save_share(cd, True)
+        if not result:
+          if not err:
+            raise Exception('Unknown error!')
+          else:
+            raise Exception(err)
+      except Exception, e:
+        return_dict["error"] = "Error creating NFS share information - %s"%str(e)
+        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+ 
+      audit_str = "Created NFS share %s"%path
+      audit.audit("create_nfs_share", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_nfs_shares?action=created')
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))

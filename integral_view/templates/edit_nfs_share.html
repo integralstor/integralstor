@@ -1,0 +1,91 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  NFS Access
+  <br /><small>
+      NFS Access 
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Shares 
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Edit NFS Share
+  </small>
+{%endblock%}
+
+
+
+{%block contents%}
+
+{{conf_message}}
+
+
+<form id="edit_form" name="edit_form" action="" method="post">
+<input name="path" type="hidden" value="{{ form.path.value }}">
+            <table class="table" style="width:800px">
+            <tr>
+              <td>
+            <label for="id_path">NFS Share path:</label>
+              </td>
+              <td>
+            {{ form.path.value }}
+              </td>
+              <td>
+              &nbsp
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_comment">Client IPs:</label>
+              </td>
+              <td>
+                <input type="text"  name="clients" class="form-control" id="id_clients" placeholder="Enter the IP addresses of the clients, wildcards permitted" value="{{form.clients.value}}"/>
+              </td>
+              <td>
+            {{ form.clients.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_readonly">Readonly:</label>
+              </td>
+              <td>
+            {{ form.readonly }}
+              </td>
+              <td>
+            {{ form.readonly.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_root_squash">Root squash:</label>
+              </td>
+              <td>
+            {{ form.root_squash }}
+              </td>
+              <td>
+            {{ form.root_squash.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_all_squash">All squash:</label>
+              </td>
+              <td>
+            {{ form.all_squash }}
+              </td>
+              <td>
+            {{ form.all_squash.errors }}
+              </td>
+            </tr>
+            </table>
+
+        <a href="/view_nfs_share/?path={{form.path.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary">Save >></button>
+</form>
+
+{%endblock%}
+{%block help_header%}
+Edit NFS share 
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to change the settings for a particular NFS share. The settings will take effect upon saving this information.</p>
+{%endblock%}

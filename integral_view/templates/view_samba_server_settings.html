@@ -1,0 +1,104 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  File Access
+  <br /><small>
+      File Access 
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Authentication 
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Authentication Settings
+
+  </small>
+{%endblock%}
+
+
+{%block contents%}
+
+{% if not samba_global_dict %}
+<p id="p-instructional-text"> You have not configured authentication settings.</p><br>
+<a href="/auth_server_settings?action=edit" role="button" class="btn btn-default">Configure authentication settings</a>
+{%else%}
+<p id="p-instruction-text">{{conf}}</p>
+
+        <div class="field">
+            <table class="table table-bordered" style="width:60%">
+            <tr>
+              <th>
+              Authentication mode:
+              </th>
+              <td>
+              {% if samba_global_dict.security == "ads" %} Active directory
+              {% elif samba_global_dict.security == "users" %} Local users
+              {%endif%}
+              </td>
+            </tr>
+          {% if samba_global_dict.security == "ads" %} 
+            <tr>
+              <th>
+              AD server DNS name:
+              </th>
+              <td>
+            {{ samba_global_dict.password_server }}
+              </td>
+            </tr>
+              <th>
+              AD server IP address:
+              </th>
+              <td>
+            {{ samba_global_dict.password_server_ip }}
+              </td>
+            </tr>
+            <tr>
+              <th>
+              AD Domain/Realm:
+              </th>
+              <td>
+            {{ samba_global_dict.realm }}
+              </td>
+            </tr>
+            <tr>
+              <th>
+            AD UNIX Services Manager :
+              </th>
+              <td>
+            {% if samba_global_dict.ad_schema_mode == "rfc2307" %}
+            Identity Management For Unix
+            {%else%}
+            Services For Unix
+            {%endif%}
+              </td>
+            </tr>
+            <tr>
+              <th>
+              AD UID Mapping range :
+              </th>
+              <td>
+            {{ samba_global_dict.id_map_min }} - {{samba_global_dict.id_map_max}}
+              </td>
+            </tr>
+            {%endif%}
+            <tr>
+              <th>
+              Workgroup:
+              </th>
+              <td>
+            {{ samba_global_dict.workgroup }}
+              </td>
+            </tr>
+            <tr>
+              <td colspan=2 style="text-align:center">
+              <a href="/auth_server_settings?action=edit" role="button" class="btn btn-default" >Edit</a>
+              </td>
+            </tr>
+            </table>
+        </div>
+{%endif%}
+
+{%endblock%}
+{%block help_header%}
+Active directory authentication settings
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to view the current configuration information about your Active Directory server against which authentication for share access will happen. Please ensure that you provide the correct server name, IP address and administrative user password in order for the authentication to proceed properly.</p>
+{%endblock%}

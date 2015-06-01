@@ -434,14 +434,12 @@ def save_samba_server_settings(request):
         samba_settings.save_auth_settings(cd)
         #print '1'
 
-        # We now need to add the AD server as the forwarder in our DNS config on the primary...
-        nsl = networking.get_name_servers()
-        if not nsl:
-          raise Exception("Could not detect the IP addresses of the primary and secondary GRIDCells")
-        if len(nsl) < 2:
-          raise Exception("Could not detect the IP addresses of the primary and secondary GRIDCells")
         ipinfo = networking.get_ip_info('bond0')
         if cd["security"] == "ads":
+          # We now need to add the AD server as the forwarder in our DNS config on the primary...
+          nsl = networking.get_name_servers()
+          if not nsl:
+            raise Exception("Could not detect the IP addresses of the primary and secondary GRIDCells")
           rc = networking.generate_default_primary_named_conf(nsl[0], ipinfo['netmask'], nsl[1], True, cd['password_server_ip'], False)
           if rc != 0:
             raise Exception("Error updating the DNS configuration on the primary GRIDCell")
