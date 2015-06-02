@@ -1,0 +1,102 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Storage
+  <br /><small>
+      Storage
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      ZFS pool details
+
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+{% if conf %}
+<p><i>{{conf}}</i></p>
+{%endif%}
+
+{% if not pool %}
+No information for the specified pool. Click <a href="/view_zfs_pools/"> here</a> to view all ZFS storage pools.
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<h3>Pool name - {{pool.pool_name}}</h3>
+Pool scan - {{pool.scan}}<br>
+Pool errors - {{pool.errors}}<br>
+Pool state - {{pool.state}}<br>
+<b> Pool components</b>
+<ul>
+{%for comp_name, comp in pool.config.pool.components.items %}
+<li> Name - {{comp.name}}, Type - {{comp.type}}, Status - State ({{comp.state}}), Read ({{comp.read}}), Write ({{comp.write}}), Chksum ({{comp.chksum}}), Parent component - {{comp.parent}}, Children components - {{comp.children}}
+{%endfor%}
+</ul>
+
+<p><b> Write Cache components</b></p>
+{% if pool.config.logs %}
+<ul>
+{%for comp_name, comp in pool.config.logs.components.items %}
+<li> Name - {{comp.name}}, Type - {{comp.type}}, Status - State ({{comp.state}}), Read ({{comp.read}}), Write ({{comp.write}}), Chksum ({{comp.chksum}}), Parent component - {{comp.parent}}, Child components - {{comp.children}}
+{%endfor%}
+</ul>
+{%else%}
+None<br>
+{%endif%}
+
+<p><b> Read Cache components</b></p>
+{% if pool.config.cache %}
+<ul>
+{%for comp_name, comp in d.config.cache.components.items %}
+<li> Name - {{comp.name}}, Type - {{comp.type}}, Status - State ({{comp.state}}), Read ({{comp.read}}), Write ({{comp.write}}), Chksum ({{comp.chksum}}), Parent component - {{comp.parent}}, Children components - {{comp.children}}
+{%endfor%}
+</ul>
+{%else%}
+RAM<br>
+{%endif%}
+
+{% if 'snapshots' in pool%}
+<b> Pool snapshots</b></p>
+<ul>
+{%for snap in pool.snapshots %}
+<li> Snapshot Name - {{snap.name}}
+{%endfor%}
+</ul>
+{%endif%}
+
+
+<b> Datasets in this pool </b>
+{% if pool.datasets %}
+<table  class="table table-bordered">
+<tr>
+<th colspan=3> Datasets in this pool</th>
+<th> <a href="/create_zfs_dataset?pool={{pool.pool_name}}" role="button" class="btn btn-default"> Create a new dataset</a></th>
+</tr>
+<tr>
+<th> Name</th>
+<th> Space used</th>
+<th> Snapshots</th>
+<th> &nbsp;</th>
+</tr>
+{%for ds in pool.datasets%}
+<tr>
+<td>{{ds.name}}</td>
+<td>{{ds.used}}</td> 
+<td>{%if 'snapshots' in ds%} <ul> {%for sn in ds.snapshots%}<li>{{sn.snapshot_name}},{%endfor%}</ul>{%else%} &nbsp;{%endif%}</td>
+<td><a href="/view_zfs_dataset?name={{ds.name}}" role="button" class="btn btn-default"> Details</a></td> 
+</tr>
+{%endfor%}
+{%else%}
+<p> No datasets created </p>
+{%endif%}
+{%endif%}
+</div>
+<p>
+<!--
+<a href="/create_zfs_pool" role="button" class="btn btn-default"> Create a new ZFS pool</a>-->
+
+{%endblock%}
+{%block help_header%}
+View all ZFS pools
+{%endblock%}
+{%block help_body%}
+  <p> This screen provides the list of all the ZFS pools that have been created on this IntegralStor system. To view details about a particular ZFS pool, please select the the desired pool from the list.</p>
+{%endblock%}

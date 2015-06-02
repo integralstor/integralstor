@@ -1,0 +1,85 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Storage
+  <br /><small>
+      Storage
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      ZFS manager
+
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+{% if conf %}
+<p><i>{{conf}}</i></p>
+{%endif%}
+
+{% if not pool_list %}
+No ZFS storage pools appear to have been created. Click <a href="/create_zfs_pool/"> here</a> to create a new ZFS storage pool.
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<table  class="table table-bordered">
+<tr>
+<th>
+Pool name
+</th>
+<th>
+Dataset
+</th>
+<th>
+View details
+</th>
+<th>
+Delete
+</th>
+<th>
+Create
+</th>
+</tr>
+{%for d in pool_list %}
+<tr>
+<td colspan=2>
+{{d.pool_name}}
+</td>
+<td>
+<a href="/view_zfs_pool?name={{d.pool_name}}" role="button" class="btn btn-default"> View pool details</a>
+</td>
+<td>
+<a href="/delete_zfs_pool?name={{d.pool_name}}" role="button" class="btn btn-default"> Delete this pool</a>
+</td>
+<td>
+<a href="/create_zfs_dataset?name={{d.pool_name}}" role="button" class="btn btn-default"> Create new dataset</a>
+</td>
+</tr>
+{%if d.datasets%}
+{%for ds in d.datasets %}
+<tr>
+<td>&nbsp;</td>
+<td>{{ds.name}}</td>
+<td>
+<a href="/view_zfs_dataset?name={{ds.name}}" role="button" class="btn btn-default"> View dataset details</a>
+</td>
+<td>
+<a href="/delete_zfs_dataset?name={{ds.name}}" role="button" class="btn btn-default"> Delete this dataset</a>
+</td>
+<td> &nbsp;</td>
+</tr>
+{%endfor%}
+{%endif%}
+{%endfor%}
+</table>
+{%endif%}
+</div>
+<p>
+<!--
+<a href="/create_zfs_pool" role="button" class="btn btn-default"> Create a new ZFS pool</a>-->
+
+{%endblock%}
+{%block help_header%}
+View all ZFS pools
+{%endblock%}
+{%block help_body%}
+  <p> This screen provides the list of all the ZFS pools that have been created on this IntegralStor system. To view details about a particular ZFS pool, please select the the desired pool from the list.</p>
+{%endblock%}
