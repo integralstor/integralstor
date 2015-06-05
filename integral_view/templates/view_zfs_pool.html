@@ -53,22 +53,11 @@ None<br>
 RAM<br>
 {%endif%}
 
-{% if 'snapshots' in pool%}
-<b> Pool snapshots</b></p>
-<ul>
-{%for snap in pool.snapshots %}
-<li> Snapshot Name - {{snap.name}}
-{%endfor%}
-</ul>
-{%endif%}
-
-
-<b> Datasets in this pool </b>
 {% if pool.datasets %}
 <table  class="table table-bordered">
 <tr>
 <th colspan=3> Datasets in this pool</th>
-<th> <a href="/create_zfs_dataset?pool={{pool.pool_name}}" role="button" class="btn btn-default"> Create a new dataset</a></th>
+<th> <a href="/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}" role="button" class="btn btn-default"> Create a new dataset</a></th>
 </tr>
 <tr>
 <th> Name</th>
@@ -84,8 +73,68 @@ RAM<br>
 <td><a href="/view_zfs_dataset?name={{ds.name}}" role="button" class="btn btn-default"> Details</a></td> 
 </tr>
 {%endfor%}
+</table>
 {%else%}
 <p> No datasets created </p>
+{%endif%}
+<p><b> Snapshots for this pool </b></p>
+{% if not snap_list %}
+No ZFS snapshots appear to have been created for this dataset. 
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<table  class="table table-bordered">
+<tr>
+<th >
+Snapshot name
+</th>
+<th>
+Target name
+</th>
+<th>
+Target type
+</th>
+<th>
+Created on 
+</th>
+<th >
+Space consumed by snapshot
+</th>
+<th >
+Space consumed by target
+</th>
+<th>
+Destroy Snapshot
+</th>
+<th>
+Rollback to snapshot
+</th>
+<th>
+Rename this snapshot
+</th>
+</tr>
+{%for d in snap_list %}
+<tr>
+<td>
+{{d.snapshot_name}}
+</td>
+<td>{{d.dataset}}</td>
+<td>{% if '/' in d.dataset%} Dataset {%else%} Pool{%endif%}</td>
+<td>{{d.properties.creation.value}}</td>
+<td>{{d.used}}</td>
+<td>{{d.refer}}</td>
+<td>
+<a href="/delete_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-default"> Delete</a>
+</td>
+<td>
+<a href="/rollback_zfs_snapshot?name={{d.name}}" role="button" class="btn btn-default"> Rollback</a>
+</td>
+<td>
+<a href="/rename_zfs_snapshot?snapshot_name={{d.snapshot_name}}&ds_name={{d.dataset}}" role="button" class="btn btn-default"> Rename</a>
+</td>
+</tr>
+{%endfor%}
+</table>
+<a href="/create_zfs_snapshot?target={{pool.pool_name}}&pool={{pool.pool_name}}" role="button" class="btn btn-default">Create a snapshot for this pool</a>
 {%endif%}
 {%endif%}
 </div>

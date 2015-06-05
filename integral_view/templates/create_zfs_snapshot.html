@@ -1,0 +1,56 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Storage
+  <br /><small>
+      Storage
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Create a ZFS snapshot
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+{{conf_message}}
+
+<form id="create_form" name="create_form" action="/create_zfs_snapshot/" method="post">
+            <table class="table" style="width:800px">
+            <tr>
+              <td>
+            <label for="id_target">Target :</label>
+              </td>
+              <td>
+                  <select name="target" class="form-control">
+                  {% for choice in form.target.field.choices %}
+                    <option value="{{choice.0}}" {%if choice.0 == form.initial.target %} selected="selected"{%endif%}>{{choice.1}}</option>
+                  {%endfor%}
+                  </select>
+              </td>
+              <td>
+            {{ form.target.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_name">Snapshot name:</label>
+              </td>
+              <td>
+                <input type="text"  name="name" class="form-control" id="id_clients" placeholder="Enter a name of this snapshot" />
+              </td>
+              <td>
+            {{ form.name.errors }}
+              </td>
+            </tr>
+            </table>
+
+        <a href="/view_zfs_snapshots" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary">Save >></button>
+</form>
+
+{%endblock%}
+{%block help_header%}
+Create a  ZFS snapshot
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to create a ZFS snapshot. The settings will take effect upon saving this information.</p>
+{%endblock%}

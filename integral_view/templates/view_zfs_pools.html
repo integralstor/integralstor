@@ -20,56 +20,46 @@
 No ZFS storage pools appear to have been created. Click <a href="/create_zfs_pool/"> here</a> to create a new ZFS storage pool.
 {%else %}
 <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+{%for d in pool_list %}
 <table  class="table table-bordered">
 <tr>
+<th >
+Pool name : {{d.pool_name}}
+</th>
+<th >
+&nbsp;
+</th>
 <th>
-Pool name
+<a href="/view_zfs_pool?name={{d.pool_name}}" role="button" class="btn btn-default"> View pool details</a>
+<a href="/delete_zfs_pool?name={{d.pool_name}}" role="button" class="btn btn-default"> Delete this pool</a>
+</th>
+</tr>
+<tr>
+<th >
+&nbsp;
 </th>
 <th>
 Dataset
 </th>
 <th>
-View details
+<a href="/create_zfs_dataset?pool={{d.pool_name}}&parent={{d.pool_name}}" role="button" class="btn btn-default"> Create a dataset</a>
 </th>
-<th>
-Delete
-</th>
-<th>
-Create
-</th>
-</tr>
-{%for d in pool_list %}
-<tr>
-<td colspan=2>
-{{d.pool_name}}
-</td>
-<td>
-<a href="/view_zfs_pool?name={{d.pool_name}}" role="button" class="btn btn-default"> View pool details</a>
-</td>
-<td>
-<a href="/delete_zfs_pool?name={{d.pool_name}}" role="button" class="btn btn-default"> Delete this pool</a>
-</td>
-<td>
-<a href="/create_zfs_dataset?name={{d.pool_name}}" role="button" class="btn btn-default"> Create new dataset</a>
-</td>
 </tr>
 {%if d.datasets%}
 {%for ds in d.datasets %}
 <tr>
-<td>&nbsp;</td>
+<td>
+&nbsp;
+</td>
 <td>{{ds.name}}</td>
 <td>
 <a href="/view_zfs_dataset?name={{ds.name}}" role="button" class="btn btn-default"> View dataset details</a>
 </td>
-<td>
-<a href="/delete_zfs_dataset?name={{ds.name}}" role="button" class="btn btn-default"> Delete this dataset</a>
-</td>
-<td> &nbsp;</td>
 </tr>
 {%endfor%}
 {%endif%}
-{%endfor%}
 </table>
+{%endfor%}
 {%endif%}
 </div>
 <p>

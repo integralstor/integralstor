@@ -1,0 +1,82 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Storage
+  <br /><small>
+    Storage
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Edit dataset properties 
+  </small>
+{%endblock%}
+
+
+
+{%block contents%}
+
+{%if request.GET.result %}
+{{request.GET.result}}
+{%endif%}
+
+
+<form id="edit_form" name="edit_form" action="" method="post">
+<input name="name" type="hidden" value="{{ form.name.value }}">
+            <table class="table" style="width:800px">
+            <tr>
+              <td>
+            <label for="id_name">Dataset name :</label>
+              </td>
+              <td>
+            {{ form.name.value }}
+              </td>
+              <td>
+              &nbsp
+              </td>
+            </tr>
+            <!--
+            <tr>
+              <td>
+            <label for="id_readonly">Readonly:</label>
+              </td>
+              <td>
+            {{ form.readonly }}
+              </td>
+              <td>
+            {{ form.readonly.errors }}
+              </td>
+            </tr>
+            -->
+            <tr>
+              <td>
+            <label for="id_compression">Enable compression:</label>
+              </td>
+              <td>
+            {{ form.compression }}
+              </td>
+              <td>
+            {{ form.compression.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_dedup">Enable deduplication :</label>
+              </td>
+              <td>
+            {{ form.dedup }}
+              </td>
+              <td>
+            {{ form.dedup.errors }}
+              </td>
+            </tr>
+            </table>
+
+        <a href="/view_zfs_dataset/?name={{form.name.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary">Save >></button>
+</form>
+
+{%endblock%}
+{%block help_header%}
+Edit ZFS dataset properties
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to change the properties for a particular ZFS dataset. The settings will take effect upon saving this information.</p>
+{%endblock%}

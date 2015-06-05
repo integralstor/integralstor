@@ -1,0 +1,88 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Storage
+  <br /><small>
+      Storage
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      ZFS snapshot manager
+
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+{% if conf %}
+<p><i>{{conf}}</i></p>
+{%endif%}
+
+{% if not snap_list %}
+No ZFS snapshots appear to have been created. Click <a href="/create_zfs_snapshot/"> here</a> to create a new ZFS snapshot.
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<table  class="table table-bordered">
+<tr>
+<th >
+Snapshot name
+</th>
+<th>
+Target name
+</th>
+<th>
+Target type
+</th>
+<th>
+Created on 
+</th>
+<th >
+Space consumed by snapshot
+</th>
+<th >
+Space consumed by target
+</th>
+<th>
+Delete Snapshot
+</th>
+<th>
+Rollback to snapshot
+</th>
+<th>
+Rename this snapshot
+</th>
+</tr>
+{%for d in snap_list %}
+<tr>
+<td>
+{{d.snapshot_name}}
+</td>
+<td>{{d.dataset}}</td>
+<td>{% if '/' in d.dataset%} Dataset {%else%} Pool{%endif%}</td>
+<td>{{d.properties.creation.value}}</td>
+<td>{{d.used}}</td>
+<td>{{d.refer}}</td>
+<td>
+<a href="/delete_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-default"> Delete</a>
+</td>
+<td>
+<a href="/rollback_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-default"> Rollback</a>
+</td>
+<td>
+<a href="/rename_zfs_snapshot?snapshot_name={{d.snapshot_name}}&ds_name={{d.dataset}}" role="button" class="btn btn-default"> Rename</a>
+</td>
+</tr>
+{%endfor%}
+</table>
+{%endif%}
+<a href="/create_zfs_snapshot" role="button" class="btn btn-default">Create a snapshot </a>
+</div>
+<p>
+<!--
+<a href="/create_zfs_pool" role="button" class="btn btn-default"> Create a new ZFS pool</a>-->
+
+{%endblock%}
+{%block help_header%}
+View all ZFS snapshots
+{%endblock%}
+{%block help_body%}
+  <p> This screen provides the list of all the ZFS snapshots that have been created on this IntegralStor system.  </p>
+{%endblock%}

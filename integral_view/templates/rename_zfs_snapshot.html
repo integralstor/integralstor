@@ -1,0 +1,66 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Storage
+  <br /><small>
+      Storage
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Rename a ZFS snapshot
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+{{conf_message}}
+
+<form id="create_form" name="create_form" action="/rename_zfs_snapshot/" method="post">
+{{form.ds_name}}
+{{form.snapshot_name}}
+
+            <table class="table" style="width:800px">
+            <tr>
+              <td>
+              Dataset/Pool name
+              </td>
+              <td>
+                {{form.ds_name.value}}
+              </td>
+              <td>
+                &nbsp;
+              </td>
+            </tr>
+            <tr>
+              <td>
+              Current snapshot name
+              </td>
+              <td>
+                {{form.snapshot_name.value}}
+              </td>
+              <td>
+                &nbsp;
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_new_snapshot_name">New snapshot name:</label>
+              </td>
+              <td>
+                <input type="text"  name="new_snapshot_name" class="form-control" id="id_clients" placeholder="Enter the new name for this snapshot" />
+              </td>
+              <td>
+            {{ form.new_snapshot_name.errors }}
+              </td>
+            </tr>
+            </table>
+
+        <a href="/view_zfs_snapshots" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary">Save >></button>
+</form>
+
+{%endblock%}
+{%block help_header%}
+Rename a  ZFS snapshot
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to rename a ZFS snapshot. The settings will take effect upon saving this information.</p>
+{%endblock%}

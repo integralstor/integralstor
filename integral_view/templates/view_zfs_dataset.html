@@ -1,0 +1,76 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Storage
+  <br /><small>
+      Storage
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      ZFS dataset details
+
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+{% if result %}
+<p><i>{{result}}</i></p>
+{%endif%}
+
+{% if not properties %}
+No information for the specified dataset. 
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+
+<h3>Dataset name - {{name}}</h3>
+
+<table  class="table table-bordered">
+<tr>
+<th> Property name </th>
+<th> Property value </th>
+<th> Property information </th>
+</tr>
+{%for pname, p in properties.items %}
+{%if pname in exposed_properties %}
+<tr>
+
+<td> {%if pname == 'creation'%} Created on {%elif pname == 'usedbychildren'%} Space used by children {%elif pname == 'usedbydataset'%} Space used by this dataset {%else%}{{pname|title}}{%endif%}</td>
+<td> {{p.value}}</td>
+<td> {%if p.source == 'local' %} Explicitly set {%elif p.source == '-'%} Informational only {%else%}{{p.source|title}}{%endif%}</td>
+</tr>
+{%endif%}
+{%endfor%}
+</table>
+
+<p><a href="/edit_zfs_dataset?name={{name}}" role="button" class="btn btn-default"> Change dataset properties</a> &nbsp;&nbsp;<a href="/delete_zfs_dataset?name={{name}}" role="button" class="btn btn-default"> Delete this dataset..</a></p>
+
+
+
+<b> Child datasets under this dataset </b>
+{% if children %}
+<table  class="table table-bordered">
+<tr>
+<th > Child datasets </th>
+<th> <a href="/create_zfs_dataset?parent={{name}}" role="button" class="btn btn-default"> Create a new child dataset</a></th>
+</tr>
+{%for child in children%}
+<tr>
+<td colspan=2>{{child}}</td>
+</tr>
+{%endfor%}
+{%else%}
+<p> No child datasets created </p>
+{%endif%}
+ <a href="/create_zfs_dataset?pool={{pool}}&parent={{name}}" role="button" class="btn btn-default"> Create a new child dataset</a>
+</div>
+{%endif%}
+<p>
+<!--
+<a href="/create_zfs_pool" role="button" class="btn btn-default"> Create a new ZFS pool</a>-->
+
+{%endblock%}
+{%block help_header%}
+View all ZFS pools
+{%endblock%}
+{%block help_body%}
+  <p> This screen provides the list of all the ZFS pools that have been created on this IntegralStor system. To view details about a particular ZFS pool, please select the the desired pool from the list.</p>
+{%endblock%}
