@@ -130,7 +130,8 @@ def show(request, page, info = None):
       if "from" in request.GET:
         frm = request.GET["from"]
         return_dict['frm'] = frm
-      return_dict['node'] = si[info]
+      #return_dict['node'] = si[info]
+      return_dict['node'] = si[si.keys()[0]]
 
 
     elif page == "system_config":
