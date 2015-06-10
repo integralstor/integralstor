@@ -92,7 +92,6 @@ def edit_share(request):
 
   return_dict = {}
   try:
-    vil = volume_info.get_volume_info_all()
     user_list = samba_settings.get_user_list()
     group_list = samba_settings.get_group_list()
   
@@ -115,7 +114,6 @@ def edit_share(request):
       initial["name"] = share_dict["name"]
       initial["path"] = share_dict["path"]
       initial["display_path"] = share_dict["display_path"]
-      initial["vol"] = share_dict["vol"]
       if share_dict["guest_ok"]:
         initial["guest_ok"] = True
       else:
@@ -141,7 +139,7 @@ def edit_share(request):
         initial["users"] = vul
         initial["groups"] = vgl
   
-      form = samba_shares_forms.ShareForm(initial = initial, user_list = user_list, group_list = group_list, volume_list = vil)
+      form = samba_shares_forms.ShareForm(initial = initial, user_list = user_list, group_list = group_list)
   
       return_dict["form"] = form
       return django.shortcuts.render_to_response('edit_share.html', return_dict, context_instance=django.template.context.RequestContext(request))
@@ -149,7 +147,7 @@ def edit_share(request):
     else:
   
       # Shd be an save request
-      form = samba_shares_forms.ShareForm(request.POST, user_list = user_list, group_list = group_list, volume_list = vil)
+      form = samba_shares_forms.ShareForm(request.POST, user_list = user_list, group_list = group_list)
       return_dict["form"] = form
       if form.is_valid():
         cd = form.cleaned_data
@@ -181,9 +179,8 @@ def edit_share(request):
             groups = cd["groups"]
           else:
             groups = None
-          vol = cd["vol"]
           #logger.debug("Save share request, name %s path %s, comment %s, read_only %s, browseable %s, guest_ok %s, users %s, groups %s, vol %s"%(name, path, comment, read_only, browseable, guest_ok, users, groups))
-          samba_settings.save_share(share_id, name, comment, guest_ok, read_only, path, browseable, users, groups, vol)
+          samba_settings.save_share(share_id, name, comment, guest_ok, read_only, path, browseable, users, groups)
           samba_settings.generate_smb_conf()
         except Exception, e:
           return_dict["error"] = "Error saving share information - %s" %e
@@ -199,10 +196,7 @@ def edit_share(request):
         return django.shortcuts.render_to_response('edit_share.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
@@ -249,24 +243,22 @@ def create_share(request):
   try:
     user_list = samba_settings.get_user_list()
     group_list = samba_settings.get_group_list()
-    vil = volume_info.get_volume_info_all()
   
     if request.method == "GET":
       #Return the form
-      form = samba_shares_forms.ShareForm(user_list = user_list, group_list = group_list, volume_list = vil)
+      form = samba_shares_forms.ShareForm(user_list = user_list, group_list = group_list)
       return_dict["form"] = form
       return django.shortcuts.render_to_response("create_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       #Form submission so create
       return_dict = {}
-      form = samba_shares_forms.ShareForm(request.POST, user_list = user_list, group_list = group_list, volume_list = vil)
+      form = samba_shares_forms.ShareForm(request.POST, user_list = user_list, group_list = group_list)
       return_dict["form"] = form
       if form.is_valid():
         cd = form.cleaned_data
         name = cd["name"]
-        path = "%s"%cd["display_path"]
-        display_path = cd["display_path"]
-        if not display_path or display_path is None:
+        path = "%s"%cd["path"]
+        if not path:
           return_dict["path_error"] = "Please choose a path."
           return django.shortcuts.render_to_response("create_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
         
@@ -296,9 +288,8 @@ def create_share(request):
           groups = None
         vol = cd["vol"]
         #logger.debug("Create share request, name %s path %s, comment %s, read_only %s, browseable %s, guest_ok %s, users %s, groups %s, vol %s"%(name, path, comment, read_only, browseable, guest_ok, users, groups))
-        #path = "/%s%s"%(vol, display_path)
         try :
-          samba_settings.create_share(name, comment, guest_ok, read_only, path, display_path, browseable, users, groups, vol)
+          samba_settings.create_share(name, comment, guest_ok, read_only, path, display_path, browseable, users, groups)
           samba_settings.generate_smb_conf()
         except Exception, e:
           return_dict["error"] = "Error creating share - %s" %e

@@ -20,11 +20,11 @@ def view_zfs_pools(request):
       if "action" in request.GET:
         if request.GET["action"] == "saved":
           conf = "ZFS pool information successfully updated"
-        elif request.GET["action"] == "created":
+        elif request.GET["action"] == "created_pool":
           conf = "ZFS pool successfully created"
         elif request.GET["action"] == "created_dataset":
           conf = "ZFS dataset successfully created"
-        elif request.GET["action"] == "deleted":
+        elif request.GET["action"] == "pool_deleted":
           conf = "ZFS pool successfully destroyed"
         elif request.GET["action"] == "dataset_deleted":
           conf = "ZFS dataset successfully destroyed"
@@ -71,6 +71,97 @@ def view_zfs_pool(request):
     return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+def create_zfs_pool(request):
+  return_dict = {}
+  try:
+    free_disks, err = zfs.get_free_disks()
+    if err:
+      return_dict["error"] = "Error retrieving free disk information: %s"%err
+      return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    if not free_disks or len(free_disks) < 2:
+      return_dict["error"] = "There are insufficient unused disks available to create a pool: %s"%err
+      return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    pool_types = []
+    if len(free_disks) >= 2 :
+      pool_types.append('mirror')
+    if len(free_disks) >= 3 :
+      pool_types.append('raid5')
+    if len(free_disks) >= 4 :
+      pool_types.append('raid6')
+    if len(free_disks) >= 6 :
+      pool_types.append('raid10')
+
+    if request.method == "GET":
+      #Return the conf page
+      form = zfs_forms.CreatePoolForm(pool_types = pool_types)
+      return_dict['form'] = form
+      return django.shortcuts.render_to_response("create_zfs_pool.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      form = zfs_forms.CreatePoolForm(request.POST, pool_types = pool_types)
+      return_dict['form'] = form
+      if not form.is_valid():
+        return django.shortcuts.render_to_response("create_zfs_pool.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      cd = form.cleaned_data
+      try :
+
+        vdev_list = None
+        if cd['pool_type'] == 'raid10':
+          vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], cd['stripe_width'])
+        else:
+          vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'])
+        if err:
+          raise Exception(err)
+        print 'vdevlist', vdev_list
+        result, err = zfs.create_pool(cd['name'], cd['pool_type'], vdev_list)
+        if not result:
+          if not err:
+            raise Exception('Unknown error!')
+          else:
+            raise Exception(err)
+      except Exception, e:
+        return_dict["error"] = "Error creating ZFS pool - %s"%str(e)
+        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+ 
+      audit_str = "Created a ZFS pool named %s of type %s"%(cd['name'], cd['pool_type'])
+      audit.audit("create_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pools?action=created_pool')
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def delete_zfs_pool(request):
+
+  return_dict = {}
+  try:
+    if 'name' not in request.REQUEST:
+      return_dict["error"] = "Error deleting ZFS pool- No pool specified. Please use the menus"%str(e)
+      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    name = request.REQUEST["name"]
+    return_dict["name"] = name
+    if request.method == "GET":
+      #Return the conf page
+      return django.shortcuts.render_to_response("delete_zfs_pool_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      try :
+        result, err = zfs.delete_pool(name)
+        if not result:
+          if not err:
+            raise Exception('Unknown error!')
+          else:
+            raise Exception(err)
+      except Exception, e:
+        return_dict["error"] = "Error deleting ZFS pool- %s"%str(e)
+        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+ 
+      audit_str = "Deleted ZFS pool %s"%name
+      audit.audit("delete_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pools?action=pool_deleted')
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 def view_zfs_dataset(request):
   return_dict = {}
   try:
@@ -87,7 +178,7 @@ def view_zfs_dataset(request):
       pool = dataset_name
     return_dict['pool'] = pool
 
-    properties, err = zfs.get_dataset_properties(dataset_name)
+    properties, err = zfs.get_properties(dataset_name)
     if not properties and err:
       return_dict["error"] = "Error loading ZFS storage information : %s"%err
       return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
@@ -119,7 +210,7 @@ def edit_zfs_dataset(request):
   return_dict = {}
   try:
     name = request.REQUEST["name"]
-    properties, err = zfs.get_dataset_properties(name)
+    properties, err = zfs.get_properties(name)
     if not properties and err:
       raise Exception("Error loading ZFS dataset properties : %s"%err)
       return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
@@ -163,7 +254,7 @@ def edit_zfs_dataset(request):
             changed = 'off'
           print 'property %s orig %s changed %s'%(p, orig, changed)
           if orig != changed:
-            result, err = zfs.set_dataset_property(name, p, changed)
+            result, err = zfs.set_property(name, p, changed)
             print err
             if not result:
               result_str += ' Error setting property %s'%p
@@ -226,7 +317,7 @@ def create_zfs_dataset(request):
       return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
     pool = request.REQUEST['pool']
     datasets, err = zfs.get_children_datasets(pool)
-    if not datasets:
+    if not datasets and err:
       raise Exception("Could not get the list of existing datasets")
     if pool not in datasets:
       datasets.append(pool)
@@ -383,6 +474,41 @@ def delete_zfs_snapshot(request):
       audit_str = "Deleted ZFS snapshot %s"%name
       audit.audit("delete_zfs_snapshot", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_zfs_snapshots?action=deleted')
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def rollback_zfs_snapshot(request):
+
+  return_dict = {}
+  try:
+    if 'name' not in request.REQUEST:
+      return_dict["error"] = "Error rolling back to ZFS snapshot- No snapshot name specified. Please use the menus"%str(e)
+      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    name = request.REQUEST["name"]
+    if 'display_name' in request.REQUEST:
+      return_dict["display_name"] = request.REQUEST['display_name']
+    return_dict["name"] = name
+
+    if request.method == "GET":
+      #Return the conf page
+      return django.shortcuts.render_to_response("rollback_zfs_snapshot_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      try :
+        result, err = zfs.rollback_snapshot(name)
+        if not result:
+          if not err:
+            raise Exception('Unknown error!')
+          else:
+            raise Exception(err)
+      except Exception, e:
+        return_dict["error"] = "Error rolling back to ZFS snapshot- %s"%str(e)
+        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+ 
+      audit_str = "Rolled back to ZFS snapshot %s"%name
+      audit.audit("rollback_zfs_snapshot", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_snapshots?action=rolled_back')
   except Exception, e:
     s = str(e)
     return_dict["error"] = "An error occurred when processing your request : %s"%s

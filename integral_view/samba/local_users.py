@@ -45,6 +45,7 @@ def create_local_user(userid, name, pswd):
       raise Exception("Error creating system user. Return code : %d. "%rc)
     '''
 
+  print '/usr/bin/pdbedit  -d 1 -t -a  -u %s -f %s'%(userid, name), "%s\n%s"%(pswd, pswd)
   # Now all set to create samba user
   ret, rc = command.execute_with_conf_and_rc(r'/usr/bin/pdbedit  -d 1 -t -a  -u %s -f %s'%(userid, name), "%s\n%s"%(pswd, pswd))
   if rc != 0:

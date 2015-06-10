@@ -2,9 +2,9 @@
 
 import salt.client
 import json, os, shutil, datetime, sys, re
-import fractalio
+import integralstor_common
 import pprint
-from fractalio import lock, common
+from integralstor_common import lock, common
 
 def _gen_status_info(path):
 

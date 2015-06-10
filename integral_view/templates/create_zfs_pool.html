@@ -1,0 +1,69 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Storage
+  <br /><small>
+      Storage
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Create a ZFS Pool
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+{{conf_message}}
+
+<form id="create_form" name="create_form" action="/create_zfs_pool/" method="post">
+            <table class="table" style="width:800px">
+            <tr>
+              <td>
+            <label for="id_name">Pool name:</label>
+              </td>
+              <td>
+                <input type="text"  name="name" class="form-control" id="id_name" placeholder="Enter the name of the pool" />
+              </td>
+              <td>
+            {{ form.name.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_type">Data protection schema :</label>
+              </td>
+              <td>
+                  <select name="pool_type" class="form-control">
+                  {% for choice in form.pool_type.field.choices %}
+                    <option value="{{choice.0}}" {%if choice.0 == form.initial.pool_type %} selected="selected"{%endif%}>{{choice.1}}</option>
+                  {%endfor%}
+                  </select>
+              </td>
+              <td>
+            {{ form.pool_type.errors }}
+              </td>
+            </tr>
+            {% if 'raid10' in form.pool_type.choices %}
+            <tr>
+              <td>
+            <label for="id_stripe_width">RAID 10 stripe width:</label>
+              </td>
+              <td>
+            {{ form.stripe_width }}
+              </td>
+              <td>
+            {{ form.stripe_width.errors }}
+              </td>
+            </tr>
+            {%endif%}
+            </table>
+
+        <a href="/view_zfs_pools" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary">Save >></button>
+</form>
+
+{%endblock%}
+{%block help_header%}
+Create a  ZFS Pool
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to create a ZFS Pool. The settings will take effect upon saving this information.</p>
+{%endblock%}

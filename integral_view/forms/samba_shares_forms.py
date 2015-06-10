@@ -84,7 +84,6 @@ class ShareForm(forms.Form):
   share_id =  forms.IntegerField(widget=forms.HiddenInput, required = False)
   name = forms.CharField()
   path = forms.CharField(required=False)
-  display_path = forms.CharField(required=False)
   comment = forms.CharField(required=False)
   browseable = forms.BooleanField(required=False)
   read_only = forms.BooleanField(required=False)
@@ -94,13 +93,7 @@ class ShareForm(forms.Form):
     if kwargs:
       user_list = kwargs.pop("user_list")
       group_list = kwargs.pop("group_list")
-      vol_list = kwargs.pop("volume_list")
     super(ShareForm, self).__init__(*args, **kwargs)
-    ch = []
-    for vol in vol_list:
-      tup = (vol["name"], vol["name"])
-      ch.append(tup)
-    self.fields["vol"] = forms.ChoiceField(choices=ch)
     ch = []
     if user_list:
       for user in user_list:

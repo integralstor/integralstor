@@ -17,54 +17,45 @@
 {%endif%}
 
 {% if not pool_list %}
-No ZFS storage pools appear to have been created. Click <a href="/create_zfs_pool/"> here</a> to create a new ZFS storage pool.
+<p>No ZFS storage pools appear to have been created. </p>
 {%else %}
 <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
 {%for d in pool_list %}
 <table  class="table table-bordered">
 <tr>
 <th >
-Pool name : {{d.pool_name}}
-</th>
-<th >
-&nbsp;
+Pool name
 </th>
 <th>
-<a href="/view_zfs_pool?name={{d.pool_name}}" role="button" class="btn btn-default"> View pool details</a>
-<a href="/delete_zfs_pool?name={{d.pool_name}}" role="button" class="btn btn-default"> Delete this pool</a>
+Datasets in pool
+</th>
+<th>
+Details
 </th>
 </tr>
 <tr>
-<th >
-&nbsp;
-</th>
-<th>
-Dataset
-</th>
-<th>
-<a href="/create_zfs_dataset?pool={{d.pool_name}}&parent={{d.pool_name}}" role="button" class="btn btn-default"> Create a dataset</a>
-</th>
-</tr>
+<td>
+{{d.pool_name}}
+</td>
+<td>
 {%if d.datasets%}
 {%for ds in d.datasets %}
-<tr>
-<td>
-&nbsp;
+{{ds.name}}, 
+{%endfor%}
+{%else%}
+No datasets in this pool
+{%endif%}
 </td>
-<td>{{ds.name}}</td>
 <td>
-<a href="/view_zfs_dataset?name={{ds.name}}" role="button" class="btn btn-default"> View dataset details</a>
+<a href="/view_zfs_pool?name={{d.pool_name}}" role="button" class="btn btn-default"> View pool details</a>
 </td>
 </tr>
-{%endfor%}
-{%endif%}
 </table>
 {%endfor%}
 {%endif%}
+<a href="/create_zfs_pool" role="button" class="btn btn-default"> Create a new pool</a>
 </div>
 <p>
-<!--
-<a href="/create_zfs_pool" role="button" class="btn btn-default"> Create a new ZFS pool</a>-->
 
 {%endblock%}
 {%block help_header%}

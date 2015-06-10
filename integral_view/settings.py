@@ -1,6 +1,6 @@
 # Django settings for integral_view project.
-import fractalio
-from fractalio import common
+import integralstor_common
+from integralstor_common import common
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']

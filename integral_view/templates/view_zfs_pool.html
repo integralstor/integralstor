@@ -24,6 +24,7 @@ No information for the specified pool. Click <a href="/view_zfs_pools/"> here</a
 Pool scan - {{pool.scan}}<br>
 Pool errors - {{pool.errors}}<br>
 Pool state - {{pool.state}}<br>
+<a href="/delete_zfs_pool?name={{pool.pool_name}}" role="button" class="btn btn-default"> Delete this pool</a><br>
 <b> Pool components</b>
 <ul>
 {%for comp_name, comp in pool.config.pool.components.items %}
@@ -76,10 +77,13 @@ RAM<br>
 </table>
 {%else%}
 <p> No datasets created </p>
+<a href="/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}" role="button" class="btn btn-default"> Create a dataset</a>
 {%endif%}
 <p><b> Snapshots for this pool </b></p>
 {% if not snap_list %}
-No ZFS snapshots appear to have been created for this dataset. 
+<p>No ZFS snapshots appear to have been created for this pool. </p>
+<a href="/create_zfs_snapshot?target={{pool.pool_name}}" role="button" class="btn btn-default">Create a pool snapshot </a>
+
 {%else %}
 <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
 <table  class="table table-bordered">

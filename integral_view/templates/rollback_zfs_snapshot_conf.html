@@ -1,0 +1,45 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Storage
+  <br /><small>
+      Storage
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Rollback to a ZFS snapshot
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+<!-- Modal -->
+<div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body" id="myModalBody">
+        <br><br><br>
+        <i class="fa fa-spinner fa-spin fa-4 blue"></i>
+        <br><br><br>
+        <p id="p-node-text">Processing.. Please wait.
+        <br><br><br>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p id="p-warning-text">Rolling back to a snapshot will result in your current data being compromised. Are you sure you want to rollback to the ZFS snapshot with name  "{{display_name}}"? </p>
+<br>
+<form action="/rollback_zfs_snapshot/" method="POST">
+<input type=hidden name="name" value="{{name}}">
+<input type=hidden name="display_name" value="{{display_name}}">
+<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_snapshots'"> &nbsp;&nbsp;
+<button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and rollback >></button>
+</form>
+
+
+{%endblock%}
+{%block help_header%}
+Rolling back to a ZFS snapshot
+{%endblock%}
+{%block help_body%}
+<p>Confirming this operation results in the specified ZFS dataset/pool being rolled back to the specified snapshot. This will result in the loss of all the data changes made after the snapshot was taken. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}
