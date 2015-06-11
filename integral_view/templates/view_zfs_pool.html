@@ -32,7 +32,7 @@ Pool state - {{pool.state}}<br>
 {%endfor%}
 </ul>
 
-<p><b> Write Cache components</b></p>
+<p><b> Write Cache </b></p>
 {% if pool.config.logs %}
 <ul>
 {%for comp_name, comp in pool.config.logs.components.items %}
@@ -40,7 +40,8 @@ Pool state - {{pool.state}}<br>
 {%endfor%}
 </ul>
 {%else%}
-None<br>
+Disk <br> 
+<a href="/set_zfs_slog?pool={{pool.pool_name}}" role="button" class="btn btn-default"> Change the write cache device..</a>
 {%endif%}
 
 <p><b> Read Cache components</b></p>

@@ -2,7 +2,7 @@ import django, django.template
 
 import integralstor_common
 import integralstor_unicell
-from integralstor_common import zfs, audit
+from integralstor_common import zfs, audit, ramdisk
 from integralstor_unicell import nfs
 
 import integral_view
@@ -28,6 +28,8 @@ def view_zfs_pools(request):
           conf = "ZFS pool successfully destroyed"
         elif request.GET["action"] == "dataset_deleted":
           conf = "ZFS dataset successfully destroyed"
+        elif request.GET["action"] == "changed_slog":
+          conf = "ZFS pool write cache successfully set"
         return_dict["conf"] = conf
       return_dict["pool_list"] = pool_list
       template = "view_zfs_pools.html"
@@ -157,6 +159,103 @@ def delete_zfs_pool(request):
       audit_str = "Deleted ZFS pool %s"%name
       audit.audit("delete_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_zfs_pools?action=pool_deleted')
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def set_zfs_slog(request):
+  return_dict = {}
+  try:
+    
+    template = 'logged_in_error.html'
+
+    if 'pool' not in request.REQUEST:
+      return_dict["error"] = "Error loading ZFS pool information : No pool specified."
+      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+
+    pool_name = request.REQUEST["pool"]
+
+    pool, err = zfs.get_pool(pool_name)
+
+    if not pool and err:
+      return_dict["error"] = "Error loading ZFS storage information : %s"%err
+      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+    elif not pool:
+      return_dict["error"] = "Error loading ZFS storage information : Specified pool not found"
+      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+
+    slog = None
+    if not pool['config']['logs']:
+      slog = None
+    else:
+      kids = pool['config']['logs']['components']['logs']['children']
+      if len(kids) == 1 and 'ramdisk' in kids[0]:
+        slog = 'ramdisk'
+        rdisk, err = ramdisk.get_ramdisk_info(pool_name)
+        if err:
+          return_dict["error"] = "Error loading ZFS pool RAM disk information : %s"%err
+          return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+        elif not rdisk:
+          return_dict["error"] = "Could not determine the configuration for the RAM disk for the specified ZFS pool "
+          return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+        ramdisk_size = rdisk['size']/1024
+      else:
+        #For now pass but we need to code this to read the component disk ID!!!!!!!!!!!!1
+        slog = 'ssd'
+        pass
+
+    if request.method == "GET":
+      #Return the conf page
+
+
+      initial = {}
+      initial['pool'] = pool_name
+      initial['slog'] = slog
+      if slog == 'ramdisk':
+        initial['ramdisk_size'] = ramdisk_size
+
+      form = zfs_forms.SlogForm(initial=initial)
+      return_dict['form'] = form
+      return django.shortcuts.render_to_response("edit_zfs_slog.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      form = zfs_forms.SlogForm(request.POST)
+      return_dict['form'] = form
+      if not form.is_valid():
+        return django.shortcuts.render_to_response("edit_zfs_slog.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      cd = form.cleaned_data
+      try :
+        print cd
+        if cd['slog'] == 'ramdisk':
+          if ((cd['slog'] == slog) and (cd['ramdisk_size'] != ramdisk_size)) or (cd['slog'] != slog):
+            # Changed to ramdisk or ramdisk parameters changed so destroy and recreate
+            oldramdisk, err = ramdisk.get_ramdisk_info(cd['pool'])
+            if oldramdisk:
+              result, err = ramdisk.destroy_ramdisk(cd['pool'])
+              if not result:
+                return_dict["error"] = "Error destroying the current RAM disk for the specified ZFS pool : %s"%err
+                return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+              result, err = zfs.remove_pool_vdev(cd['pool'], '/mnt/ramdisk_%s/ramfile'%cd['pool'])
+              if not result:
+                return_dict["error"] = "Error removing the current RAM disk from the specified ZFS pool : %s"%err
+                return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+            result, err = ramdisk.create_ramdisk(1024*cd['ramdisk_size'], cd['pool'])
+            if not result:
+              return_dict["error"] = "Error creating the RAM disk for the specified ZFS pool : %s"%err
+              return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+            else:
+              result, err = zfs.set_pool_log_vdev(cd['pool'], '/mnt/ramdisk_%s/ramfile'%cd['pool'])
+              if not result:
+                ramdisk.destroy_ramdisk(cd['pool'])
+                return_dict["error"] = "Error assigning the RAM disk to the specified ZFS pool : %s"%err
+                return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+              audit.audit("edit_zfs_slog", 'Changed the write log for pool %s to a RAM disk of size %dGB'%(cd['pool'], cd['ramdisk_size']), request.META["REMOTE_ADDR"])
+                
+      except Exception, e:
+        return_dict["error"] = "Error setting ZFS pool write cache - %s"%str(e)
+        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+ 
+      return django.http.HttpResponseRedirect('/view_zfs_pools?action=changed_slog')
   except Exception, e:
     s = str(e)
     return_dict["error"] = "An error occurred when processing your request : %s"%s

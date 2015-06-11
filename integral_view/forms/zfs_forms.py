@@ -27,6 +27,12 @@ class CreateDatasetForm(forms.Form):
         ch.append(tup)
     self.fields['parent'] = forms.ChoiceField(choices=ch)
 
+class SlogForm(forms.Form):
+  ch = [('ramdisk', 'RAM disk')]
+  slog = forms.ChoiceField(choices=ch)
+  ramdisk_size = forms.IntegerField()
+  pool = forms.CharField(widget=forms.HiddenInput)
+
 class CreatePoolForm(forms.Form):
   name = forms.CharField()
   

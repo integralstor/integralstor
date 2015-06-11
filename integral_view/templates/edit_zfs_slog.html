@@ -1,0 +1,74 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Storage
+  <br /><small>
+    Storage
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Edit ZFS pool write cache
+  </small>
+{%endblock%}
+
+
+
+{%block contents%}
+
+{%if request.GET.result %}
+{{request.GET.result}}
+{%endif%}
+
+
+<form id="edit_form" name="edit_form" action="" method="post">
+<input name="pool" type="hidden" value="{{ form.pool.value }}">
+{{ form.pool}}
+            <table class="table" style="width:800px">
+            <tr>
+              <td>
+            <label for="id_name">Pool name :</label>
+              </td>
+              <td>
+            {{ form.pool.value }}
+              </td>
+              <td>
+              &nbsp
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_slog">Write Cache Device :</label>
+              </td>
+              <td>
+                  <select name="slog" class="form-control">
+                  {% for choice in form.slog.field.choices %}
+                    <option value="{{choice.0}}" {%if choice.0 == form.initial.slog %} selected="selected"{%endif%}>{{choice.1}}</option>
+                  {%endfor%}
+                  </select>
+              </td>
+              <td>
+            {{ form.slog.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_ramdisk_size">Ramdisk size (in GB) :</label>
+              </td>
+              <td>
+                <input type="text"  name="ramdisk_size" class="form-control" id="id_ramdisk_size" placeholder="Enter the size of the RAM Disk in Gigabytes" /> 
+              </td>
+              <td>
+            {{ form.ramdisk_size.errors }}
+              </td>
+            </tr>
+            </table>
+
+        <a href="/view_zfs_pool/?name={{form.pool.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary">Save >></button>
+</form>
+
+{%endblock%}
+{%block help_header%}
+Edit ZFS pool write cache
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to change the device that is used as the write cache for the ZFS pool. The settings will take effect upon saving this information.</p>
+{%endblock%}
