@@ -25,7 +25,7 @@ def create_local_user(userid, name, pswd):
   if create_system_user:
     #enc_pswd = crypt.crypt(pswd, "28")
     #Set a standard system password - not the one given by the user as the user should not have access to the system
-    enc_pswd = crypt.crypt("fractal_pswd_%s"%userid, "28")
+    enc_pswd = crypt.crypt("integralstor_pswd_%s"%userid, "28")
     client = salt.client.LocalClient()
     rc = client.cmd('*', 'user.add', [userid,None,501])
     for hostname, status in rc.items():
@@ -35,12 +35,12 @@ def create_local_user(userid, name, pswd):
     for hostname, status in rc.items():
       if not status:
         error_list.append("Error setting the password for userid on GRIDCell %s"%hostname)
-    rc = client.cmd('*', 'user.chfullname', [userid, "fractal_user_%s"%name] )
+    rc = client.cmd('*', 'user.chfullname', [userid, "integralstor_user_%s"%name] )
     for hostname, status in rc.items():
       if not status:
         error_list.append("Error setting the name for userid on GRIDCell %s"%hostname)
     '''
-    ret, rc = command.execute_with_rc(r'useradd -p %s -c fractal_user_%s %s'%(enc_pswd, name, userid))
+    ret, rc = command.execute_with_rc(r'useradd -p %s -c integralstor_user_%s %s'%(enc_pswd, name, userid))
     if rc != 0:
       raise Exception("Error creating system user. Return code : %d. "%rc)
     '''
@@ -69,12 +69,12 @@ def delete_local_user(userid):
   if not found:
     raise Exception("Error deleting user. The user \"%s\" does not exist. "%userid)
 
-  # Now check if system user exists. If so and is created by fractal then delete..
+  # Now check if system user exists. If so and is created by integralstor then delete..
   delete_system_user = False
   try:
     d = pwd.getpwnam(userid)
     name = d[4]
-    if name.find("fractal_user") == 0:
+    if name.find("integralstor_user") == 0:
       delete_system_user = True
   except KeyError:
     pass

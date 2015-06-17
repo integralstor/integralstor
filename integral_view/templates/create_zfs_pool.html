@@ -14,6 +14,7 @@
 {{conf_message}}
 
 <form id="create_form" name="create_form" action="/create_zfs_pool/" method="post">
+{{ form.num_disks}}
             <table class="table" style="width:800px">
             <tr>
               <td>
@@ -41,19 +42,29 @@
             {{ form.pool_type.errors }}
               </td>
             </tr>
-            {% if 'raid10' in form.pool_type.choices %}
+            <tr>
+              <td>
+            <label for="id_num_raid_disks">Number of disks in the RAID :</label>
+              </td>
+              <td>
+                <input type="text"  name="num_raid_disks" class="form-control" id="id_num_raid_disks" placeholder="Number of disks under raid, {{num_disks}} currently unused disks" />
+              </td>
+              <td>
+            {{ form.num_raid_disks.errors }}
+              </td>
+            </tr>
+
             <tr>
               <td>
             <label for="id_stripe_width">RAID 10 stripe width:</label>
               </td>
               <td>
-            {{ form.stripe_width }}
+                <input type="text"  name="strip_width" class="form-control" id="id_num_raid_disks" placeholder="Enter the RAID 10 stripe width" />
               </td>
               <td>
             {{ form.stripe_width.errors }}
               </td>
             </tr>
-            {%endif%}
             </table>
 
         <a href="/view_zfs_pools" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;

@@ -59,7 +59,7 @@ def view_zfs_pool(request):
 
     snap_list, err = zfs.get_snapshots(pool_name)
     if not snap_list and err:
-      return_dict["error"] = "Error loading ZFS pool's snapshot  information : "%err
+      return_dict["error"] = "Error loading ZFS pool's snapshot  information : %s"%err
       return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
     return_dict['snap_list'] = snap_list
     
@@ -95,8 +95,9 @@ def create_zfs_pool(request):
 
     if request.method == "GET":
       #Return the conf page
-      form = zfs_forms.CreatePoolForm(pool_types = pool_types)
+      form = zfs_forms.CreatePoolForm(pool_types = pool_types, initial={'num_disks': len(free_disks)})
       return_dict['form'] = form
+      return_dict['num_disks'] = len(free_disks)
       return django.shortcuts.render_to_response("create_zfs_pool.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       form = zfs_forms.CreatePoolForm(request.POST, pool_types = pool_types)
@@ -107,8 +108,10 @@ def create_zfs_pool(request):
       try :
 
         vdev_list = None
-        if cd['pool_type'] == 'raid10':
-          vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], cd['stripe_width'])
+        if cd['pool_type'] in ['raid5', 'raid6']:
+          vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], cd['num_raid_disks'])
+        elif cd['pool_type'] == 'raid10':
+          vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], cd['num_raid_disks'], cd['stripe_width'])
         else:
           vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'])
         if err:
