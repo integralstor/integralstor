@@ -1,0 +1,75 @@
+{% extends 'logged_in_base.html' %}
+
+
+{%block page-header%}
+  Networking
+  <br /><small>
+      Networking
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Create a network bond 
+  </small>
+{%endblock%}
+
+
+{%block contents%}
+
+{{conf_message}}
+<form class="form-horizontal" role="form"name="create_form" action="" method="post">
+            <table  class="table " style="width:800px">
+            <tr>
+              <td>
+            <label for="id_name">Bond name:</label>
+              </td>
+              <td>
+                <input type="text"  name="name" class="form-control" id="id_name" placeholder="Bond name" value={{form.name.value|default_if_none:""}}> 
+              </td>
+              <td>
+            {{ form.name.errors }}
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+            <label for="id_readonly">Bonding mode:</label>
+              </td>
+              <td>
+              <select id="id_mode" name="mode" class="form-control" >
+                {% for choice in form.mode.field.choices %} 
+                <option value="{{choice.0}}" {%if choice.0 in form.initial.mode %} selected{%endif%} >{{choice.1}}</option>
+                {%endfor%}
+              </select>
+              </td>
+              <td>
+            {{ form.mode.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_slaves">Slave interfaces:</label>
+              </td>
+              <td>
+                {% for choice in form.slaves.field.choices %} 
+                  <div class="radio" >
+                      <input type="checkbox" name="slaves" id="{{choice.0}}" value="{{choice.0}}" {%if choice.0 in form.initial.slaves %} checked="checked"{%endif%}> {{choice.0}}
+                  </div>
+                {%endfor%}
+              </td>
+              <td>
+            {{ form.slaves.errors }}
+              </td>
+            </tr>
+            </table>
+
+        <a href="/view_interfaces" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary" > Create </button>
+</form>
+
+{%endblock%}
+
+{%block help_header%}
+  Create a network bond help
+{%endblock%}
+
+{%block help_body%}
+Help about creating a network bond
+{%endblock%}

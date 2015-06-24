@@ -1,0 +1,49 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Storage
+  <br /><small>
+      Networking
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Change network interface state
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+<!-- Modal -->
+<div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body" id="myModalBody">
+        <br><br><br>
+        <i class="fa fa-spinner fa-spin fa-4 blue"></i>
+        <br><br><br>
+        <p id="p-node-text">Processing.. Please wait.
+        <br><br><br>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%if state == 'up'%}
+<p id="p-warning-text">Are you sure you want to enable the networking interface "{{name}}"? </p>
+{%elif state == 'down'%}
+<p id="p-warning-text">Are you sure you want to disable the networking interface "{{name}}"?  This will potentially result in a disruption of usage of the system.</p>
+{%endif%}
+<br>
+<form action="/set_interface_state/" method="POST">
+<input type=hidden name="name" value="{{name}}">
+<input type=hidden name="state" value="{{state}}">
+<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_nic?name={{name}}'"> &nbsp;&nbsp;
+<button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and continue >></button>
+</form>
+
+
+{%endblock%}
+{%block help_header%}
+Change network interface state
+{%endblock%}
+{%block help_body%}
+<p>Confirming this operation results in the change of state of the specified interface in the system. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}

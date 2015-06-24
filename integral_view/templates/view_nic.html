@@ -1,0 +1,144 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Networking
+  <br /><small>
+      Networking
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Network interface details
+
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+{% if conf %}
+<p><i>{{conf}}</i></p>
+{%endif%}
+
+{% if not nic %}
+No information for the specified network interface. Click <a href="/view_interfaces/"> here</a> to view all network interfaces.
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<h3>Interface name - {{name}}</h3>
+<table  class="table table-bordered">
+<tr>
+<th>
+MAC address
+</th>
+<td>
+{%if nic.addresses.AF_LINK.0.addr %}
+{{nic.addresses.AF_LINK.0.addr}}
+{%else%}
+ - 
+{%endif%}
+</td>
+</tr>
+<tr>
+<th>
+IP Address
+</th>
+<td>
+{%if nic.bootproto == 'dhcp'%}
+DHCP Addressing - <br>
+{%elif nic.bootproto == 'static' %}
+Static Addressing - 
+{%endif%}
+{%if nic.addresses.AF_INET.0.addr %}
+Address - {{nic.addresses.AF_INET.0.addr}}<br>
+Netmask - {{nic.addresses.AF_INET.0.broadcast}}<br>
+Broadcast - {{nic.addresses.AF_INET.0.netmask}}
+{%else%}
+ - 
+{%endif%}
+</td>
+</tr>
+<tr>
+<th>
+Gateways
+</th>
+<td>
+{%if nic.gateways %}
+{%for gw in nic.gateways %}
+{%if gw.2 %}
+Default Gateway IP : {{gw.0}}
+{%else%}
+Gateway IP : {{gw.0}}
+{%endif%}
+{%endfor%}
+{%else%}
+None configured 
+{%endif%}
+</td>
+</tr>
+<tr>
+<th>
+Bonding status
+</th>
+<td>
+{% if nic.slave_to %}
+Slave to {{nic.slave_to}}
+{%else%}
+Not bonded
+{%endif%}
+</td>
+</tr>
+<tr>
+<th>
+Cable connected?
+</th>
+<td>
+{{nic.carrier_status}}
+</td>
+</tr>
+<tr>
+<th>
+Interface up?
+</th>
+<td>
+{{nic.up_status}}
+</td>
+</tr>
+<tr>
+<th>
+MTU
+</th>
+<td>
+{{nic.mtu}}
+</td>
+</tr>
+<tr>
+<th>
+Speed
+</th>
+<td>
+{{nic.speed}}
+</td>
+</tr>
+</table>
+<a href="/view_interfaces/" role="button" class="btn"> << Back to interface list</a>
+{% if not nic.slave_to %}
+<a href="/edit_interface_address?name={{name}}" role="button" class="btn btn-default">Edit interface address..</a>
+{%endif%}
+{%if nic.up_status == 'up' %}
+<a href="/set_interface_state?name={{name}}&state=down" role="button" class="btn btn-default">Bring down this interface</a>
+{%else %}
+<a href="/set_interface_state?name={{name}}&state=up" role="button" class="btn btn-default">Bring up this interface</a>
+{%endif%}
+
+<!--
+<a href="/create_zfs_snapshot?target={{pool.pool_name}}&pool={{pool.pool_name}}" role="button" class="btn btn-default">Create a snapshot for this pool</a>
+-->
+{%endif%}
+</div>
+<p>
+<!--
+<a href="/create_zfs_pool" role="button" class="btn btn-default"> Create a new ZFS pool</a>-->
+
+{%endblock%}
+{%block help_header%}
+View network interface details
+{%endblock%}
+{%block help_body%}
+  <p> This screen provides details about the selected network interface that have been created on this IntegralStor system. </p>
+{%endblock%}

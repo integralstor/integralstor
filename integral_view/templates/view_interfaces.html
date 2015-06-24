@@ -1,0 +1,143 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Networking
+  <br /><small>
+      Networking
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Network interfaces
+
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+{% if conf %}
+<p><i>{{conf}}</i></p>
+{%endif%}
+
+<h3> Network interfaces </h3>
+{% if not nics %}
+<p>No network interfaces appear to be present. </p>
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<table  class="table table-bordered">
+<tr>
+<th >
+Interface name
+</th>
+<th>
+Cable connected
+</th>
+<th>
+Interface up?
+</th>
+<th>
+Bonding status
+</th>
+<th>
+IP configured?
+</th>
+</tr>
+{%for name, d in nics.items %}
+{%if not d.bonding_master and name != 'lo'%}
+<tr>
+<td>
+{{name}}
+</td>
+<td>
+{{d.carrier_status}}
+</td>
+<td>
+{{d.up_status}}
+</td>
+<td>
+{%if d.slave_to %}
+Slave to {{d.slave_to}}
+{%else%}
+Not bonded
+{%endif%}
+</td>
+<td>
+{% if 'AF_INET' in d.addresses  or d.bootproto == 'dhcp'%}
+Yes
+{%else%}
+No
+{%endif%}
+</td>
+<td>
+<a href="/view_nic?name={{name}}" role="button" class="btn btn-default"> View interface details</a>
+</td>
+</tr>
+{%endif%}
+{%endfor%}
+</table>
+{%endif%}
+</div>
+<p>
+<h3> Network bonds </h3>
+{% if not bonds %}
+<p>No network bonds appear to be present. </p>
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<table  class="table table-bordered">
+<tr>
+<th >
+Bond name
+</th>
+<th>
+Mii status
+</th>
+<th>
+Bonding mode
+</th>
+<th>
+Slaves
+</th>
+<th>
+IP configured?
+</th>
+</tr>
+{%for name, d in bonds.by_master.items %}
+<tr>
+<td>
+{{name}}
+</td>
+<td>
+{{d.mii_status}}
+</td>
+<td>
+{{d.mode_str}} (Mode {{d.mode_num}})
+</td>
+<td>
+{%for slave in d.slaves %}
+{{slave}},
+{%endfor%}
+</td>
+<td>
+{% for ifname, iface in nics.items %}
+{% if ifname == name %}
+{%if 'AF_INET' in iface.addresses %}
+Yes
+{%else%}
+No
+{%endif%}
+{%endif%}
+{%endfor%}
+</td>
+<td>
+<a href="/view_bond?name={{name}}" role="button" class="btn btn-default"> View bond details</a>
+</td>
+</tr>
+{%endfor%}
+</table>
+{%endif%}
+<a href="/create_bond" role="button" class="btn btn-default"> Create a new bond</a>
+
+{%endblock%}
+{%block help_header%}
+View all network interfaces
+{%endblock%}
+{%block help_body%}
+  <p> This screen provides the list of all the network interfaces that have been created on this IntegralStor system. To view details about a particular network interface, please select the the desired interface from the list.</p>
+{%endblock%}

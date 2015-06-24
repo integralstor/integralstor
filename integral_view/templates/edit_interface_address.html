@@ -1,0 +1,148 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Networking
+  <br /><small>
+      Networking
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Edit interface address 
+  </small>
+{%endblock%}
+
+<!--
+<script type="text/javascript">
+/*
+function set_field_visibility() {
+  var guest_ok = document.forms["edit_form"].elements["guest_ok"];
+  var guest_ok_val;
+  for(var i = 0; i < guest_ok.length; i++){
+    if(guest_ok[i].checked){
+        guest_ok_val = guest_ok[i].value;
+    }
+  }
+  if (guest_ok_val=="yes") {
+    set_select_field_disabled(document.forms["edit_form"].elements["users"], true);
+  } else {
+    set_select_field_disabled(document.forms["edit_form"].elements["users"], false);
+  } 
+}
+function select_guest_ok() {
+  for (var i=0;i<2;i++)
+    if (document.forms["edit_form"].elements["guest_ok"][i].value == "no")
+      document.forms["edit_form"].elements["guest_ok"][i].checked = true;
+}
+*/
+</script>
+-->
+
+
+{%block contents%}
+
+{{conf_message}}
+
+
+<form id="edit_form" name="edit_form" action="" method="post">
+<input name="name" type="hidden" value="{{ form.name.value }}">
+            <table class="table" style="width:800px">
+            <tr>
+              <td>
+            <label for="id_name">Interface name:</label>
+              </td>
+              <td>
+            {{ form.name.value }}
+              </td>
+              <td>
+              &nbsp
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_addr_type">Address type  :</label>
+              </td>
+              <td>
+                  {% for choice in form.addr_type.field.choices %}
+                  <label class="radio">
+                  <input type="radio" name="addr_type" id="id_{{choice.0}}" value="{{choice.0}}" {%if choice.0 == form.initial.addr_type %} checked{%endif%} />{{choice.1}}
+                   </label>
+                   {%endfor%}
+              </td>
+              <td>
+            {{ form.addr_type.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_ip">IP Address:</label>
+              </td>
+              <td>
+                <input type="text"  name="ip" class="form-control" id="id_ip" placeholder="Static IP address" value="{%if form.initial.ip%}{{form.initial.ip}}{%endif%}"/>
+              </td>
+              <td>
+            {{ form.ip.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_ip">Net mask:</label>
+              </td>
+              <td>
+                <input type="text"  name="netmask" class="form-control" id="id_netmask" placeholder="Enter Netmask" value="{%if form.initial.netmask%}{{form.initial.netmask}}{%endif%}"/>
+              </td>
+              <td>
+            {{ form.netmask.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_ip">Default gateway:</label>
+              </td>
+              <td>
+                <input type="text"  name="default_gateway" class="form-control" id="id_default_gateway" placeholder="Default gateway address" value="{%if form.initial.default_gateway%}{{form.initial.default_gateway}}{%endif%}"/>
+              </td>
+              <td>
+            {{ form.default_gateway.errors }}
+              </td>
+            </tr>
+            </table>
+
+{%if nic.bonding_master %}
+        <a href="/view_bond?name={{form.name.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+{%else%}
+        <a href="/view_nic?name={{form.name.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+{%endif%}
+        <button type="submit" class="btn btn-primary">Save >></button>
+</form>
+<!--
+<script type="text/javascript">
+function set_select_field_disabled(f, val) {
+  for(var i = 0; i < f.length; i++)
+    f[i].disabled = val
+}
+$("form input[name='guest_ok']").click(function () {
+    if (document.getElementById("id_guest_ok").checked) {
+      set_select_field_disabled(document.getElementsByName('users'), true);
+      set_select_field_disabled(document.getElementsByName('groups'), true);
+    } else {
+      set_select_field_disabled(document.getElementsByName('users'),false);
+      set_select_field_disabled(document.getElementsByName('groups'), false);
+    }
+    });
+$(window).load(function() {
+    if (document.getElementById("id_guest_ok").checked) {
+      set_select_field_disabled(document.getElementsByName('users'),true);
+      set_select_field_disabled(document.getElementsByName('groups'), true);
+    } else {
+      set_select_field_disabled(document.getElementsByName('users'),false);
+      set_select_field_disabled(document.getElementsByName('groups'), false);
+   }
+  });
+</script>
+-->
+
+{%endblock%}
+{%block help_header%}
+Edit a network interface 
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to change the settings for a particular network interface. The settings will take effect upon saving this information.</p>
+{%endblock%}
