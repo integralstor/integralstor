@@ -3,8 +3,10 @@ from integral_view.views.admin_auth  import login, logout, change_admin_password
 from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node
 from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level
 from integral_view.views.share_management import display_shares, create_share, samba_server_settings, save_samba_server_settings, view_share, edit_share, delete_share, edit_auth_method, view_local_users, create_local_user, change_local_user_password, delete_local_user
-from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share
-from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot
+from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share, create_nfs_share
+#from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
+from zfs.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
+from integral_view.views.networking_management import view_interfaces, view_nic, view_bond, set_interface_state, edit_interface_address, create_bond, remove_bond
 from django.contrib.auth.decorators import login_required
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -30,6 +32,13 @@ urlpatterns = patterns('',
     url(r'^reset_to_factory_defaults/', login_required(reset_to_factory_defaults)),
     url(r'^configure_ntp_settings/', login_required(configure_ntp_settings)),
     url(r'^display_shares/', login_required(display_shares)),
+    url(r'^view_interfaces/', login_required(view_interfaces)),
+    url(r'^set_interface_state/', login_required(set_interface_state)),
+    url(r'^edit_interface_address/', login_required(edit_interface_address)),
+    url(r'^view_nic/', login_required(view_nic)),
+    url(r'^view_bond/', login_required(view_bond)),
+    url(r'^remove_bond/', login_required(remove_bond)),
+    url(r'^create_bond/', login_required(create_bond)),
     url(r'^view_local_users/', login_required(view_local_users)),
     url(r'^create_local_user/', login_required(create_local_user)),
     url(r'^delete_local_user/', login_required(delete_local_user)),
@@ -38,12 +47,17 @@ urlpatterns = patterns('',
     url(r'^create_zfs_snapshot/', login_required(create_zfs_snapshot)),
     url(r'^rename_zfs_snapshot/', login_required(rename_zfs_snapshot)),
     url(r'^delete_zfs_snapshot/', login_required(delete_zfs_snapshot)),
+    url(r'^rollback_zfs_snapshot/', login_required(rollback_zfs_snapshot)),
     url(r'^view_zfs_pools/', login_required(view_zfs_pools)),
+    url(r'^set_zfs_slog/', login_required(set_zfs_slog)),
     url(r'^view_zfs_pool/', login_required(view_zfs_pool)),
+    url(r'^create_zfs_pool/', login_required(create_zfs_pool)),
+    url(r'^delete_zfs_pool/', login_required(delete_zfs_pool)),
     url(r'^view_zfs_dataset/', login_required(view_zfs_dataset)),
     url(r'^edit_zfs_dataset/', login_required(edit_zfs_dataset)),
     url(r'^delete_zfs_dataset/', login_required(delete_zfs_dataset)),
     url(r'^create_zfs_dataset/', login_required(create_zfs_dataset)),
+    url(r'^create_nfs_share/', login_required(create_nfs_share)),
     url(r'^view_nfs_shares/', login_required(view_nfs_shares)),
     url(r'^view_nfs_share/', login_required(view_nfs_share)),
     url(r'^delete_nfs_share/', login_required(delete_nfs_share)),
