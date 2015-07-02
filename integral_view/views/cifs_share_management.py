@@ -10,7 +10,7 @@ import salt.client
 import integralstor_common
 from integralstor_common import audit, networking
 
-def display_shares(request):
+def view_cifs_shares(request):
 
   return_dict = {}
   try:
@@ -30,19 +30,16 @@ def display_shares(request):
           conf = "Share successfully deleted"
         return_dict["conf"] = conf
       return_dict["shares_list"] = shares_list
-      template = "view_shares_list.html"
+      template = "view_cifs_shares.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
 
-def view_share(request):
+def view_cifs_share(request):
 
   return_dict = {}
   try:
@@ -75,20 +72,15 @@ def view_share(request):
           return_dict["share"] = share
           if valid_users_list:
             return_dict["valid_users_list"] = valid_users_list
-          template = 'view_share.html'
+          template = 'view_cifs_share.html'
   
     return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-
-  
-def edit_share(request):
+def edit_cifs_share(request):
 
   return_dict = {}
   try:
@@ -113,7 +105,6 @@ def edit_share(request):
       initial["share_id"] = share_dict["share_id"]
       initial["name"] = share_dict["name"]
       initial["path"] = share_dict["path"]
-      initial["display_path"] = share_dict["display_path"]
       if share_dict["guest_ok"]:
         initial["guest_ok"] = True
       else:
@@ -142,7 +133,7 @@ def edit_share(request):
       form = samba_shares_forms.ShareForm(initial = initial, user_list = user_list, group_list = group_list)
   
       return_dict["form"] = form
-      return django.shortcuts.render_to_response('edit_share.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response('edit_cifs_share.html', return_dict, context_instance=django.template.context.RequestContext(request))
   
     else:
   
@@ -187,13 +178,13 @@ def edit_share(request):
           return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
   
         audit_str = "Modified share %s"%cd["name"]
-        audit.audit("modify_share", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("modify_cifs_share", audit_str, request.META["REMOTE_ADDR"])
   
-        return django.http.HttpResponseRedirect('/view_share?access_mode=by_id&index=%s&action=saved'%cd["share_id"])
+        return django.http.HttpResponseRedirect('/view_cifs_share?access_mode=by_id&index=%s&action=saved'%cd["share_id"])
   
       else:
         #Invalid form
-        return django.shortcuts.render_to_response('edit_share.html', return_dict, context_instance=django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response('edit_cifs_share.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     s = str(e)
     return_dict["error"] = "An error occurred when processing your request : %s"%s
@@ -201,7 +192,7 @@ def edit_share(request):
 
 
   
-def delete_share(request):
+def delete_cifs_share(request):
   
   return_dict = {}
   try:
@@ -211,7 +202,7 @@ def delete_share(request):
       name = request.GET["name"]
       return_dict["share_id"] = share_id
       return_dict["name"] = name
-      return django.shortcuts.render_to_response("delete_share_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("delete_cifs_share_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       share_id = request.POST["share_id"]
       name = request.POST["name"]
@@ -223,21 +214,16 @@ def delete_share(request):
         return_dict["error"] = "Error deleting share - %s" %e
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
   
-      audit_str = "Deleted Samba share %s"%name
-      audit.audit("delete_share", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/display_shares?action=deleted')
+      audit_str = "Deleted CIFS share %s"%name
+      audit.audit("delete_cifs_share", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_cifs_shares?action=deleted')
   except Exception, e:
     s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
-
-
-def create_share(request):
+def create_cifs_share(request):
 
   return_dict = {}
   try:
@@ -248,7 +234,7 @@ def create_share(request):
       #Return the form
       form = samba_shares_forms.ShareForm(user_list = user_list, group_list = group_list)
       return_dict["form"] = form
-      return django.shortcuts.render_to_response("create_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       #Form submission so create
       return_dict = {}
@@ -260,7 +246,7 @@ def create_share(request):
         path = "%s"%cd["path"]
         if not path:
           return_dict["path_error"] = "Please choose a path."
-          return django.shortcuts.render_to_response("create_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
+          return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
         
         if "comment" in cd:
           comment = cd["comment"]
@@ -296,19 +282,16 @@ def create_share(request):
           return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
   
         audit_str = "Created Samba share %s"%name
-        audit.audit("create_share", audit_str, request.META["REMOTE_ADDR"])
-        return django.http.HttpResponseRedirect('/display_shares?action=created')
+        audit.audit("create_cifs_share", audit_str, request.META["REMOTE_ADDR"])
+        return django.http.HttpResponseRedirect('/view_cifs_shares?action=created')
       else:
-        return django.shortcuts.render_to_response("create_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-  
+
 def samba_server_settings(request):
 
   return_dict = {}
@@ -346,15 +329,10 @@ def samba_server_settings(request):
     return django.shortcuts.render_to_response('view_samba_server_settings.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
-
-  
 def edit_auth_method(request):
   return_dict = {}
   try:
@@ -387,10 +365,7 @@ def edit_auth_method(request):
     return django.http.HttpResponseRedirect('/auth_server_settings?action=edit')
   except Exception, e:
     s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
   
 
@@ -496,163 +471,7 @@ def save_samba_server_settings(request):
     #return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-
-
-def view_local_users(request):
-
-  return_dict = {}
-  try:
-    try:
-      user_list = local_users.get_local_users()
-    except Exception, e:
-      return_dict["error"] = "Error retrieving local users - %s" %e
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
-  
-    return_dict["user_list"] = user_list
-  
-    if "action" in request.GET:
-      if request.GET["action"] == "saved":
-        conf = "Local user password successfully updated"
-      elif request.GET["action"] == "created":
-        conf = "Local user successfully created"
-      elif request.GET["action"] == "deleted":
-        conf = "Local user successfully deleted"
-      elif request.GET["action"] == "changed_password":
-        conf = "Successfully update password"
-      return_dict["conf"] = conf
-      if "warnings" in request.GET:
-        return_dict["warnings"] = request.GET["warnings"]
-  
-    return django.shortcuts.render_to_response('view_local_users.html', return_dict, context_instance=django.template.context.RequestContext(request))
-  except Exception, e:
-    s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-
-
-
-def create_local_user(request):
-  return_dict = {}
-  try:
-    if request.method == "GET":
-      #Return the form
-      form = samba_shares_forms.LocalUserForm()
-      return_dict["form"] = form
-      return django.shortcuts.render_to_response("create_local_user.html", return_dict, context_instance = django.template.context.RequestContext(request))
-    else:
-      #Form submission so create
-      return_dict = {}
-      form = samba_shares_forms.LocalUserForm(request.POST)
-      if form.is_valid():
-        cd = form.cleaned_data
-        try :
-          ret = local_users.create_local_user(cd["userid"], cd["name"], cd["password"])
-          audit_str = "Created a local user %s"%cd["userid"]
-          audit.audit("create_local_user", audit_str, request.META["REMOTE_ADDR"])
-          url = '/view_local_users?action=created'
-          if ret:
-            warnings = ','.join(ret)
-            url = "%s&warnings=%s"%(url, warnings)
-          return django.http.HttpResponseRedirect(url)
-        except Exception, e:
-          return_dict["error"] = "Error creating the local user - %s" %e
-          return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
-      else:
-        return_dict["form"] = form
-        return django.shortcuts.render_to_response("create_local_user.html", return_dict, context_instance = django.template.context.RequestContext(request))
-  except Exception, e:
-    s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-
-  
-def delete_local_user(request):
-
-  return_dict = {}
-  try:
-    if "userid" not in request.REQUEST:
-      return_dict["error"] = "Invalid request. No user name specified."
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
-    
-    if request.method == "GET":
-      #Return the form
-      return_dict["userid"] = request.GET["userid"]
-      return django.shortcuts.render_to_response("delete_local_user_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
-    else:
-      #Form submission so create
-      return_dict = {}
-      try :
-        ret = local_users.delete_local_user(request.POST["userid"])
-        audit_str = "Deleted a local user %s"%request.POST["userid"]
-        audit.audit("delete_local_user", audit_str, request.META["REMOTE_ADDR"])
-        url = '/view_local_users?action=deleted'
-        if ret:
-          warnings = ','.join(ret)
-          url = "%s&warnings=%s"%(url, warnings)
-        return django.http.HttpResponseRedirect(url)
-      except Exception, e:
-        return_dict["error"] = "Error deleting the local user - %s" %e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
-  except Exception, e:
-    s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-
-def change_local_user_password(request):
-
-  return_dict = {}
-  try:
-    if request.method == "GET":
-      #Return the form
-      if "userid" not in request.GET:
-        return_dict["error"] = "Invalid request. No user name specified."
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
-      d = {}
-      d["userid"] = request.GET["userid"]
-      form = samba_shares_forms.PasswordChangeForm(initial=d)
-      return_dict["form"] = form
-      return django.shortcuts.render_to_response("change_local_user_password.html", return_dict, context_instance = django.template.context.RequestContext(request))
-    else:
-      #Form submission so create
-      return_dict = {}
-      form = samba_shares_forms.PasswordChangeForm(request.POST)
-      if form.is_valid():
-        cd = form.cleaned_data
-        try :
-          local_users.change_password(cd["userid"], cd["password"])
-        except Exception, e:
-          return_dict["error"] = "Error creating the local user - %s" %e
-          return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
-  
-        audit_str = "Changed password for local user %s"%cd["userid"]
-        audit.audit("change_local_user_password", audit_str, request.META["REMOTE_ADDR"])
-        return django.http.HttpResponseRedirect('/view_local_users?action=changed_password')
-      else:
-        return_dict["form"] = form
-        return django.shortcuts.render_to_response("change_local_user_password.html", return_dict, context_instance = django.template.context.RequestContext(request))
-  except Exception, e:
-    s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 

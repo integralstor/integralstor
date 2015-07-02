@@ -19,7 +19,7 @@
 {%endif%}
 
 {% if not shares_list %}
-No shares appear to have been created. Click <a href="/create_share/"> here</a> to create a new share.
+No shares appear to have been created. Click <a href="/create_cifs_share/"> here</a> to create a new share.
 {%else %}
 <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
 <table class="table table-striped">
@@ -29,10 +29,7 @@ No shares appear to have been created. Click <a href="/create_share/"> here</a> 
 Share name
 </th>
 <th>
-Volume
-</th>
-<th>
-Directory
+Share path
 </th>
 <th>
 Description
@@ -47,16 +44,13 @@ Description
     {{d.name}}
   </td>
   <td>
-    {{d.vol}}
-  </td>
-  <td>
     {{d.display_path}}
   </td>
   <td>
     {{d.comment}}
   </td>
   <td>
-    <a href="/view_share?access_mode=by_id&index={{d.share_id}}" role="button" class="btn btn-default"> Details</a>
+    <a href="/view_cifs_share?access_mode=by_id&index={{d.share_id}}" role="button" class="btn btn-default"> Details</a>
   </td>
 </tr>
 {%endfor%}

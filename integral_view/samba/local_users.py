@@ -50,11 +50,23 @@ def create_local_user(userid, name, pswd):
   ret, rc = command.execute_with_conf_and_rc(r'/usr/bin/pdbedit  -d 1 -t -a  -u %s -f %s'%(userid, name), "%s\n%s"%(pswd, pswd))
   if rc != 0:
     #print command.get_error_list(ret)
+    print ret, rc
     raise Exception("Error creating user. Return code : %d. "%rc)
   ul = command.get_output_list(ret)
   #print ul
   return error_list
 
+def create_local_group(group_name, gid = None):
+  try:
+    client = salt.client.LocalClient()
+    rc = client.cmd('*', 'group.add', [group_name,gid])
+    for hostname, status in rc.items():
+      if not status:
+        raise Exception('Group creation failed')
+  except Exception, e:
+    return False, 'Error creating a local group : %s'%str(e)
+  else:
+    return True, None
 
 def delete_local_user(userid):
 

@@ -2,7 +2,8 @@ from django.conf.urls import patterns, include, url
 from integral_view.views.admin_auth  import login, logout, change_admin_password, configure_email_settings 
 from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node
 from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level
-from integral_view.views.share_management import display_shares, create_share, samba_server_settings, save_samba_server_settings, view_share, edit_share, delete_share, edit_auth_method, view_local_users, create_local_user, change_local_user_password, delete_local_user
+from integral_view.views.cifs_share_management import view_cifs_shares, create_cifs_share, samba_server_settings, save_samba_server_settings, view_cifs_share, edit_cifs_share, delete_cifs_share, edit_auth_method
+from integral_view.views.local_user_management import view_local_users, create_local_user, change_local_user_password, delete_local_user
 from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share, create_nfs_share
 #from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
 from zfs.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
@@ -31,7 +32,7 @@ urlpatterns = patterns('',
     url(r'^configure_email_settings/', login_required(configure_email_settings)),
     url(r'^reset_to_factory_defaults/', login_required(reset_to_factory_defaults)),
     url(r'^configure_ntp_settings/', login_required(configure_ntp_settings)),
-    url(r'^display_shares/', login_required(display_shares)),
+    url(r'^view_cifs_shares/', login_required(view_cifs_shares)),
     url(r'^view_interfaces/', login_required(view_interfaces)),
     url(r'^set_interface_state/', login_required(set_interface_state)),
     url(r'^edit_interface_address/', login_required(edit_interface_address)),
@@ -61,11 +62,12 @@ urlpatterns = patterns('',
     url(r'^view_nfs_shares/', login_required(view_nfs_shares)),
     url(r'^view_nfs_share/', login_required(view_nfs_share)),
     url(r'^delete_nfs_share/', login_required(delete_nfs_share)),
-    url(r'^create_share/', login_required(create_share)),
-    url(r'^view_share/', login_required(view_share)),
-    url(r'^edit_share/', login_required(edit_share)),
+    url(r'^create_cifs_share/', login_required(create_cifs_share)),
+    url(r'^view_cifs_share/', login_required(view_cifs_share)),
+    url(r'^view_cifs_shares/', login_required(view_cifs_shares)),
+    url(r'^edit_cifs_share/', login_required(edit_cifs_share)),
     url(r'^edit_auth_method/', login_required(edit_auth_method)),
-    url(r'^delete_share/', login_required(delete_share)),
+    url(r'^delete_cifs_share/', login_required(delete_cifs_share)),
     url(r'^auth_server_settings/', login_required(samba_server_settings)),
     url(r'^save_samba_server_settings/', login_required(save_samba_server_settings)),
     #url(r'^replace_disk/', login_required(replace_disk)),
