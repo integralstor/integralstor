@@ -24,7 +24,8 @@ No information for the specified pool. Click <a href="/view_zfs_pools/"> here</a
 Pool scan - {{pool.scan}}<br>
 Pool errors - {{pool.errors}}<br>
 Pool state - {{pool.state}}<br>
-<a href="/delete_zfs_pool?name={{pool.pool_name}}" role="button" class="btn btn-default"> Delete this pool</a><br>
+<a href="/delete_zfs_pool?name={{pool.pool_name}}" role="button" class="btn btn-default"> Delete this pool</a> &nbsp;
+<a href="/set_file_owner_and_permissions?path={{pool.properties.mountpoint.value}}" role="button" class="btn btn-default"> Change ownership and permissions</a><br>
 <b> Pool components</b>
 <ul>
 {%for comp_name, comp in pool.config.pool.components.items %}

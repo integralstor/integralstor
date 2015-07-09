@@ -1,0 +1,169 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Directory ownership and permissions
+  <br /><small>
+      Storage
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Set directory ownership and permissions
+  </small>
+{%endblock%}
+
+
+
+{%block contents%}
+
+{{conf_message}}
+
+
+<form id="edit_form" name="edit_form" action="" method="post">
+{{form.path}}
+            <table class="table" style="width:800px">
+            <tr>
+              <td>
+            <label for="id_path">Set permissions for :</label>
+              </td>
+              <td>
+            {{ form.path.value }}
+              </td>
+              <td>
+              &nbsp
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_set_owner">Set owner user:</label><br> (Current owner user is {{username}})
+              </td>
+              <td>
+            {{ form.set_owner }} 
+              </td>
+              <td>
+            {{ form.set_owner.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_uid">Select owner user:</label> 
+              </td>
+              <td>
+                <select name="uid" class="form-control">
+                {% for choice in form.uid.field.choices %} 
+                  <option value="{{choice.0}}" {%if form.initial.uid == choice.0%} selected="selected" {%endif%}>{{choice.1}}</option>
+                {%endfor%}
+                </select>
+              </td>
+              <td>
+            {{ form.uid.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_set_group">Set owner group:</label><br>(Current owner group is {{grpname}})
+              </td>
+              <td>
+            {{ form.set_group }} 
+              </td>
+              <td>
+            {{ form.set_group.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_uid">Select owner group:</label>
+              </td>
+              <td>
+                <select name="gid" class="form-control">
+                {% for choice in form.gid.field.choices %} 
+                  <option value="{{choice.0}}" {%if form.initial.gid == choice.0%} selected="selected" {%endif%}>{{choice.1}}</option>
+                {%endfor%}
+                </select>
+              </td>
+              <td>
+            {{ form.gid.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_users">Owner permissions:</label>
+              </td>
+              <td>
+                  <table>
+                  <tr>
+                    <th> Read</th>
+                    <td>{{form.owner_read}} </td>
+                  </tr>
+                  <tr>
+                    <th> Write</th>
+                    <td>{{form.owner_write}} </td>
+                  </tr>
+                  <tr>
+                    <th> Execure</th>
+                    <td>{{form.owner_execute}} </td>
+                  </tr>
+                  </table>
+              </td>
+              <td>
+              &nbsp;
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_users">Group permissions:</label>
+              </td>
+              <td>
+                  <table>
+                  <tr>
+                    <th> Read</th>
+                    <td>{{form.group_read}} </td>
+                  </tr>
+                  <tr>
+                    <th> Write</th>
+                    <td>{{form.group_write}} </td>
+                  </tr>
+                  <tr>
+                    <th> Execure</th>
+                    <td>{{form.group_execute}} </td>
+                  </tr>
+                  </table>
+              </td>
+              <td>
+              &nbsp;
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_users">Others permissions:</label>
+              </td>
+              <td>
+                  <table>
+                  <tr>
+                    <th> Read</th>
+                    <td>{{form.other_read}} </td>
+                  </tr>
+                  <tr>
+                    <th> Write</th>
+                    <td>{{form.other_write}} </td>
+                  </tr>
+                  <tr>
+                    <th> Execure</th>
+                    <td>{{form.other_execute}} </td>
+                  </tr>
+                  </table>
+              </td>
+              <td>
+              &nbsp;
+              </td>
+            </tr>
+            </table>
+
+        <a href="/view_zfs_pools" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary">Save >></button>
+</form>
+
+{%endblock%}
+{%block help_header%}
+Edit a directory ownership and permissions 
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to change the owner and/or permissions for a particular directory. The settings will take effect upon saving this information.</p>
+{%endblock%}

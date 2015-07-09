@@ -22,6 +22,8 @@ def view_zfs_pools(request):
           conf = "ZFS pool information successfully updated"
         elif request.GET["action"] == "created_pool":
           conf = "ZFS pool successfully created"
+        elif request.GET["action"] == "set_permissions":
+          conf = "Directory ownership/permissions successfully set"
         elif request.GET["action"] == "created_dataset":
           conf = "ZFS dataset successfully created"
         elif request.GET["action"] == "pool_deleted":
@@ -49,6 +51,7 @@ def view_zfs_pool(request):
     
     pool_name = request.REQUEST['name']
     pool, err = zfs.get_pool(pool_name)
+    print pool.keys()
 
     if not pool and err:
       return_dict["error"] = "Error loading ZFS storage information : %s"%err

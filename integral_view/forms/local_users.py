@@ -1,11 +1,11 @@
 import salt.client
-import sys, os, pwd, crypt, grp, spwd
+import sys, os, pwd, crypt, grp
 
 
 import integralstor_common
 from integralstor_common import command 
 
-def create_local_user(username, name, pswd, gid = None, smb_user=True):
+def create_local_user(username, name, pswd, smb_user=False):
 
   try:
 
@@ -21,13 +21,7 @@ def create_local_user(username, name, pswd, gid = None, smb_user=True):
   
     enc_pswd = crypt.crypt(pswd, "28")
     client = salt.client.LocalClient()
-    if gid:
-      rc = client.cmd('*', 'user.add', [username, None, gid])
-    else:
-      rc = client.cmd('*', 'user.add', [username])
-    #print rc
-    if not rc:
-      error_list.append("Error creating the username")
+    rc = client.cmd('*', 'user.add', [username])
     for hostname, status in rc.items():
       if not status:
         error_list.append("Error creating the username on node"%hostname)
@@ -46,7 +40,7 @@ def create_local_user(username, name, pswd, gid = None, smb_user=True):
     '''
   
     if smb_user:
-      #print '/usr/bin/pdbedit  -d 1 -t -a  -u %s -f %s'%(username, name), "%s\n%s"%(pswd, pswd)
+      print '/usr/bin/pdbedit  -d 1 -t -a  -u %s -f %s'%(username, name), "%s\n%s"%(pswd, pswd)
       # Now all set to create samba user
       ret, rc = command.execute_with_conf_and_rc(r'/usr/bin/pdbedit  -d 1 -t -a  -u %s -f %s'%(username, name), "%s\n%s"%(pswd, pswd))
       if rc != 0:
@@ -60,81 +54,16 @@ def create_local_user(username, name, pswd, gid = None, smb_user=True):
   else:
     return True, None
 
-def create_local_group(grpname, gid = None):
-  try:
-    #First check if groups exists. if so kick out
-    gl, err = get_local_groups()
-    if gl:
-      for gd in gl:
-        if gd["grpname"] == grpname:
-          raise Exception("Error creating group. The group \"%s\" already exists. "%grpname)
-    elif not err:
-      raise Exception("Error retrieving group list : %s"%err)
 
+def create_local_group(group_name, gid = None):
+  try:
     client = salt.client.LocalClient()
-    if not gid:
-      rc = client.cmd('*', 'group.add', [grpname])
-    else:
-      rc = client.cmd('*', 'group.add', [grpname,gid])
-    print rc
-    if not rc:
-      raise Exception('Group creation failed')
+    rc = client.cmd('*', 'group.add', [group_name,gid])
     for hostname, status in rc.items():
       if not status:
         raise Exception('Group creation failed')
   except Exception, e:
     return False, 'Error creating a local group : %s'%str(e)
-  else:
-    return True, None
-
-def set_local_user_gid(d):
-  try:
-    if 'username' not in d:
-      raise Exception('Unknown user')
-    ud, err = get_local_user(d['username'])
-    if err:
-      raise Exception('Error looking up user information : %s'%err)
-    if not ud:
-      raise Exception('Specified user information not found.')
-    ret, rc = command.execute_with_conf_and_rc(r'usermod  -g %s %s'%(d['gid'], d['username']))
-    if rc != 0:
-      err = ''
-      err += ','.join(command.get_error_list(ret))
-      err += ','.join(command.get_output_list(ret))
-      #print ret, rc
-      raise Exception(err)
-
-  except Exception, e:
-    return False, 'Error setting local user group : %s'%str(e)
-  else:
-    return True, None
-
-def set_local_user_group_membership(d):
-  try:
-    if 'username' not in d:
-      raise Exception('Unknown user')
-    ud, err = get_local_user(d['username'])
-    if err:
-      raise Exception('Error looking up user information : %s'%err)
-    if not ud:
-      raise Exception('Specified user information not found.')
-    glist = None
-    if 'groups' in d:
-      glist = d['groups']
-    if not glist:
-      glist = []
-      glist.append(ud['grpname'])
-    
-    ret, rc = command.execute_with_conf_and_rc(r'usermod  -G %s %s'%(','.join(glist), d['username']))
-    if rc != 0:
-      err = ''
-      err += ','.join(command.get_error_list(ret))
-      err += ','.join(command.get_output_list(ret))
-      #print ret, rc
-      raise Exception(err)
-
-  except Exception, e:
-    return False, "Error setting local user's additional groups : %s"%str(e)
   else:
     return True, None
 
@@ -152,7 +81,7 @@ def delete_local_user(username):
 
     client = salt.client.LocalClient()
     rc = client.cmd('*', 'user.delete', [username] )
-    #print rc
+    print rc
     if rc:
       for hostname, status in rc.items():
         if not status:
@@ -169,32 +98,6 @@ def delete_local_user(username):
   else:
     return True, None
 
-def delete_local_group(grpname):
-
-  try:
-    if not grpname:
-      raise Exception('No username specified')
-    d, err = get_local_group(grpname)
-    if not d:
-      if err:
-        raise Exception('Error locating group : %s'%err)
-      else:
-        raise Exception('Error locating group')
-
-    client = salt.client.LocalClient()
-    rc = client.cmd('*', 'group.delete', [grpname] )
-    #print rc
-    if rc:
-      for hostname, status in rc.items():
-        if not status:
-          raise Exception("Error deleting the system group")
-    else:
-          raise Exception("Error deleting the system group")
-    
-  except Exception, e:
-    return False, 'Error deleting local group : %s'%str(e)
-  else:
-    return True, None
 
 
 
@@ -235,63 +138,11 @@ def change_password(username, pswd):
   ul = command.get_output_list(ret)
   #print ul
 
-
-def get_local_group(grp, by_name=True, grp_list = None):
+def get_local_user(username, user_list = None):
   ret = None
   try:
-    if not grp:
-      raise Exception('No group id or name specified')
-    if not grp_list:
-      grp_list, err = get_local_groups()
-    if not grp_list :
-      if err:
-        raise Exception('Error retrieving group list : %s'%err)
-      else:
-        raise Exception('Specified group not found')
-    for gd in grp_list:
-      if by_name:
-        search_term = gd['grpname']
-      else:
-        search_term = gd['gid']
-      if search_term == grp:
-        ret = gd
-        break
-  except Exception, e:
-    return None, 'Error retrieving local group : %s'%str(e)
-  else:
-    return ret, None
-
-def get_local_groups(get_system_groups = False):
-  grp_list = []
-  try:
-    all = grp.getgrall()
-    for g in all:
-      if not get_system_groups:
-        if g.gr_gid < 500:
-          continue
-      d = {}
-      d['grpname'] = g.gr_name
-      d['gid'] = g.gr_gid
-      d['members'] = g.gr_mem
-      ul,err = get_local_users()
-      if err:
-        raise Exception(err)
-      if ul:
-        for u in ul:
-          if u['gid'] == d['gid'] and u['username'] not in d['members']:
-            d['members'].append(u['username'])
-            
-      grp_list.append(d)
-  except Exception, e:
-    None, 'Error retrieving local groups : %s'%str(e)
-  else:
-    return grp_list, None
-
-def get_local_user(user, by_name=True, user_list = None):
-  ret = None
-  try:
-    if not user:
-      raise Exception('No user id or name specified')
+    if not username:
+      raise Exception('No username specified')
     if not user_list:
       user_list, err = get_local_users()
     if not user_list :
@@ -300,49 +151,30 @@ def get_local_user(user, by_name=True, user_list = None):
       else:
         raise Exception('Specified user not found')
     for ud in user_list:
-      if by_name:
-        search_term = ud['username']
-      else:
-        search_term = ud['uid']
-      if search_term == user:
+      if ud['username'] == username:
         ret = ud
         break
-    if ret:
-      gd, err = get_local_group(ret['gid'], False)
-      if err:
-        raise Exception(err)
-      if gd:
-        ret['grpname'] = gd['grpname']
   except Exception, e:
     return None, 'Error retrieving local user : %s'%str(e)
   else:
     return ret, None
 
-def get_local_users(get_system_users=False):
+def get_local_users():
   user_list = []
   try:
     sys_ul = []
     smb_ul = []
     all = pwd.getpwall()
-    #print all
     for user in all:
-      if not get_system_users:
-        if user.pw_gid < 500:
-          continue
-      sys_ul.append(user.pw_name)
+      if user[2] < 500:
+        continue
+      sys_ul.append(user[1])
       d = {}
-      d['uid'] = user.pw_uid
-      d['gid'] = user.pw_gid
-      d['home_dir'] = user.pw_dir
-      d['username'] = user.pw_name
-      d['comment'] = user.pw_gecos
-      d['shell'] = user.pw_shell
-      g = grp.getgrgid(d['gid'])
-      if g:
-        d['grpname'] = g.gr_name
-      groups = [g.gr_name for g in grp.getgrall() if d['username'] in g.gr_mem and g.gr_gid != d['gid']]
-      gid = pwd.getpwnam(d['username']).pw_gid
-      d['other_groups'] = groups
+      d['uid'] = user[2]
+      d['gid'] = user[3]
+      d['home_dir'] = user[5]
+      d['username'] = user[0]
+      d['comment'] = user[4]
       user_list.append(d)
     ret, rc = command.execute_with_rc("/usr/bin/pdbedit -d 1 -L")
     if rc != 0:
@@ -375,10 +207,7 @@ def main():
   #change_password("bkrram", "ram1")
   #delete_local_user("ram2")
   #print get_samba_users()
-  #print get_local_users()
-  #print get_local_groups()
-  print get_local_group('ram')
-  #print get_local_user('ram')
+  print get_local_users()
 
 if __name__ == "__main__":
   main()

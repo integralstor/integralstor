@@ -1,11 +1,9 @@
 {% extends 'logged_in_base.html' %}
 
 {%block page-header%}
-  File Access
+  Users and groups
   <br /><small>
-      File Access 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Authentication 
+    Users and groups
       <i class="fa fa-angle-double-right smaller-80"></i>
       Local Users
 
@@ -30,13 +28,16 @@ No local users appear to have been created. Click <a href="/create_local_user/">
 <thead>
 <tr>
 <th>
-Userid
+Username
+</th>
+<th>
+Primary group
+</th>
+<th>
+CIFS User?
 </th>
 <th>
 Name
-</th>
-<th>
-&nbsp;
 </th>
 <th>
 &nbsp;
@@ -45,16 +46,27 @@ Name
 {%for u in user_list %}
 <tr>
   <td>
-    {{u.userid}}
+    {{u.username}}
   </td>
   <td>
-    {{u.name}}
+    {{u.grpname}}
   </td>
   <td>
-    <a href="/change_local_user_password?userid={{u.userid}}" role="button" class="btn btn-default"> Change password</a>
+    {%if u.smb_user %}
+    Yes
+    {%else%}
+    No
+    {%endif%}
   </td>
   <td>
-    <a href="/delete_local_user?userid={{u.userid}}" role="button" class="btn btn-default"> Delete this user</a>
+    {%if u.comment%}
+    {{u.comment}}
+    {%else%}
+    -
+    {%endif%}
+  </td>
+  <td>
+    <a href="/view_local_user?username={{u.username}}&searchby=username" role="button" class="btn btn-default"> View details</a>
   </td>
 </tr>
 {%endfor%}

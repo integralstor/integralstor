@@ -1,0 +1,87 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Users and groups
+  <br /><small>
+      Users and groups
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      View Local user
+
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+{{conf}}
+
+            <table class="table table-bordered">
+            <tr>
+              <th>
+            User name:
+              </th>
+              <td>
+            {{ user.username }}
+              </td>
+            </tr>
+            <tr>
+              <th>
+            Primary group :
+              </th>
+              <td>
+              {{user.grpname}}
+              </td>
+            </tr>
+            <tr>
+              <th>
+            Additional group membership :
+              </th>
+              <td>
+              {%for g in user.other_groups %}
+              {{g}},
+              {%endfor%}
+              </td>
+            </tr>
+            <tr>
+              <th>
+            Actual name
+              </th>
+              <td>
+            {{ user.comment }}
+              </td>
+            </tr>
+            <tr>
+              <th>
+            CIFS user?
+              </th>
+              <td>
+              {%if user.smb_user %}
+              Yes
+              {%else%}
+              No
+              {%endif%}
+              </td>
+            </tr>
+            <tr>
+              <th>
+            Shell
+              </th>
+              <td>
+            {{ user.shell }}
+              </td>
+            </tr>
+            </table>
+
+ <a href="/view_local_users" role="button" class="btn btn-default"> << Back to user list</a>
+ <a href="/change_local_user_password?username={{user.username}}" role="button" class="btn btn-default"> Change password</a>
+ <a href="/delete_local_user?username={{user.username}}" role="button" class="btn btn-default"> Delete this user</a>
+ <br> <br>
+ <a href="/edit_local_user_gid?username={{user.username}}" role="button" class="btn btn-default"> Change user's primary group</a>
+ <a href="/edit_local_user_group_membership?username={{user.username}}" role="button" class="btn btn-default"> Change user's additional group membership</a>
+
+{%endblock%}
+{%block help_header%}
+Local user details
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to view details about a particular user that has been created. </p>
+{%endblock%}

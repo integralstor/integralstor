@@ -1,0 +1,60 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Users and groups
+  <br /><small>
+      Users and groups
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Edit local user's additional group membership
+  </small>
+{%endblock%}
+
+
+
+{%block contents%}
+
+{{conf_message}}
+
+
+<form id="edit_form" name="edit_form" action="" method="post">
+{{form.username}}
+            <table class="table" style="width:800px">
+            <tr>
+              <td>
+            <label for="id_username">User name:</label>
+              </td>
+              <td>
+            {{ form.username.value }}
+              </td>
+              <td>
+              &nbsp
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_gid">Member of group :</label>
+              </td>
+              <td>
+                {% for choice in form.groups.field.choices %}
+                  <div class="radio" >
+                      <input type="checkbox" name="groups" id="{{choice.0}}" value="{{choice.0}}" {%if choice.0 in form.initial.groups %} checked="checked"{%endif%}> {{choice.0}}
+                  </div>
+                {%endfor%}
+              </td>
+              <td>
+            {{ form.groups.errors }}
+              </td>
+            </tr>
+            </table>
+
+        <a href="/view_local_user?searchby=username&username={{form.username.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary">Save >></button>
+</form>
+
+{%endblock%}
+{%block help_header%}
+Edit a local user's additional groups information 
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to add or remove additional group memberships for this local user. The settings will take effect upon saving this information.</p>
+{%endblock%}

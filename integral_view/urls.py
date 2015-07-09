@@ -1,13 +1,14 @@
 from django.conf.urls import patterns, include, url
 from integral_view.views.admin_auth  import login, logout, change_admin_password, configure_email_settings 
-from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node
+from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node, set_file_owner_and_permissions
 from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level
 from integral_view.views.cifs_share_management import view_cifs_shares, create_cifs_share, samba_server_settings, save_samba_server_settings, view_cifs_share, edit_cifs_share, delete_cifs_share, edit_auth_method
-from integral_view.views.local_user_management import view_local_users, create_local_user, change_local_user_password, delete_local_user
+from integral_view.views.local_user_management import view_local_users, create_local_user, change_local_user_password, delete_local_user, view_local_user, edit_local_user_gid, view_local_groups, edit_local_user_group_membership, view_local_group, create_local_group, delete_local_group
 from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share, create_nfs_share
-#from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
-from zfs.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
+from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
+#from zfs.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
 from integral_view.views.networking_management import view_interfaces, view_nic, view_bond, set_interface_state, edit_interface_address, create_bond, remove_bond
+from integral_view.views.services_management import view_services, change_service_status
 from django.contrib.auth.decorators import login_required
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -27,12 +28,15 @@ urlpatterns = patterns('',
     url(r'^$', login),
     url(r'^raise_alert/', raise_alert),
     url(r'^flag_node/', flag_node),
+    url(r'^set_file_owner_and_permissions/', set_file_owner_and_permissions),
     url(r'^internal_audit/', internal_audit),
     url(r'^change_admin_password/', login_required(change_admin_password),name="change_admin_password"),
     url(r'^configure_email_settings/', login_required(configure_email_settings)),
     url(r'^reset_to_factory_defaults/', login_required(reset_to_factory_defaults)),
     url(r'^configure_ntp_settings/', login_required(configure_ntp_settings)),
     url(r'^view_cifs_shares/', login_required(view_cifs_shares)),
+    url(r'^view_services/', login_required(view_services)),
+    url(r'^change_service_status/', login_required(change_service_status)),
     url(r'^view_interfaces/', login_required(view_interfaces)),
     url(r'^set_interface_state/', login_required(set_interface_state)),
     url(r'^edit_interface_address/', login_required(edit_interface_address)),
@@ -40,7 +44,14 @@ urlpatterns = patterns('',
     url(r'^view_bond/', login_required(view_bond)),
     url(r'^remove_bond/', login_required(remove_bond)),
     url(r'^create_bond/', login_required(create_bond)),
+    url(r'^edit_local_user_gid/', login_required(edit_local_user_gid)),
+    url(r'^edit_local_user_group_membership/', login_required(edit_local_user_group_membership)),
+    url(r'^view_local_user/', login_required(view_local_user)),
     url(r'^view_local_users/', login_required(view_local_users)),
+    url(r'^create_local_group/', login_required(create_local_group)),
+    url(r'^delete_local_group/', login_required(delete_local_group)),
+    url(r'^view_local_group/', login_required(view_local_group)),
+    url(r'^view_local_groups/', login_required(view_local_groups)),
     url(r'^create_local_user/', login_required(create_local_user)),
     url(r'^delete_local_user/', login_required(delete_local_user)),
     url(r'^change_local_user_password/', login_required(change_local_user_password)),

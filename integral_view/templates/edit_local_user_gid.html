@@ -1,0 +1,60 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Users and groups
+  <br /><small>
+      Users and groups
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Edit local user
+  </small>
+{%endblock%}
+
+
+
+{%block contents%}
+
+{{conf_message}}
+
+
+<form id="edit_form" name="edit_form" action="" method="post">
+{{form.username}}
+            <table class="table" style="width:800px">
+            <tr>
+              <td>
+            <label for="id_username">User name:</label>
+              </td>
+              <td>
+            {{ form.username.value }}
+              </td>
+              <td>
+              &nbsp
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_gid">Member of group :</label>
+              </td>
+              <td>
+                <select name="gid" class="form-control">
+                {% for choice in form.gid.field.choices %} 
+                  <option value="{{choice.0}}" {%if form.initial.gid == choice.0%} selected="selected" {%endif%}>{{choice.1}}</option>
+                {%endfor%}
+                </select>
+              </td>
+              <td>
+            {{ form.gid.errors }}
+              </td>
+            </tr>
+            </table>
+
+        <a href="/view_local_user?searchby=username&username={{form.username.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary">Save >></button>
+</form>
+
+{%endblock%}
+{%block help_header%}
+Edit a local user's information 
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to change the settings for a particular local user. The settings will take effect upon saving this information.</p>
+{%endblock%}

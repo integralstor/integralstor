@@ -428,16 +428,23 @@ def _get_user_or_group_list(type):
     raise Exception("Unspecified authentication method. Could not retrieve users")
   elif d["security"] == "users":
     if type and type == "users":
-      l = local_users.get_local_users()
+      l, err = local_users.get_local_users()
       if l:
         rl = []
         for ld in l:
-          rl.append(ld["userid"])
+          rl.append(ld["username"])
         return rl
       else:
         return None
     else:
-      return None
+      l, err = local_users.get_local_groups()
+      if l:
+        rl = []
+        for ld in l:
+          rl.append(ld["grpname"])
+        return rl
+      else:
+        return None
   elif d["security"] == "ads":
     if type and type == "users":
       return _get_ad_users_or_groups("users")

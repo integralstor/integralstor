@@ -1,4 +1,4 @@
-import json, time, os, shutil, tempfile, os.path, re, subprocess, sys, shutil
+import json, time, os, shutil, tempfile, os.path, re, subprocess, sys, shutil, pwd, grp, stat
 
 import salt.client, salt.wheel
 
@@ -7,7 +7,7 @@ from django.conf import settings
 
 
 import integralstor_common
-from integralstor_common import command, db, common, audit, alerts, ntp, mail, zfs
+from integralstor_common import command, db, common, audit, alerts, ntp, mail, zfs, file_processing
 
 import integralstor_unicell
 from integralstor_unicell import system_info
@@ -16,10 +16,112 @@ from integral_view.utils import iv_logging
 
 import integral_view
 from integral_view.forms import common_forms
-from integral_view.samba import samba_settings
+from integral_view.samba import samba_settings, local_users
 from django.contrib.auth.decorators import login_required
 
 production = common.is_production()
+
+@login_required    
+def set_file_owner_and_permissions(request):
+  return_dict = {}
+  try:
+    if 'path' not in request.REQUEST:
+      raise Exception('Path not specified')
+    path = request.REQUEST['path']
+
+    users, err = local_users.get_local_users()
+    if err:
+      raise Exception('Error retrieving local user list : %s'%err)
+    if not users:
+      raise Exception('No local users seem to be created. Please create at least one local user before performing this operation.')
+
+    groups, err = local_users.get_local_groups()
+    if err:
+      raise Exception('Error retrieving local group list : %s'%err)
+    if not groups:
+      raise Exception('No local groups seem to be created. Please create at least one local group before performing this operation.')
+
+    try:
+      stat_info = os.stat(path)
+    except Exception, e:
+      raise Exception('Error accessing specified path : %s'%str(e))
+    uid = stat_info.st_uid
+    gid = stat_info.st_gid
+    username = pwd.getpwuid(uid)[0]
+    grpname = grp.getgrgid(gid)[0]
+    return_dict["username"] = username
+    return_dict["grpname"] = grpname
+
+
+    if request.method == "GET":
+      # Shd be an edit request
+  
+      # Set initial form values
+      initial = {}
+      initial['path'] = path
+      initial['owner_read'] = _owner_readable(stat_info)
+      initial['owner_write'] = _owner_writeable(stat_info)
+      initial['owner_execute'] = _owner_executeable(stat_info)
+      initial['group_read'] = _group_readable(stat_info)
+      initial['group_write'] = _group_writeable(stat_info)
+      initial['group_execute'] = _group_executeable(stat_info)
+      initial['other_read'] = _other_readable(stat_info)
+      initial['other_write'] = _other_writeable(stat_info)
+      initial['other_execute'] = _other_executeable(stat_info)
+  
+      form = common_forms.SetFileOwnerAndPermissionsForm(initial = initial, user_list = users, group_list = groups)
+  
+      return_dict["form"] = form
+      return django.shortcuts.render_to_response('set_file_owner_and_permissions.html', return_dict, context_instance=django.template.context.RequestContext(request))
+  
+    else:
+  
+      # Shd be an save request
+      form = common_forms.SetFileOwnerAndPermissionsForm(request.POST, user_list = users, group_list = groups)
+      return_dict["form"] = form
+      if form.is_valid():
+        cd = form.cleaned_data
+        ret, err = file_processing.set_dir_ownership_and_permissions(cd)
+        if not ret:
+          if err:
+            return_dict["error"] = err
+          else:
+            return_dict["error"] = "Error setting directory ownership/permissions. "
+          return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+  
+        audit_str = "Modified directory ownsership/permissions for %s"%cd["path"]
+        audit.audit("modify_dir_owner_permissions", audit_str, request.META["REMOTE_ADDR"])
+  
+        return django.http.HttpResponseRedirect('/view_zfs_pools?action=set_permissions')
+  
+      else:
+        #Invalid form
+        return django.shortcuts.render_to_response('set_file_owner_and_permissions.html', return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def _owner_readable(st):
+  return bool(st.st_mode & stat.S_IRUSR)
+def _owner_writeable(st):
+  return bool(st.st_mode & stat.S_IWUSR)
+def _owner_executeable(st):
+  return bool(st.st_mode & stat.S_IXUSR)
+
+def _group_readable(st):
+  return bool(st.st_mode & stat.S_IRGRP)
+def _group_writeable(st):
+  return bool(st.st_mode & stat.S_IWGRP)
+def _group_executeable(st):
+  return bool(st.st_mode & stat.S_IXGRP)
+
+def _other_readable(st):
+  return bool(st.st_mode & stat.S_IROTH)
+def _other_writeable(st):
+  return bool(st.st_mode & stat.S_IWOTH)
+def _other_executeable(st):
+  return bool(st.st_mode & stat.S_IXOTH)
 
 @login_required    
 def show(request, page, info = None):

@@ -1,0 +1,82 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Services
+  <br /><small>
+      Services
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      View services
+
+  </small>
+{%endblock%}
+
+{%block contents%}
+
+{% if conf %}
+<p><i>{{conf}}</i></p>
+{%endif%}
+
+{% if not services %}
+<p>No services appear to be configured. </p>
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<table  class="table table-bordered">
+<tr>
+<th >
+Service name
+</th>
+<th>
+Service status
+</th>
+<th>
+Details
+</th>
+<th>
+Action
+</th>
+</tr>
+{%for name, service in services.items %}
+<tr>
+<td>
+{{service.name}}
+</td>
+<td>
+{%if service.info %}
+{{service.info.status_str}}
+{%else%}
+Error
+{%endif%}
+</td>
+<td>
+{%if service.info %}
+{{service.info.output_str}}
+{%elif service.err%}
+{{service.err}}
+{%endif%}
+</td>
+<td>
+<form method='POST' action='/change_service_status/'>
+{%if service.info.status_code == 0 %}
+<input name='action' type='hidden' value='stop'>
+<button type="submit" class="btn btn-primary">Stop this service</button>
+{%else%}
+<input name='action' type='hidden' value='start'>
+<button type="submit" class="btn btn-primary">Start this service</button>
+{%endif%}
+<input name='service' type='hidden' value={{service.service}}>
+</form>
+</td>
+</tr>
+{%endfor%}
+</table>
+{%endif%}
+</div>
+
+{%endblock%}
+{%block help_header%}
+View services
+{%endblock%}
+{%block help_body%}
+  <p> This screen provides the list of all the services that have been configured on this IntegralStor system. 
+  </p>
+{%endblock%}

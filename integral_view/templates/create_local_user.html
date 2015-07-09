@@ -13,17 +13,18 @@
 {{conf_message}}
 
 
+{{form.errors}}
 <form class="form-horizontal" role="form" name="create_form" action="" method="post">
   <table  class="table " style="width:80%">
     <tr>
       <td>
-        <label for="id_userid">User's userid :</label>
+        <label for="id_username">User's userid :</label>
       </td>
       <td>
-        <input type="text"  name="userid" class="form-control" id="id_userid" value="{%if form.userid.value%}{{form.userid.value}}{%endif%}" placeholder="Enter userid for local user"> 
+        <input type="text"  name="username" class="form-control" id="id_username" value="{%if form.username.value%}{{form.username.value}}{%endif%}" placeholder="Enter username for local user"> 
       </td>
       <td>
-    {{ form.userid.errors }}
+    {{ form.username.errors }}
       </td>
     </tr>
     <tr>
@@ -57,6 +58,22 @@
       </td>
       <td>
     {{ form.password_conf.errors }}
+      </td>
+    </tr>
+    <tr>
+      <td>
+    <label for="id_gid">Primary group :</label>
+      </td>
+      <td>
+        <select name="gid" class="form-control">
+        <option value="">Select primary group</option>
+        {% for choice in form.gid.field.choices %} 
+          <option value="{{choice.0}}" {%if form.initial.gid == choice.0%} selected="selected" {%endif%}>{{choice.1}}</option>
+        {%endfor%}
+        </select>
+      </td>
+      <td>
+    {{ form.gid.errors }}
       </td>
     </tr>
     </table>

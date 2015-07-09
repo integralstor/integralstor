@@ -140,14 +140,33 @@ function ()
                                 <i class="fa fa-angle-left pull-right"></i>
                             </a>
                             <ul class="treeview-menu">
+                              <li>
+                                <a href="/show/node_info/" data-toggle="tooltip" title="View current system Configuration">
+                                  <i class="fa fa-angle-double-right"></i> System configuration
+                                </a>
+                              </li>
+                              <li>
+                                <a href="/show/email_settings/">
+                                  <i class="fa fa-angle-double-right"></i> Configure Email Alerts
+                                </a>
+                              </li>
+                              <li>
+                                <a href="/view_interfaces" data-toggle="tooltip" title="View and edit network interface and bonding configurations" >
+                                    <i class="fa fa-angle-double-right"></i> Network interfaces
+                                </a>
+                              </li>
+                            </ul>
+                        </li>
+                        <li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-th"></i>
+                                <span>Services</span>
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </a>
+                            <ul class="treeview-menu">
                                 <li>
-                                  <a href="/show/system_status" data-toggle="tooltip" title="View current system status" >
-                                      <i class="fa fa-angle-double-right"></i>Status
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href="/show/node_info/" data-toggle="tooltip" title="View current system Configuration">
-                                    <i class="fa fa-angle-double-right"></i>Configuration
+                                  <a href="/view_services/">
+                                      <i class="fa fa-angle-double-right"></i>View services
                                   </a>
                                 </li>
                                 <li>
@@ -156,12 +175,13 @@ function ()
                                   </a>
                                 </li>
                                 <li>
-                                  <a href="/show/email_settings/">
-                                    <i class="fa fa-angle-double-right"></i> Configure Email 
+                                  <a href="/auth_server_settings/">
+                                    <i class="fa fa-angle-double-right"></i> Configure CIFS access 
                                   </a>
                                 </li>
                             </ul>
                         </li>
+                        <!--
                         <li class="treeview">
                             <a href="#">
                                 <i class="fa fa-th"></i>
@@ -176,6 +196,7 @@ function ()
                                 </li>
                             </ul>
                         </li>
+                        -->
                         <li class="treeview">
                             <a href="#">
                                 <i class="fa fa-th"></i>
@@ -197,6 +218,15 @@ function ()
                         </li>
                         <li class="treeview">
                           <a href="#" class="treeview-toggle" data-toggle="treeview">
+                            <i class="fa fa-files-o"></i> Users and groups<i class="fa fa-angle-left pull-right"></i>
+                            </a>
+                          <ul class="treeview-menu">
+                            <li><a href="/view_local_users"><i class="fa fa-angle-double-right"></i> Local users</a></li>
+                            <li><a href="/view_local_groups"><i class="fa fa-angle-double-right"></i> Local groups</a></li>
+                          </ul>
+                        </li>
+                        <li class="treeview">
+                          <a href="#" class="treeview-toggle" data-toggle="treeview">
                             <i class="fa fa-files-o"></i> NFS access <i class="fa fa-angle-left pull-right"></i>
                             </a>
                           <ul class="treeview-menu">
@@ -209,9 +239,11 @@ function ()
                             <i class="fa fa-files-o"></i> CIFS access <i class="fa fa-angle-left pull-right"></i>
                             </a>
                           <ul class="treeview-menu">
+                            <!--
                             <li><a href="/auth_server_settings"> <i class="fa fa-angle-double-right"></i> Authentication settings</a></li>
                             <li><a href="/edit_auth_method"><i class="fa fa-angle-double-right"></i> Change authentication method</a></li>
                             <li><a href="/view_local_users"><i class="fa fa-angle-double-right"></i> Local users</a></li>
+                            -->
                             <li><a href="/view_cifs_shares"><i class="fa fa-angle-double-right"></i> View shares</a></li>
                             <li><a href="/create_cifs_share"><i class="fa fa-angle-double-right"></i> Create a share</a></li>
                           </ul>

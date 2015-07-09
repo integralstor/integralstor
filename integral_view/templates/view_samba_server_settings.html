@@ -1,13 +1,11 @@
 {% extends 'logged_in_base.html' %}
 
 {%block page-header%}
-  File Access
+  CIFS Access configuration
   <br /><small>
-      File Access 
+      Services
       <i class="fa fa-angle-double-right smaller-80"></i>
-      Authentication 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Authentication Settings
+      Configure CIFS Access
 
   </small>
 {%endblock%}
@@ -86,13 +84,20 @@
             {{ samba_global_dict.workgroup }}
               </td>
             </tr>
+            <!--
             <tr>
-              <td colspan=2 style="text-align:center">
-              <a href="/auth_server_settings?action=edit" role="button" class="btn btn-default" >Edit</a>
+              <td  style="text-align:center">
+              <a href="/auth_server_settings?action=edit" role="button" class="btn btn-default" >Edit authentication settings</a>
+              </td>
+              <td  style="text-align:center">
+              <a href="/edit_auth_method" role="button" class="btn btn-default" >Change authentication method</a>
               </td>
             </tr>
+            -->
             </table>
         </div>
+              <a href="/auth_server_settings?action=edit" role="button" class="btn btn-default" >Edit authentication settings</a>
+              <a href="/edit_auth_method" role="button" class="btn btn-default" >Change authentication method</a>
 {%endif%}
 
 {%endblock%}
