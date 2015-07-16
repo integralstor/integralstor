@@ -1,0 +1,50 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Replace disk - new disk information
+    <br /><small>
+      GRIDCells
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Replace disk
+  </small>
+
+ {%endblock%}
+{%block contents%}
+<!-- Modal -->
+<div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body" id="myModalBody">
+        <br><br><br>
+        <i class="fa fa-spinner fa-spin fa-4 blue"></i>
+        <br><br><br>
+        <p id="p-node-text">Processing.. Please wait.
+        <br><br><br>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<form action="" method="post">
+  <input type=hidden name="conf" value="1">
+  <input type=hidden name="node" value="{{node}}">
+  <input type=hidden name="serial_number" value="{{serial_number}}">
+  <input type=hidden name="old_id" value="{{old_id}}">
+  <input type=hidden name="new_id" value="{{new_id}}">
+  <input type=hidden name="pool" value="{{pool}}">
+  <input type=hidden name="new_serial_number" value="{{inserted_disk_serial_number}}">
+  <input type=hidden name="step" value="online_new_disk">
+
+  <p > The system has detected a new disk with serial number {{inserted_disk_serial_number}} on GRIDCell {{node}}. If this is correct, please continue and it will replace the disk with serial number {{serial_number}}. </p><br>
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/show/disk_status'"> &nbsp;&nbsp; <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and proceed >></button>
+</form>
+
+
+{%endblock%}
+{%block help_header%}
+Replace a disk within a GRIDCell
+{%endblock%}
+{%block help_body%}
+<p>After the administrator has replaced a faulty disk with a new disk, the system scans for the disks and reports what it finds as the information about the new disk. Please confirm that this information is correct before proceeding.</p>
+{%endblock%}

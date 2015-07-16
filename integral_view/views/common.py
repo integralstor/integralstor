@@ -209,6 +209,8 @@ def show(request, page, info = None):
     elif page == "node_status":
       
       template = "view_node_status.html"
+      if not info:
+        info = si.keys()[0]
       if "from" in request.GET:
         frm = request.GET["from"]
         return_dict['frm'] = frm

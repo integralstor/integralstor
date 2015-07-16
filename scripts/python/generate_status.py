@@ -2,7 +2,7 @@
 
 import salt.client
 import json, os, shutil, datetime, sys, re
-import integralstor_common
+import fractalio
 import pprint
 from integralstor_common import lock, common
 

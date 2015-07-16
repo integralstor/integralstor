@@ -660,3 +660,207 @@ def rename_zfs_snapshot(request):
     s = str(e)
     return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def replace_disk(request):
+
+  return_dict = {}
+  try:
+    form = None
+  
+    si = system_info.load_system_config()
+    return_dict['system_config_list'] = si
+    
+    template = 'logged_in_error.html'
+  
+    if request.method == "GET":
+      return_dict["error"] = "Incorrect access method. Please use the menus"
+    else:
+      if 'node' in request.POST:
+        node = request.POST["node"]
+      else:
+        node = si.keys()[0]
+      serial_number = request.POST["serial_number"]
+  
+      if "error" in return_dict:
+        return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+  
+      if "conf" in request.POST:
+        if "node" not in request.POST or  "serial_number" not in request.POST:
+          return_dict["error"] = "Incorrect access method. Please use the menus"
+        elif request.POST["node"] not in si:
+          return_dict["error"] = "Unknown GRIDCell. Please use the menus"
+        elif "step" not in request.POST :
+          return_dict["error"] = "Incomplete request. Please use the menus"
+        elif request.POST["step"] not in ["offline_disk", "scan_for_new_disk", "online_new_disk"]:
+          return_dict["error"] = "Incomplete request. Please use the menus"
+        else:
+          step = request.POST["step"]
+  
+          # Which step of the replace disk are we in?
+  
+          if step == "offline_disk":
+  
+            #get the pool corresponding to the disk
+            #zpool offline pool disk
+            #send a screen asking them to replace the disk
+  
+            pool = None
+            if serial_number in si[node]["disks"]:
+              disk = si[node]["disks"][serial_number]
+              if "pool" in disk:
+                pool = disk["pool"]
+              disk_id = disk["id"]
+            if not pool:
+              return_dict["error"] = "Could not find the storage pool on that disk. Please use the menus"
+            else:
+              #issue a zpool offline pool disk-id using salt
+              client = salt.client.LocalClient()
+              cmd_to_run = 'zpool offline %s %s'%(pool, disk_id)
+              print 'Running %s'%cmd_to_run
+              #assert False
+              rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
+              if rc:
+                for node, ret in rc.items():
+                  #print ret
+                  if ret["retcode"] != 0:
+                    error = "Error bringing the disk with serial number %s offline on %s : "%(serial_number, node)
+                    if "stderr" in ret:
+                      error += ret["stderr"]
+                    return_dict["error"] = error
+                    return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+              print rc
+              #if disk_status == "Disk Missing":
+              #  #Issue a reboot now, wait for a couple of seconds for it to shutdown and then redirect to the template to wait for reboot..
+              #  pass
+              return_dict["serial_number"] = serial_number
+              return_dict["node"] = node
+              return_dict["pool"] = pool
+              return_dict["old_id"] = disk_id
+              template = "replace_disk_prompt.html"
+  
+          elif step == "scan_for_new_disk":
+  
+            #they have replaced the disk so scan for the new disk
+            # and prompt for a confirmation of the new disk serial number
+  
+            pool = request.POST["pool"]
+            old_id = request.POST["old_id"]
+            return_dict["node"] = node
+            return_dict["serial_number"] = serial_number
+            return_dict["pool"] = pool
+            return_dict["old_id"] = old_id
+            old_disks = si[node]["disks"].keys()
+            client = salt.client.LocalClient()
+            rc = client.cmd(node, 'integralstor.disk_info_and_status')
+            if rc and node in rc:
+              new_disks = rc[node].keys()
+              if new_disks:
+                for disk in new_disks:
+                  if disk not in old_disks:
+                    return_dict["inserted_disk_serial_number"] = disk
+                    return_dict["new_id"] = rc[node][disk]["id"]
+                    break
+                if "inserted_disk_serial_number" not in return_dict:
+                  return_dict["error"] = "Could not detect any new disk."
+                else:
+                  template = "replace_disk_confirm_new_disk.html"
+  
+  
+          elif step == "online_new_disk":
+  
+            #they have confirmed the new disk serial number
+            #get the id of the disk and
+            #zpool replace poolname old disk new disk
+            #zpool clear poolname to clear old errors
+            #return a result screen
+            pool = request.POST["pool"]
+            old_id = request.POST["old_id"]
+            new_id = request.POST["new_id"]
+            new_serial_number = request.POST["new_serial_number"]
+            cmd_to_run = "zpool replace -f %s %s %s"%(pool, old_id, new_id)
+            print 'Running %s'%cmd_to_run
+            client = salt.client.LocalClient()
+            rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
+            if rc:
+              print rc
+              for node, ret in rc.items():
+                #print ret
+                if ret["retcode"] != 0:
+                  error = "Error replacing the disk on %s : "%(node)
+                  if "stderr" in ret:
+                    error += ret["stderr"]
+                  rc = client.cmd(node, 'cmd.run', ['zpool online %s %s'%(pool, old_id)])
+                  return_dict["error"] = error
+                  return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+            else:
+              error = "Error replacing the disk on %s : "%(node)
+              return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+            '''
+            cmd_to_run = "zpool set autoexpand=on %s"%pool
+            print 'Running %s'%cmd_to_run
+            rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
+            if rc:
+              for node, ret in rc.items():
+                #print ret
+                if ret["retcode"] != 0:
+                  error = "Error setting pool autoexpand on %s : "%(node)
+                  if "stderr" in ret:
+                    error += ret["stderr"]
+                  return_dict["error"] = error
+                  return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+            print rc
+            if new_serial_number in si[node]["disks"]:
+              disk = si[node]["disks"][new_serial_number]
+              disk_id = disk["id"]
+            '''
+            cmd_to_run = 'zpool online %s %s'%(pool, new_id)
+            print 'Running %s'%cmd_to_run
+            rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
+            if rc:
+              print rc
+              for node, ret in rc.items():
+                #print ret
+                if ret["retcode"] != 0:
+                  error = "Error bringing the new disk online on %s : "%(node)
+                  if "stderr" in ret:
+                    error += ret["stderr"]
+                  return_dict["error"] = error
+                  return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+            else:
+              error = "Error bringing the new disk online on %s : "%(node)
+              return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+            ret, rc = integralstor_common.common.command.execute_with_rc('%s/generate_manifest.py'%integralstor_common.common.get_python_scripts_path())
+            #print ret
+            if rc != 0:
+              return_dict["error"] = "Could not regenrate the new hardware configuration. Error generating manifest. Return code %d"%rc
+              print ret
+              return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+            else:
+              ret, rc = integralstor_common.common.command.execute_with_rc('%s/generate_status.py'%integralstor_common.common.get_python_scripts_path())
+              if rc != 0:
+                print ret
+                return_dict["error"] = "Could not regenrate the new hardware configuration. Error generating status. Return code %d"%rc
+                return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+              si = system_info.load_system_config()
+              return_dict["node"] = node
+              return_dict["old_serial_number"] = serial_number
+              return_dict["new_serial_number"] = new_serial_number
+              template = "replace_disk_success.html"
+  
+          return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+          
+      else:
+        if "serial_number" not in request.POST:
+          return_dict["error"] = "Incorrect access method. Please use the menus"
+        else:
+          if 'node' in request.POST:
+            return_dict["node"] = request.POST["node"]
+          else:
+            node = si.keys()[0]
+          return_dict["serial_number"] = request.POST["serial_number"]
+          template = "replace_disk_conf.html"
+    return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))

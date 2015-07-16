@@ -77,41 +77,7 @@ Free memory {{node_info.memory.mem_free.value}}{{node_info.memory.mem_free.unit}
 </ul>
 
 {%endfor%}
-<!--
-<div class="row margin-left-1">
-  <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-    <div class="box">
-      <div class="box-header">
-          <h3 class="box-title">Platform Status</h3>
-          <div class="box-tools pull-right">
-              <button data-original-title="Collapse" class="btn btn-default btn-sm" data-widget="collapse" data-toggle="tooltip" title=""><i class="fa fa-minus"></i></button>
-          </div>
-      </div>
-      <div class="box-body">
-        <br />
-          <table>
-            <thead>
-              <th> GRIDCell Name</th>
-              <th> Status </th>
-            </thead>
-            <tbody>
-               {%for k,v in nodes.items%}
-                <tr>
-                    <td><a href="/show/node_status/{{k}}" class="text">{{k}}</a> </td>
-                    <td> {%if v == 0%}<small class="label label-success white"><i class="fa fa-check-circle-o "></i> Online</small>{%else%}<small class="label label-danger white"><i class="fa fa-remove"></i> Degraded</small>{%endif%} </td>
-                  </tr>
-                {%endfor%}
-            </tbody>
-          </table>
-        </p>
-      </div><!-- /.box-body -->
-      <div class="box-footer">
-          <a href="/show/system_status" role="button" {%if num_nodes_bad > 0 %}class="btn btn-warning">More Details<i class="fa fa-bell-o"></i> {%else%}class="btn btn-success">More Details <i class="fa fa-arrow-right"></i>{%endif%} </a>
-      </div><!-- /.box-footer-->
-    </div>
-  </div>
-</div>
--->
+<a href="/show/node_status" role="button" {%if num_nodes_bad > 0 %}class="btn btn-warning">More Details<i class="fa fa-bell-o"></i> {%else%}class="btn btn-success">More Details <i class="fa fa-arrow-right"></i>{%endif%} </a>
 <script type="text/javascript" src="/static/js/jquery.easypiechart.min.js"></script>
 <link rel="stylesheet"type="text/css" href="/static/css/jquery.easy-pie-chart.css">
 
@@ -142,3 +108,38 @@ Dashboard
 <p>The IntegralView dashboard is a one stop page that gives you an overall view of the status and health of the IntegralStor system. From this page, you can get an idea of the health of each GRIDCell, the storage pool and of all the data volumes.</p>
 {%endblock%}
 
+<!--
+<div class="row margin-left-1">
+  <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+    <div class="box">
+      <div class="box-header">
+          <h3 class="box-title">Platform Status</h3>
+          <div class="box-tools pull-right">
+              <button data-original-title="Collapse" class="btn btn-default btn-sm" data-widget="collapse" data-toggle="tooltip" title=""><i class="fa fa-minus"></i></button>
+          </div>
+      </div>
+      <div class="box-body">
+        <br />
+          <table>
+            <thead>
+              <th> GRIDCell Name</th>
+              <th> Status </th>
+            </thead>
+            <tbody>
+               {%for k,v in nodes.items%}
+                <tr>
+                    <td><a href="/show/node_status/{{k}}" class="text">{{k}}</a> </td>
+                    <td> {%if v == 0%}<small class="label label-success white"><i class="fa fa-check-circle-o "></i> Online</small>{%else%}<small class="label label-danger white"><i class="fa fa-remove"></i> Degraded</small>{%endif%} </td>
+                  </tr>
+                {%endfor%}
+            </tbody>
+          </table>
+        </p>
+      </div>
+      <div class="box-footer">
+          <a href="/show/system_status" role="button" {%if num_nodes_bad > 0 %}class="btn btn-warning">More Details<i class="fa fa-bell-o"></i> {%else%}class="btn btn-success">More Details <i class="fa fa-arrow-right"></i>{%endif%} </a>
+      </div>
+    </div>
+  </div>
+</div>
+-->

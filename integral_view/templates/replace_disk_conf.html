@@ -1,0 +1,46 @@
+{% extends 'logged_in_base.html' %}
+
+{%block page-header%}
+  Replace disk - confirmation
+    <br /><small>
+      GRIDCells
+      <i class="fa fa-angle-double-right smaller-80"></i>
+      Replace disk
+  </small>
+
+ {%endblock%}
+{%block contents%}
+<!-- Modal -->
+<div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body" id="myModalBody">
+        <br><br><br>
+        <i class="fa fa-spinner fa-spin fa-4 blue"></i>
+        <br><br><br>
+        <p id="p-node-text">Processing.. Please wait.
+        <br><br><br>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<form action="" method="post">
+  <input type=hidden name="conf" value="1">
+  <input type=hidden name="node" value="{{node}}">
+  <input type=hidden name="serial_number" value="{{serial_number}}">
+  <input type=hidden name="step" value="offline_disk">
+
+  <p > You have chosen to replace a disk with serial number "{{serial_number}}" on GRIDCell "{{node}}". On confirmation, we will safely guide you through this process.</p><br>
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/show/disk_status'"> &nbsp;&nbsp; <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and proceed >></button>
+</form>
+
+
+{%endblock%}
+{%block help_header%}
+Replace a disk within a GRIDCell
+{%endblock%}
+{%block help_body%}
+<p>This screen is intended for the administrator to confirm that the correct disk has been chosen to be replaced on the correct GRIDCell. Replacing an incorrect disk may result in data loss so please confirm this information. The replace disk process involves multiple steps so please note down the information provided correctly and confirm that all is ok before proceeding.</p>
+{%endblock%}
