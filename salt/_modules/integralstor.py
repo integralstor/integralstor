@@ -2,8 +2,7 @@ import os, re, subprocess, glob, pprint
 
 import salt.modules.network, salt.modules.ps, salt.modules.status
 import fractalio
-from integralstor_common import zfs, command, disks
-from fractalio import hardware_utils 
+from integralstor_common import zfs, command, disks, hardware_utils
 
 
 def process_call(command):
@@ -69,6 +68,7 @@ def _validate_cmd_output(output_tuple = None):
 
 def disk_info_and_status():
 
+  hardware_utils.rescan_drives()
   all_disks, err = disks.get_disk_info_all()
   if not disks:
     return None
@@ -188,11 +188,12 @@ if __name__ == '__main__':
   #print status()
   #print _diskmap()
   pp = pprint.PrettyPrinter(indent=4)
-  #pp.pprint(disk_info_and_status())
-  #print pool_status()
+  pp.pprint(disk_info_and_status())
+  #d = pool_status()
+  #pp.pprint(d)
   #print disk_status()
   #print interface_status()
-  print status()
+  #print status()
   #print load_avg()
   #print disk_usage()
   #print mem_info()
