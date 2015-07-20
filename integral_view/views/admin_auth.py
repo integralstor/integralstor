@@ -33,11 +33,12 @@ def login(request):
       # Try to authenticate
       user = django.contrib.auth.authenticate(username=username, password=password)
       if user is not None and user.is_active:
-        # Clear the session if the user has been logged in anywhere else.
-        sessions = Session.objects.all()
-        for s in sessions:
-          if s.get_decoded() and (s.get_decoded()['_auth_user_id'] == user.id):
-            s.delete()
+        if integralstor_common.common.is_production():
+          # Clear the session if the user has been logged in anywhere else.
+          sessions = Session.objects.all()
+          for s in sessions:
+            if s.get_decoded() and (s.get_decoded()['_auth_user_id'] == user.id):
+              s.delete()
         # authentication succeeded! Login and send to home screen
         django.contrib.auth.login(request, user)
         iv_logging.info("Login request from user '%s' succeeded"%username)
