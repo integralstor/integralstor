@@ -10,7 +10,6 @@ APP_DEBUG = False
 '''
 PRODUCTION = False
 #DEVEL_APP_ROOT = '/opt/integral_view/integral-view'
-DEVEL_APP_ROOT = '/home/bkrram/fractalio/integral-view'
 PRODUCTION_APP_ROOT = '/opt/integralstor/integralstor-unicell/integral_view'
 SALT_MASTER_CONFIG = '/etc/salt/master'
 APP_NAME = 'integral_view'
@@ -33,7 +32,7 @@ else:
   AUDIT_URL = "127.0.0.1:8000"
 
 CONFIG_DIR = '%s/config'%BASE_CONF_ROOT
-ADMIN_VOL_NAME = "fractalio_admin_vol"
+ADMIN_VOL_NAME = "admin_vol"
 
 if not PRODUCTION:
   KRB5_PATH = CONFIG_DIR
@@ -214,7 +213,7 @@ LOGGING = {
         'file': {
           'level': 'DEBUG',
           'class': 'logging.handlers.RotatingFileHandler',
-          'filename': '/var/log/fractalio/integral_view.log',
+          'filename': '/var/log/integralstor/integralstor-unicell/integral_view.log',
           'maxBytes': 1024*1024*5,
           'backupCount': 5,
           'formatter': 'standard'

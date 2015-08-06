@@ -45,9 +45,9 @@ def save_auth_settings(d):
       cmd = ["insert into samba_global_ad (realm, password_server, ad_schema_mode, id_map_min, id_map_max, password_server_ip, id) values(?,?,?,?,?,?,?)", (d["realm"], d["password_server"], 'rfc2307', 16777216, 33554431, d["password_server_ip"], 1,)]
       cmd_list.append(cmd)
   #print cmd_list
-  #Always try to create the fractalio_guest account for guest access - will fail if it exists so ok
+  #Always try to create the integralstor account for guest access - will fail if it exists so ok
   try:
-    local_users.create_local_user('fractalio_guest', 'Fractalio_Guest_User', 'fractalioguest')
+    local_users.create_local_user('integralstor_guest', 'Integralstor', 'integralstorguest')
   except Exception, e:
     pass
   db.execute_iud("%s/integral_view_config.db"%db_path, cmd_list)
