@@ -28,56 +28,390 @@
 </div>
 
 {%block contents%}
+    <div class="nav-tabs-custom">
+	<ul class="nav nav-tabs">
+	  <li class="active"><a href="#cpu" data-toggle="tab">CPU</a></li>
+	  <li><a href="#memory" data-toggle="tab">Memory</a></li>
+	  <li><a href="#hardware" data-toggle="tab">Hardware Components</a></li>
+	  <li><a href="#network" data-toggle="tab">Network</a></li>
+	  <li><a href="#services" data-toggle="tab">Services</a></li>
+	  <li><a href="#disks" data-toggle="tab">Disks </a></li>
+	  <li><a href="#pools" data-toggle="tab">Pools </a></li>
+	  <li class="pull-right"><a href="#" class="text-muted"><i class="fa fa-gear"></i></a></li>
+	</ul>
+	<div class="tab-content">
+	  <div class="tab-pane active" id="cpu">
+    {%if cpu_status.ipmi_status %}
+      <table class="table table-bordered table-hover table-responsive" style="width:800px">
+      <thead>
+        <th colspan=1>
+          Component Type
+        </th>
+        <th colspan=3>
+          Component Detail
+        </th>
+        <th colspan=5>
+          Status
+        </th>
+      </thead>
+      {%for ipmi in cpu_status.ipmi_status %}
+      <tr>
+        <td colspan=1>
+          {{ipmi.component_name}}
+        </td>
+        <td colspan=3>
+          {{ipmi.parameter_name}}
+        </td>
+        <td colspan=2>
+    	{{ipmi.reading}} 
+        </td>
+        <td colspan=2>
+    	  {% if ipmi.status == "ok" %}
+    		<i class="fa fa-check-circle green fa-2x"></i>	
+        {%else%}
+      		<i class="fa fa-remove red fa-2x"></i>	
+        {%endif%}
+        </td>
+      </tr>
+      {%endfor%}
+    </table>
+    {%endif%}
+    {%if cpu_status.load_avg %}
+      <table class="table table-bordered table-hover table-responsive" style="width:800px">
+      <thead>
+        <th colspan=1>
+          Load average - 1 minute
+        </th>
+        <th >
+          Load average - 5 minutes
+        </th>
+        <th >
+          Load average - 15 minutes
+        </th>
+      </thead>
+      <tr>
+        <td>
+          {{cpu_status.load_avg.1_min}}
+        </td>
+        <td>
+          {{cpu_status.load_avg.5_min}}
+        </td>
+        <td>
+          {{cpu_status.load_avg.15_min}}
+        </td>
+      </tr>
+      </table>
+    {%endif%}
+	  </div><!-- /.tab-pane -->
+	  <div class="tab-pane " id="memory">
+    {%if memory_status%}
+      <table class="table table-bordered table-hover table-responsive" style="width:800px">
+      <tr>
+        <th >
+          Total memory 
+        </th>
+        <td>
+          {{memory_status.mem_total.value}} {{memory_status.mem_total.unit}}
+        </td>
+      </tr>
+      <tr>
+        <th >
+          Free memory 
+        </th>
+        <td>
+          {{memory_status.mem_free.value}} {{memory_status.mem_free.unit}}
+        </td>
+      </tr>
+    </table>
+    {%endif%}
+	  </div><!-- /.tab-pane -->
 
-{%for node_name, node_info  in system_info.items %}
+	  <div class="tab-pane" id="hardware">
+      <table class="table table-bordered table-hover table-responsive" style="width:800px">
+      <thead>
+        <th colspan=1>
+          Component Type
+        </th>
+        <th colspan=3>
+          Component Detail
+        </th>
+        <th colspan=5>
+          Status
+        </th>
+      </thead>
+      <tr>
+      </tr>
+      {%for ipmi in hardware_status.ipmi_status%}
+      <tr>
+        <td colspan=1>
+          {{ipmi.component_name}}
+        </td>
+        <td colspan=3>
+          {{ipmi.parameter_name}}
+        </td>
+        <td colspan=2>
+    	{{ipmi.reading}} 
+        </td>
+        <td colspan=2>
+    	{% if ipmi.status == "ok" %}
+    		<i class="fa fa-check-circle green fa-2x"></i>	
+            {%else%}
+       		<i class="fa fa-remove red fa-2x"></i>	
+            {%endif%}
+        </td>
+      </tr>
+    {%endfor%}
+    </table>
+    
+	  </div><!-- /.tab-pane -->
 
-<p> Domain name - {{node_info.fqdn}}
+	  <div class="tab-pane" id="network">
+      <table class="table table-bordered table-hover table-responsive" style="width:800px">
+      <thead>
+        <th colspan=1>
+        Interface
+        </th>
+        <th >
+          Status
+        </th>
+      </thead>
+      {% for if_name, interface in  network_status.items%}
+      <tr>
+        <td >
+        {{if_name}}
+        <td >
+        {% if interface.status == "up"%}
+           <i class="fa fa-check-circle green fa-2x"></i>	
+        {%else%}
+          <i class="fa fa-remove red fa-2x"></i>	
+        {%endif%}
+        </td>
+      </tr>
+      {%endfor%}
+      </table>
+	  </div><!-- /.tab-pane -->
 
-<p>Memory  Usage </p>
-<ul>
-<li>
-Total memory {{node_info.memory.mem_total.value}}{{node_info.memory.mem_total.unit}}, 
-Free memory {{node_info.memory.mem_free.value}}{{node_info.memory.mem_free.unit}}
-</ul>
+	  <div class="tab-pane" id="services">
+      <table class="table table-bordered table-hover table-responsive" style="width:800px">
+      <thead>
+        <th >
+        Service
+        </th>
+        <th >
+          Status
+        </th>
+      </thead>
+      <tr>
+        <td >
+           CTDB Service
+        </td>
+        <td >
+           {%if services_status.ctdb|slice:"-13:" == "is running..."%}
+              <i class="fa fa-check-circle green fa-2x"></i>	
+           {%else%}
+              <i class="fa fa-remove red fa-2x"></i>	
+           {%endif%}
+        </td>
+      </tr>
+      <tr>
+        <td >
+           Winbind Service
+        </td>
+        <td >
+           {%if services_status.winbind|slice:"-13:" == "is running..."%}
+              <i class="fa fa-check-circle green fa-2x"></i>	
+           {%else%}
+            <i class="fa fa-remove red fa-2x"></i>	
+           {%endif%}
+        </td>
+      </tr>
+      </table>
+	  </div><!-- /.tab-pane -->
 
-<p>CPU load average ({{node_info.load_avg.cpu_cores}} cores) </p>
-<ul>
-<li>
-1 minute : {{node_info.load_avg.1_min}}, 
-5 minute : {{node_info.load_avg.5_min}}, 
-15 minute : {{node_info.load_avg.15_min}}, 
-</ul>
+	  <div class="tab-pane" id="disks">
+      <img src="/static/images/diskmap1.png" width="900px;" class="img-responsive" />
+      <span class="disk-center" id="{{disk_pos.1}}"><strong>{{disk_pos.1}}</strong></span>
+      <span class="disk-center" id="{{disk_pos.2}}"><strong>{{disk_pos.2}}</strong></span>
+      <span class="disk-center" id="{{disk_pos.3}}"><strong>{{disk_pos.3}}</strong></span>
+      <span class="disk-center" id="{{disk_pos.4}}"><strong>{{disk_pos.4}}</strong></span>
+      {%if disk_status %}
+        <table class="table table-bordered table-hover table-responsive" style="width:800px">
+        <thead>
+          <th >
+          Disk serial number
+          </th>
+          <th >
+            S.M.A.R.T status
+          </th>
+          <td>
+            &nbsp;
+          </td>
+        </thead>
+        {%for sn, disk in disk_status.items %}
+        <tr>
+          <td>
+          {{sn}}
+          </td>
+          <td>
+          {{disk.status}}
+          </td>
+          <td>
+            {%if disk.status == 'PASSED'%}
+              <i class="fa fa-check-circle green fa-2x"></i>	
+            {%else%}
+              <i class="fa fa-remove red fa-2x"></i>	
+            {%endif%}
+          </td>
+        </tr>
+        {%endfor%}
+        </table>
+      {%endif%}
+	  </div><!-- /.tab-pane -->
 
-<p>Hardware status </p>
-<ul>
-{%for d in node_info.ipmi_status %}
-<li>{{d.component_name}} {{d.parameter_name}} {{d.reading}} {{d.status}}</li>
-{%endfor%}
-</ul>
+	  <div class="tab-pane" id="pools">
 
-<p>Network interface status </p>
-<ul>
-{%for if_name, d in node_info.interfaces.items %}
-<li>{{if_name}} {{d.status}} {%if d.inet%} {%if d.inet.0.address %} {{d.inet.0.address}} {{ d.inet.0.broadcast}} {{ d.inet.0.netmask}} {%endif%}{%endif%}
-{%endfor%}
-</ul>
+    {%if pools %}
+      {%for pool in pools %}
+      <h3> Pool name : {{pool.pool_name}} </h3>
+      <table class="table table-bordered table-hover table-responsive" style="width:800px">
+      <thead>
+        <th >
+        Pool type
+        </th>
+        <th>
+          Status details
+        </th>
+        <th>
+          Errors
+        </th>
+        <th>
+          Scan status
+        </th>
+      </thead>
+      <tr>
+        <td>
+          {{pool.config.pool.type}}
+        </td>
+        <td>
+          {{pool.config.pool.root.status.read}} read errors, <br>{{pool.config.pool.root.status.write}} write errors, <br>{{pool.config.pool.root.status.read}} checksum errors 
+        </td>
+        <td>
+          {{pool.errors}}
+        </td>
+        <td>
+          {{pool.scan}}
+        </td>
+      </tr>
+      </table>
+      <h4>Component status :</h4>
+      <h5>Pool status</h5>
+      <ul>
+        <li> Pool Status - State ({{pool.config.pool.root.status.state}}), Read ({{pool.config.pool.root.status.read}}), Write ({{pool.config.pool.root.status.write}}), Checksum ({{pool.config.pool.root.status.chksum}})
+            {%if pool.config.pool.root.status.state == 'ONLINE'%}
+              <i class="fa fa-check-circle green fa-2x"></i>	
+            {%else%}
+              <i class="fa fa-remove red fa-2x"></i>	
+            {%endif%}
+          <ul>
+            
+            {%for child in pool.config.pool.root.children %}
+            <li> Name - {{child.name}}, Type - {{child.type}}, Status - State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
+            {%if child.status.state == 'ONLINE'%}
+              <i class="fa fa-check-circle green fa-2x"></i>	
+            {%else%}
+              <i class="fa fa-remove red fa-2x"></i>	
+            {%endif%}
+              {%if child.children %}
+              <ul>
+                {%for gr_child in child.children %}
+                  <li> Name - {{gr_child.name}}, Type - {{gr_child.type}}, Status - State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
+                  {%if gr_child.status.state == 'ONLINE'%}
+                    <i class="fa fa-check-circle green fa-2x"></i>	
+                  {%else%}
+                    <i class="fa fa-remove red fa-2x"></i>	
+                  {%endif%}
+                  {%if gr_child.children %}
+                  <ul>
+                    {%for gr_gr_child in gr_child.children %}
+                      <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
+                      {%if gr_gr_child.status.state == 'ONLINE'%}
+                        <i class="fa fa-check-circle green fa-2x"></i>	
+                      {%else%}
+                        <i class="fa fa-remove red fa-2x"></i>	
+                      {%endif%}
+            
+                    {%endfor%}
+                  </ul>
+                  {%endif%}
+                {%endfor%}
+              </ul>
+              {%endif%}
+            {%endfor%}
+          </ul>
+      </ul>
 
-<p>Disk status </p>
-<ul>
-{%for serial_number, d in node_info.disks.items %}
-<li> Serial number - {{serial_number}}, SMART status - {{d.status}}, rotational - {{d.rotational}}, capacity - {{d.capacity}}, name - {{d.name}}
-{%endfor%}
-</ul>
+      <h5>Write cache status</h5>
 
-<p>Pool status </p>
-<ul>
-{%for pool in pools%}
-<li> Pool name - {{pool.pool_name}}, State - {{pool.state}}
-{%endfor%}
-</ul>
+      {% if pool.config.logs %}
+        <ul>
+        {%if pool.config.logs.root.status %}
+        <li>  Write cache Status - State ({{pool.config.logs.root.status.state}}), Read ({{pool.config.logs.root.status.read}}), Write ({{pool.config.logs.root.status.write}}), Checksum ({{pool.config.logs.root.status.chksum}})
+            {%if pool.config.logs.root.status.state == 'ONLINE'%}
+              <i class="fa fa-check-circle green fa-2x"></i>	
+            {%else%}
+              <i class="fa fa-remove red fa-2x"></i>	
+            {%endif%}
+          <ul>
+        {%endif%}
+            
+            {%for child in pool.config.logs.root.children %}
+            <li> Name - {{child.name}}, Type - {{child.type}}, Status - State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
+            {%if child.status.state == 'ONLINE'%}
+              <i class="fa fa-check-circle green fa-2x"></i>	
+            {%else%}
+              <i class="fa fa-remove red fa-2x"></i>	
+            {%endif%}
+              {%if child.children %}
+              <ul>
+                {%for gr_child in child.children %}
+                  <li> Name - {{gr_child.name}}, Type - {{gr_child.type}}, Status - State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
+                  {%if gr_child.status.state == 'ONLINE'%}
+                    <i class="fa fa-check-circle green fa-2x"></i>	
+                  {%else%}
+                    <i class="fa fa-remove red fa-2x"></i>	
+                  {%endif%}
+                  {%if gr_child.children %}
+                  <ul>
+                    {%for gr_gr_child in gr_child.children %}
+                      <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
+                      {%if gr_gr_child.status.state == 'ONLINE'%}
+                        <i class="fa fa-check-circle green fa-2x"></i>	
+                      {%else%}
+                        <i class="fa fa-remove red fa-2x"></i>	
+                      {%endif%}
+            
+                    {%endfor%}
+                  </ul>
+                  {%endif%}
+                {%endfor%}
+              </ul>
+              {%endif%}
+            {%endfor%}
+        {%if pool.config.logs.root.status %}
+          </ul>
+        {%endif%}
+      </ul>
+      {%endif%}
 
-{%endfor%}
-<a href="/show/node_status" role="button" {%if num_nodes_bad > 0 %}class="btn btn-warning">More Details<i class="fa fa-bell-o"></i> {%else%}class="btn btn-success">More Details <i class="fa fa-arrow-right"></i>{%endif%} </a>
+
+      {%endfor%}
+    {%endif%}
+
+	  </div><!-- /.tab-pane -->
+
+	</div><!-- /.tab-content -->
+    </div>
+
 <script type="text/javascript" src="/static/js/jquery.easypiechart.min.js"></script>
 <link rel="stylesheet"type="text/css" href="/static/css/jquery.easy-pie-chart.css">
 

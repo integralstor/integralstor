@@ -1,0 +1,98 @@
+#!/bin/bash
+# chkconfig: 2345 05 95
+# description: create ramdisk and adds it as slog to zpool
+#
+
+### BEGIN INIT INFO
+# Provides: ramdisk
+# Required-Start:
+# Required-Stop:
+# Should-Start: 
+# Should-Stop:
+# Default-Start: 2 3 4 5
+# Default-Stop: 1
+# Short-Description: Mount/umount the zfs filesystems
+# Description: ZFS is an advanced filesystem designed to simplify managing
+#              and protecting your data.  This service mounts the ZFS
+#              filesystems and starts all related zfs services.
+### END INIT INFO
+
+. /etc/init.d/functions
+
+BASE=ramdisk
+RETVAL=0
+LOCKFILE=/var/lock/subsys/${BASE}
+
+
+start() {
+   if [ -e $LOCKFILE ] ; then
+     echo "$BASE is already started"
+     exit 1
+   fi
+
+   echo -n $"Starting $BASE:"
+
+   if [ ! -e /mnt/ramdisk ] ; then
+     mkdir -p /mnt/ramdisk
+   fi
+
+   mount -t tmpfs -o size=2g tmpfs /mnt/ramdisk
+   dd if=/dev/zero of=/mnt/ramdisk/ramfile bs=1024 count=2M > /dev/null 2>&1
+   zpool clear frzpool
+   zpool status | grep logs > /dev/null 2>&1
+   if (( ! $? )) ; then
+   zpool remove frzpool /mnt/ramdisk/ramfile
+   fi
+   zpool add frzpool log /mnt/ramdisk/ramfile
+   RETVAL=$?
+   echo
+     [ $RETVAL -eq 0 ] && touch $LOCKFILE
+   return $RETVAL
+}
+
+stop() {
+   echo -n $"Stopping $BASE:"
+   zfs umount -a
+   zpool remove frzpool /mnt/ramdisk/ramfile
+   umount /mnt/ramdisk
+   RETVAL=$?
+   echo
+     [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+   return $RETVAL
+}
+
+restart() {
+    stop
+    start
+}
+
+check_status() {
+   if [ ! -e $LOCKFILE ] ; then
+     echo "$BASE is stopped"
+   else
+     echo "$BASE is running"
+   fi
+   RETVAL=$?
+   return $RETVAL
+}
+
+
+case $1 in
+    start)
+        $1
+   	    ;;
+    stop)
+        $1
+   	    ;;
+    restart)
+        $1
+        ;;
+    status)
+        check_status
+        ;;
+    *)
+	      echo "Usage: $prog {start| stop| status| restart}"
+	      exit 1
+esac
+
+exit $?

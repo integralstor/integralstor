@@ -1,16 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'nfs_base.html' %}
 
-{%block page-header%}
-  NFS Access
-  <br /><small>
-      NFS Access 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      View NFS shares
-
-  </small>
-{%endblock%}
-
-{%block contents%}
+{%block inside_content %}
 
 {% if conf %}
 <p><i>{{conf}}</i></p>

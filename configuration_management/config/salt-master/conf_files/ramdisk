@@ -1,0 +1,61 @@
+#!/bin/bash
+# chkconfig: 2345 01 98
+# description: create ramdisk and adds it as slog to zpool
+#
+
+### BEGIN INIT INFO
+# Provides: ramdisk
+# Required-Start:
+# Required-Stop:
+# Should-Start:
+# Should-Stop:
+# Default-Start: 3 4 5
+# Default-Stop:
+# Short-Description: Mount/umount the zfs filesystems
+# Description: ZFS is an advanced filesystem designed to simplify managing
+#              and protecting your data.  This service mounts the ZFS
+#              filesystems and starts all related zfs services.
+### END INIT INFO
+
+. /etc/init.d/functions
+
+start() {
+   echo -n "Ramdisk starting"
+   echo " "
+   if [ ! -e /mnt/ramdisk ] ; then
+     mkdir -p /mnt/ramdisk
+   fi
+   mount -t tmpfs -o size=2g tmpfs /mnt/ramdisk
+   dd if=/dev/zero of=/mnt/ramdisk/ramfile bs=1024 count=2M
+   zpool clear frzpool
+   zpool remove frzpool /mnt/ramdisk/ramfile
+   zpool add frzpool log /mnt/ramdisk/ramfile
+   RETVAL=$?
+   return $RETVAL
+}
+
+stop() {
+   echo -n "Ramdisk stopping"
+   echo " "
+   zpool remove frzpool /mnt/ramdisk/ramfile
+   umount /mnt/ramdisk
+   RETVAL=$?
+   return $RETVAL
+}
+
+
+
+case "$1" in
+ start)
+	start
+   	;;
+ stop)
+	stop
+   	;;
+ *)
+	echo "Usage: $prog {start| stop}"
+	exit 1
+	;;
+esac
+
+exit $RETVAL

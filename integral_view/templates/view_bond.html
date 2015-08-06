@@ -1,16 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'networking_base.html' %}
 
-{%block page-header%}
-  Networking
-  <br /><small>
-      Networking
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Network bond details
-
-  </small>
-{%endblock%}
-
-{%block contents%}
+{%block inside_content%}
 
 {% if conf %}
 <p><i>{{conf}}</i></p>
@@ -134,3 +124,8 @@ View network bond details
 {%block help_body%}
   <p> This screen provides details about the selected network bond that have been created on this IntegralStor system. </p>
 {%endblock%}
+{% block tab_active%}
+  <script>
+   make_tab_active("view_interfaces_tab")
+   </script>
+{% endblock %}

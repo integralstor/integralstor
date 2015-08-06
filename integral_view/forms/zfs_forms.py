@@ -27,6 +27,16 @@ class CreateDatasetForm(forms.Form):
         ch.append(tup)
     self.fields['parent'] = forms.ChoiceField(choices=ch)
 
+class CreateZvolForm(forms.Form):
+  name = forms.CharField()
+  compression = forms.BooleanField(required=False)
+  dedup = forms.BooleanField(required=False)
+  pool = forms.CharField()
+  size = forms.DecimalField(decimal_places=1)
+  ch = [('GB', 'G'), ('MB', 'M')]
+  unit = forms.ChoiceField(choices=ch)
+
+
 class SlogForm(forms.Form):
   ch = [('ramdisk', 'RAM disk')]
   slog = forms.ChoiceField(choices=ch)

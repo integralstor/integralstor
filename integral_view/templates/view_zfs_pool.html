@@ -1,16 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'storage_base.html' %}
 
-{%block page-header%}
-  Storage
-  <br /><small>
-      Storage
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      ZFS pool details
-
-  </small>
-{%endblock%}
-
-{%block contents%}
+{%block inside_content %}
 
 {% if conf %}
 <p><i>{{conf}}</i></p>
@@ -20,47 +10,113 @@
 No information for the specified pool. Click <a href="/view_zfs_pools/"> here</a> to view all ZFS storage pools.
 {%else %}
 <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-<h3>Pool name - {{pool.pool_name}}</h3>
-Pool scan - {{pool.scan}}<br>
-Pool errors - {{pool.errors}}<br>
-Pool state - {{pool.state}}<br>
-<a href="/delete_zfs_pool?name={{pool.pool_name}}" role="button" class="btn btn-default"> Delete this pool</a> &nbsp;
-<a href="/set_file_owner_and_permissions?path={{pool.properties.mountpoint.value}}" role="button" class="btn btn-default"> Change ownership and permissions</a><br>
+<table class="table table-bordered table-responsive" style="width:800px">
+<tr>
+<td colspan=3><h3>Pool name - {{pool.pool_name}}</h3></td>
+</tr>
+<tr>
+<td><a href="/delete_zfs_pool?name={{pool.pool_name}}" role="button" class="btn btn-danger"> Delete this pool</a></td>
+<td><a href="/set_file_owner_and_permissions?path={{pool.properties.mountpoint.value}}" role="button" class="btn btn-info"> Change ownership and permissions</a></td>
+<td><a href="/scrub_zfs_pool?name={{pool.pool_name}}" role="button" class="btn btn-info">Initiate a scrub</a></td>
+</tr>
+</table>
+<h4> Pool information </h4>
+<table class="table table-bordered table-hover table-responsive" style="width:800px">
+<tr><th> Pool state </th> <td>{{pool.state}}<td></tr>
+<tr><th> Pool errors </th> <td>{{pool.errors}}<td></tr>
+<tr> <th> Pool scan </th> <td>{{pool.scan}}<td></tr>
+</table>
 <b> Pool components</b>
 <ul>
-{%for comp_name, comp in pool.config.pool.components.items %}
-<li> Name - {{comp.name}}, Type - {{comp.type}}, Status - State ({{comp.state}}), Read ({{comp.read}}), Write ({{comp.write}}), Chksum ({{comp.chksum}}), Parent component - {{comp.parent}}, Children components - {{comp.children}}
-{%endfor%}
+  {%for child in pool.config.pool.root.children %}
+  <li> Name - {{child.name}}, Type - {{child.type}}, Status - State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
+    {%if child.children %}
+    <ul>
+      {%for gr_child in child.children %}
+        <li> Name - {{gr_child.name}}, Type - {{gr_child.type}}, Status - State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
+        {%if gr_child.children %}
+        <ul>
+          {%for gr_gr_child in gr_child.children %}
+            <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
+  
+          {%endfor%}
+        </ul>
+        {%endif%}
+      {%endfor%}
+    </ul>
+    {%endif%}
+  {%endfor%}
 </ul>
 
-<p><b> Write Cache </b></p>
+<hr>
+<h4> Write cache information </h4>
 {% if pool.config.logs %}
-<ul>
-{%for comp_name, comp in pool.config.logs.components.items %}
-<li> Name - {{comp.name}}, Type - {{comp.type}}, Status - State ({{comp.state}}), Read ({{comp.read}}), Write ({{comp.write}}), Chksum ({{comp.chksum}}), Parent component - {{comp.parent}}, Child components - {{comp.children}}
-{%endfor%}
-</ul>
+  <b> Write cache components</b>
+  <ul>
+    {%for child in pool.config.logs.root.children %}
+    <li> Name - {{child.name}}, Type - {{child.type}}
+      {%if child.type == 'RAMDisk' and child.ramdisk_size %}, RAM Disk size - {{child.ramdisk_size}}MB {%endif%}
+    , Status - State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
+      {%if child.children %}
+      <ul>
+        {%for gr_child in child.children %}
+          <li> Name - {{gr_child.name}}, Type - {{gr_child.type}}, Status - State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
+          {%if gr_child.children %}
+          <ul>
+            {%for gr_gr_child in gr_child.children %}
+              <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
+    
+            {%endfor%}
+          </ul>
+          {%endif%}
+        {%endfor%}
+      </ul>
+      {%endif%}
+    {%endfor%}
+  </ul>
+  {% if pool.config.logs.root.children.0.type == 'RAMDisk' %}
+  <a href="/remove_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}" role="button" class="btn btn-default"> Remove the write cache RAM Disk device..</a>
+  {%endif%}
 {%else%}
-Disk <br> 
+<b>Write cache in use : </b> Disk<br>
 <a href="/set_zfs_slog?pool={{pool.pool_name}}" role="button" class="btn btn-default"> Change the write cache device..</a>
 {%endif%}
 
-<p><b> Read Cache components</b></p>
+<hr>
+<h4> Read cache information </h4>
 {% if pool.config.cache %}
-<ul>
-{%for comp_name, comp in d.config.cache.components.items %}
-<li> Name - {{comp.name}}, Type - {{comp.type}}, Status - State ({{comp.state}}), Read ({{comp.read}}), Write ({{comp.write}}), Chksum ({{comp.chksum}}), Parent component - {{comp.parent}}, Children components - {{comp.children}}
-{%endfor%}
-</ul>
+  <b> Read cache components</b>
+  <ul>
+    {%for child in pool.config.cache.root.children %}
+    <li> Name - {{child.name}}, Type - {{child.type}}, Status - State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
+      {%if child.children %}
+      <ul>
+        {%for gr_child in child.children %}
+          <li> Name - {{gr_child.name}}, Type - {{gr_child.type}}, Status - State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
+          {%if gr_child.children %}
+          <ul>
+            {%for gr_gr_child in gr_child.children %}
+              <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
+    
+            {%endfor%}
+          </ul>
+          {%endif%}
+        {%endfor%}
+      </ul>
+      {%endif%}
+    {%endfor%}
+  </ul>
 {%else%}
-RAM<br>
+<b>Read cache in use : </b> RAM<br>
 {%endif%}
 
+<hr>
+<h4> Filesystem datasets </h4>
 {% if pool.datasets %}
 <table  class="table table-bordered">
 <tr>
-<th colspan=3> Datasets in this pool</th>
-<th> <a href="/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}" role="button" class="btn btn-default"> Create a new dataset</a></th>
+<th colspan=3> Filesystem datasets in this pool</th>
+<th> <a href="/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}" role="button" class="btn btn-default"> Create a new filesystem dataset</a></th>
 </tr>
 <tr>
 <th> Name</th>
@@ -69,19 +125,51 @@ RAM<br>
 <th> &nbsp;</th>
 </tr>
 {%for ds in pool.datasets%}
+{% if ds.properties.type.value == 'filesystem'%}
 <tr>
 <td>{{ds.name}}</td>
 <td>{{ds.used}}</td> 
 <td>{%if 'snapshots' in ds%} <ul> {%for sn in ds.snapshots%}<li>{{sn.snapshot_name}},{%endfor%}</ul>{%else%} &nbsp;{%endif%}</td>
 <td><a href="/view_zfs_dataset?name={{ds.name}}" role="button" class="btn btn-default"> Details</a></td> 
 </tr>
+{%endif%}
 {%endfor%}
 </table>
 {%else%}
-<p> No datasets created </p>
-<a href="/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}" role="button" class="btn btn-default"> Create a dataset</a>
+<p> No filesystem datasets created </p>
+<a href="/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}" role="button" class="btn btn-default"> Create a filesystem dataset</a>
 {%endif%}
-<p><b> Snapshots for this pool </b></p>
+<hr>
+<h4> Block device volumes </h4>
+{% if pool.datasets %}
+<table  class="table table-bordered">
+<tr>
+<th colspan=3> Block device volumes in this pool</th>
+<th> <a href="/create_zfs_zvol?pool={{pool.pool_name}}" role="button" class="btn btn-default"> Create a new block device volume</a></th>
+</tr>
+<tr>
+<th> Name</th>
+<th> Space used</th>
+<th> Snapshots</th>
+<th> &nbsp;</th>
+</tr>
+{%for ds in pool.datasets%}
+{% if ds.properties.type.value == 'volume'%}
+<tr>
+<td>{{ds.name}}</td>
+<td>{{ds.used}}</td> 
+<td>{%if 'snapshots' in ds%} <ul> {%for sn in ds.snapshots%}<li>{{sn.snapshot_name}},{%endfor%}</ul>{%else%} &nbsp;{%endif%}</td>
+<td><a href="/view_zfs_zvol?name={{ds.name}}" role="button" class="btn btn-default"> Details</a></td> 
+</tr>
+{%endif%}
+{%endfor%}
+</table>
+{%else%}
+<p> No block device volumes created </p>
+<a href="/create_zfs_zvol?pool={{pool.pool_name}}" role="button" class="btn btn-default"> Create a new block device volume</a>
+{%endif%}
+<hr>
+<h4> Pool snapshots </h4>
 {% if not snap_list %}
 <p>No ZFS snapshots appear to have been created for this pool. </p>
 <a href="/create_zfs_snapshot?target={{pool.pool_name}}" role="button" class="btn btn-default">Create a pool snapshot </a>
@@ -155,3 +243,15 @@ View all ZFS pools
 {%block help_body%}
   <p> This screen provides the list of all the ZFS pools that have been created on this IntegralStor system. To view details about a particular ZFS pool, please select the the desired pool from the list.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}
+
+
+
+
+
+

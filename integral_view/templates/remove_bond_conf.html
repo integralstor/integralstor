@@ -1,15 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'networking_base.html' %}
 
-{%block page-header%}
-  Storage
-  <br /><small>
-      Networking
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Remove a network bond
-  </small>
-{%endblock%}
-
-{%block contents%}
+{% block inside_content %}
 
 <!-- Modal -->
 <div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -30,7 +21,7 @@
 <br>
 <form action="/remove_bond/" method="POST">
 <input type=hidden name="name" value="{{name}}">
-<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_bond?name={{name}}'"> &nbsp;&nbsp;
+<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_bond?name="{{name}}"'"> &nbsp;&nbsp;
 <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and continue >></button>
 </form>
 
@@ -42,3 +33,11 @@ Remove a network bond
 {%block help_body%}
 <p>Confirming this operation results in the removal of the specified network bond in the system. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_interfaces_tab")
+  </script>
+{% endblock %}
+
+

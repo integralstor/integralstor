@@ -1,13 +1,4 @@
-{% extends 'logged_in_base.html' %}
-
-{%block page-header%}
-  Networking
-  <br /><small>
-      Networking
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Edit interface address 
-  </small>
-{%endblock%}
+{% extends 'networking_base.html' %}
 
 <!--
 <script type="text/javascript">
@@ -36,7 +27,7 @@ function select_guest_ok() {
 -->
 
 
-{%block contents%}
+{% block inside_content %}
 
 {{conf_message}}
 
@@ -146,3 +137,10 @@ Edit a network interface
 {%block help_body%}
 <p>Use this screen to change the settings for a particular network interface. The settings will take effect upon saving this information.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_interfaces_tab")
+  </script>
+{% endblock %}
+

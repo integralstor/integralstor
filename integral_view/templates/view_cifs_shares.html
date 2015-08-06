@@ -1,18 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'cifs_base.html' %}
 
-{%block page-header%}
-  File Access
-  <br /><small>
-      File Access 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Shares
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      View Shares
-
-  </small>
-{%endblock%}
-
-{%block contents%}
+{%block inside_content %}
 
 {% if conf %}
 <i>{{conf}}</i>

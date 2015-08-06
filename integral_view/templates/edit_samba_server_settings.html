@@ -1,19 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'services_base.html' %}
 
-{%block page-header%}
-  File Access
-  <br /><small>
-      File Access 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Authentication 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Authentication Settings (Edit)
-
-  </small>
-{%endblock%}
-
-{%block contents%}
-
+{%block inside_content %}
 <p id="p-instruction-text">{{conf}}</p>
 {{form.errors}}
 
@@ -90,3 +77,9 @@ Active Directory Authentication settings
 {%block help_body%}
 <p> Use this screen to provide information about your Active Directory server against which authentication for share access will happen. Please ensure that you provide the correct server name, IP address and administrative user password in order for the authentication to proceed properly.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("auth_server_settings_tab")
+  </script>
+{% endblock %}

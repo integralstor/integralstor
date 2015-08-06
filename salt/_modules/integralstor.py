@@ -186,10 +186,12 @@ def status():
       
 if __name__ == '__main__':
   #print status()
+  #print status()
   #print _diskmap()
   pp = pprint.PrettyPrinter(indent=4)
-  pp.pprint(disk_info_and_status())
-  #d = pool_status()
+  #pp.pprint(disk_info_and_status())
+  d = pool_status()
+  pp.pprint(d)
   #pp.pprint(d)
   #print disk_status()
   #print interface_status()

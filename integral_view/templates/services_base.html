@@ -1,0 +1,25 @@
+{% extends 'logged_in_base.html' %}
+
+{% block contents %}
+  <div class="nav-tabs-custom">
+	<ul class="nav nav-tabs">
+	  <li id="view_services_tab"><a href="/view_services/">View Services</a></li>
+    <li id="ntp_settings_tab"><a href="/show/ntp_settings/" >Configure NTP</a></li>
+    <li id="auth_server_settings_tab"><a href="/auth_server_settings/">Configure CIFS access</a></li>
+    {% include 'help_and_refresh.html' %}
+</ul>
+	<div class="tab-content">
+	  <div class="tab-pane active" id="content">
+     {% block inside_content %}
+      Information Not found. Please refresh the page
+     {% endblock inside_content %}
+    </div>
+  </div>
+  </div>
+
+{% endblock%}
+{% block menu_active %}
+<script>
+   make_side_menu_active("services_menu")
+</script>
+{% endblock%}

@@ -1,16 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'users-groups_base.html' %}
 
-{%block page-header%}
-  Users and groups
-  <br /><small>
-      Users and groups
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      View Local group
-
-  </small>
-{%endblock%}
-
-{%block contents%}
+{% block inside_content %}
 
 {{conf}}
 
@@ -45,3 +35,9 @@ Local group details
 {%block help_body%}
 <p>Use this screen to view details about a particular group that has been created. </p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_local_groups_tab")
+  </script>
+{% endblock %}

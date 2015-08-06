@@ -1,17 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'services_base.html' %}
 
-{%block page-header%}
-  CIFS Access configuration
-  <br /><small>
-      Services
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Configure CIFS Access
-
-  </small>
-{%endblock%}
-
-
-{%block contents%}
+{% block inside_content %}
 
 {% if not samba_global_dict %}
 <p id="p-instructional-text"> You have not configured authentication settings.</p><br>

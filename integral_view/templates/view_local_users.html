@@ -1,16 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'users-groups_base.html' %}
 
-{%block page-header%}
-  Users and groups
-  <br /><small>
-    Users and groups
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Local Users
-
-  </small>
-{%endblock%}
-
-{%block contents%}
+{% block inside_content %}
 
 
 {% if conf %}
@@ -83,3 +73,9 @@ View local users
 {%block help_body%}
   <p>Use local user authentication when you want CIFS access but do not want to use or deploy Active Directory authentication. This page is used to view the list of local users who have been created for this purpose. These accounts are used only for IntegralStor access and not for any other purpose.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_local_users_tab")
+  </script>
+{% endblock %}

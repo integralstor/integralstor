@@ -1,17 +1,7 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'networking_base.html' %}
 
 
-{%block page-header%}
-  Networking
-  <br /><small>
-      Networking
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Create a network bond 
-  </small>
-{%endblock%}
-
-
-{%block contents%}
+{% block inside_content %}
 
 {{conf_message}}
 <form class="form-horizontal" role="form"name="create_form" action="" method="post">
@@ -73,3 +63,9 @@
 {%block help_body%}
 Help about creating a network bond
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_interfaces_tab")
+  </script>
+{% endblock %}

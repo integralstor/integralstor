@@ -1,15 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'storage_base.html' %}
 
-{%block page-header%}
-  Storage
-  <br /><small>
-      Storage
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Rollback to a ZFS snapshot
-  </small>
-{%endblock%}
-
-{%block contents%}
+{%block inside_content %}
 
 <!-- Modal -->
 <div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -43,3 +34,9 @@ Rolling back to a ZFS snapshot
 {%block help_body%}
 <p>Confirming this operation results in the specified ZFS dataset/pool being rolled back to the specified snapshot. This will result in the loss of all the data changes made after the snapshot was taken. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}

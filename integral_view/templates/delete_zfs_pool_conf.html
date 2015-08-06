@@ -1,15 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'storage_base.html' %}
 
-{%block page-header%}
-  Storage
-  <br /><small>
-      Storage
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Delete ZFS pool
-  </small>
-{%endblock%}
-
-{%block contents%}
+{%block inside_content %}
 
 <!-- Modal -->
 <div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -31,7 +22,7 @@
 <form action="/delete_zfs_pool/" method="POST">
 <input type=hidden name="name" value="{{name}}">
 <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_pools'"> &nbsp;&nbsp;
-<button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and delete >></button>
+<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete >></button>
 </form>
 
 
@@ -42,3 +33,9 @@ Deleting a ZFS pool
 {%block help_body%}
 <p>Confirming this operation results in the specified ZFS pool being deleted from the system. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}

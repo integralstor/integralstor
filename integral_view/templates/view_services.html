@@ -1,16 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'services_base.html' %}
 
-{%block page-header%}
-  Services
-  <br /><small>
-      Services
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      View services
-
-  </small>
-{%endblock%}
-
-{%block contents%}
+{% block inside_content %}
 
 {% if conf %}
 <p><i>{{conf}}</i></p>

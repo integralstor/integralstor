@@ -1,16 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'networking_base.html' %}
 
-{%block page-header%}
-  Networking
-  <br /><small>
-      Networking
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Network interfaces
-
-  </small>
-{%endblock%}
-
-{%block contents%}
+{% block inside_content %}
 
 {% if conf %}
 <p><i>{{conf}}</i></p>

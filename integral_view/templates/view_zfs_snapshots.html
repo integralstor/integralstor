@@ -1,23 +1,13 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'storage_base.html' %}
 
-{%block page-header%}
-  Storage
-  <br /><small>
-      Storage
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      ZFS snapshot manager
-
-  </small>
-{%endblock%}
-
-{%block contents%}
+{%block inside_content %}
 
 {% if conf %}
 <p><i>{{conf}}</i></p>
 {%endif%}
 
 {% if not snap_list %}
-No ZFS snapshots appear to have been created. Click <a href="/create_zfs_snapshot/"> here</a> to create a new ZFS snapshot.
+No ZFS snapshots appear to have been created.<br /> <br /> 
 {%else %}
 <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
 <table  class="table table-bordered">
@@ -73,7 +63,7 @@ Rename this snapshot
 {%endfor%}
 </table>
 {%endif%}
-<a href="/create_zfs_snapshot" role="button" class="btn btn-default">Create a snapshot </a>
+<a href="/create_zfs_snapshot" role="button" class="btn btn-primary">Create a snapshot </a>
 </div>
 <p>
 <!--
@@ -86,3 +76,9 @@ View all ZFS snapshots
 {%block help_body%}
   <p> This screen provides the list of all the ZFS snapshots that have been created on this IntegralStor system.  </p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_zfs_snapshots_tab")
+  </script>
+{% endblock %}

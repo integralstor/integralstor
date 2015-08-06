@@ -1,18 +1,7 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'system_base.html' %}
 
 
-{%block page-header%}
-  Platform
-    <br /><small>
-      Platform 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      GRIDCell Status
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      {{node_name}}
-  </small>
- {%endblock%}
-
-{%block contents%}
+{%block inside_content%}
 <table class="table table-bordered table-striped table-hover" style="width:60%">
 <tr>
   <th>
@@ -200,9 +189,21 @@
         ZFS Pool type
       </td>
       <td colspan=5>
-        {%if pool.config.type == 'normal' %} Non-RAID {%elif pool.config.type == 'raidz1'%} RAID-5 {%endif%}
+        {{pool.config.pool.type}}
       </td>
     </tr>
+    <tr>
+      <td colspan=1>
+        &nbsp;
+      </td>
+      <td colspan=3>
+        ZFS Pool state
+      </td>
+      <td colspan=5>
+        {{pool.state}} ({{pool.config.pool.status.read}} read errors, {{pool.config.pool.status.write}} write errors, {{pool.config.pool.status.chksum}} checksum errors)
+      </td>
+    </tr>
+    {%if pool.status %}
     <tr>
       <td colspan=1>
         &nbsp;
@@ -211,32 +212,20 @@
         ZFS Pool status
       </td>
       <td colspan=5>
-        {{pool.state}} ({{pool.config.pool.status.read}} read errors, {{pool.config.pool.status.write}} write errors, {{pool.config.pool.status.chksum}} checksum errors)
-      </td>
-    </tr>
-    {% if 'logs' in pool.config and pool.config.logs%}
-    <tr>
-      <td colspan=1>
-      &nbsp;
-      </td>
-      <td colspan=3>
-        ZFS Write cache status
-      </td>
-      <td colspan=5>
-         {{pool.config.logs.status.state}} ({{pool.config.logs.status.read}} read errors, {{pool.config.logs.status.write}} write errors, {{pool.config.logs.status.chksum}} checksum errors)
+        {{pool.status}} 
       </td>
     </tr>
     {%endif%}
-    {% if pool.type == 'raidz1' %}
+    {%if pool.see %}
     <tr>
       <td colspan=1>
-      &nbsp;
+        &nbsp;
       </td>
       <td colspan=3>
-        ZFS Pool RAID status
+        See
       </td>
       <td colspan=5>
-         {{pool.raid_or_mirror_status.state}} ({{pool.raid_or_mirror_status.read}} read errors, {{pool.raid_or_mirror_status.write}} write errors, {{pool.raid_or_mirror_status.cksum}} checksum errors)
+        {{pool.see}} 
       </td>
     </tr>
     {%endif%}
@@ -370,6 +359,7 @@
 
 <script>
   $(document).ready(function(){
+    
     var tds = $('td[id^="status_"]')
     tds.each(function(){if($(this).html().trim() != "Passed"){var id = $(this).closest('tr').children("td:first").html().trim(); $("#"+id).addClass('red')}})
   });
@@ -383,7 +373,8 @@
         $("#message_content").html('<strong>Success !</strong> LED is blinking on the GRIDCell.')
         $("#message").show();
       },
-      error : function(){
+      error : function(textstatus,err){
+        console.log(textstatus,err)
         $(".alert").addClass("alert-danger")
         $("#message_content").html('<strong>Error !</strong> Plese try again. Something just went  off .')
         $("#message").show();

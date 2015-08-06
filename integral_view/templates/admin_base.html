@@ -1,0 +1,24 @@
+{% extends 'logged_in_base.html' %}
+
+{% block contents %}
+  <div class="nav-tabs-custom">
+	<ul class="nav nav-tabs">
+	  <li><a href="/change_admin_password/">Change Admin Password</a></li>
+    {%if request.user.is_superuser%} <li><a href="/reset_to_factory_defaults/">Reset to factory defaults</a></li>{%endif%}
+    {% include 'help_and_refresh.html' %}
+</ul>
+	<div class="tab-content">
+	  <div class="tab-pane active" id="content">
+     {% block inside_content %}
+      Information Not found. Please refresh the page
+     {% endblock inside_content %}
+    </div>
+  </div>
+  </div>
+
+{% endblock%}
+{% block menu_active %}
+<script>
+   make_side_menu_active("admin_menu")
+</script>
+{% endblock %}

@@ -18,8 +18,30 @@ import integral_view
 from integral_view.forms import common_forms
 from integral_view.samba import samba_settings, local_users
 from django.contrib.auth.decorators import login_required
-
+from django.http import HttpResponse
 production = common.is_production()
+
+def dir_contents(request):
+  path = "/"
+  dirs = os.listdir(path)
+  dir_dict_list = []
+  if not dirs:
+    d_dict = {'id':path, 'text':"/",'icon':'fa fa-angle-right','children':True,'data':{'dir':path},'parent':"#"}
+    dir_dict_list.append(d_dict)
+  print dirs
+  for d in dirs:
+    print path+"/"+d
+    true = True
+    if os.path.isdir(path+"/"+d):
+      if path == "/":
+        parent = "#"
+      else:
+        parent = path
+      print parent
+      d_dict = {'id':path+d+"/", 'text':d,'icon':'fa fa-angle-right','children':True,'data':{'dir':path+d+"/"},'parent':parent}
+      dir_dict_list.append(d_dict)
+  print dir_dict_list
+  return HttpResponse(json.dumps(dir_dict_list),mimetype='application/json')
 
 @login_required    
 def set_file_owner_and_permissions(request):
@@ -333,12 +355,11 @@ def show(request, page, info = None):
               disk_status[key]["background_color"] = "bg-red"
               disk_status[key]["disk_pos"] = {}
               disk_status[key]["name"] = "Unknown"
-        '''
         
         template = "view_disk_status.html"
         return_dict["disk_status"] = disk_status
         return_dict["disk_new"] = disk_new
-
+        '''
 
 
     elif page == "dashboard":
@@ -347,18 +368,77 @@ def show(request, page, info = None):
       total_nodes = len(si)
       nodes = {}
 
+      if not info:
+        info = si.keys()[0]
+      # Get the node name
+      return_dict['node_name'] = info
+
+      return_dict['node'] = si[info]
+
+      # Hardware Status
+      d = {}
+      l = []
+      for ipmi in si[info]['ipmi_status']:
+        if 'cpu' in ipmi['component_name'].lower():
+          l.append(ipmi)
+      d['ipmi_status'] = l
+      d['load_avg'] = si[info]['load_avg']
+      return_dict['cpu_status'] =  d
+
+      d = {}
+      d['ipmi_status'] = si[info]['ipmi_status']
+      return_dict['hardware_status'] =  d
+
+      return_dict['memory_status'] =  si[info]['memory']
+
+      return_dict['node_name'] = info
+
+
+      # Network
+      return_dict["network_status"] = si[info]['interfaces']
+
+      # Services
+      import salt.client
+      client = salt.client.LocalClient()
+      winbind = client.cmd(info,'cmd.run',['service winbind status'])
+      smb = client.cmd(info,'cmd.run',['service smb status'])
+      return_dict['services_status'] = {}
+      return_dict['services_status']['winbind'] = winbind[info]
+      return_dict['services_status']['smb'] = smb[info]
+
+      # Disks
+      sorted_disks = []
+      for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
+        sorted_disks.append(key)
+      return_dict["disk_status"] = si[info]['disks']
+      return_dict["disk_pos"] = sorted_disks
+
+      # Pools
+      pools, err = zfs.get_pools()
+      print pools, err
+      if pools:
+        return_dict['pools'] = pools            
+
+
+      if "from" in request.GET:
+        frm = request.GET["from"]
+        return_dict['frm'] = frm
+      template = "view_dashboard.html"
+      '''
+      # Get the number of bad nodes
       for k, v in si.items():
         nodes[k] = v["node_status"]
         if v["node_status"] != 0:
           num_nodes_bad += 1
-          
-      pools, err = zfs.get_pools()
-      if pools:
-        return_dict["pools"] = pools            
+
       return_dict["num_nodes_bad"] = num_nodes_bad            
       return_dict["total_nodes"] = total_nodes            
-      return_dict["nodes"] = nodes            
-      template = "view_dashboard.html"
+      return_dict["nodes"] = nodes   
+      sorted_disks = []
+      for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
+        sorted_disks.append(key)
+      si[info]["disk_pos"] = sorted_disks
+      '''
 
     elif page == "alerts":
 
@@ -454,50 +534,20 @@ def configure_ntp_settings(request):
           slist = server_list.split(',')
         else:
           slist = server_list.split(' ')
-        try:
-          primary_server = "primary.fractalio.lan"
-          secondary_server = "secondary.fractalio.lan"
+        with open('/tmp/ntp.conf', 'w') as temp:
           #First create the ntp.conf file for the primary and secondary nodes
-          temp = tempfile.NamedTemporaryFile(mode="w")
           temp.write("driftfile /var/lib/ntp/drift\n")
           temp.write("restrict default kod nomodify notrap nopeer noquery\n")
           temp.write("restrict -6 default kod nomodify notrap nopeer noquery\n")
-          temp.write("includefile /etc/ntp/crypto/pw\n")
-          temp.write("keys /etc/ntp/keys\n")
+          temp.write("logfile /var/log/ntp.log\n")
           temp.write("\n")
           for server in slist:
             temp.write("server %s iburst\n"%server)
           temp.flush()
-          shutil.move(temp.name, "%s/ntp/primary_ntp.conf"%fractalio.common.get_admin_vol_mountpoint())
-          #client = salt.client.LocalClient()
-          #client.cmd('roles:master', 'cp.get_file', ["salt://tmp/%s"%os.path.basename(temp.name), '%s/ntp.conf'%fractalio.common.get_ntp_conf_path()], expr_form='grain')
-          #client.cmd('roles:master', 'cmd.run_all', ["service ntpd restart"], expr_form='grain')
-          #shutil.copyfile(temp.name, '%s/ntp.conf'%settings.NTP_CONF_PATH)
-          temp1 = tempfile.NamedTemporaryFile(mode="w")
-          temp1.write("server %s iburst\n"%primary_server)
-          temp1.write("server %s iburst\n"%secondary_server)
-          for s in si.keys():
-            temp1.write("peer %s iburst\n"%s)
-          temp1.write("server 127.127.1.0\n")
-          temp1.write("fudge 127.127.1.0 stratum 10\n")
-          temp1.flush()
-          shutil.move(temp1.name, "%s/ntp/secondary_ntp.conf"%fractalio.common.get_admin_vol_mountpoint())
-          #client.cmd('role:secondary', 'cp.get_file', ["salt://tmp/%s"%os.path.basename(temp1.name), '%s/ntp.conf'%fractalio.common.get_ntp_conf_path()], expr_form='grain')
-          #client.cmd('role:secondary', 'cmd.run_all', ["service ntpd restart"], expr_form='grain')
-          #shutil.copyfile(temp.name, '/tmp/ntp.conf')
-  
-          '''
-          lines = ntp.get_non_server_lines()
-          if lines:
-            for line in lines:
-              temp.write("%s\n"%line)
-          '''
-          #ntp.restart_ntp_service()
-        except Exception, e:
-          return_dict["error"] = "Error updating NTP information : %s"%e
-          return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance = django.template.context.RequestContext(request))
-        else:
-          return django.http.HttpResponseRedirect("/show/ntp_settings?saved=1")
+          temp.close()
+        shutil.move('/tmp/ntp.conf', '/etc/ntp.conf')
+        ntp.restart_ntp_service()
+        return django.http.HttpResponseRedirect("/show/ntp_settings?saved=1")
       else:
         #invalid form
         iv_logging.debug("Got invalid request to change NTP settings")
@@ -506,10 +556,7 @@ def configure_ntp_settings(request):
     return django.shortcuts.render_to_response(url, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
@@ -535,10 +582,10 @@ def flag_node(request):
   ret = client.cmd(node_name,'cmd.run',['ipmitool chassis identify %s' %(blink_time)])
   print ret
   if ret[node_name] == 'Chassis identify interval: %s seconds'%(blink_time):
-    return django.shortcuts.render_to_response("node_flagged.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    return django.http.HttpResponse("Success")
   else:
     return_dict["error"] = "err"
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    return django.http.HttpResponse("Error")
   # str = "/opt/fractal/bin/client %s ipmitool chassis identify 255"%node_name
   # iv_logging.debug("Flagging node %s using %s"%(node_name,str))
   # r, rc = command.execute_with_rc("/opt/fractal/bin/client %s ipmitool chassis identify 255"%node_name)
@@ -658,9 +705,6 @@ def reset_to_factory_defaults(request):
       return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-  
-
-
 @login_required
 def internal_audit(request):
 
@@ -687,81 +731,11 @@ def internal_audit(request):
 ###  PLEASE DO CONFIRM BELOW DELETING OR DELETE WHEN PUSHING THE DEVELOP TO MASTER AS A PROCESS OF CODE CLEANUP.
 
 '''
-def accept_manifest(request):
-  if request.method == "GET":
-    return_dict["error"] = "Invalid access. Please use the GUI."
-    return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
-  return_dict = {}
-  try:
-    dir = settings.BATCH_COMMANDS_DIR
-  except:
-    dir = "."
-  manifest = request.POST["manifest"]
-  if not os.path.isfile("%s/manifest/%s"%(settings.BASE_FILE_PATH, manifest)):
-    return_dict["error"] = "Specified configuration does not exist. Please use the GUI."
-    return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
-  try :
-    shutil.move("%s/manifest/%s"%(settings.BASE_FILE_PATH, manifest), "%s/master.manifest"%settings.SYSTEM_INFO_DIR)
-  except Exception, e:
-    return_dict['error'] = 'Error updating to the new configuratio : %s'%e
-    return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
-
-  return django.shortcuts.render_to_response('accept_manifest_conf.html', return_dict, context_instance=django.template.context.RequestContext(request))
-
-
-
 def del_email_settings(request):
-
   try:
     mail.delete_email_settings()
     return django.http.HttpResponse("Successfully cleared email settings.")
   except Exception, e:
     iv_logging.debug("Error clearing email settings %s"%e)
     return django.http.HttpResponse("Problem clearing email settings %s"%str(e))
-
-def require_login(view):
-
-  def new_view(request, *args, **kwargs):
-    if request.user.is_authenticated():
-      return view(request, *args, **kwargs)
-    else:
-      return django.http.HttpResponseRedirect('/login')
-
-  return new_view
-
-def require_admin_login(view):
-
-  def new_view(request, *args, **kwargs):
-    if request.user.is_authenticated() and request.user.username == 'dlcadmin':
-      return view(request, *args, **kwargs)
-    else:
-      return django.http.HttpResponseRedirect('/login')
-
-  return new_view
-    elif page=="refresh_status":
-      if "file_name" not in request.REQUEST:
-        return_dict['error'] = 'Invalid request. No status file specified'
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
-      file_name = request.REQUEST["file_name"]
-      if not os.path.isfile("%s/status/%s"%(settings.BASE_FILE_PATH, file_name)):
-        return_dict['error'] = 'The requested status file does not exist'
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
-      o = ""
-      with open("%s/status/%s"%(settings.BASE_FILE_PATH, file_name), "r") as f:
-        l = f.readline()
-        #print l
-        while l:
-          tl = l.rstrip()
-          if tl == "==done==":
-            #print "done"
-            o += '<script type="text/javascript">'
-            o += 'window.done = 1;'
-            o+= '</script>'
-            break
-          else:
-            #print l
-            o += l
-            o += "<br>"
-          l = f.readline()
-      return django.http.HttpResponse(o)
 '''

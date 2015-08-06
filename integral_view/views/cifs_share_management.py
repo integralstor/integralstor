@@ -8,7 +8,7 @@ from integral_view.samba import samba_settings, local_users
 import salt.client
 
 import integralstor_common
-from integralstor_common import audit, networking
+from integralstor_common import audit, networking,zfs
 
 def view_cifs_shares(request):
 
@@ -234,6 +234,13 @@ def create_cifs_share(request):
       #Return the form
       form = samba_shares_forms.ShareForm(user_list = user_list, group_list = group_list)
       return_dict["form"] = form
+      pools = zfs.get_pools()
+      pool_list = [] 
+      for pool in pools[0]:
+        pool_list.append({pool["pool_name"]:pool["properties"]["mountpoint"]["value"]})
+        for ds in pool["datasets"]:
+          pool_list.append({ds["name"]:ds["mountpoint"]})
+      return_dict["pool_list"] = pool_list
       return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       #Form submission so create

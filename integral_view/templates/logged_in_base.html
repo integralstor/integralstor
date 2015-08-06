@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css" type="text/css" />
   <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css"/>
   <link rel="stylesheet" type="text/css" href="/static/css/AdminLTE.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/skin-yellow.css">
   <link rel="stylesheet" type="text/css" href="/static/css/fractalio.css">
   <title> 
 		{%block title%}
@@ -34,27 +35,25 @@ function ()
 {%block header_scripts%}
 {%endblock%}
 </head>
-<body class="skin-blue fixed">
+<body class="skin-yellow fixed">
+  <div class="wrapper">
     <!-- Top Menu-->
-    <header class="header">
+    <header class="main-header">
             <a href="/show/dashboard/" class="logo">
                 <!-- Add the class icon to your logo image or logo icon to add the margining -->
-
-                 <img src="/static/images/LOGO-transparent.png" height="45" width="45" alt="Fractalio Data" class="pull-left margin-left-1"/>
-                 <img src="/static/images/fractalio name-white.png" height="45" width="175" alt="Fractalio Data" class="margin-left-minus10"/>
+                 <img src="/static/images/LOGO-transparent.png" height="45" width="45" alt="Fractalio Data" class="pull-left margin-left-40"/>
             </a>
             <!-- Header Navbar: style can be found in header.less -->
             <nav class="navbar navbar-static-top" role="navigation">
                 <!-- Sidebar toggle button-->
-                <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
+                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </a>
-                <a href="/show/dashboard" class="white margin-left-30 hidden-phone"><img src="/static/images/integralview-white.png"  height="40" height="100"/><sub style="bottom: -1.25em;">Beta</sub></a>
-                 
-                <div class="navbar-right">
+                <a href="/show/dashboard" class="white margin-left-30 hidden-phone"><img src="/static/images/integralview-white.png" height="45" width="100"/><sub style="bottom: -1.25em;">Beta</sub></a>
+                <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
                         <!-- User Account: style can be found in dropdown.less -->
                         <li class="dropdown messages-menu" id="alerts-dropdown">
@@ -82,7 +81,7 @@ function ()
                             </a>
                             <ul class="dropdown-menu">
                                 <!-- User image -->
-                                <li class="user-header bg-light-blue">
+                                <li class="user-header">
                                     <img src="/static/images/LOGO-transparent.png" class="img-circle" alt="User Image">
                                     <p>
                                         {{request.user.username|default:'admin'}}
@@ -120,139 +119,67 @@ function ()
 <!-- end of top menu -->
 
 <!-- Side Menu -->
-        <div style="min-height: 590px;" class="wrapper row-offcanvas row-offcanvas-left">
             <!-- Left side column. contains the logo and sidebar -->
-            <aside style="min-height: 590px;" class="left-side sidebar-offcanvas">
+            <aside style="min-height: 890px;" class="main-sidebar">
                 <!-- sidebar: style can be found in sidebar.less -->
                 <section class="sidebar">
-
+                  <div class="user-panel">
+                    <div class="pull-left image">
+                      <a href="/show/dashboard" class="white hidden-phone"><img src="/static/images/fractalio name-white.png" width="170" height="45"/></a>
+                   </div>
+                  </div>
                     <!-- sidebar menu: : style can be found in sidebar.less -->
                     <ul class="sidebar-menu">
-                        <li class="active">
+                        <li id="dashboard_menu">
                             <a href="/show/dashboard/">
                                 <i class="fa fa-dashboard"></i> <span>Dashboard</span>
                             </a>
                         </li>
-                        <li class="treeview">
-                            <a href="#">
+                        <li id="system_menu">
+                            <a href="/show/node_info/">
                                 <i class="fa fa-th"></i>
                                 <span>System</span>
-                                <i class="fa fa-angle-left pull-right"></i>
                             </a>
-                            <ul class="treeview-menu">
-                              <li>
-                                <a href="/show/node_info/" data-toggle="tooltip" title="View current system configuration">
-                                  <i class="fa fa-angle-right"></i> System configuration
-                                </a>
-                              </li>
-                              <li>
-                                <a href="/show/node_status/" data-toggle="tooltip" title="View current system status">
-                                  <i class="fa fa-angle-right"></i> System status
-                                </a>
-                              </li>
-                              <li>
-                                <a href="/view_interfaces" data-toggle="tooltip" title="View and edit network interface and bonding configurations" >
-                                    <i class="fa fa-angle-right"></i> Configure network Interfaces
-                                </a>
-                              </li>
-                              <li>
-                                <a href="/show/email_settings/">
-                                  <i class="fa fa-angle-right"></i> Configure email alerts
-                                </a>
-                              </li>
-                            </ul>
                         </li>
-                        <li class="treeview">
-                            <a href="#">
+                        <li id="services_menu">
+                            <a href="/view_services/">
                                 <i class="fa fa-th"></i>
                                 <span>Services</span>
-                                <i class="fa fa-angle-left pull-right"></i>
                             </a>
-                            <ul class="treeview-menu">
-                                <li>
-                                  <a href="/view_services/">
-                                      <i class="fa fa-angle-right"></i>View services
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href="/show/ntp_settings/">
-                                      <i class="fa fa-angle-right"></i>Configure NTP
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href="/auth_server_settings/">
-                                    <i class="fa fa-angle-right"></i> Configure CIFS access 
-                                  </a>
-                                </li>
-                            </ul>
                         </li>
-                        <!--
-                        <li class="treeview">
-                            <a href="#">
+                        <li id="network_menu">
+                            <a href="/view_interfaces/">
                                 <i class="fa fa-th"></i>
                                 <span>Networking</span>
-                                <i class="fa fa-angle-left pull-right"></i>
                             </a>
-                            <ul class="treeview-menu">
-                                <li>
-                                  <a href="/view_interfaces" data-toggle="tooltip" title="View and edit network interface and bonding configurations" >
-                                      <i class="fa fa-angle-right"></i> Network interfaces
-                                  </a>
-                                </li>
-                            </ul>
                         </li>
-                        -->
-                        <li class="treeview">
-                            <a href="#">
+                        <li id="storage_menu">
+                            <a href="/view_zfs_pools/">
                                 <i class="fa fa-th"></i>
                                 <span>Storage</span>
-                                <i class="fa fa-angle-left pull-right"></i>
                             </a>
-                            <ul class="treeview-menu">
-                                <li>
-                                  <a href="/view_zfs_pools" data-toggle="tooltip" title="View, create, edit ZFS pools" >
-                                      <i class="fa fa-angle-right"></i>ZFS pool manager
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href="/view_zfs_snapshots"  data-toggle="tooltip" title="View, create, activate, restore ZFS pool snapshots ">
-                                      <i class="fa fa-angle-right"></i>Snapshot manager
-                                  </a>
-                                </li>
-                            </ul>
                         </li>
-                        <li class="treeview">
-                          <a href="#" class="treeview-toggle" data-toggle="treeview">
-                            <i class="fa fa-files-o"></i> Users and groups<i class="fa fa-angle-left pull-right"></i>
+                        <li id="users_menu">
+                          <a href="/view_local_users/"> 
+                            <i class="fa fa-files-o"></i> Users and groups
                             </a>
-                          <ul class="treeview-menu">
-                            <li><a href="/view_local_users"><i class="fa fa-angle-right"></i> Local users</a></li>
-                            <li><a href="/view_local_groups"><i class="fa fa-angle-right"></i> Local groups</a></li>
-                          </ul>
                         </li>
-                        <li class="treeview">
-                          <a href="#" class="treeview-toggle" data-toggle="treeview">
-                            <i class="fa fa-files-o"></i> NFS access <i class="fa fa-angle-left pull-right"></i>
+                        <li id="nfs_menu">
+                          <a href="/view_nfs_shares/">
+                            <i class="fa fa-files-o"></i> NFS access
                             </a>
-                          <ul class="treeview-menu">
-                            <li><a href="/view_nfs_shares"> <i class="fa fa-angle-right"></i> View NFS shares</a></li>
-                            <li><a href="/create_nfs_share"><i class="fa fa-angle-right"></i> Create NFS share</a></li>
-                          </ul>
                         </li>
-                        <li class="treeview">
-                          <a href="#" class="treeview-toggle" data-toggle="treeview">
-                            <i class="fa fa-files-o"></i> CIFS access <i class="fa fa-angle-left pull-right"></i>
+                        <li id="cifs_menu">
+                          <a href="/view_cifs_shares/">
+                            <i class="fa fa-files-o"></i> CIFS access 
                             </a>
-                          <ul class="treeview-menu">
-                            <!--
-                            <li><a href="/auth_server_settings"> <i class="fa fa-angle-right"></i> Authentication settings</a></li>
-                            <li><a href="/edit_auth_method"><i class="fa fa-angle-right"></i> Change authentication method</a></li>
-                            <li><a href="/view_local_users"><i class="fa fa-angle-right"></i> Local users</a></li>
-                            -->
-                            <li><a href="/view_cifs_shares"><i class="fa fa-angle-right"></i> View shares</a></li>
-                            <li><a href="/create_cifs_share"><i class="fa fa-angle-right"></i> Create a share</a></li>
-                          </ul>
                         </li>
+                        <li id="logging_menu">
+                          <a href="/show/audit_trail/">
+                            <i class="fa fa-files-o"></i> Logs, audit, alerts
+                            </a>
+                        </li>
+                        <!--
                         <li class="treeview">
                           <a href="#" class="treeview-toggle" data-toggle="treeview">
                             <i class="fa fa-file-code-o"></i> Logging <i class="fa fa-angle-left pull-right"></i>
@@ -273,14 +200,11 @@ function ()
                             <li><a href="/show/integral_view_log_level/"><i class="fa fa-angle-right"></i> View IntegralView log level</a></li>
                           </ul>
                         </li>
-                        <li class="treeview">
-                          <a href="#" class="treeview-toggle" data-toggle="treeview">
-                            <i class="fa fa-cogs"></i> Admin <i class="fa fa-angle-left pull-right"></i>
+                        -->
+                        <li id="admin_menu">
+                          <a href="/change_admin_password/"> 
+                            <i class="fa fa-cogs"></i> Admin
                           </a>
-                          <ul class="treeview-menu">
-                            <li><a href="/change_admin_password/"><i class="fa fa-angle-right"></i> Change admin password</a></li>
-                           {%if request.user.is_superuser%} <li><a href="/reset_to_factory_defaults/"><i class="fa fa-angle-right"></i> Reset to factory defaults</a></li>{%endif%}
-                          </ul>
                         </li>
                     </ul>
                 </section>
@@ -288,29 +212,7 @@ function ()
             </aside>
 
             <!-- Right side column. Contains the navbar and content of the page -->
-            <aside class="right-side">
-                <!-- Content Header (Page header) -->
-                <section class="content-header">
-                    <h1>
-                        <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                        {%block page-header%}
-                          DashBoard
-                          <br /><small>
-                            Home
-                            <i class="fa fa-angle-right smaller-80"></i>
-                            Dashboard
-                          </small>
-                        {%endblock%}
-</div>
-<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-			                  <button id="refresh_page" class="btn btn-primary btn-flat pull-right" value="Refresh this page"> Refresh page</button>
-                        <a href="#help" data-toggle="modal" class="btn btn-primary btn-flat pull-right">Help!</a>
-</div>
-</div>
-                    </h1>
-                </section>
-
+            <aside class="content-wrapper">
                 <!-- Main content -->
                 <section id="contents" class="content">
                       {%block contents%}
@@ -348,9 +250,8 @@ function ()
     </div>
   </div>
 </div>
-
+</div>
 </body>
-<link rel="stylesheet" type="text/css" href="/static/css/modify_bootstrap.css">
 <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.2.0/css/font-awesome.css">
 <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.2.0/css/font-awesome-animation.min.css">
 <link rel="stylesheet" type="text/css" href="/static/datatables/css/jquery.dataTables.css">
@@ -359,7 +260,10 @@ function ()
 <script src="/static/datatables/js/jquery.dataTables.js"></script>
 <script src="/static/datatables/js/dataTables.bootstrap.js"></script>
 <script src="/static/datatables/js/dataTables.responsive.js"></script>
+<script src="/static/js/jquery.slimscroll.min.js"></script>
 <script src="/static/js/app.js"></script>
+<script src="/static/js/fractalio.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/modify_bootstrap.css">
 
   <script>
     $(document).ready(function(){
@@ -383,5 +287,15 @@ function ()
       location.reload();
     })
   </script>
+  {% block menu_active %}
+    <script>
+      make_side_menu_active(null)
+    </script>
+  {% endblock %}
+  {% block tab_active %}
+    <script>
+      make_tab_active(null)
+    </script>
+  {% endblock%}
 </html>
 

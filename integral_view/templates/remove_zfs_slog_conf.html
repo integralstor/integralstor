@@ -1,0 +1,42 @@
+{% extends 'storage_base.html' %}
+
+{%block inside_content %}
+
+<!-- Modal -->
+<div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body" id="myModalBody">
+        <br><br><br>
+        <i class="fa fa-spinner fa-spin fa-4 blue"></i>
+        <br><br><br>
+        <p id="p-node-text">Processing.. Please wait.
+        <br><br><br>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p id="p-warning-text">Are you sure you want to delete the ZFS write cache with name  "{{device}}" for pool "{{pool}}"? </p>
+<br>
+<form action="/remove_zfs_slog/" method="POST">
+<input type=hidden name="pool" value="{{pool}}">
+<input type=hidden name="device" value="{{device}}">
+<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_pools'"> &nbsp;&nbsp;
+<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete >></button>
+</form>
+
+
+{%endblock%}
+{%block help_header%}
+Removing a ZFS write cache RAMDisk device
+{%endblock%}
+{%block help_body%}
+<p>Confirming this operation results in the RAMDisk write cache for the specified ZFS pool being removed from the system. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}

@@ -4,7 +4,7 @@ from django import forms
 import re
 
 import integralstor_common
-import integralstor_common.networking
+from integralstor_common import networking
 
 class SetFileOwnerAndPermissionsForm(forms.Form):
 
@@ -44,10 +44,10 @@ class MultipleServerField(forms.CharField):
 
   def _is_valid_server(self, server):
     server = server.strip()
-    if fractalio.networking.is_valid_ip_or_hostname(server):
-      return True
-    else:
-      return False
+    ok, err = networking.validate_ip_or_hostname(server)
+    if err:
+      raise Exception('Error validating server : %s'%err)
+    return ok
     
   def clean(self, value):
     if not value:

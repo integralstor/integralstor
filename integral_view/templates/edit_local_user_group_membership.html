@@ -1,17 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'users-groups_base.html' %}
 
-{%block page-header%}
-  Users and groups
-  <br /><small>
-      Users and groups
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Edit local user's additional group membership
-  </small>
-{%endblock%}
-
-
-
-{%block contents%}
+{% block inside_content %}
 
 {{conf_message}}
 
@@ -58,3 +47,9 @@ Edit a local user's additional groups information
 {%block help_body%}
 <p>Use this screen to add or remove additional group memberships for this local user. The settings will take effect upon saving this information.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_local_users_tab")
+  </script>
+{% endblock %}

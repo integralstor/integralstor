@@ -1,17 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'storage_base.html' %}
 
-{%block page-header%}
-  Storage
-  <br /><small>
-    Storage
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Edit ZFS pool write cache
-  </small>
-{%endblock%}
-
-
-
-{%block contents%}
+{%block inside_content %}
 
 {%if request.GET.result %}
 {{request.GET.result}}
@@ -72,3 +61,9 @@ Edit ZFS pool write cache
 {%block help_body%}
 <p>Use this screen to change the device that is used as the write cache for the ZFS pool. The settings will take effect upon saving this information.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}

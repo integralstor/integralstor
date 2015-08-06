@@ -41,7 +41,7 @@ No information for the specified dataset.
 {%endfor%}
 </table>
 
-<p><a href="/edit_zfs_dataset?name={{name}}" role="button" class="btn btn-default"> Change dataset properties</a> &nbsp;&nbsp;<a href="/delete_zfs_dataset?name={{name}}" role="button" class="btn btn-default"> Delete this dataset..</a>&nbsp;&nbsp;<a href="/set_file_owner_and_permissions?path={{properties.mountpoint.value}}" role="button" class="btn btn-default"> Change ownership and permissions</a></p>
+<p><a href="/edit_zfs_dataset?name={{name}}" role="button" class="btn btn-default"> Change dataset properties</a> &nbsp;&nbsp;<a href="/delete_zfs_dataset?name={{name}}&type=dataset" role="button" class="btn btn-default"> Delete this dataset..</a>&nbsp;&nbsp;<a href="/set_file_owner_and_permissions?path={{properties.mountpoint.value}}" role="button" class="btn btn-default"> Change ownership and permissions</a></p>
 
 
 

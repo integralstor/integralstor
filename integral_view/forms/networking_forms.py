@@ -1,6 +1,22 @@
 from django import forms
 import integralstor_common
+import common_forms
 from integralstor_common import networking
+
+class EditHostnameForm(forms.Form):
+  hostname = forms.CharField()
+  domain_name = forms.CharField(required=False)
+
+  def clean(self):
+    cd = super(EditHostnameForm, self).clean()
+    hostname = cd['hostname']
+    if '.' in hostname:
+      self._errors["hostname"] = self.error_class(["Please enter a hostname without the domain name component (no '.'s allowed)"])
+    return cd
+
+class DNSNameServersForm(forms.Form):
+
+  nameservers = common_forms.MultipleServerField()
 
 class NICForm(forms.Form):
 

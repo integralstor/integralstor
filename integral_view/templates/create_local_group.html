@@ -1,15 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'users-groups_base.html' %}
 
-{%block page-header%}
- File Access 
-  <br /><small>
-     Local Users
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Create a local group
-  </small>
-{%endblock%}
-
-{%block contents%}
+{% block inside_content %}
 {{conf_message}}
 
 
@@ -39,3 +30,9 @@ Create local group help
 {%endblock%}
 {%block help_body%}
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_local_groups_tab")
+  </script>
+{% endblock %}

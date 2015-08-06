@@ -26,10 +26,18 @@ def view_zfs_pools(request):
           conf = "Directory ownership/permissions successfully set"
         elif request.GET["action"] == "created_dataset":
           conf = "ZFS dataset successfully created"
+        elif request.GET["action"] == "created_zvol":
+          conf = "ZFS block device volume successfully created"
         elif request.GET["action"] == "pool_deleted":
           conf = "ZFS pool successfully destroyed"
+        elif request.GET["action"] == "pool_scrub_initiated":
+          conf = "ZFS pool scrub successfully initiated"
         elif request.GET["action"] == "dataset_deleted":
           conf = "ZFS dataset successfully destroyed"
+        elif request.GET["action"] == "zvol_deleted":
+          conf = "ZFS block device volume successfully destroyed"
+        elif request.GET["action"] == "slog_deleted":
+          conf = "ZFS write cache successfully removed"
         elif request.GET["action"] == "changed_slog":
           conf = "ZFS pool write cache successfully set"
         return_dict["conf"] = conf
@@ -51,7 +59,7 @@ def view_zfs_pool(request):
     
     pool_name = request.REQUEST['name']
     pool, err = zfs.get_pool(pool_name)
-    print pool.keys()
+    #print pool.keys()
 
     if not pool and err:
       return_dict["error"] = "Error loading ZFS storage information : %s"%err
@@ -68,6 +76,7 @@ def view_zfs_pool(request):
     
 
     return_dict['pool'] = pool
+    return_dict['pool_name'] = pool_name
       
     template = "view_zfs_pool.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
@@ -75,6 +84,7 @@ def view_zfs_pool(request):
     s = str(e)
     return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 
 def create_zfs_pool(request):
   return_dict = {}
@@ -84,7 +94,7 @@ def create_zfs_pool(request):
       return_dict["error"] = "Error retrieving free disk information: %s"%err
       return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
     if not free_disks or len(free_disks) < 2:
-      return_dict["error"] = "There are insufficient unused disks available to create a pool: %s"%err
+      return_dict["error"] = "There are insufficient unused disks available to create a pool"
       return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
     pool_types = []
     if len(free_disks) >= 2 :
@@ -133,6 +143,38 @@ def create_zfs_pool(request):
       audit_str = "Created a ZFS pool named %s of type %s"%(cd['name'], cd['pool_type'])
       audit.audit("create_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_zfs_pools?action=created_pool')
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def scrub_zfs_pool(request):
+
+  return_dict = {}
+  try:
+    if 'name' not in request.REQUEST:
+      return_dict["error"] = "Error scrubbing ZFS pool- No pool specified. Please use the menus"%str(e)
+      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    name = request.REQUEST["name"]
+    return_dict["name"] = name
+    if request.method == "GET":
+      #Return the conf page
+      return django.shortcuts.render_to_response("scrub_zfs_pool_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      try :
+        result, err = zfs.scrub_pool(name)
+        if not result:
+          if not err:
+            raise Exception('Unknown error!')
+          else:
+            raise Exception(err)
+      except Exception, e:
+        return_dict["error"] = "Error initiating a scrub on the ZFS pool- %s"%str(e)
+        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+ 
+      audit_str = "ZFS pool scrub initiated on pool %s"%name
+      audit.audit("scrub_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pools?action=pool_scrub_initiated')
   except Exception, e:
     s = str(e)
     return_dict["error"] = "An error occurred when processing your request : %s"%s
@@ -195,10 +237,10 @@ def set_zfs_slog(request):
     if not pool['config']['logs']:
       slog = None
     else:
-      kids = pool['config']['logs']['components']['logs']['children']
+      kids = pool['config']['logs']['root']['children']
       if len(kids) == 1 and 'ramdisk' in kids[0]:
         slog = 'ramdisk'
-        rdisk, err = ramdisk.get_ramdisk_info(pool_name)
+        rdisk, err = ramdisk.get_ramdisk_info('/mnt/ramdisk_%s'%pool_name)
         if err:
           return_dict["error"] = "Error loading ZFS pool RAM disk information : %s"%err
           return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
@@ -235,9 +277,9 @@ def set_zfs_slog(request):
         if cd['slog'] == 'ramdisk':
           if ((cd['slog'] == slog) and (cd['ramdisk_size'] != ramdisk_size)) or (cd['slog'] != slog):
             # Changed to ramdisk or ramdisk parameters changed so destroy and recreate
-            oldramdisk, err = ramdisk.get_ramdisk_info(cd['pool'])
+            oldramdisk, err = ramdisk.get_ramdisk_info('/mnt/ramdisk_%s'%cd['pool'])
             if oldramdisk:
-              result, err = ramdisk.destroy_ramdisk(cd['pool'])
+              result, err = ramdisk.destroy_ramdisk('/mnt/ramdisk_%s'%cd['pool'])
               if not result:
                 return_dict["error"] = "Error destroying the current RAM disk for the specified ZFS pool : %s"%err
                 return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
@@ -245,14 +287,14 @@ def set_zfs_slog(request):
               if not result:
                 return_dict["error"] = "Error removing the current RAM disk from the specified ZFS pool : %s"%err
                 return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
-            result, err = ramdisk.create_ramdisk(1024*cd['ramdisk_size'], cd['pool'])
+            result, err = ramdisk.create_ramdisk(1024*cd['ramdisk_size'], '/mnt/ramdisk_%s'%cd['pool'], cd['pool'])
             if not result:
               return_dict["error"] = "Error creating the RAM disk for the specified ZFS pool : %s"%err
               return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
             else:
               result, err = zfs.set_pool_log_vdev(cd['pool'], '/mnt/ramdisk_%s/ramfile'%cd['pool'])
               if not result:
-                ramdisk.destroy_ramdisk(cd['pool'])
+                ramdisk.destroy_ramdisk('/mnt/ramdisk_%s'%cd['pool'], cd['pool'])
                 return_dict["error"] = "Error assigning the RAM disk to the specified ZFS pool : %s"%err
                 return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
               audit.audit("edit_zfs_slog", 'Changed the write log for pool %s to a RAM disk of size %dGB'%(cd['pool'], cd['ramdisk_size']), request.META["REMOTE_ADDR"])
@@ -262,6 +304,47 @@ def set_zfs_slog(request):
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
  
       return django.http.HttpResponseRedirect('/view_zfs_pools?action=changed_slog')
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def remove_zfs_slog(request):
+
+  return_dict = {}
+  try:
+    if 'pool' not in request.REQUEST:
+      return_dict["error"] = "Error removing ZFS write cache - No pool specified. Please use the menus"%str(e)
+      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    if 'device' not in request.REQUEST:
+      return_dict["error"] = "Error removing ZFS write cache - No device specified. Please use the menus"%str(e)
+      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    pool = request.REQUEST["pool"]
+    return_dict["pool"] = pool
+    device = request.REQUEST["device"]
+    return_dict["device"] = device
+    if request.method == "GET":
+      #Return the conf page
+      return django.shortcuts.render_to_response("remove_zfs_slog_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      try :
+        result, err = zfs.remove_pool_vdev(pool, device)
+        if not result:
+          if not err:
+            raise Exception('Unknown error!')
+          else:
+            raise Exception(err)
+        result, err = ramdisk.destroy_ramdisk('/mnt/ramdisk_%s'%pool)
+        if not result:
+          return_dict["error"] = "Error destroying the current RAM disk for the specified ZFS pool : %s"%err
+          return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      except Exception, e:
+        return_dict["error"] = "Error removing ZFS write cache RAM Disk- %s"%str(e)
+        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+ 
+      audit_str = "Removed ZFS write cache RAM Disk for pool %s"%pool
+      audit.audit("remove_zfs_slog", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pools?action=slog_deleted')
   except Exception, e:
     s = str(e)
     return_dict["error"] = "An error occurred when processing your request : %s"%s
@@ -389,8 +472,13 @@ def delete_zfs_dataset(request):
     if 'name' not in request.REQUEST:
       return_dict["error"] = "Error deleting ZFS dataset- No dataset specified. Please use the menus"%str(e)
       return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    if 'type' not in request.REQUEST:
+      type = 'dataset'
+    else:
+      type = request.REQUEST['type']
     name = request.REQUEST["name"]
     return_dict["name"] = name
+    return_dict["type"] = type
     if request.method == "GET":
       #Return the conf page
       return django.shortcuts.render_to_response("delete_zfs_dataset_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
@@ -406,9 +494,14 @@ def delete_zfs_dataset(request):
         return_dict["error"] = "Error deleting ZFS dataset- %s"%str(e)
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
  
-      audit_str = "Deleted ZFS dataset %s"%name
-      audit.audit("delete_zfs_dataset", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=dataset_deleted')
+      if type == 'dataset':
+        audit_str = "Deleted ZFS dataset %s"%name
+        audit.audit("delete_zfs_dataset", audit_str, request.META["REMOTE_ADDR"])
+        return django.http.HttpResponseRedirect('/view_zfs_pools?action=dataset_deleted')
+      else:
+        audit_str = "Deleted ZFS block device volume %s"%name
+        audit.audit("delete_zfs_zvol", audit_str, request.META["REMOTE_ADDR"])
+        return django.http.HttpResponseRedirect('/view_zfs_pools?action=zvol_deleted')
   except Exception, e:
     s = str(e)
     return_dict["error"] = "An error occurred when processing your request : %s"%s
@@ -470,6 +563,90 @@ def create_zfs_dataset(request):
     return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+def create_zfs_zvol(request):
+  return_dict = {}
+  try:
+    if 'pool' not in request.REQUEST:
+      return_dict["error"] = "Error creating dataset - no parent pool provided. Please use the menus."
+      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    pool = request.REQUEST['pool']
+    return_dict['pool'] = pool
+
+    if request.method == "GET":
+      parent = None
+      if 'parent' in request.GET:
+        parent = request.GET['parent']
+      initial = {}
+      initial['pool'] = pool
+      form = zfs_forms.CreateZvolForm(initial=initial)
+      return_dict['form'] = form
+      return django.shortcuts.render_to_response("create_zfs_zvol.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      form = zfs_forms.CreateZvolForm(request.POST)
+      return_dict['form'] = form
+      if not form.is_valid():
+        return django.shortcuts.render_to_response("create_zfs_zvol.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      cd = form.cleaned_data
+      try :
+        properties = {}
+        if 'compression' in cd and cd['compression']:
+          properties['compression'] = 'on'
+        if 'dedup' in cd and cd['dedup']:
+          properties['dedup'] = 'on'
+        result, err = zfs.create_zvol(cd['pool'], cd['name'], properties, cd['size'], cd['unit'])
+        if not result:
+          if not err:
+            raise Exception('Unknown error!')
+          else:
+            raise Exception(err)
+      except Exception, e:
+        return_dict["error"] = "Error creating ZFS block device volume - %s"%str(e)
+        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+ 
+      audit_str = "Created a ZFS block device volume named %s/%s"%(cd['pool'], cd['name'])
+      audit.audit("create_zfs_zvol", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pools?action=created_zvol')
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def view_zfs_zvol(request):
+  return_dict = {}
+  try:
+    template = 'logged_in_error.html'
+    if 'name' not in request.REQUEST:
+      return_dict["error"] = "Error loading ZFS block device volume information : No block device volume specified."
+      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+    
+    name = request.REQUEST['name']
+    if '/' in name:
+      pos = name.find('/')
+      pool = name[:pos]
+    else:
+      pool = name
+    return_dict['pool'] = pool
+
+    properties, err = zfs.get_properties(name)
+    if not properties and err:
+      return_dict["error"] = "Error loading ZFS storage information : %s"%err
+      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+    elif not properties:
+      return_dict["error"] = "Error loading ZFS storage information : Specified block device volume not found"
+      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+
+    return_dict['name'] = name
+    return_dict['properties'] = properties
+    return_dict['exposed_properties'] = ['compression', 'compressratio', 'dedup',  'type',  'creation']
+    if 'result' in request.GET:
+      return_dict['result'] = request.GET['result']
+
+    template = "view_zfs_zvol.html"
+    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def view_zfs_snapshots(request):
   return_dict = {}

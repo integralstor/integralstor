@@ -1,6 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'users-groups_base.html' %}
 
-{%block contents%}
+{% block inside_content %}
 
 <!-- Modal -->
 <div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -39,3 +39,9 @@ Deleting local group.
 {%block help_body%}
 <p>Confirming this operation results in a local group of the IntegralStor system being deleted.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_local_groups_tab")
+  </script>
+{% endblock %}

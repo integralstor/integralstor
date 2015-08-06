@@ -1,0 +1,48 @@
+{% extends 'networking_base.html' %}
+
+{% block inside_content %}
+
+{% if conf %}
+<p><i>{{conf}}</i></p>
+{%endif%}
+
+{%if not name_servers %}
+<p id="p-instructional-text"> No name servers have been configured.</p><br>
+<a href="/edit_dns_nameservers/" role="button" class="btn btn-default">Configure DNS Name servers</a>
+
+{%else%}
+
+
+            <table class="table table-bordered" style="width:200px">
+            <tr>
+              <th>
+              Configured DNS nameservers
+              </th>
+            </tr>
+{% for server in name_servers %}
+            <tr>
+              <td>
+                {{ server}}
+              </td>
+            </tr>
+{%endfor%}
+            </table>
+
+<a href="/edit_dns_nameservers/" role="button" class="btn btn-default">Modify DNS Name servers</a>
+
+{%endif%}
+
+
+{%endblock%}
+{%block help_header%}
+DNS Nameservers
+{%endblock%}
+{%block help_body%}
+<p></p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_dns_nameservers_tab")
+  </script>
+{% endblock %}

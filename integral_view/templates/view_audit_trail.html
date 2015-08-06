@@ -1,21 +1,7 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'logging_base.html' %}
 
-{%block page-header%}
-  Logging
-    <br /><small>
-      Logging
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      {% if historical %}
-        Historical Audit trail
-      {%else %}
-        Audit trail
-      {%endif%}
-  </small>
+{%block inside_content %}
 
-{%endblock%}
-
-
-{%block contents%}
 
 <div style="width:95%;position: relative; margin: 0px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
 <table  class="table table-hover">

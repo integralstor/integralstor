@@ -47,6 +47,7 @@ class AuthUsersSettingsForm(forms.Form):
 class ShareForm(forms.Form):
   share_id =  forms.IntegerField(widget=forms.HiddenInput, required = False)
   name = forms.CharField()
+  pool = forms.CharField(required=True)
   path = forms.CharField(required=False)
   comment = forms.CharField(required=False)
   browseable = forms.BooleanField(required=False)

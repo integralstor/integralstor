@@ -1,15 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'networking_base.html' %}
 
-{%block page-header%}
-  Storage
-  <br /><small>
-      Networking
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Change network interface state
-  </small>
-{%endblock%}
-
-{%block contents%}
+{%block inside_content%}
 
 <!-- Modal -->
 <div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -47,3 +38,9 @@ Change network interface state
 {%block help_body%}
 <p>Confirming this operation results in the change of state of the specified interface in the system. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}
+{% block tab_active%}
+  <script>
+   make_tab_active("view_interfaces_tab")
+   </script>
+{% endblock %}
+

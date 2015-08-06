@@ -1,0 +1,47 @@
+{% extends 'storage_base.html' %}
+
+{%block inside_content %}
+
+{% if result %}
+<p><i>{{result}}</i></p>
+{%endif%}
+
+{% if not properties %}
+No information for the specified block device volume. 
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+
+<h3>Block device volume name - {{name}}</h3>
+
+<table  class="table table-bordered">
+<tr>
+<th> Property name </th>
+<th> Property value </th>
+<th> Property information </th>
+</tr>
+{%for pname, p in properties.items %}
+{%if pname in exposed_properties %}
+<tr>
+
+<td> {%if pname == 'creation'%} Created on {%elif pname == 'usedbychildren'%} Space used by children {%elif pname == 'usedbydataset'%} Space used by this dataset {%else%}{{pname|title}}{%endif%}</td>
+<td> {{p.value}}</td>
+<td> {%if p.source == 'local' %} Explicitly set {%elif p.source == '-'%} Informational only {%else%}{{p.source|title}}{%endif%}</td>
+</tr>
+{%endif%}
+{%endfor%}
+</table>
+
+<p>
+<a href="/delete_zfs_dataset?name={{name}}&type=zvol" role="button" class="btn btn-default"> Delete this block device volume..</a>
+</p>
+
+</div>
+{%endif%}
+
+{%endblock%}
+{%block help_header%}
+View ZFS block device volume details
+{%endblock%}
+{%block help_body%}
+  <p> This screen list ZFS block device volume details and allows you to delete this volume.  </p>
+{%endblock%}

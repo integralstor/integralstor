@@ -1,15 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'users-groups_base.html' %}
 
-{%block page-header%}
- File Access 
-  <br /><small>
-     Local Users
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Create local users
-  </small>
-{%endblock%}
-
-{%block contents%}
+{% block inside_content %}
 {{conf_message}}
 
 
@@ -89,3 +80,9 @@ Create local users help
 {%block help_body%}
 <p>Use local user authentication when you want CIFS access but do not want to use or deploy Active Directory authentication. For local user authentication, you will need to create local user accounts using this screen and then deploy access control using these user accounts. These accounts are used only for IntegralStor access and not for any other purpose.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_local_users_tab")
+  </script>
+{% endblock %}

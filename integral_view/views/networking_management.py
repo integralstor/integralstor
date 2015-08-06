@@ -3,6 +3,9 @@ import django, django.template
 import integralstor_common
 import integralstor_unicell
 from integralstor_common import networking, audit
+from django.contrib.auth.decorators import login_required
+
+import socket
 
 import integral_view
 from integral_view.forms import networking_forms
@@ -298,6 +301,151 @@ def remove_bond(request):
       audit_str = "Removed network bond %s"%(name)
       audit.audit("remove_bond", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_interfaces?action=removed_bond')
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def view_hostname(request):
+  return_dict = {}
+  try:
+    template = 'logged_in_error.html'
+    hostname = socket.gethostname()
+    domain_name,err = networking.get_domain_name()
+    if err:
+      print err
+      return_dict["error"] = "Error getting domain name : %s"%err
+  
+    if not "error" in return_dict:
+      if "action" in request.GET:
+        if request.GET["action"] == "saved":
+          conf = "Hostname information successfully updated"
+        return_dict["conf"] = conf
+      return_dict['domain_name'] = domain_name
+      return_dict['hostname'] = hostname
+      template = "view_hostname.html"
+    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def edit_hostname(request):
+  return_dict = {}
+  try:
+
+    hostname = socket.gethostname()
+    if request.method == "GET":
+      hostname = socket.gethostname()
+      domain_name,err = networking.get_domain_name()
+      if err:
+        print err
+        raise Exception(err)
+
+      initial = {}
+      initial['hostname'] = hostname
+      initial['domain_name'] = domain_name
+      print initial
+
+      form = networking_forms.EditHostnameForm(initial=initial)
+      return_dict['form'] = form
+      return django.shortcuts.render_to_response("edit_hostname.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      form = networking_forms.EditHostnameForm(request.POST)
+      return_dict['form'] = form
+      if not form.is_valid():
+        return django.shortcuts.render_to_response("edit_hostname.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      cd = form.cleaned_data
+      result_str = ""
+      try :
+        domain_name = None
+        if 'domain_name' in cd:
+          domain_name = cd['domain_name']
+        result, err = networking.set_hostname(cd['hostname'], domain_name)
+        if not result:
+          if err:
+            raise Exception('Error setting hostname : %s'%err)
+          else:
+            raise Exception('Error setting hostname')
+        result, err = networking.set_domain_name(domain_name)
+        if not result:
+          if err:
+            raise Exception('Error setting domain name : %s'%err)
+          else:
+            raise Exception('Error setting domain name')
+
+        audit_str = "Hostname set to %s."%cd['hostname']
+        if 'domain_name' in cd:
+          audit_str += 'Domain name set to %s'%cd['domain_name']
+        audit.audit("edit_hostname", audit_str, request.META["REMOTE_ADDR"])
+                
+      except Exception, e:
+        return_dict["error"] = "Error setting hostname information - %s"%str(e)
+        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+ 
+      return django.http.HttpResponseRedirect('/view_hostname?result=saved')
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def view_dns_nameservers(request):
+  return_dict = {}
+  try:
+    ns_list, err = networking.get_name_servers()
+    if err:
+      print err
+      return_dict["error"] = "Error getting DNS name servers : %s"%err
+  
+    if not "error" in return_dict:
+      if "action" in request.GET:
+        if request.GET["action"] == "saved":
+          conf = "Name servers successfully updated"
+        return_dict["conf"] = conf
+      return_dict['name_servers'] = ns_list
+      template = "view_dns_nameservers.html"
+    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+@login_required
+def edit_dns_nameservers(request):
+
+  return_dict = {}
+  try:
+    ns_list, err = networking.get_name_servers()
+    if request.method=="GET":
+      if not ns_list:
+        form = networking_forms.DNSNameServersForm()
+      else:
+        form = networking_forms.DNSNameServersForm(initial={'nameservers': ','.join(ns_list)})
+      url = "edit_dns_nameservers.html"
+    else:
+      form = networking_forms.DNSNameServersForm(request.POST)
+      if form.is_valid():
+        cd = form.cleaned_data
+        nameservers = cd["nameservers"]
+        if ',' in nameservers:
+          slist = nameservers.split(',')
+        else:
+          slist = nameservers.split(' ')
+        res, err = networking.set_name_servers(slist)
+        if not res:
+          if err:
+            raise Exception(err)
+          else:
+            raise Exception('Error updating nameservers')
+        audit_str = "Updated the DNS nameserver list to %s"%nameservers
+        audit.audit("set_dns_nameservers", audit_str, request.META["REMOTE_ADDR"])
+        return django.http.HttpResponseRedirect('/view_dns_nameservers?action=saved')
+      else:
+        #invalid form
+        url = "edit_dns_nameservers.html"
+    return_dict["form"] = form
+    return django.shortcuts.render_to_response(url, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     s = str(e)
     return_dict["error"] = "An error occurred when processing your request : %s"%s
