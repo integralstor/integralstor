@@ -279,7 +279,7 @@ def set_zfs_slog(request):
             # Changed to ramdisk or ramdisk parameters changed so destroy and recreate
             oldramdisk, err = ramdisk.get_ramdisk_info('/mnt/ramdisk_%s'%cd['pool'])
             if oldramdisk:
-              result, err = ramdisk.destroy_ramdisk('/mnt/ramdisk_%s'%cd['pool'])
+              result, err = ramdisk.destroy_ramdisk('/mnt/ramdisk_%s'%cd['pool'], cd['pool'])
               if not result:
                 return_dict["error"] = "Error destroying the current RAM disk for the specified ZFS pool : %s"%err
                 return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
@@ -334,7 +334,7 @@ def remove_zfs_slog(request):
             raise Exception('Unknown error!')
           else:
             raise Exception(err)
-        result, err = ramdisk.destroy_ramdisk('/mnt/ramdisk_%s'%pool)
+        result, err = ramdisk.destroy_ramdisk('/mnt/ramdisk_%s'%pool, pool)
         if not result:
           return_dict["error"] = "Error destroying the current RAM disk for the specified ZFS pool : %s"%err
           return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))

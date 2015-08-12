@@ -1,0 +1,137 @@
+{% extends 'iscsi_base.html' %}
+
+{% block inside_content %}
+
+
+{{conf}}
+            <hr>
+            <h4> Target details :</h4>
+            <hr>
+
+            <table class="table table-bordered">
+            <tr>
+              <th>
+            Target ID:
+              </th>
+              <td>
+            {{ target.tid }}
+              </td>
+            </tr>
+            <tr>
+              <th>
+            Target Name:
+              </th>
+              <td>
+            {{ target.iqn }}
+              </td>
+            </tr>
+            </table>
+            <hr>
+            <h4> LUNs:</h4>
+            <hr>
+            {%if target.luns %}
+            <table class="table table-bordered">
+            <tr>
+              <th>
+                Backing storage
+              </th>
+              <th>
+                Action
+              </th>
+            </tr>
+            {%for lun in target.luns %}
+              {%if lun.type == 'disk'%}
+            <tr>
+              <td>
+                {{lun.path}} 
+              </td>
+              <td>
+                <a href="/delete_iscsi_lun?target_name={{target.iqn}}&store={{lun.path}}" role="button" class="btn btn-default"> Remove this LUN </a>
+              </td>
+            </tr>
+              {%endif%}
+            {%endfor%}
+            </table>
+            {%else%}
+            No LUNs created
+            {%endif%}
+            <a href="/create_iscsi_lun?target_name={{target.iqn}}" role="button" class="btn btn-default"> Add a LUN</a>
+            <hr>
+            <h4> User based authentication:</h4>
+            <hr>
+            {%if target.accounts %}
+            <table class="table table-bordered">
+            <tr>
+              <th>
+                Username
+              </th>
+              <th>
+                Authentication type
+              </th>
+              <th>
+                Action
+              </th>
+            </tr>
+            {%for account in target.accounts %}
+            <tr>
+              <td>
+                  {{account.user}} &nbsp;
+              </td>
+              <td>
+                  {%if account.type == 'incoming'%}
+                  Initiator authentication
+                  {%else%}
+                  Target authentication
+                  {%endif%}
+              </td>
+              <td>
+                  <a href="/remove_iscsi_user_authentication?target_name={{target.iqn}}&username={{account.user}}&authentication_type={{account.type}}" role="button" class="btn btn-default"> Remove this user </a>
+              </td>
+            </tr>
+            {%endfor%}
+            </table>
+          {%else%}
+          None defined
+          {%endif%}
+          <p>
+         <a href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=incoming" role="button" class="btn btn-default"> Add an initiator authentication user</a>
+         <a href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=outgoing" role="button" class="btn btn-default"> Add a target authentication user</a>
+         </p>
+          <hr>
+          <h4> ACLs (Authorized IPs/Initiators) :</h4>
+          <hr>
+          <table class="table table-bordered">
+          {% for acl in target.acl %}
+          <tr>
+            <td>
+            {{acl}}
+            </td>
+            <td>
+              <a href="/remove_iscsi_acl?target_name={{target.iqn}}&acl={{acl}}" role="button" class="btn btn-default"> Remove this ACL</a>
+            </td>
+          </tr>
+          {%endfor%}
+          </table>
+          <p>
+          <a href="/add_iscsi_acl?target_name={{target.iqn}}" role="button" class="btn btn-default"> Add an ACL</a>
+          <hr>
+
+  <p>
+ <a href="/view_iscsi_targets" role="button" class="btn btn-default"> << Back to targets list</a>
+ <a href="/delete_iscsi_target?target_name={{target.iqn}}" role="button" class="btn btn-default"> Delete this ISCSI target</a>
+ </p>
+ <br> <br>
+
+{%endblock%}
+{%block help_header%}
+ISCSI target details
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to view details about a particular ISCSI targetthat has been created. </p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_iscsi_targets_tab")
+  </script>
+{% endblock %}

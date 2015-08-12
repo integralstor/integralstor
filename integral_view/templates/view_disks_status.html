@@ -1,0 +1,49 @@
+{% extends 'dashboard_base.html' %}
+{% block inside_content %}
+
+      <img src="/static/images/diskmap1.png" width="900px;" class="img-responsive" />
+      <span class="disk-center" id="{{disk_pos.1}}"><strong>{{disk_pos.1}}</strong></span>
+      <span class="disk-center" id="{{disk_pos.2}}"><strong>{{disk_pos.2}}</strong></span>
+      <span class="disk-center" id="{{disk_pos.3}}"><strong>{{disk_pos.3}}</strong></span>
+      <span class="disk-center" id="{{disk_pos.4}}"><strong>{{disk_pos.4}}</strong></span>
+<table class="table table-bordered table-hover table-responsive" style="width:800px">
+<thead>
+<th >
+Disk serial number
+</th>
+<th >
+S.M.A.R.T status
+</th>
+<td>
+&nbsp;
+</td>
+</thead>
+{%for sn, disk in disk_status.items %}
+<tr>
+<td>
+{{sn}}
+</td>
+<td>
+{{disk.status}}
+</td>
+<td>
+{%if disk.status == 'PASSED'%}
+<i class="fa fa-check-circle green fa-2x"></i>
+{%else%}
+<i class="fa fa-remove red fa-2x"></i>
+{%endif%}
+</td>
+</tr>
+{%endfor%}
+</table>
+{% endblock %}
+
+
+{% block tab_active %}
+  <script>
+   make_tab_active("disks_tab")
+  </script>
+{% endblock%}
+
+
+

@@ -1,0 +1,74 @@
+{% extends 'iscsi_base.html' %}
+
+{% block inside_content %}
+{{conf_message}}
+
+
+{{form.errors}}
+<form class="form-horizontal" role="form" name="create_form" action="" method="post">
+{{form.authentication_type}}
+{{form.target_name}}
+  <table  class="table " style="width:80%">
+    <tr>
+      <td>
+        <label >Target name :</label>
+      </td>
+      <td>
+        {{form.target_name.value}}
+      </td>
+      <td>
+      &nbsp;
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label for="id_username">User's userid :</label>
+      </td>
+      <td>
+        <input type="text"  name="username" class="form-control" id="id_username" value="{%if form.username.value%}{{form.username.value}}{%endif%}" placeholder="Enter username for ISCSI user"> 
+      </td>
+      <td>
+    {{ form.username.errors }}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label for="id_password">Password :</label>
+      </td>
+      <td>
+        <input type="password"  name="password" class="form-control" id="id_password" placeholder="Enter the password for this user"> 
+      </td>
+      <td>
+    {{ form.password.errors }}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label for="id_password_conf">Confirm password :</label>
+      </td>
+      <td>
+        <input type="password"  name="password_conf" class="form-control" id="id_password_conf" placeholder="Enter the password again for confirmation"> 
+      </td>
+      <td>
+    {{ form.password_conf.errors }}
+      </td>
+    </tr>
+    </table>
+
+<a href="/view_iscsi_target?name={{form.target_name.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+<button type="submit" class="btn btn-primary"> Create >> </button>
+</form>
+
+{%endblock%}
+{%block help_header%}
+Add ISCSI authentication help
+{%endblock%}
+{%block help_body%}
+<p>Use ISCSI user authentication when you want ISCSI CHAP access control. For ISCSI authentication, you will need to create ISCSI user accounts to the target using this screen. These accounts are used only for ISCSI access and not for any other purpose.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_iscsi_targets_tab")
+  </script>
+{% endblock %}

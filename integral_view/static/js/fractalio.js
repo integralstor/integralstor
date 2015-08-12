@@ -2,7 +2,6 @@
         if (id === null) {
         var url = location.pathname;
         var a_url = ""
-        console.log(url)
         $(".nav-tabs li a").each(function(){
           a_url = $(this).attr('href')
           if (a_url === url){
@@ -11,7 +10,6 @@
         });
         }
         else {
-          console.log(id)
           $("#"+id).addClass('active')
         }
       }

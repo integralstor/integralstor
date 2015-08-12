@@ -1,0 +1,74 @@
+{% extends 'dashboard_base.html' %}
+{% block inside_content %}
+
+<div class="row">
+  <div class="col-sm-12 col-md-8 col-lg-8">
+    <canvas id="dashboard_chart" width="800" height="300"></canvas>
+  </div>
+  <div class="col-sm-12 col-md-1 col-lg-1">
+  </div>
+</div>
+<table class="table table-bordered table-hover table-responsive" style="width:800px">
+  <tr>
+  <th >
+  Total memory
+  </th>
+  <td>
+  {{memory_status.mem_total.value}} {{memory_status.mem_total.unit}}
+  </td>
+  </tr>
+  <tr>
+  <th >
+  Free memory
+  </th>
+  <td>
+  {{memory_status.mem_free.value}} {{memory_status.mem_free.unit}}
+  </td>
+  </tr>
+</table>
+{% endblock %}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("memory_tab")
+  </script>
+<script src="/static/js/Chart.js"></script>
+<script>
+var labels = []
+{% for l in labels %}
+  labels.push("{{l}}")
+{% endfor %}
+
+Chart.defaults.global.animationSteps = 1;
+Chart.types.Line.extend({
+    name: "LineAlt",
+    initialize: function (data) {
+    Chart.types.Line.prototype.initialize.apply(this, arguments);
+    var xLabels = this.scale.xLabels;
+    xLabels.forEach(function (label, i) {
+      if ( i % 60 != 0 )
+        xLabels[i] = '';
+    })
+  }
+});
+var data = {
+    labels: labels, 
+     datasets: [
+        {
+         label: "Memory Chart",
+         fillColor: "rgba(220,220,220,0.2)",
+         strokeColor: "rgba(220,220,220,1)",
+         pointColor: "rgba(220,220,220,1)",
+         pointStrokeColor: "#fff",
+         pointHighlightFill: "#fff",
+         pointHighlightStroke: "rgba(220,220,220,1)",
+         data: {{data}}
+        },
+     ]
+};
+var ctx = document.getElementById("dashboard_chart").getContext("2d");
+var myLineChart = new Chart(ctx).LineAlt(data, {});
+
+</script>
+{% endblock %}
+

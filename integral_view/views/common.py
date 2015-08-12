@@ -1,4 +1,4 @@
-import json, time, os, shutil, tempfile, os.path, re, subprocess, sys, shutil, pwd, grp, stat
+import json, time, os, shutil, tempfile, os.path, re, subprocess, sys, shutil, pwd, grp, stat,datetime
 
 import salt.client, salt.wheel
 
@@ -7,7 +7,7 @@ from django.conf import settings
 
 
 import integralstor_common
-from integralstor_common import command, db, common, audit, alerts, ntp, mail, zfs, file_processing
+from integralstor_common import command, db, common, audit, alerts, ntp, mail, zfs, file_processing,stats
 
 import integralstor_unicell
 from integralstor_unicell import system_info
@@ -144,6 +144,119 @@ def _other_writeable(st):
   return bool(st.st_mode & stat.S_IWOTH)
 def _other_executeable(st):
   return bool(st.st_mode & stat.S_IXOTH)
+
+@login_required
+def dashboard(request,page):
+  return_dict = {}
+  assert request.method == 'GET'
+  si = system_info.load_system_config()
+  #assert False
+  return_dict['system_info'] = si
+  #By default show error page
+  template = "logged_in_error.html"
+  num_nodes_bad = 0
+  total_pool = 0
+  total_nodes = len(si)
+  nodes = {}
+  # Chart specific declarations
+  today_day = datetime.datetime.today().day
+  value_list = []
+  time_list = []
+      
+  info = si.keys()[0]
+  # CPU status
+  if page == "cpu":
+    cpu,err = stats.get_system_stats(today_day,"cpu")
+    value_dict = {}
+    value_dict = {}
+    for key in cpu.keys():
+      value_list = []
+      time_list = []
+      if key == "date":
+        pass
+      else:
+        for a in cpu[key]:
+          time_list.append(a[0])
+          value_list.append(a[1])
+        value_dict[key] = value_list
+    return_dict["data_dict"] = value_dict
+    queue,err = stats.get_system_stats(today_day,"queue")
+    value_dict = {}
+    for key in queue.keys():
+      value_list = []
+      time_list = []
+      if key == "date":
+        pass
+      else:
+        for a in queue[key]:
+          time_list.append(a[0])
+          value_list.append(a[1])
+        value_dict[key] = value_list
+    return_dict["data_dict_queue"] = value_dict
+    return_dict['node_name'] = info
+    return_dict['node'] = si[info]
+    d = {}
+    template = "view_cpu_status.html"
+  # Hardware
+  elif page == "hardware":
+    d = {}
+    d['ipmi_status'] = si[info]['ipmi_status']
+    return_dict['hardware_status'] =  d
+    return_dict['node_name'] = info
+    template = "view_hardware_status.html"
+  # Memory
+  elif page == "memory":
+    mem,err = stats.get_system_stats(today_day,"memory")
+    for a in mem["memfree"]:
+      time_list.append(a[0])
+      value_list.append(a[1])
+    return_dict['memory_status'] =  si[info]['memory']
+    template = "view_memory_status.html"
+  # Network
+  elif page == "network":
+    network,err = stats.get_system_stats(today_day,"network")
+    value_dict = {}
+    for key in network.keys():
+      value_list = []
+      time_list = []
+      if key == "date" or key == "lo":
+        pass
+      else:
+        for a in network[key]["ifutil-percent"]:
+          time_list.append(a[0])
+          value_list.append(a[1])
+        value_dict[key] = value_list
+        
+    return_dict["data_dict"] = value_dict
+    return_dict["network_status"] = si[info]['interfaces']
+    template = "view_network_status.html"
+  # Services
+  elif page == "services":
+    import salt.client
+    client = salt.client.LocalClient()
+    winbind = client.cmd(info,'cmd.run',['service winbind status'])
+    smb = client.cmd(info,'cmd.run',['service smb status'])
+    return_dict['services_status'] = {}
+    return_dict['services_status']['winbind'] = winbind[info]
+    return_dict['services_status']['smb'] = smb[info]
+    template = "view_services_status.html"
+  # Disks
+  elif page == "disks":
+    sorted_disks = []
+    for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
+      sorted_disks.append(key)
+    return_dict["disk_status"] = si[info]['disks']
+    return_dict["disk_pos"] = sorted_disks
+    template = "view_disks_status.html"
+  # Pools
+  elif page == "pools":
+    pools, err = zfs.get_pools()
+    if pools:
+      return_dict['pools'] = pools            
+    template = "view_pools_status.html"
+  return_dict["labels"] = time_list
+  return_dict["data"] = value_list
+  return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
 
 @login_required    
 def show(request, page, info = None):
@@ -318,127 +431,7 @@ def show(request, page, info = None):
           for key1,value1 in sorted(si[key]["disks"].iteritems(), key=lambda (k,v):v["position"]):
             sorted_disks.append(key1)
           disk_new[key]["disk_pos"] = sorted_disks
-          #print disk_new
-          #disk_new[key]["info"] = pool_status
-          '''
-          else:             
-            disk_status[key] = {}
-            if si[key]["node_status"] != -1:
-              disk_status[key]["disks"] = {}
-              for disk_key, disk_value in si[key]["disks"].iteritems():
-                #print disk_key, disk_value
-                if disk_value["rotational"]:
-                  disk_status[key]["disks"][disk_key] = disk_value["status"]
-                #print disk_value["status"]
-                if disk_value["status"] != "PASSED":
-                  disk_failures += 1
-                if disk_failures >= 1:
-                  background_color = "bg-yellow"
-                if disk_failures >= 4:
-                  background_color == "bg-red"
 
-              if si[key]['node_status_str'] == "Degraded":
-                background_color = "bg-yellow"
-              #print type(si[key]["pools"][0]["state"])
-              if si[key]["pools"][0]["state"] == unicode("ONLINE"):
-                background_color == "bg-red"
-              disk_status[key]["background_color"] = background_color
-              disk_status[key]["name"] = si[key]["pools"][0]["name"]
-              sorted_disks = []
-              for key1,value1 in sorted(si[key]["disks"].iteritems(), key=lambda (k,v):v["position"]):
-                sorted_disks.append(key1)
-              disk_status[key]["disk_pos"] = sorted_disks
-              #print disk_status
-              #disk_status[key]["info"] = pool_status
-            else:
-              disk_status[key] = {}
-              disk_status[key]["background_color"] = "bg-red"
-              disk_status[key]["disk_pos"] = {}
-              disk_status[key]["name"] = "Unknown"
-        
-        template = "view_disk_status.html"
-        return_dict["disk_status"] = disk_status
-        return_dict["disk_new"] = disk_new
-        '''
-
-
-    elif page == "dashboard":
-      num_nodes_bad = 0
-      total_pool = 0
-      total_nodes = len(si)
-      nodes = {}
-
-      if not info:
-        info = si.keys()[0]
-      # Get the node name
-      return_dict['node_name'] = info
-
-      return_dict['node'] = si[info]
-
-      # Hardware Status
-      d = {}
-      l = []
-      for ipmi in si[info]['ipmi_status']:
-        if 'cpu' in ipmi['component_name'].lower():
-          l.append(ipmi)
-      d['ipmi_status'] = l
-      d['load_avg'] = si[info]['load_avg']
-      return_dict['cpu_status'] =  d
-
-      d = {}
-      d['ipmi_status'] = si[info]['ipmi_status']
-      return_dict['hardware_status'] =  d
-
-      return_dict['memory_status'] =  si[info]['memory']
-
-      return_dict['node_name'] = info
-
-
-      # Network
-      return_dict["network_status"] = si[info]['interfaces']
-
-      # Services
-      import salt.client
-      client = salt.client.LocalClient()
-      winbind = client.cmd(info,'cmd.run',['service winbind status'])
-      smb = client.cmd(info,'cmd.run',['service smb status'])
-      return_dict['services_status'] = {}
-      return_dict['services_status']['winbind'] = winbind[info]
-      return_dict['services_status']['smb'] = smb[info]
-
-      # Disks
-      sorted_disks = []
-      for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
-        sorted_disks.append(key)
-      return_dict["disk_status"] = si[info]['disks']
-      return_dict["disk_pos"] = sorted_disks
-
-      # Pools
-      pools, err = zfs.get_pools()
-      print pools, err
-      if pools:
-        return_dict['pools'] = pools            
-
-
-      if "from" in request.GET:
-        frm = request.GET["from"]
-        return_dict['frm'] = frm
-      template = "view_dashboard.html"
-      '''
-      # Get the number of bad nodes
-      for k, v in si.items():
-        nodes[k] = v["node_status"]
-        if v["node_status"] != 0:
-          num_nodes_bad += 1
-
-      return_dict["num_nodes_bad"] = num_nodes_bad            
-      return_dict["total_nodes"] = total_nodes            
-      return_dict["nodes"] = nodes   
-      sorted_disks = []
-      for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
-        sorted_disks.append(key)
-      si[info]["disk_pos"] = sorted_disks
-      '''
 
     elif page == "alerts":
 

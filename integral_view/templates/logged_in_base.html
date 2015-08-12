@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css" type="text/css" />
   <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css"/>
   <link rel="stylesheet" type="text/css" href="/static/css/AdminLTE.css">
-  <link rel="stylesheet" type="text/css" href="/static/css/skin-yellow.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/skin-purple.css">
   <link rel="stylesheet" type="text/css" href="/static/css/fractalio.css">
   <title> 
 		{%block title%}
@@ -35,11 +35,11 @@ function ()
 {%block header_scripts%}
 {%endblock%}
 </head>
-<body class="skin-yellow fixed">
+<body class="skin-purple fixed">
   <div class="wrapper">
     <!-- Top Menu-->
     <header class="main-header">
-            <a href="/show/dashboard/" class="logo">
+            <a href="/dashboard/cpu" class="logo">
                 <!-- Add the class icon to your logo image or logo icon to add the margining -->
                  <img src="/static/images/LOGO-transparent.png" height="45" width="45" alt="Fractalio Data" class="pull-left margin-left-40"/>
             </a>
@@ -52,7 +52,7 @@ function ()
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </a>
-                <a href="/show/dashboard" class="white margin-left-30 hidden-phone"><img src="/static/images/integralview-white.png" height="45" width="100"/><sub style="bottom: -1.25em;">Beta</sub></a>
+                <a href="/dashboard/cpu" class="white margin-left-30 hidden-phone"><img src="/static/images/integralview-white.png" height="45" width="100"/><sub style="bottom: -1.25em;">Beta</sub></a>
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
                         <!-- User Account: style can be found in dropdown.less -->
@@ -125,13 +125,13 @@ function ()
                 <section class="sidebar">
                   <div class="user-panel">
                     <div class="pull-left image">
-                      <a href="/show/dashboard" class="white hidden-phone"><img src="/static/images/fractalio name-white.png" width="170" height="45"/></a>
+                      <a href="/dashboard/cpu" class="white hidden-phone"><img src="/static/images/fractalio name-white.png" width="170" height="45"/></a>
                    </div>
                   </div>
                     <!-- sidebar menu: : style can be found in sidebar.less -->
                     <ul class="sidebar-menu">
                         <li id="dashboard_menu">
-                            <a href="/show/dashboard/">
+                            <a href="/dashboard/cpu">
                                 <i class="fa fa-dashboard"></i> <span>Dashboard</span>
                             </a>
                         </li>
@@ -172,6 +172,11 @@ function ()
                         <li id="cifs_menu">
                           <a href="/view_cifs_shares/">
                             <i class="fa fa-files-o"></i> CIFS access 
+                            </a>
+                        </li>
+                        <li id="iscsi_menu">
+                          <a href="/view_iscsi_targets/">
+                            <i class="fa fa-files-o"></i> ISCSI access 
                             </a>
                         </li>
                         <li id="logging_menu">
@@ -297,5 +302,7 @@ function ()
       make_tab_active(null)
     </script>
   {% endblock%}
+  {% block js %}
+  {% endblock %}
 </html>
 

@@ -55,3 +55,10 @@ Audit trail
 {%block help_body%}
   <p>The IntegralView system keeps a record of all system modifications that have been done using Integral View. This audit trail page lists these actions along with the time when they were performed and the IP address from where the action was initiated. This can be used to track down potentially harmful actions.</p>
 {%endblock%}
+
+{% block menu_active %}
+<script>
+ make_menu_active("audit_trail_tab")
+</script>
+{% endblock %}
+

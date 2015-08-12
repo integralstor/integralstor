@@ -1,0 +1,45 @@
+{% extends 'dashboard_base.html' %}
+{%block inside_content%}
+             
+<table class="table table-bordered table-hover table-responsive" style="width:800px">
+<thead>
+<th >
+Service
+</th>
+<th >
+Status
+</th>
+</thead>
+<tr>
+<td >
+CTDB Service
+</td>
+<td >
+{%if services_status.ctdb|slice:"-13:" == "is running..."%}
+<i class="fa fa-check-circle green fa-2x"></i>
+{%else%}
+<i class="fa fa-remove red fa-2x"></i>
+{%endif%}
+</td>
+</tr>
+<tr>
+<td >
+Winbind Service
+</td>
+<td >
+{%if services_status.winbind|slice:"-13:" == "is running..."%}
+<i class="fa fa-check-circle green fa-2x"></i>
+{%else%}
+<i class="fa fa-remove red fa-2x"></i>
+{%endif%}
+</td>
+</tr>
+</table>
+{% endblock %}
+
+{% block tab_active%}
+ <script>
+  make_tab_active("services_tab")
+ </script>
+{% endblock%}
+

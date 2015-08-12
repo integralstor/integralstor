@@ -1,0 +1,101 @@
+{% extends 'dashboard_base.html' %}
+{% block inside_content %}
+
+<div class="row">
+  <div class="col-sm-12 col-md-8 col-lg-8">
+    <canvas id="dashboard_chart" width="800" height="300"></canvas>
+  </div>
+  <div class="col-sm-12 col-md-2 col-lg-2">
+  </div>
+  <div class="col-sm-12 col-md-2 col-lg-2">
+    <h5>
+      <p class="text-center">
+      {% for keys in data_dict.keys %}
+        <div><span id="color_{{forloop.counter}}" class="color-box"></span>&nbsp; &nbsp; {{keys|title}}</div>
+        <br />
+      {% endfor %}
+      </p>
+    </h5>
+  </div>
+</div>
+<table class="table table-bordered table-hover table-responsive" style="width:800px"i>
+<thead>
+<th colspan=1>
+Interface
+</th>
+<th >
+Status
+</th>
+</thead>
+{% for if_name, interface in  network_status.items%}
+<tr>
+<td >
+{{if_name}}
+<td >
+{% if interface.status == "up"%}
+<i class="fa fa-check-circle green fa-2x"></i>
+{%else%}
+<i class="fa fa-remove red fa-2x"></i>
+{%endif%}
+</td>
+</tr>
+{%endfor%}
+</table>
+{% endblock %}
+
+{% block tab_active%}
+ <script>
+  make_tab_active("network_tab")
+ </script>
+
+
+{% endblock %}
+ {% block js %}
+<script src="/static/js/Chart.js"></script>
+
+<script>
+
+var labels = []
+{% for l in labels %}
+  labels.push("{{l}}")
+{% endfor %}
+
+Chart.defaults.global.animationSteps = 1;
+Chart.types.Line.extend({
+    name: "LineAlt",
+    initialize: function (data) {
+    Chart.types.Line.prototype.initialize.apply(this, arguments);
+    var xLabels = this.scale.xLabels;
+    xLabels.forEach(function (label, i) {
+      if ( i % 60 != 0 )
+        xLabels[i] = '';
+    })
+  }
+});
+var colors = ["37,103,5","62,38,174","190,1,222","13,86,195","124,51,209","255,109,137","132,132,242"]
+for (var i=1; i<=colors.length;i++){
+  $("#color_"+i).attr("data-color",colors[i-1]);
+  $("#color_"+i).attr("style","background:rgb("+colors[i-1]+")");
+}
+var data = {
+    labels: labels, 
+     datasets: [
+{% for keys,values in data_dict.items %}
+        {
+         label: "{{keys}}",
+         fillColor: "rgba("+$('#color_{{forloop.counter}}').attr('data-color')+",0.2)",
+         strokeColor: "rgba("+$('#color_{{forloop.counter}}').attr('data-color')+",1)",
+         pointColor: "rgba("+$('#color_{{forloop.counter}}').attr('data-color')+",1)",
+         pointStrokeColor: "#fff",
+         pointHighlightFill: "#fff",
+         pointHighlightStroke: "rgba("+$('#color_{{forloop.counter}}').attr('data-color')+",1)",
+         data: {{values}}
+        },
+{% endfor%}
+     ]
+};
+var ctx = document.getElementById("dashboard_chart").getContext("2d");
+var myLineChart = new Chart(ctx).LineAlt(data, {});
+</script>
+{% endblock%}
+

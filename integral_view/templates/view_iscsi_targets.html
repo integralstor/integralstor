@@ -1,0 +1,73 @@
+{% extends 'iscsi_base.html' %}
+
+{% block inside_content %}
+
+
+{% if conf %}
+  <i>{{conf}}</i><br><br>
+{%endif%}
+{% if warnings %}
+<i>The following problems occurred during the process : {{warnings}}</i><br><br>
+{%endif%}
+
+{% if not target_list %}
+No ISCSI targets appear to have been created. Click <a href="/create_iscsi_target/"> here</a> to create a new ISCSI target. 
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<table class="table table-striped">
+<thead>
+<tr>
+<th>
+Target ID
+</th>
+<th>
+Target Name
+</th>
+<th>
+LUNs
+</th>
+<th>
+&nbsp;
+</th>
+</thead>
+{%for target in target_list %}
+<tr>
+  <td>
+    {{target.tid}}
+  </td>
+  <td>
+    {{target.iqn}}
+  </td>
+  <td>
+    {%for lun in target.luns %}
+    {%if lun.type == 'disk'%}
+    {{lun.path}}<br>
+    {%endif%}
+    {%endfor%}
+  </td>
+
+  <td>
+    <a href="/view_iscsi_target?name={{target.iqn}}" role="button" class="btn btn-default"> View details</a>
+  </td>
+</tr>
+{%endfor%}
+</table>
+</div>
+<br>
+<a href="/create_iscsi_target" role="button" class="btn btn-default"> Create a new ISCSI Target</a>
+{%endif%}
+
+{%endblock%}
+{%block help_header%}
+View ISCSI Targets
+{%endblock%}
+{%block help_body%}
+  <p>
+  </p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_iscsi_targets_tab")
+  </script>
+{% endblock %}

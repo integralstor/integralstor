@@ -1,0 +1,39 @@
+{% extends 'iscsi_base.html' %}
+
+{% block inside_content %}
+{{conf_message}}
+
+
+{{form.errors}}
+<form class="form-horizontal" role="form" name="create_form" action="" method="post">
+  <table  class="table " style="width:80%">
+    <tr>
+      <td>
+        <label for="id_name">Target name:</label>
+      </td>
+      <td>
+        <input type="text"  name="name" class="form-control" id="id_name" value="{%if form.name.value%}{{form.name.value}}{%endif%}" placeholder="Enter a name for ISCSI target"> 
+      </td>
+      <td>
+    {{ form.name.errors }}
+      </td>
+    </tr>
+    </table>
+
+<a href="/view_iscsi_targets" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+<button type="submit" class="btn btn-primary"> Create >> </button>
+</form>
+
+{%endblock%}
+{%block help_header%}
+Create ISCSI users help
+{%endblock%}
+{%block help_body%}
+<p>Use ISCSI user authentication when you want ISCSI CHAP access control. For ISCSI authentication, you will need to create ISCSI user accounts using this screen and then deploy access control using these user accounts. These accounts are used only for ISCSI access and not for any other purpose.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_iscsi_targets_tab")
+  </script>
+{% endblock %}

@@ -1,33 +1,5 @@
-{% extends 'logged_in_base.html' %}
-
-
-{%block page-header%}
-  Dash Board
-  <br /><small>
-      Home 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Dashboard
-  </small>
-{%endblock%}
-
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-      </div>
-      <div class="modal-body" id="myModalBody">
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-{%block contents%}
+{% extends 'dashboard_base.html' %}
+{%block inside_content%}
     <div class="nav-tabs-custom">
 	<ul class="nav nav-tabs">
 	  <li class="active"><a href="#cpu" data-toggle="tab">CPU</a></li>
@@ -41,67 +13,6 @@
 	</ul>
 	<div class="tab-content">
 	  <div class="tab-pane active" id="cpu">
-    {%if cpu_status.ipmi_status %}
-      <table class="table table-bordered table-hover table-responsive" style="width:800px">
-      <thead>
-        <th colspan=1>
-          Component Type
-        </th>
-        <th colspan=3>
-          Component Detail
-        </th>
-        <th colspan=5>
-          Status
-        </th>
-      </thead>
-      {%for ipmi in cpu_status.ipmi_status %}
-      <tr>
-        <td colspan=1>
-          {{ipmi.component_name}}
-        </td>
-        <td colspan=3>
-          {{ipmi.parameter_name}}
-        </td>
-        <td colspan=2>
-    	{{ipmi.reading}} 
-        </td>
-        <td colspan=2>
-    	  {% if ipmi.status == "ok" %}
-    		<i class="fa fa-check-circle green fa-2x"></i>	
-        {%else%}
-      		<i class="fa fa-remove red fa-2x"></i>	
-        {%endif%}
-        </td>
-      </tr>
-      {%endfor%}
-    </table>
-    {%endif%}
-    {%if cpu_status.load_avg %}
-      <table class="table table-bordered table-hover table-responsive" style="width:800px">
-      <thead>
-        <th colspan=1>
-          Load average - 1 minute
-        </th>
-        <th >
-          Load average - 5 minutes
-        </th>
-        <th >
-          Load average - 15 minutes
-        </th>
-      </thead>
-      <tr>
-        <td>
-          {{cpu_status.load_avg.1_min}}
-        </td>
-        <td>
-          {{cpu_status.load_avg.5_min}}
-        </td>
-        <td>
-          {{cpu_status.load_avg.15_min}}
-        </td>
-      </tr>
-      </table>
-    {%endif%}
 	  </div><!-- /.tab-pane -->
 	  <div class="tab-pane " id="memory">
     {%if memory_status%}
@@ -435,6 +346,11 @@ $(function() {
 });
 </script>
 {%endblock%}
+{% block menu_active %}
+<script>
+   make_side_menu_active("dashboard_menu")
+</script>
+{% endblock%}
 {%block help_header%}
 Dashboard
 {%endblock%}
