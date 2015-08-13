@@ -47,7 +47,7 @@ class AuthUsersSettingsForm(forms.Form):
 class ShareForm(forms.Form):
   share_id =  forms.IntegerField(widget=forms.HiddenInput, required = False)
   name = forms.CharField()
-  pool = forms.CharField(required=True)
+  dataset = forms.CharField(required=True)
   path = forms.CharField(required=False)
   comment = forms.CharField(required=False)
   browseable = forms.BooleanField(required=False)
@@ -58,6 +58,7 @@ class ShareForm(forms.Form):
     if kwargs:
       user_list = kwargs.pop("user_list")
       group_list = kwargs.pop("group_list")
+      dataset_list = kwargs.pop("dataset_list")
     super(ShareForm, self).__init__(*args, **kwargs)
     ch = []
     if user_list:
@@ -65,6 +66,14 @@ class ShareForm(forms.Form):
         tup = (user, user)
         ch.append(tup)   
     self.fields["users"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(attrs={'onclick':'select_guest_ok();'}), choices=ch,required=False )
+
+    ch = []
+    if dataset_list:
+      for ds in dataset_list:
+        tup = ( ds['mountpoint'], ds['name'])
+        ch.append(tup)   
+    self.fields["dataset"] = forms.ChoiceField(choices=ch)
+
     ch = []
     if group_list:
       for gr in group_list:

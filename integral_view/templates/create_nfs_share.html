@@ -9,13 +9,41 @@
             <table class="table" style="width:800px">
             <tr>
               <td>
-            <label for="id_path">NFS Share path:</label>
+            <label for="id_dataset">Underlying ZFS Dataset :</label>
               </td>
               <td>
-                <input type="text"  name="path" class="form-control" id="id_path" placeholder="Enter the path for this share" />
+                  <select id = "id_dataset" name="dataset" class="form-control">
+                  {% for choice in form.dataset.field.choices %}
+                    <option value="{{choice.0}}" {%if choice.0 == form.initial.path %} selected="selected"{%endif%}>{{choice.1}}</option>
+                  {%endfor%}
+                  </select>
+              </td>
+              <td>
+              {{ form.dataset.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_path">Share path:</label>
+              </td>
+              <td>
+                <input type="text"  name="path" class="form-control" id="id_path" placeholder="Click the Browse button to choose a directory.." disabled placeholder="Share Path" value={{form.path.value|default_if_none:""}}> 
+                    <a href="#" role="button" class="btn btn-default" onClick="displayTree();return false;"> Browse..</a>
+                <div id="pathdiv" style="display:inline"> </div>
               </td>
               <td>
             {{ form.path.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="new_folder">Create Directory in the selected path:</label>
+              </td>
+              <td>
+                <input type="text"  name="new_folder" class="form-control" id="new_folder" placeholder="Create a new folder"> 
+              </td>
+              <td>
+                {{ form.comment.errors }}
               </td>
             </tr>
             <tr>
@@ -42,7 +70,7 @@
             </tr>
             <tr>
               <td>
-            <label for="id_root_squash">Root squash:</label>
+            <label for="id_root_squash">Do not treat remote root user as local root:</label>
               </td>
               <td>
             {{ form.root_squash }}
@@ -53,7 +81,7 @@
             </tr>
             <tr>
               <td>
-            <label for="id_all_squash">All squash:</label>
+            <label for="id_all_squash">Treat all client users as anonymous users:</label>
               </td>
               <td>
             {{ form.all_squash }}
@@ -67,6 +95,61 @@
         <a href="/view_nfs_shares" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
         <button type="submit" class="btn btn-primary">Save >></button>
 </form>
+  <script src="/static/jstree/dist/jstree.js"></script>
+  <script>
+	$("#id_vol").change(function(){
+		location.reload();
+	});
+  function displayTree() {
+      document.getElementById("pathdiv").style.display = "block";
+      $('#pathdiv').jstree({ 'core' : {
+        'multiple':false,
+        'data' : {
+          'url' : function (node) {
+            return node.id === '#' ? 
+              '/dir_contents?first=1&dir=/' : 
+              '/dir_contents'; 
+          },
+          'data' : function (node) {
+            var e = document.getElementById("id_dataset");
+            console.log(node)
+            console.log(e.options[e.selectedIndex].value)
+            console.log(node.data)
+            console.log(node.id)
+            console.log(node.text)
+            if (node.data) {
+              return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
+            }
+            else
+              return { 'dir' : node.text , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
+            }
+          }
+          
+        }
+    });
+ $(function () {
+    $('#pathdiv').on('changed.jstree', function (e, data) {
+        var i, j, r = [];
+        r = data.instance.get_node(data.selected[0]).text;
+        rfp = data.instance.get_node(data.selected[0]).data["dir"];
+        document.forms["create_form"].elements["path"].value = rfp;
+        document.forms["create_form"].elements["display_path"].value = rfp;
+        document.getElementById("pathdiv").style.display = "none";
+      })
+      .jstree();
+  });
+  }
+  $("#new_folder").on('input',function(){
+  	var final_path = $("#id_path").val()
+  	if (final_path === ""){
+  		$("#display_path").val("/"+$(this).val())
+  	}
+  	else{
+  		$("#display_path").val(final_path+$(this).val())
+  	}
+  });
+  $("#id_dataset").change(function(){displayTree();});
+</script>
 
 {%endblock%}
 {%block help_header%}

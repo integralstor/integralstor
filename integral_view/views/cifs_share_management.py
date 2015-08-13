@@ -229,23 +229,29 @@ def create_cifs_share(request):
   try:
     user_list = samba_settings.get_user_list()
     group_list = samba_settings.get_group_list()
+    pools, err = zfs.get_pools()
+    if err:
+      raise Exception('No ZFS pools available. Please create a pool and dataset before creating shares.')
+
+    ds_list = [] 
+    for pool in pools:
+      for ds in pool["datasets"]:
+        if ds['properties']['type']['value'] == 'filesystem':
+          ds_list.append({'name': ds["name"], 'mountpoint': ds["mountpoint"]})
+    if not ds_list:
+      raise Exception('No ZFS datasets available. Please create a dataset before creating shares.')
   
     if request.method == "GET":
       #Return the form
-      form = samba_shares_forms.ShareForm(user_list = user_list, group_list = group_list)
+
+      form = samba_shares_forms.ShareForm(user_list = user_list, group_list = group_list, dataset_list = ds_list)
       return_dict["form"] = form
-      pools = zfs.get_pools()
-      pool_list = [] 
-      for pool in pools[0]:
-        pool_list.append({pool["pool_name"]:pool["properties"]["mountpoint"]["value"]})
-        for ds in pool["datasets"]:
-          pool_list.append({ds["name"]:ds["mountpoint"]})
-      return_dict["pool_list"] = pool_list
+
       return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       #Form submission so create
       return_dict = {}
-      form = samba_shares_forms.ShareForm(request.POST, user_list = user_list, group_list = group_list)
+      form = samba_shares_forms.ShareForm(request.POST, user_list = user_list, group_list = group_list, dataset_list = ds_list)
       return_dict["form"] = form
       if form.is_valid():
         cd = form.cleaned_data

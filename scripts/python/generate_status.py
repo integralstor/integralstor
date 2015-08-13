@@ -1,11 +1,11 @@
 #!/usr/bin/python
 
-import salt.client
-import json, os, shutil, datetime, sys, re
-import fractalio
-import pprint
+from integralstor_unicell import manifest_status
 from integralstor_common import lock, common
+import json, os, shutil, datetime, sys, re
+import pprint
 
+'''
 def _gen_status_info(path):
 
   # First load the status from all nodes
@@ -154,30 +154,33 @@ def _gen_status_info(path):
   
     #print status_dict
   return 0, status_dict
+'''
   
 def gen_status(path):
-  if not lock.get_lock('generate_status'):
-    print 'Generate Status : Could not acquire lock. Exiting.'
-    return -1
-  ret_code = 0
-  fullmanifestpath = os.path.normpath("%s/master.manifest"%path)
-  rc, ret = _gen_status_info(fullmanifestpath)
-  if rc != 0 :
-    ret_code = rc
-  else:
+  try :
+    if not lock.get_lock('generate_status'):
+      raise Exception('Generate Status : Could not acquire lock.')
+    fullmanifestpath = os.path.normpath("%s/master.manifest"%path)
+    ret, err = manifest_status.generate_status_info(fullmanifestpath)
+    if not ret :
+      if err:
+        raise Exception(err)
+      else:
+        raise Exception('No status info obtained')
     fullpath = os.path.normpath("%s/master.status"%path)
     fulltmppath = os.path.normpath("%s/master.status.tmp"%path)
-    try:
-      #Generate into a tmp file
-      with open(fulltmppath, 'w') as fd:
-        json.dump(ret, fd, indent=2)
-      #Now move the tmp to the actual manifest file name
-      shutil.move(fulltmppath, fullpath)
-    except Exception, e:
-      print "Error generating the status file : %s"%str(e)
-      ret_code = -1
-  lock.release_lock('generate_status')
-  return ret_code
+    #Generate into a tmp file
+    with open(fulltmppath, 'w') as fd:
+      json.dump(ret, fd, indent=2)
+    #Now move the tmp to the actual manifest file name
+    shutil.move(fulltmppath, fullpath)
+  except Exception, e:
+    print 'Error generating status : %s'%str(e)
+    lock.release_lock('generate_status')
+    return -1
+  else:
+    lock.release_lock('generate_status')
+    return 0
 
 import atexit
 atexit.register(lock.release_lock, 'generate_status')

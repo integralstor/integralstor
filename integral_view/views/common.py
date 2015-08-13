@@ -236,17 +236,25 @@ def dashboard(request,page):
     client = salt.client.LocalClient()
     winbind = client.cmd(info,'cmd.run',['service winbind status'])
     smb = client.cmd(info,'cmd.run',['service smb status'])
+    nfs = client.cmd(info,'cmd.run',['service nfs status'])
+    iscsi = client.cmd(info,'cmd.run',['service tgtd status'])
+    ntp = client.cmd(info,'cmd.run',['service ntpd status'])
     return_dict['services_status'] = {}
     return_dict['services_status']['winbind'] = winbind[info]
     return_dict['services_status']['smb'] = smb[info]
+    return_dict['services_status']['nfs'] = nfs[info]
+    return_dict['services_status']['iscsi'] = iscsi[info]
+    return_dict['services_status']['ntp'] = ntp[info]
     template = "view_services_status.html"
   # Disks
   elif page == "disks":
     sorted_disks = []
     for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
       sorted_disks.append(key)
+    return_dict['node'] = si[info]
     return_dict["disk_status"] = si[info]['disks']
     return_dict["disk_pos"] = sorted_disks
+    return_dict['node_name'] = info
     template = "view_disks_status.html"
   # Pools
   elif page == "pools":

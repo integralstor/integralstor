@@ -21,7 +21,7 @@ def view_services(request):
         conf = "Service start failed"
       return_dict["conf"] = conf
     services_dict = {}
-    services = [('network', 'Networking'), ('ntpd','NTP'), ('smb', 'CIFS')]
+    services = [('network', 'Networking'), ('ntpd','NTP'), ('smb', 'CIFS - smb'), ('winbind', 'CIFS - winbind'), ('tgtd', 'ISCSI'), ('nfs', 'NFS')]
     for service in services:
       services_dict[service[0]] = {} 
       services_dict[service[0]]['name'] =  service[1]

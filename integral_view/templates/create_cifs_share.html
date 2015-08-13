@@ -44,19 +44,16 @@ function select_guest_ok() {
             </tr>
             <tr>
               <td>
-            <label for="id_pool">ZFS Pool Name:</label>
+            <label for="id_dataset">Underlying ZFS Dataset :</label>
               </td>
               <td>
-                  <select class="form-control" name="pool" id="id_pool">
-                       {%for pool in pool_list %}
-                          {% for k,v in pool.items %}
-                            <option value="{{v}}">{{k}} </option>
-                          {%endfor%}
-                        {%endfor%}
-                  </select>
-              </td>
+                  <select id="id_dataset" name="dataset" class="form-control">
+                  {% for choice in form.dataset.field.choices %}
+                    <option value="{{choice.0}}" {%if choice.0 == form.initial.path %} selected="selected"{%endif%}>{{choice.1}}</option>
+                  {%endfor%}
+                  </select> </td>
               <td>
-            {{ form.pool.errors }}
+            {{ form.dataset.errors }}
               </td>
             </tr>
 
@@ -201,7 +198,7 @@ $(window).load(function() {
               '/dir_contents'; 
           },
           'data' : function (node) {
-            var e = document.getElementById("id_pool");
+            var e = document.getElementById("id_dataset");
             console.log(node)
             console.log(e.options[e.selectedIndex].value)
             console.log(node.data)
@@ -238,7 +235,7 @@ $("#new_folder").on('input',function(){
 		$("#display_path").val(final_path+$(this).val())
 	}
 });
-$("#id_pool").change(function(){displayTree();});
+$("#id_dataset").change(function(){displayTree();});
 </script>
 
 {%endblock%}

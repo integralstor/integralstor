@@ -19,10 +19,10 @@ Service name
 Service status
 </th>
 <th>
-Details
+Action
 </th>
 <th>
-Action
+Details
 </th>
 </tr>
 {%for name, service in services.items %}
@@ -38,13 +38,6 @@ Error
 {%endif%}
 </td>
 <td>
-{%if service.info %}
-{{service.info.output_str}}
-{%elif service.err%}
-{{service.err}}
-{%endif%}
-</td>
-<td>
 <form method='POST' action='/change_service_status/'>
 {%if service.info.status_code == 0 %}
 <input name='action' type='hidden' value='stop'>
@@ -55,6 +48,13 @@ Error
 {%endif%}
 <input name='service' type='hidden' value={{service.service}}>
 </form>
+</td>
+<td>
+{%if service.info %}
+{{service.info.output_str}}
+{%elif service.err%}
+{{service.err}}
+{%endif%}
 </td>
 </tr>
 {%endfor%}

@@ -17,6 +17,9 @@ S.M.A.R.T status
 <td>
 &nbsp;
 </td>
+<td>
+&nbsp;
+</td>
 </thead>
 {%for sn, disk in disk_status.items %}
 <tr>
@@ -32,6 +35,20 @@ S.M.A.R.T status
 {%else%}
 <i class="fa fa-remove red fa-2x"></i>
 {%endif%}
+</td>
+<td>
+    {% if disk.status != 'PASSED' %}
+      {%if disk.pool%}
+      <form method="POST" action="/replace_disk/">
+        <input type="hidden" name="node" value="{{node_name}}">
+        <input type="hidden" name="serial_number" value="{{sn}}">
+        <input type="hidden" name="step" value="offline_disk">
+          <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');"> Replace (swap out) this disk </button>
+      </form>
+      {%else%}
+        <button  class="btn btn-primary" onClick ="alert('This disk is not part of any ZFS pool so you can go ahead and replace it safely');"> Replace (swap out) this disk </button>
+      {%endif%}
+    {%endif%}
 </td>
 </tr>
 {%endfor%}

@@ -154,13 +154,25 @@ def edit_nfs_share(request):
 def create_nfs_share(request):
   return_dict = {}
   try:
+    pools, err = zfs.get_pools()
+    if err:
+      raise Exception('No ZFS pools available. Please create a pool and dataset before creating shares.')
+
+    ds_list = [] 
+    for pool in pools:
+      for ds in pool["datasets"]:
+        if ds['properties']['type']['value'] == 'filesystem':
+          ds_list.append({'name': ds["name"], 'mountpoint': ds["mountpoint"]})
+    if not ds_list:
+      raise Exception('No ZFS datasets available. Please create a dataset before creating shares.')
+
     if request.method == "GET":
       #Return the conf page
-      form = nfs_shares_forms.ShareForm()
+      form = nfs_shares_forms.ShareForm(dataset_list = ds_list)
       return_dict['form'] = form
       return django.shortcuts.render_to_response("create_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
-      form = nfs_shares_forms.ShareForm(request.POST)
+      form = nfs_shares_forms.ShareForm(request.POST, dataset_list = ds_list)
       path = request.POST["path"]
       return_dict['form'] = form
       if not form.is_valid():
