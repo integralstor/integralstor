@@ -1,7 +1,6 @@
 import os, re, subprocess, glob, pprint
 
 import salt.modules.network, salt.modules.ps, salt.modules.status
-import fractalio
 from integralstor_common import zfs, command, disks, hardware_utils
 
 
