@@ -848,6 +848,7 @@ def replace_disk(request):
     return_dict['system_config_list'] = si
     
     template = 'logged_in_error.html'
+    use_salt = common.use_salt()
   
     if request.method == "GET":
       return_dict["error"] = "Incorrect access method. Please use the menus"
@@ -890,22 +891,36 @@ def replace_disk(request):
             if not pool:
               return_dict["error"] = "Could not find the storage pool on that disk. Please use the menus"
             else:
-              #issue a zpool offline pool disk-id using salt
-              client = salt.client.LocalClient()
               cmd_to_run = 'zpool offline %s %s'%(pool, disk_id)
               print 'Running %s'%cmd_to_run
               #assert False
-              rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
-              if rc:
-                for node, ret in rc.items():
-                  #print ret
-                  if ret["retcode"] != 0:
-                    error = "Error bringing the disk with serial number %s offline on %s : "%(serial_number, node)
-                    if "stderr" in ret:
-                      error += ret["stderr"]
-                    return_dict["error"] = error
-                    return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-              print rc
+              if use_salt:
+                #issue a zpool offline pool disk-id using salt
+                client = salt.client.LocalClient()
+                rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
+                if rc:
+                  for node, ret in rc.items():
+                    #print ret
+                    if ret["retcode"] != 0:
+                      error = "Error bringing the disk with serial number %s offline on %s : "%(serial_number, node)
+                      if "stderr" in ret:
+                        error += ret["stderr"]
+                      return_dict["error"] = error
+                      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+                #print rc
+              else:
+                ret, rc = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+                #print ret
+                if rc != 0:
+                  err = "Error bringing the disk with serial number %s offline  : "%(serial_number)
+                  tl = command.get_output_list(ret)
+                  if tl:
+                    err = ','.join(tl)
+                  tl = command.get_error_list(ret)
+                  if tl:
+                    err = err + ','.join(tl)
+                  return_dict["error"] = err
+                  return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
               #if disk_status == "Disk Missing":
               #  #Issue a reboot now, wait for a couple of seconds for it to shutdown and then redirect to the template to wait for reboot..
               #  pass
@@ -927,8 +942,11 @@ def replace_disk(request):
             return_dict["pool"] = pool
             return_dict["old_id"] = old_id
             old_disks = si[node]["disks"].keys()
-            client = salt.client.LocalClient()
-            rc = client.cmd(node, 'integralstor.disk_info_and_status')
+            if use_salt:
+              client = salt.client.LocalClient()
+              rc = client.cmd(node, 'integralstor.disk_info_and_status')
+            else:
+              rc = manifest_status.disk_info_and_status()
             if rc and node in rc:
               new_disks = rc[node].keys()
               if new_disks:
@@ -955,57 +973,99 @@ def replace_disk(request):
             new_id = request.POST["new_id"]
             new_serial_number = request.POST["new_serial_number"]
             cmd_to_run = "zpool replace -f %s %s %s"%(pool, old_id, new_id)
-            print 'Running %s'%cmd_to_run
-            client = salt.client.LocalClient()
-            rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
-            if rc:
-              print rc
-              for node, ret in rc.items():
-                #print ret
-                if ret["retcode"] != 0:
-                  error = "Error replacing the disk on %s : "%(node)
-                  if "stderr" in ret:
-                    error += ret["stderr"]
-                  rc = client.cmd(node, 'cmd.run', ['zpool online %s %s'%(pool, old_id)])
-                  return_dict["error"] = error
-                  return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+            if use_salt:
+              print 'Running %s'%cmd_to_run
+              client = salt.client.LocalClient()
+              rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
+              if rc:
+                print rc
+                for node, ret in rc.items():
+                  #print ret
+                  if ret["retcode"] != 0:
+                    error = "Error replacing the disk on %s : "%(node)
+                    if "stderr" in ret:
+                      error += ret["stderr"]
+                    rc = client.cmd(node, 'cmd.run', ['zpool online %s %s'%(pool, old_id)])
+                    return_dict["error"] = error
+                    return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+              else:
+                error = "Error replacing the disk on %s : "%(node)
+                return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
             else:
-              error = "Error replacing the disk on %s : "%(node)
-              return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+                ret, rc = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+                #print ret
+                if rc != 0:
+                  err = "Error replacing the disk  : "
+                  tl = command.get_output_list(ret)
+                  if tl:
+                    err = ','.join(tl)
+                  tl = command.get_error_list(ret)
+                  if tl:
+                    err = err + ','.join(tl)
+                  return_dict["error"] = err
+                  return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
             '''
             cmd_to_run = "zpool set autoexpand=on %s"%pool
-            print 'Running %s'%cmd_to_run
-            rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
-            if rc:
-              for node, ret in rc.items():
-                #print ret
-                if ret["retcode"] != 0:
-                  error = "Error setting pool autoexpand on %s : "%(node)
-                  if "stderr" in ret:
-                    error += ret["stderr"]
-                  return_dict["error"] = error
-                  return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-            print rc
+            if use_salt:
+              print 'Running %s'%cmd_to_run
+              rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
+              if rc:
+                for node, ret in rc.items():
+                  #print ret
+                  if ret["retcode"] != 0:
+                    error = "Error setting pool autoexpand on %s : "%(node)
+                    if "stderr" in ret:
+                      error += ret["stderr"]
+                    return_dict["error"] = error
+                    return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+              print rc
+            else:
+              ret, rc = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+              #print ret
+              if rc != 0:
+                err = "Error setting pool autoexpand on %s : "%(node)
+                tl = command.get_output_list(ret)
+                if tl:
+                  err = ','.join(tl)
+                tl = command.get_error_list(ret)
+                if tl:
+                  err = err + ','.join(tl)
+                return_dict["error"] = err
+                return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
             if new_serial_number in si[node]["disks"]:
               disk = si[node]["disks"][new_serial_number]
               disk_id = disk["id"]
             '''
             cmd_to_run = 'zpool online %s %s'%(pool, new_id)
-            print 'Running %s'%cmd_to_run
-            rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
-            if rc:
-              print rc
-              for node, ret in rc.items():
-                #print ret
-                if ret["retcode"] != 0:
-                  error = "Error bringing the new disk online on %s : "%(node)
-                  if "stderr" in ret:
-                    error += ret["stderr"]
-                  return_dict["error"] = error
-                  return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+            if use_salt:
+              print 'Running %s'%cmd_to_run
+              rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
+              if rc:
+                print rc
+                for node, ret in rc.items():
+                  #print ret
+                  if ret["retcode"] != 0:
+                    error = "Error bringing the new disk online on %s : "%(node)
+                    if "stderr" in ret:
+                      error += ret["stderr"]
+                    return_dict["error"] = error
+                    return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+              else:
+                error = "Error bringing the new disk online on %s : "%(node)
+                return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
             else:
-              error = "Error bringing the new disk online on %s : "%(node)
-              return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+              ret, rc = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+              #print ret
+              if rc != 0:
+                err = "Error bringing the new disk online  : "
+                tl = command.get_output_list(ret)
+                if tl:
+                  err = ','.join(tl)
+                tl = command.get_error_list(ret)
+                if tl:
+                  err = err + ','.join(tl)
+                return_dict["error"] = err
+                return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
             ret, rc = integralstor_common.common.command.execute_with_rc('%s/generate_manifest.py'%integralstor_common.common.get_python_scripts_path())
             #print ret
             if rc != 0:

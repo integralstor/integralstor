@@ -61,7 +61,7 @@ def login(request):
   return_dict['form'] = form
 
   if authSucceeded:
-    return django.http.HttpResponseRedirect('/show/dashboard/')
+    return django.http.HttpResponseRedirect('/dashboard/cpu')
 
   # For all other cases, return to login screen with return_dict 
   # appropriately populated

@@ -1,19 +1,9 @@
-{% extends 'logged_in_base.html' %}
-
-{%block page-header%}
-  NFS Access
-  <br /><small>
-      NFS Access 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Shares 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Edit NFS Share
-  </small>
-{%endblock%}
+{% extends 'nfs_base.html' %}
 
 
+{% block inside_content %}
 
-{%block contents%}
+
 
 {{conf_message}}
 

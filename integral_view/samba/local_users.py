@@ -3,7 +3,7 @@ import sys, os, pwd, crypt, grp, spwd
 
 
 import integralstor_common
-from integralstor_common import command 
+from integralstor_common import command, common
 
 def create_local_user(username, name, pswd, gid = None, smb_user=True):
 
@@ -15,35 +15,47 @@ def create_local_user(username, name, pswd, gid = None, smb_user=True):
       for ud in ul:
         if ud["username"] == username:
           raise Exception("Error creating user. The user \"%s\" already exists. "%username)
-    elif not err:
+    elif err:
       raise Exception("Error retrieving user list : %s"%err)
 
   
     enc_pswd = crypt.crypt(pswd, "28")
-    client = salt.client.LocalClient()
-    if gid:
-      rc = client.cmd('*', 'user.add', [username, None, gid])
+    use_salt = common.use_salt()
+    if use_salt:
+      client = salt.client.LocalClient()
+      if gid:
+        rc = client.cmd('*', 'user.add', [username, None, gid])
+      else:
+        rc = client.cmd('*', 'user.add', [username])
+      #print rc
+      if not rc:
+        error_list.append("Error creating the username")
+      for hostname, status in rc.items():
+        if not status:
+          error_list.append("Error creating the username on node"%hostname)
+      rc = client.cmd('*', 'shadow.set_password', [username, enc_pswd] )
+      for hostname, status in rc.items():
+        if not status:
+          error_list.append("Error setting the password for username on GRIDCell %s"%hostname)
+      rc = client.cmd('*', 'user.chfullname', [username, "integralstor_user_%s"%name] )
+      for hostname, status in rc.items():
+        if not status:
+          error_list.append("Error setting the name for username on node %s"%hostname)
     else:
-      rc = client.cmd('*', 'user.add', [username])
-    #print rc
-    if not rc:
-      error_list.append("Error creating the username")
-    for hostname, status in rc.items():
-      if not status:
-        error_list.append("Error creating the username on node"%hostname)
-    rc = client.cmd('*', 'shadow.set_password', [username, enc_pswd] )
-    for hostname, status in rc.items():
-      if not status:
-        error_list.append("Error setting the password for username on GRIDCell %s"%hostname)
-    rc = client.cmd('*', 'user.chfullname', [username, "integralstor_user_%s"%name] )
-    for hostname, status in rc.items():
-      if not status:
-        error_list.append("Error setting the name for username on node %s"%hostname)
-    '''
-    ret, rc = command.execute_with_rc(r'useradd -p %s -c integralstor_user_%s %s'%(enc_pswd, name, username))
-    if rc != 0:
-      raise Exception("Error creating system user. Return code : %d. "%rc)
-    '''
+      if gid:
+        cmd_to_run = 'useradd -g %s -p %s -c integralstor_user_%s %s'%(gid, enc_pswd, name, username)
+      else:
+        cmd_to_run = 'useradd  -p %s -c integralstor_user_%s %s'%(enc_pswd, name, username)
+      ret, rc = command.execute_with_rc(cmd_to_run)
+      if rc != 0:
+        err = ''
+        tl = command.get_output_list(ret)
+        if tl:
+          err = ','.join(tl)
+        tl = command.get_error_list(ret)
+        if tl:
+          err = err + ','.join(tl)
+        raise Exception("Return code : %d. Error : %s"%(rc, err))
   
     if smb_user:
       #print '/usr/bin/pdbedit  -d 1 -t -a  -u %s -f %s'%(username, name), "%s\n%s"%(pswd, pswd)
@@ -51,8 +63,15 @@ def create_local_user(username, name, pswd, gid = None, smb_user=True):
       ret, rc = command.execute_with_conf_and_rc(r'/usr/bin/pdbedit  -d 1 -t -a  -u %s -f %s'%(username, name), "%s\n%s"%(pswd, pswd))
       if rc != 0:
         #print command.get_error_list(ret)
-        print ret, rc
-        raise Exception("Error creating user's CIFS access. Return code : %d. "%rc)
+        #print ret, rc
+        err = ''
+        tl = command.get_output_list(ret)
+        if tl:
+          err = ','.join(tl)
+        tl = command.get_error_list(ret)
+        if tl:
+          err = err + ','.join(tl)
+        raise Exception("Error creating user's CIFS access : %s "%err)
       #ul = command.get_output_list(ret)
       #print ul
   except Exception, e:
@@ -68,20 +87,37 @@ def create_local_group(grpname, gid = None):
       for gd in gl:
         if gd["grpname"] == grpname:
           raise Exception("Error creating group. The group \"%s\" already exists. "%grpname)
-    elif not err:
+    elif err:
       raise Exception("Error retrieving group list : %s"%err)
 
-    client = salt.client.LocalClient()
-    if not gid:
-      rc = client.cmd('*', 'group.add', [grpname])
-    else:
-      rc = client.cmd('*', 'group.add', [grpname,gid])
-    print rc
-    if not rc:
-      raise Exception('Group creation failed')
-    for hostname, status in rc.items():
-      if not status:
+    use_salt = common.use_salt()
+    if use_salt:
+      client = salt.client.LocalClient()
+      if not gid:
+        rc = client.cmd('*', 'group.add', [grpname])
+      else:
+        rc = client.cmd('*', 'group.add', [grpname,gid])
+      print rc
+      if not rc:
         raise Exception('Group creation failed')
+      for hostname, status in rc.items():
+        if not status:
+          raise Exception('Group creation failed')
+    else:
+      if gid:
+        cmd_to_run = 'groupadd  -g %s %s'%(gid, grpname)
+      else:
+        cmd_to_run = 'groupadd   %s'%(grpname)
+      ret, rc = command.execute_with_rc(cmd_to_run)
+      if rc != 0:
+        err = ''
+        tl = command.get_output_list(ret)
+        if tl:
+          err = ','.join(tl)
+        tl = command.get_error_list(ret)
+        if tl:
+          err = err + ','.join(tl)
+        raise Exception("Return code : %d. Error : %s"%(rc, err))
   except Exception, e:
     return False, 'Error creating a local group : %s'%str(e)
   else:
@@ -150,19 +186,41 @@ def delete_local_user(username):
       else:
         raise Exception('Error locating user')
 
-    client = salt.client.LocalClient()
-    rc = client.cmd('*', 'user.delete', [username] )
-    #print rc
-    if rc:
-      for hostname, status in rc.items():
-        if not status:
-          raise Exception("Error deleting the system user")
+    use_salt = common.use_salt()
+    if use_salt:
+      client = salt.client.LocalClient()
+      rc = client.cmd('*', 'user.delete', [username] )
+      #print rc
+      if rc:
+        for hostname, status in rc.items():
+          if not status:
+            raise Exception("Error deleting the system user")
+      else:
+            raise Exception("Error deleting the system user")
     else:
-          raise Exception("Error deleting the system user")
+      cmd_to_run = 'userdel  %s'%(username)
+      ret, rc = command.execute_with_rc(cmd_to_run)
+      if rc != 0:
+        err = ''
+        tl = command.get_output_list(ret)
+        if tl:
+          err = ','.join(tl)
+        tl = command.get_error_list(ret)
+        if tl:
+          err = err + ','.join(tl)
+        raise Exception("Return code : %d. Error : %s"%(rc, err))
+
     if d['smb_user']:
       ret, rc = command.execute_with_rc(r'pdbedit -d 1 -x %s'%username)
       if rc != 0:
-        raise Exception("Error deleting user from the cifs storage system. Return code : %d. "%rc)
+        err = ''
+        tl = command.get_output_list(ret)
+        if tl:
+          err = ','.join(tl)
+        tl = command.get_error_list(ret)
+        if tl:
+          err = err + ','.join(tl)
+        raise Exception("Error deleting user from the cifs storage system. : %s. "%err)
     
   except Exception, e:
     return False, 'Error deleting local user : %s'%str(e)
@@ -181,15 +239,29 @@ def delete_local_group(grpname):
       else:
         raise Exception('Error locating group')
 
-    client = salt.client.LocalClient()
-    rc = client.cmd('*', 'group.delete', [grpname] )
-    #print rc
-    if rc:
-      for hostname, status in rc.items():
-        if not status:
-          raise Exception("Error deleting the system group")
+    use_salt = common.use_salt()
+    if use_salt:
+      client = salt.client.LocalClient()
+      rc = client.cmd('*', 'group.delete', [grpname] )
+      #print rc
+      if rc:
+        for hostname, status in rc.items():
+          if not status:
+            raise Exception("Error deleting the system group")
+      else:
+            raise Exception("Error deleting the system group")
     else:
-          raise Exception("Error deleting the system group")
+      cmd_to_run = 'groupdel  %s'%(grpname)
+      ret, rc = command.execute_with_rc(cmd_to_run)
+      if rc != 0:
+        err = ''
+        tl = command.get_output_list(ret)
+        if tl:
+          err = ','.join(tl)
+        tl = command.get_error_list(ret)
+        if tl:
+          err = err + ','.join(tl)
+        raise Exception("Return code : %d. Error : %s"%(rc, err))
     
   except Exception, e:
     return False, 'Error deleting local group : %s'%str(e)
@@ -218,10 +290,17 @@ def change_password(username, pswd):
       ul = command.get_output_list(ret)
       ret, rc = command.execute_with_conf_and_rc(r'smbpasswd -s %s'%(username), "%s\n%s"%(pswd, pswd))
       if rc != 0:
-        print ret
+        #print ret
         #print command.get_error_list(ret)
         #ul = command.get_output_list(ret)
-        raise Exception("Error changing CIFS password. Return code : %d. "%rc)
+        err = ''
+        tl = command.get_output_list(ret)
+        if tl:
+          err = ','.join(tl)
+        tl = command.get_error_list(ret)
+        if tl:
+          err = err + ','.join(tl)
+        raise Exception("Error changing CIFS password : %s. "%err)
   except Exception, e:
     return False, 'Error changing local user password : %s'%str(e)
   else:
@@ -267,7 +346,7 @@ def get_local_groups(get_system_groups = False):
     all = grp.getgrall()
     for g in all:
       if not get_system_groups:
-        if g.gr_gid < 500:
+        if g.gr_gid < 501:
           continue
       d = {}
       d['grpname'] = g.gr_name
@@ -327,7 +406,7 @@ def get_local_users(get_system_users=False):
     #print all
     for user in all:
       if not get_system_users:
-        if user.pw_gid < 500:
+        if user.pw_gid < 501:
           continue
       sys_ul.append(user.pw_name)
       d = {}
@@ -346,7 +425,14 @@ def get_local_users(get_system_users=False):
       user_list.append(d)
     ret, rc = command.execute_with_rc("/usr/bin/pdbedit -d 1 -L")
     if rc != 0:
-      raise "Error retrieving user list. Return code : %d"%rc
+      err = ''
+      tl = command.get_output_list(ret)
+      if tl:
+        err = ','.join(tl)
+      tl = command.get_error_list(ret)
+      if tl:
+        err = err + ','.join(tl)
+      raise "Error retrieving user list : %s"%err
 
     ul = command.get_output_list(ret)
     smb_ul = []

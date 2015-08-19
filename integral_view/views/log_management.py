@@ -76,11 +76,12 @@ def download_sys_log(request):
         display_name = dn[sys_log_type]
   
         import os
-        import salt.client
-  
-        client = salt.client.LocalClient()
-  
-        ret = client.cmd('%s'%(hostname),'cp.push',[file_name])
+
+        use_salt = common.use_salt()
+        if use_salt:
+          import salt.client
+          client = salt.client.LocalClient()
+          ret = client.cmd('%s'%(hostname),'cp.push',[file_name])
   
         # This has been maintained for reference purposes.
         # dt = datetime.datetime.now()
@@ -104,7 +105,10 @@ def download_sys_log(request):
   
         try:
           zf = zipfile.ZipFile(zf_name, 'w')
-          zf.write("/var/cache/salt/master/minions/%s/files/%s"%(hostname,file_name), arcname = display_name)
+          if use_salt:
+            zf.write("/var/cache/salt/master/minions/%s/files/%s"%(hostname,file_name), arcname = display_name)
+          else:
+            zf.write(file_name, arcname = display_name)
           zf.close()
         except Exception as e:
           return_dict["error"] = "Error compressing remote log file : %s"%str(e)
@@ -130,50 +134,44 @@ def download_sys_log(request):
     return django.shortcuts.render_to_response('download_sys_log_form.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
   
   
-def rotate_log(request, log_type):
-
+def rotate_log(request, log_type=None):
   return_dict = {}
-  try:
-    if log_type == "alerts":
-      try:
-        alerts.rotate_alerts()
-      except Exception, e:
-        return_dict["error"] = "Error rotating alerts log: %s"%e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-      #return_dict["topic"] = "Logging -> Rotate alerts log"
-      return_dict["page_header"] = "Logging"
-      return_dict["page_sub_header"] = "Rotate alerts log"
-      return_dict["message"] = "Alerts log successfully rotated."
-    elif log_type == "audit_trail":
-      try:
-        audit.rotate_audit_trail()
-      except Exception, e:
-        return_dict["error"] = "Error rotating audit trail : %s"%e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-      #return_dict["topic"] = "Logging -> Rotate alerts log"
-      return_dict["page_header"] = "Logging"
-      return_dict["page_sub_header"] = "Rotate audit log"
-      return_dict["message"] = "Audit trail successfully rotated."
-    return django.shortcuts.render_to_response('logged_in_result.html', return_dict, context_instance = django.template.context.RequestContext(request))
-  except Exception, e:
-    s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+  if not log_type:
+    return django.shortcuts.render_to_response('view_rotate_logs.html', return_dict, context_instance = django.template.context.RequestContext(request))
+  else:
+    try:
+      if log_type == "alerts":
+        try:
+          alerts.rotate_alerts()
+          return_dict["message"] = "Alerts log successfully rotated."
+          return django.http.HttpResponseRedirect("/view_rotated_log_list/alerts?success=true")
+        except Exception, e:
+          return_dict["error"] = "Error rotating alerts log: %s"%e
+          return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+      elif log_type == "audit_trail":
+        try:
+          audit.rotate_audit_trail()
+          return_dict["message"] = "Audit trail successfully rotated."
+          return django.http.HttpResponseRedirect("/view_rotated_log_list/audit_trail/?success=true")
+        except Exception, e:
+          return_dict["error"] = "Error rotating audit trail : %s"%e
+          return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+    except Exception, e:
+      s = str(e)
+      if "Another transaction is in progress".lower() in s.lower():
+        return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
+      else:
+        return_dict["error"] = "An error occurred when processing your request : %s"%s
+      return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-    if log_type not in ["alerts", "audit_trail"]:
-      return_dict["error"] = "Unknown log type" 
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+      if log_type not in ["alerts", "audit_trail"]:
+        return_dict["error"] = "Unknown log type" 
+        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
   
       
 def view_rotated_log_list(request, log_type):
@@ -183,15 +181,12 @@ def view_rotated_log_list(request, log_type):
     if log_type not in ["alerts", "audit_trail"]:
       return_dict["error"] = "Unknown log type" 
       return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-  
     l = None
     if log_type == "alerts":
-      #return_dict["topic"] = "Logging -> View historical alerts log"
       return_dict["page_header"] = "Logging"
       return_dict["page_sub_header"] = "View historical alerts log"
       l = alerts.get_log_file_list()
     elif log_type == "audit_trail":
-      #return_dict["topic"] = "Logging -> View historical audit log"
       return_dict["page_header"] = "Logging"
       return_dict["page_sub_header"] = "View historical audit log"
       l = audit.get_log_file_list()
@@ -252,77 +247,3 @@ def view_rotated_log_file(request, log_type):
       return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-  
-
-
-
-
-
-
-
-
-'''
-def sys_log(request, log_type = None):
-  """ Invoked by a node in order to deliver the sys log to the remote node.  Shd not normally be called from a browser """
-
-  if not log_type:
-    return None
-
-  fn = {'boot':'/var/log/boot.log', 'dmesg':'/var/log/dmesg', 'message':'/var/log/messages'}
-  dn = {'boot':'boot.log', 'dmesg':'dmesg', 'message':'messages'}
-
-  file_name = fn[log_type]
-  display_name = dn[log_type]
-  zf_name = '/tmp/%s'%log_type
-
-  dt = datetime.datetime.now()
-  dt_str = dt.strftime("%d%m%Y%H%M%S")
-  zf_name = zf_name + dt_str +".zip"
-  try:
-    zf = zipfile.ZipFile(zf_name, 'w')
-    zf.write(file_name, arcname = display_name)
-    zf.close()
-  except Exception as e:
-    return None
-
-  try:
-    response = django.http.HttpResponse()
-    response['Content-disposition'] = 'attachment; filename=%s%s.zip'%(log_type, dt_str)
-    response['Content-type'] = 'application/x-compressed'
-    with open(zf_name, 'rb') as f:
-      byte = f.read(1)
-      while byte:
-        response.write(byte)
-        byte = f.read(1)
-    response.flush()
-  except Exception as e:
-    return None
-
-  return response
-
-
-      url = "http://%s:8000/sys_log/%s"%(hostname, sys_log_type)
-      d = download.url_download(url)
-      if d["error"]:
-        return_dict["error"] = d["error"]
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-      
-      fn = {'boot':'/var/log/boot.log', 'dmesg':'/var/log/dmesg', 'message':'/var/log/messages'}
-      dn = {'boot':'boot.log', 'dmesg':'dmesg', 'message':'messages'}
-
-      file_name = fn[sys_log_type]
-      display_name = dn[sys_log_type]
-      zf_name = '/tmp/%s'%sys_log_type
-
-      try:
-        response = django.http.HttpResponse()
-        response['Content-disposition'] = d["content-disposition"]
-        response['Content-type'] = 'application/x-compressed'
-        response.write(d["content"])
-        response.flush()
-      except Exception as e:
-        return_dict["error"] = "Error requesting log file: %s"%str(e)
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-
-      return response
-'''

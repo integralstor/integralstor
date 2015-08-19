@@ -27,7 +27,7 @@
             <label for="id_path">Share path:</label>
               </td>
               <td>
-                <input type="text"  name="path" class="form-control" id="id_path" placeholder="Click the Browse button to choose a directory.." disabled placeholder="Share Path" value={{form.path.value|default_if_none:""}}> 
+                <input type="text" name="path" class="form-control" id="id_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value={{form.path.value|default_if_none:""}}> 
                     <a href="#" role="button" class="btn btn-default" onClick="displayTree();return false;"> Browse..</a>
                 <div id="pathdiv" style="display:inline"> </div>
               </td>
@@ -44,6 +44,18 @@
               </td>
               <td>
                 {{ form.comment.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="display_path">Final Path</label>
+              </td>
+              <td>
+                {{ form.display_path }}
+                <span id="display_path_text"></span>
+              </td>
+              <td>
+                {{ form.display_path.errors }}
               </td>
             </tr>
             <tr>
@@ -97,7 +109,7 @@
 </form>
   <script src="/static/jstree/dist/jstree.js"></script>
   <script>
-	$("#id_vol").change(function(){
+	$("#id_dataset").change(function(){
 		location.reload();
 	});
   function displayTree() {
@@ -112,17 +124,13 @@
           },
           'data' : function (node) {
             var e = document.getElementById("id_dataset");
-            console.log(node)
-            console.log(e.options[e.selectedIndex].value)
-            console.log(node.data)
-            console.log(node.id)
-            console.log(node.text)
             if (node.data) {
               return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
             }
             else
               return { 'dir' : node.text , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
             }
+            
           }
           
         }
@@ -135,20 +143,24 @@
         document.forms["create_form"].elements["path"].value = rfp;
         document.forms["create_form"].elements["display_path"].value = rfp;
         document.getElementById("pathdiv").style.display = "none";
+        $("#new_folder").trigger('input')
       })
       .jstree();
   });
   }
-  $("#new_folder").on('input',function(){
-  	var final_path = $("#id_path").val()
-  	if (final_path === ""){
-  		$("#display_path").val("/"+$(this).val())
-  	}
-  	else{
-  		$("#display_path").val(final_path+$(this).val())
-  	}
-  });
-  $("#id_dataset").change(function(){displayTree();});
+$("#new_folder").on('input',function(){
+	var final_path = $("#id_path").val()
+	if (final_path === ""){
+		$("#id_display_path").val("/"+$(this).val())
+		$("#display_path_text").text("/"+$(this).val())
+	}
+	else{
+		$("#id_display_path").val(final_path+"/"+$(this).val())
+		$("#display_path_text").text(final_path+"/"+$(this).val())
+	}
+});
+$("#id_display_path").addClass("form-control")
+$("#id_display_path").attr("style","display:none")
 </script>
 
 {%endblock%}

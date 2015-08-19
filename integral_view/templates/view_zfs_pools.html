@@ -32,22 +32,26 @@ Details
 </td>
 <td>
 {%if d.datasets%}
+<ul>
 {%for ds in d.datasets %}
 {%if ds.properties.type.value == 'filesystem'%}
-{{ds.name}}, 
+<li>{{ds.name}}
 {%endif%}
 {%endfor%}
+</ul>
 {%else%}
 No datasets in this pool
 {%endif%}
 </td>
 <td>
 {%if d.datasets%}
+<ul>
 {%for ds in d.datasets %}
 {%if ds.properties.type.value == 'volume'%}
-{{ds.name}}, 
+<li>{{ds.name}}
 {%endif%}
 {%endfor%}
+</ul>
 {%else%}
 No block device volumes in this pool
 {%endif%}

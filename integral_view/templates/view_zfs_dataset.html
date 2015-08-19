@@ -1,16 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'storage_base.html' %}
 
-{%block page-header%}
-  Storage
-  <br /><small>
-      Storage
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      ZFS dataset details
-
-  </small>
-{%endblock%}
-
-{%block contents%}
+{% block inside_content %}
 
 {% if result %}
 <p><i>{{result}}</i></p>

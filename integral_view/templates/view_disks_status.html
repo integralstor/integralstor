@@ -15,10 +15,7 @@ Disk serial number
 S.M.A.R.T status
 </th>
 <td>
-&nbsp;
-</td>
-<td>
-&nbsp;
+Action
 </td>
 </thead>
 {%for sn, disk in disk_status.items %}
@@ -27,9 +24,7 @@ S.M.A.R.T status
 {{sn}}
 </td>
 <td>
-{{disk.status}}
-</td>
-<td>
+{{disk.status}} &nbsp;&nbsp;
 {%if disk.status == 'PASSED'%}
 <i class="fa fa-check-circle green fa-2x"></i>
 {%else%}

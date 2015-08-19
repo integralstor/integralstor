@@ -1,4 +1,4 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'cifs_base.html' %}
 
 {%block page-header%}
   File Access
@@ -11,7 +11,7 @@
   </small>
 {%endblock%}
 
-{%block contents%}
+{%block inside_content %}
 
 <!-- Modal -->
 <div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -48,3 +48,10 @@ Deleting a share
 {%block help_body%}
 <p>Confirming this operation results in the specified share being deleted from the system. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_cifs_shares_tab")
+  </script>
+{% endblock %}
+

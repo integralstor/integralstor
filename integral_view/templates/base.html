@@ -7,20 +7,31 @@
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css"/>
     <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.2.0/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/skin-purple.css">
     <link rel="stylesheet" type="text/css" href="/static/css/AdminLTE.css">
 
-    <title> {%block title%}IntegralView admin console{%endblock%}</title>
-  </head>
-  <body class="skin-blue">
+    <title> {%block title%}IntegralView admin console | Log In{%endblock%}</title>
+  
+</head>
+  <body class="skin-purple">
     <div class="wrapper">
-      <table id="header_table"  width="100%" border=0>
-        <tr>
-          <td align="left" style="padding:10px"> <img src="/static/images/integralview.png" style="border:solid 0px;width:80px;height:40px;"></td>
-          <td align="right">
-            <img src="/static/images/logo.jpg" style="border:solid 0px;width:140px;height:80px;float:right;">
-          </td>
-        </tr>
-      </table>
+    <header class="main-header">
+            <a href="/dashboard/cpu" class="logo">
+                <!-- Add the class icon to your logo image or logo icon to add the margining -->
+                 <img src="/static/images/LOGO-transparent.png" height="45" width="45" alt="Fractalio Data" class="pull-left margin-left-40"/>
+            </a>
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top" role="navigation">
+                <a href="/dashboard/cpu" class="white margin-left-30 hidden-phone">
+                  <img src="/static/images/integralview-white.png" height="40" width="100" class="margin-top-5"/><sub style="bottom: -1.25em;">Beta</sub>
+                  </a>
+            </nav>
+        </header>
+<!-- end of top menu -->
+    </div>
+
+
+
 
        {%block content%}
 

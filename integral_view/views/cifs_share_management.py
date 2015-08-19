@@ -1,11 +1,10 @@
 
 import django, django.template
 
-import integral_view
+import integral_view, os
 from integral_view.forms import samba_shares_forms
-from integral_view.samba import samba_settings, local_users
+from integral_view.samba import samba_settings
 
-import salt.client
 
 import integralstor_common
 from integralstor_common import audit, networking,zfs
@@ -15,10 +14,9 @@ def view_cifs_shares(request):
   return_dict = {}
   try:
     template = 'logged_in_error.html'
-    try :
-      shares_list = samba_settings.load_shares_list()
-    except Exception, e:
-      return_dict["error"] = "Error loading share information - %s" %e
+    shares_list, err = samba_settings.load_shares_list()
+    if err:
+      raise Exception(err)
   
     if not "error" in return_dict:
       if "action" in request.GET:
@@ -46,33 +44,34 @@ def view_cifs_share(request):
     template = 'logged_in_error.html'
   
     if request.method != "GET":
-      return_dict["error"] = "Incorrect access method. Please use the menus"
+      raise Exception("Incorrect access method. Please use the menus")
   
     if "index" not in request.GET or "access_mode" not in request.GET:
-      return_dict["error"] = "Unknown share"
+      raise Exception("Insufficient parameters. Please use the menus")
   
-    if not "error" in return_dict:
+    access_mode = request.GET["access_mode"]
+    index = request.GET["index"]
   
-      access_mode = request.GET["access_mode"]
-      index = request.GET["index"]
+    if "action" in request.GET and request.GET["action"] == "saved":
+      return_dict["conf_message"] = "Information updated successfully"
   
-      if "action" in request.GET and request.GET["action"] == "saved":
-        return_dict["conf_message"] = "Information updated successfully"
-  
-      valid_users_list = None
-      try:
-        share = samba_settings.load_share_info(access_mode, index)
-        valid_users_list = samba_settings.load_valid_users_list(share["share_id"])
-      except Exception, e:
-        return_dict["error"] = "Error retrieving share information - %s" %e
-      else:
-        if not share:
-          return_dict["error"] = "Error retrieving share information for  %s" %share_name
-        else:
-          return_dict["share"] = share
-          if valid_users_list:
-            return_dict["valid_users_list"] = valid_users_list
-          template = 'view_cifs_share.html'
+    valid_users_list = None
+    share, err = samba_settings.load_share_info(access_mode, index)
+    if err:
+      raise Exception(err)
+    if not share:
+      raise Exception('Specified share not found')
+
+    valid_users_list, err = samba_settings.load_valid_users_list(share["share_id"])
+    if err:
+      raise Exception(err)
+    if not share:
+      raise Exception("Error retrieving share information for  %s" %share_name)
+
+    return_dict["share"] = share
+    if valid_users_list:
+        return_dict["valid_users_list"] = valid_users_list
+    template = 'view_cifs_share.html'
   
     return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
@@ -84,21 +83,25 @@ def edit_cifs_share(request):
 
   return_dict = {}
   try:
-    user_list = samba_settings.get_user_list()
-    group_list = samba_settings.get_group_list()
-  
+    user_list, err = samba_settings.get_user_list()
+    if err:
+      raise Exception(err)
+    group_list, err = samba_settings.get_group_list()
+    if err:
+      raise Exception(err)
+
     if request.method == "GET":
       # Shd be an edit request
       if "share_id" not in request.GET:
         return_dict["error"] = "Unknown share specified"
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
       share_id = request.GET["share_id"]
-      try :
-        share_dict = samba_settings.load_share_info("by_id", share_id)
-        valid_users_list = samba_settings.load_valid_users_list(share_dict["share_id"])
-      except Exception, e:
-        return_dict["error"] = "Error loading share information - %s" %e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      share_dict, err = samba_settings.load_share_info("by_id", share_id)
+      if err:
+        raise Exception(err)
+      valid_users_list, err = samba_settings.load_valid_users_list(share_dict["share_id"])
+      if err:
+        raise Exception(err)
   
       # Set initial form values
       initial = {}
@@ -130,7 +133,7 @@ def edit_cifs_share(request):
         initial["users"] = vul
         initial["groups"] = vgl
   
-      form = samba_shares_forms.ShareForm(initial = initial, user_list = user_list, group_list = group_list)
+      form = samba_shares_forms.EditShareForm(initial = initial, user_list = user_list, group_list = group_list)
   
       return_dict["form"] = form
       return django.shortcuts.render_to_response('edit_cifs_share.html', return_dict, context_instance=django.template.context.RequestContext(request))
@@ -138,44 +141,44 @@ def edit_cifs_share(request):
     else:
   
       # Shd be an save request
-      form = samba_shares_forms.ShareForm(request.POST, user_list = user_list, group_list = group_list)
+      form = samba_shares_forms.EditShareForm(request.POST, user_list = user_list, group_list = group_list)
       return_dict["form"] = form
       if form.is_valid():
         cd = form.cleaned_data
-        try :
-          name = cd["name"]
-          share_id = cd["share_id"]
-          path = cd["path"]
-          if "comment" in cd:
-            comment = cd["comment"]
-          else:
-            comment = None
-          if "read_only" in cd:
-            read_only = cd["read_only"]
-          else:
-            read_only = False
-          if "browseable" in cd:
-            browseable = cd["browseable"]
-          else:
-            browseable = False
-          if "guest_ok" in cd:
-            guest_ok = cd["guest_ok"]
-          else:
-            guest_ok = False
-          if "users" in cd:
-            users = cd["users"]
-          else:
-            users = None
-          if "groups" in cd:
-            groups = cd["groups"]
-          else:
-            groups = None
-          #logger.debug("Save share request, name %s path %s, comment %s, read_only %s, browseable %s, guest_ok %s, users %s, groups %s, vol %s"%(name, path, comment, read_only, browseable, guest_ok, users, groups))
-          samba_settings.save_share(share_id, name, comment, guest_ok, read_only, path, browseable, users, groups)
-          samba_settings.generate_smb_conf()
-        except Exception, e:
-          return_dict["error"] = "Error saving share information - %s" %e
-          return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+        name = cd["name"]
+        share_id = cd["share_id"]
+        path = cd["path"]
+        if "comment" in cd:
+          comment = cd["comment"]
+        else:
+          comment = None
+        if "read_only" in cd:
+          read_only = cd["read_only"]
+        else:
+          read_only = False
+        if "browseable" in cd:
+          browseable = cd["browseable"]
+        else:
+          browseable = False
+        if "guest_ok" in cd:
+          guest_ok = cd["guest_ok"]
+        else:
+          guest_ok = False
+        if "users" in cd:
+          users = cd["users"]
+        else:
+          users = None
+        if "groups" in cd:
+          groups = cd["groups"]
+        else:
+          groups = None
+        #logger.debug("Save share request, name %s path %s, comment %s, read_only %s, browseable %s, guest_ok %s, users %s, groups %s, vol %s"%(name, path, comment, read_only, browseable, guest_ok, users, groups))
+        ret, err = samba_settings.save_share(share_id, name, comment, guest_ok, read_only, path, browseable, users, groups)
+        if err:
+          raise Exception(err)
+        ret, err = samba_settings.generate_smb_conf()
+        if err:
+          raise Exception(err)
   
         audit_str = "Modified share %s"%cd["name"]
         audit.audit("modify_cifs_share", audit_str, request.META["REMOTE_ADDR"])
@@ -207,12 +210,12 @@ def delete_cifs_share(request):
       share_id = request.POST["share_id"]
       name = request.POST["name"]
       #logger.debug("Delete share request for name %s"%name)
-      try :
-        samba_settings.delete_share(share_id)
-        samba_settings.generate_smb_conf()
-      except Exception, e:
-        return_dict["error"] = "Error deleting share - %s" %e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      ret, err = samba_settings.delete_share(share_id)
+      if err:
+        raise Exception(err)
+      ret, err = samba_settings.generate_smb_conf()
+      if err:
+        raise Exception(err)
   
       audit_str = "Deleted CIFS share %s"%name
       audit.audit("delete_cifs_share", audit_str, request.META["REMOTE_ADDR"])
@@ -227,8 +230,12 @@ def create_cifs_share(request):
 
   return_dict = {}
   try:
-    user_list = samba_settings.get_user_list()
-    group_list = samba_settings.get_group_list()
+    user_list, err = samba_settings.get_user_list()
+    if err:
+      raise Exception(err)
+    group_list, err = samba_settings.get_group_list()
+    if err:
+      raise Exception(err)
     pools, err = zfs.get_pools()
     if err:
       raise Exception('No ZFS pools available. Please create a pool and dataset before creating shares.')
@@ -244,14 +251,14 @@ def create_cifs_share(request):
     if request.method == "GET":
       #Return the form
 
-      form = samba_shares_forms.ShareForm(user_list = user_list, group_list = group_list, dataset_list = ds_list)
+      form = samba_shares_forms.CreateShareForm(user_list = user_list, group_list = group_list, dataset_list = ds_list, initial = {'guest_ok': True})
       return_dict["form"] = form
 
       return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       #Form submission so create
       return_dict = {}
-      form = samba_shares_forms.ShareForm(request.POST, user_list = user_list, group_list = group_list, dataset_list = ds_list)
+      form = samba_shares_forms.CreateShareForm(request.POST, user_list = user_list, group_list = group_list, dataset_list = ds_list)
       return_dict["form"] = form
       if form.is_valid():
         cd = form.cleaned_data
@@ -260,7 +267,9 @@ def create_cifs_share(request):
         if not path:
           return_dict["path_error"] = "Please choose a path."
           return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
-        
+        display_path = cd["display_path"]    
+        if not os.path.isdir(display_path):
+          os.mkdir(display_path)
         if "comment" in cd:
           comment = cd["comment"]
         else:
@@ -285,14 +294,17 @@ def create_cifs_share(request):
           groups = cd["groups"]
         else:
           groups = None
-        vol = cd["vol"]
+        vol = "unicell"
         #logger.debug("Create share request, name %s path %s, comment %s, read_only %s, browseable %s, guest_ok %s, users %s, groups %s, vol %s"%(name, path, comment, read_only, browseable, guest_ok, users, groups))
-        try :
-          samba_settings.create_share(name, comment, guest_ok, read_only, path, display_path, browseable, users, groups)
-          samba_settings.generate_smb_conf()
-        except Exception, e:
-          return_dict["error"] = "Error creating share - %s" %e
-          return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+        print '1'
+        ret, err = samba_settings.create_share(name, comment, guest_ok, read_only, display_path, display_path, browseable, users, groups,vol)
+        print '2'
+        if err:
+          raise Exception(err)
+        ret, err = samba_settings.generate_smb_conf()
+        print '3'
+        if err:
+          raise Exception(err)
   
         audit_str = "Created Samba share %s"%name
         audit.audit("create_cifs_share", audit_str, request.META["REMOTE_ADDR"])
@@ -310,13 +322,9 @@ def samba_server_settings(request):
   return_dict = {}
   #print 'a1'
   try:
-    try :
-      #print 'a'
-      d = samba_settings.load_auth_settings()
-      #print 'b'
-    except Exception, e:
-      return_dict["error"] = "Error loading authentication configuration - %s" %e
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    d, err = samba_settings.load_auth_settings()
+    if err:
+      raise Exception(err)
   
     if "action" in request.REQUEST and request.REQUEST["action"] == "edit":
       ini = {}
@@ -349,11 +357,9 @@ def samba_server_settings(request):
 def edit_auth_method(request):
   return_dict = {}
   try:
-    try :
-      d = samba_settings.load_auth_settings()
-    except Exception, e:
-      return_dict["error"] = "Error loading authentication configuration - %s" %e
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    d, err = samba_settings.load_auth_settings()
+    if err:
+      raise Exception(err)
     return_dict["samba_global_dict"] = d
   
     if request.method == "GET":
@@ -368,12 +374,12 @@ def edit_auth_method(request):
         return_dict["error"] = "Selected authentication method is the same as before." 
         return django.shortcuts.render_to_response('edit_auth_method.html', return_dict, context_instance=django.template.context.RequestContext(request))
   
-      try:
-        samba_settings.change_auth_method(security)
-        samba_settings.generate_smb_conf()
-      except Exception, e:
-        return_dict["error"] = "Error updating authentication method - %s" %e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      ret, err = samba_settings.change_auth_method(security)
+      if err:
+        raise Exception(err)
+      ret, err = samba_settings.generate_smb_conf()
+      if err:
+        raise Exception(err)
   
     return django.http.HttpResponseRedirect('/auth_server_settings?action=edit')
   except Exception, e:
@@ -409,68 +415,27 @@ def save_samba_server_settings(request):
     if form.is_valid():
       cd = form.cleaned_data
   
-      try :
-        samba_settings.save_auth_settings(cd)
-        #print '1'
-
-        ipinfo = networking.get_ip_info('bond0')
-        if cd["security"] == "ads":
-          # We now need to add the AD server as the forwarder in our DNS config on the primary...
-          nsl = networking.get_name_servers()
-          if not nsl:
-            raise Exception("Could not detect the IP addresses of the primary and secondary GRIDCells")
-          rc = networking.generate_default_primary_named_conf(nsl[0], ipinfo['netmask'], nsl[1], True, cd['password_server_ip'], False)
-          if rc != 0:
-            raise Exception("Error updating the DNS configuration on the primary GRIDCell")
-
-          # ... and on the secondary
-          client = salt.client.LocalClient()
-          r2 = client.cmd('roles:secondary', 'cmd.run_all', ['python /opt/fractalio/scripts/python/create_secondary_named_config.py %s %s %s %s'%(nsl[0], nsl[1], ipinfo['netmask'], cd['password_server_ip'])], expr_form='grain')
-          if r2:
-            for node, ret in r2.items():
-              if ret["retcode"] != 0:
-                raise Exception("Error updating the DNS configuration on the primary GRIDCell")
-
-        #print '2'
-      except Exception, e:
-        return_dict["error"] = "Error saving authentication settings - %s" %e
-      if not "error" in return_dict and cd["security"] == "ads":
-        try :
-          samba_settings.generate_krb5_conf()
-          #print '3'
-        except Exception, e:
-          return_dict["error"] = "Error generating kerberos config file - %s" %e
-      if not "error" in return_dict:
-        try :
-          samba_settings.generate_smb_conf()
-          #print '4'
-        except Exception, e:
-          return_dict["error"] = "Error generating file share authentication config file- %s" %e
-      if not "error" in return_dict and cd["security"] == "ads":
-        try :
-          rc, err_list = samba_settings.kinit("administrator", cd["password"], cd["realm"])
-          if rc != 0:
-            if err_list:
-              raise Exception(','.join(err_list))
-            else:
-              raise Exception("Kerberos init failure")
-          #print '5'
-        except Exception, e:
-          return_dict["error"] = "Error generating kerberos ticket - %s" %e
-      if not "error" in return_dict and cd["security"] == "ads":
-        try :
-          rc, err_list = samba_settings.net_ads_join("administrator", cd["password"], cd["password_server"])
-          if rc != 0:
-            if err_list:
-              raise Exception(','.join(err_list))
-            else:
-              raise Exception("AD join failure")
-        except Exception, e:
-          return_dict["error"] = "Error joining Active Directory - %s" %e
-      samba_settings.restart_samba_services()
+      ret, err = samba_settings.save_auth_settings(cd)
+      if err:
+        raise Exception(err)
+      if cd["security"] == "ads":
+        ret, err = samba_settings.generate_krb5_conf()
+        if err:
+          raise Exception(err)
+      ret, err = samba_settings.generate_smb_conf()
+      if err:
+        raise Exception(err)
+      if cd["security"] == "ads":
+        rc, err = samba_settings.kinit("administrator", cd["password"], cd["realm"])
+        if err:
+          raise Exception(err)
+        rc, err = samba_settings.net_ads_join("administrator", cd["password"], cd["password_server"])
+        if err:
+          raise Exception(err)
+      ret, err = samba_settings.restart_samba_services()
+      if err:
+        raise Exception(err)
       #print '6'
-      if "error" in return_dict:
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
     else:
       return django.shortcuts.render_to_response('edit_samba_server_settings.html', return_dict, context_instance=django.template.context.RequestContext(request))
   

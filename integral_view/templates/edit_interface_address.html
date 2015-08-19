@@ -52,8 +52,8 @@ function select_guest_ok() {
               </td>
               <td>
                   {% for choice in form.addr_type.field.choices %}
-                  <label class="radio">
-                  <input type="radio" name="addr_type" id="id_{{choice.0}}" value="{{choice.0}}" {%if choice.0 == form.initial.addr_type %} checked{%endif%} />{{choice.1}}
+                  <label class="radio"> 
+                  <input type="radio" name="addr_type" id="addr_{{choice.0}}" value="{{choice.0}}" {%if choice.0 == form.initial.addr_type %} checked{%endif%} />{{choice.1}}
                    </label>
                    {%endfor%}
               </td>
@@ -66,7 +66,7 @@ function select_guest_ok() {
             <label for="id_ip">IP Address:</label>
               </td>
               <td>
-                <input type="text"  name="ip" class="form-control" id="id_ip" placeholder="Static IP address" value="{%if form.initial.ip%}{{form.initial.ip}}{%endif%}"/>
+                <input type="text"  name="ip" class="form-control optional" id="id_ip" placeholder="Static IP address" value="{%if form.initial.ip%}{{form.initial.ip}}{%endif%}"/>
               </td>
               <td>
             {{ form.ip.errors }}
@@ -77,7 +77,7 @@ function select_guest_ok() {
             <label for="id_ip">Net mask:</label>
               </td>
               <td>
-                <input type="text"  name="netmask" class="form-control" id="id_netmask" placeholder="Enter Netmask" value="{%if form.initial.netmask%}{{form.initial.netmask}}{%endif%}"/>
+                <input type="text"  name="netmask" class="form-control optional" id="id_netmask" placeholder="Enter Netmask" value="{%if form.initial.netmask%}{{form.initial.netmask}}{%endif%}"/>
               </td>
               <td>
             {{ form.netmask.errors }}
@@ -88,7 +88,7 @@ function select_guest_ok() {
             <label for="id_ip">Default gateway:</label>
               </td>
               <td>
-                <input type="text"  name="default_gateway" class="form-control" id="id_default_gateway" placeholder="Default gateway address" value="{%if form.initial.default_gateway%}{{form.initial.default_gateway}}{%endif%}"/>
+                <input type="text"  name="default_gateway" class="form-control optional" id="id_default_gateway" placeholder="Default gateway address" value="{%if form.initial.default_gateway%}{{form.initial.default_gateway}}{%endif%}"/>
               </td>
               <td>
             {{ form.default_gateway.errors }}
@@ -101,34 +101,27 @@ function select_guest_ok() {
 {%else%}
         <a href="/view_nic?name={{form.name.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
 {%endif%}
-        <button type="submit" class="btn btn-primary">Save >></button>
+        <button type="submit" class="btn btn-primary">Save</button>
 </form>
-<!--
 <script type="text/javascript">
-function set_select_field_disabled(f, val) {
-  for(var i = 0; i < f.length; i++)
-    f[i].disabled = val
-}
-$("form input[name='guest_ok']").click(function () {
-    if (document.getElementById("id_guest_ok").checked) {
-      set_select_field_disabled(document.getElementsByName('users'), true);
-      set_select_field_disabled(document.getElementsByName('groups'), true);
-    } else {
-      set_select_field_disabled(document.getElementsByName('users'),false);
-      set_select_field_disabled(document.getElementsByName('groups'), false);
+  if (("input[name=addr_type]:radio").value === "dhcp"){
+    $(".optional").each(function(){
+      this.disabled = "";
+    })
+  }
+  $("input[name=addr_type]:radio").change(function(){
+    if (this.value === "dhcp"){
+    $(".optional").each(function(){
+      this.disabled = "true";
+    })
+    }else{
+    $(".optional").each(function(){
+      this.disabled = "";
+    })
+    
     }
-    });
-$(window).load(function() {
-    if (document.getElementById("id_guest_ok").checked) {
-      set_select_field_disabled(document.getElementsByName('users'),true);
-      set_select_field_disabled(document.getElementsByName('groups'), true);
-    } else {
-      set_select_field_disabled(document.getElementsByName('users'),false);
-      set_select_field_disabled(document.getElementsByName('groups'), false);
-   }
-  });
+  })
 </script>
--->
 
 {%endblock%}
 {%block help_header%}

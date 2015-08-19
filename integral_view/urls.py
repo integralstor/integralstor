@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 
 from integral_view.views.admin_auth  import login, logout, change_admin_password, configure_email_settings 
 
-from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node, set_file_owner_and_permissions,dir_contents,dashboard
+from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node, set_file_owner_and_permissions,dir_contents,dashboard,reload_manifest
 
 from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level
 
@@ -43,6 +43,7 @@ urlpatterns = patterns('',
     url(r'^$', login),
     url(r'^dashboard/([A-Za-z0-9_]+)', login_required(dashboard),name="dashboard_page"),
     url(r'^raise_alert/', raise_alert),
+    url(r'^reload_manifest/', login_required(reload_manifest)),
     url(r'^flag_node/', flag_node),
     url(r'^set_file_owner_and_permissions/', set_file_owner_and_permissions),
     url(r'^internal_audit/', internal_audit),
@@ -121,6 +122,7 @@ urlpatterns = patterns('',
     url(r'^refresh_alerts/([0-9_]*)', login_required(refresh_alerts)),
     url(r'^logout/', logout,name="logout"),
     url(r'^download_sys_log/', login_required(download_sys_log)),
+    url(r'^rotate_log_list/', login_required(rotate_log)),
     url(r'^rotate_log/([A-Za-z_]+)', login_required(rotate_log)),
     url(r'^view_rotated_log_list/([A-Za-z_]+)', login_required(view_rotated_log_list)),
     url(r'^view_rotated_log_file/([A-Za-z_]+)', login_required(view_rotated_log_file)),

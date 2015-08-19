@@ -44,3 +44,9 @@ NTP setting
 {%block help_body%}
 <p>The IntegralStor GRIDCells need to be time synchronised with your Active Directory server in order for Active Directory based authentication to work properly. This requires that the NTP time synchronisation protocol be setup. Please ensure that NTP is running on the Active Directory server and that these NTP settings point to the Active Directory server. Alternatively, you could have IntegralStor and the Active Directory servers point to the same external NTP server in order to synchronize the times. This page displays the currently configured NTP server settings.</p>
 {%endblock%}
+
+{% block tab_active %}
+ <script>
+  make_tab_active("ntp_settings_tab")
+ </script>
+{% endblock %}

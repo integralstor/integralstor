@@ -1,0 +1,111 @@
+{% extends 'system_base.html' %}
+
+{% block inside_content %}
+
+The scanned hardware configuration is displayed below. Would you like to accept this configuration?<br><br>
+<form action="." method="POST">
+  <input type="text" value="yes" class="form-control" name="action" style="display:none">
+  <button class="btn btn-primary">Yes</button>
+  <a class="btn btn-default" href="/show/node_info/">No</a>
+</form><br>
+<table class="table table-bordered table-striped table-hover" style="width:60%">
+
+  <th>
+    CPU
+  </th>
+  <td>
+    {{mi.cpu_model}}
+  </td>
+</tr>
+<tr>
+  <th>
+    Memory
+  </th>
+  <td>
+    {{ mi.mem_total}} MB
+  </td>
+</tr>
+<tr>
+  <th>
+    Hostname
+  </th>
+  <td>
+    {{ mi.fqdn}}
+  </td>
+</tr>
+</table>
+
+<table class="table table-bordered table-striped table-hover" style="width:60%">
+<tr>
+  <th colspan=3>
+    Disks
+  </th>
+</tr>
+<tr>
+  <th >
+    Name
+  </th>
+  <th >
+    Serial number
+  </th>
+  <th >
+    Capacity
+  </th>
+</tr>
+{% for serial_number, d in  mi.disks.items%}
+<tr>
+  <td>
+  {{d.name}}
+  </td>
+  <td>
+  {{serial_number}}
+  </td>
+  <td>
+  {{d.capacity}}
+  </td>
+</tr>
+{%endfor%}
+</table>
+
+<table class="table table-bordered table-striped table-hover" style="width:60%">
+<tr>
+  <th colspan=3>
+    Network interfaces
+  </th>
+</tr>
+<tr>
+  <th >
+    Name
+  </th>
+  <th >
+    MAC Address
+  </th>
+</tr>
+{% for if_name, inter in  mi.interfaces.items%}
+<tr>
+  <td>
+  {{if_name}}
+  </td>
+  <td>
+  {{inter.mac_addr}}
+  </td>
+</tr>
+{%endfor%}
+</table>
+
+{% endblock %}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("node_info_tab")
+  </script>
+{% endblock %}
+
+
+
+def reload_manifest(request):
+  return_dict = {}
+  from integralstor_unicell import manifest_status as iu
+  mi = iu.generate_manifest_info()
+  return_dict["mi"] = mi[0]["rams-server.fractalio.lan"]
+  return django.shortcuts.render_to_response("reload_manifest.html", return_dict, context_instance=django.template.context.RequestContext(request))

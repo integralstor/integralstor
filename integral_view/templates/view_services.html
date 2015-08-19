@@ -3,7 +3,7 @@
 {% block inside_content %}
 
 {% if conf %}
-<p><i>{{conf}}</i></p>
+<p>{{conf}}</p>
 {%endif%}
 
 {% if not services %}
@@ -61,6 +61,9 @@ Error
 </table>
 {%endif%}
 </div>
+<script>
+    setInterval(function(){location.reload()},10000);
+</script>
 
 {%endblock%}
 {%block help_header%}

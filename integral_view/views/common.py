@@ -22,25 +22,23 @@ from django.http import HttpResponse
 production = common.is_production()
 
 def dir_contents(request):
-  path = "/"
+  path = request.GET.get("pool_name")
+  first = request.GET.get("first")
   dirs = os.listdir(path)
   dir_dict_list = []
-  if not dirs:
+  if not dirs or first:
     d_dict = {'id':path, 'text':"/",'icon':'fa fa-angle-right','children':True,'data':{'dir':path},'parent':"#"}
     dir_dict_list.append(d_dict)
-  print dirs
-  for d in dirs:
-    print path+"/"+d
-    true = True
-    if os.path.isdir(path+"/"+d):
-      if path == "/":
-        parent = "#"
-      else:
-        parent = path
-      print parent
-      d_dict = {'id':path+d+"/", 'text':d,'icon':'fa fa-angle-right','children':True,'data':{'dir':path+d+"/"},'parent':parent}
+  if not first:
+    for d in dirs:
+      true = True
+      if os.path.isdir(path+"/"+d):
+        if first:
+          parent = "#"
+        else:
+          parent = path
+        d_dict = {'id':path+"/"+d, 'text':d,'icon':'fa fa-angle-right','children':True,'data':{'dir':path+"/"+d},'parent':parent}
       dir_dict_list.append(d_dict)
-  print dir_dict_list
   return HttpResponse(json.dumps(dir_dict_list),mimetype='application/json')
 
 @login_required    
@@ -162,6 +160,7 @@ def dashboard(request,page):
   today_day = datetime.datetime.today().day
   value_list = []
   time_list = []
+  use_salt = common.use_salt()
       
   info = si.keys()[0]
   # CPU status
@@ -228,23 +227,47 @@ def dashboard(request,page):
         value_dict[key] = value_list
         
     return_dict["data_dict"] = value_dict
+    print si[info]["interfaces"]
     return_dict["network_status"] = si[info]['interfaces']
     template = "view_network_status.html"
   # Services
   elif page == "services":
-    import salt.client
-    client = salt.client.LocalClient()
-    winbind = client.cmd(info,'cmd.run',['service winbind status'])
-    smb = client.cmd(info,'cmd.run',['service smb status'])
-    nfs = client.cmd(info,'cmd.run',['service nfs status'])
-    iscsi = client.cmd(info,'cmd.run',['service tgtd status'])
-    ntp = client.cmd(info,'cmd.run',['service ntpd status'])
     return_dict['services_status'] = {}
-    return_dict['services_status']['winbind'] = winbind[info]
-    return_dict['services_status']['smb'] = smb[info]
-    return_dict['services_status']['nfs'] = nfs[info]
-    return_dict['services_status']['iscsi'] = iscsi[info]
-    return_dict['services_status']['ntp'] = ntp[info]
+    if use_salt:
+      import salt.client
+      client = salt.client.LocalClient()
+      winbind = client.cmd(info,'cmd.run',['service winbind status'])
+      smb = client.cmd(info,'cmd.run',['service smb status'])
+      nfs = client.cmd(info,'cmd.run',['service nfs status'])
+      iscsi = client.cmd(info,'cmd.run',['service tgtd status'])
+      ntp = client.cmd(info,'cmd.run',['service ntpd status'])
+      return_dict['services_status']['winbind'] = winbind[info]
+      return_dict['services_status']['smb'] = smb[info]
+      return_dict['services_status']['nfs'] = nfs[info]
+      return_dict['services_status']['iscsi'] = iscsi[info]
+      return_dict['services_status']['ntp'] = ntp[info]
+    else:
+
+      out_list = command.get_command_output('service winbind status')
+      if out_list:
+        return_dict['services_status']['winbind'] = ' '.join(out_list)
+
+      out_list = command.get_command_output('service smb status')
+      if out_list:
+        return_dict['services_status']['smb'] = ' '.join(out_list)
+
+      out_list = command.get_command_output('service nfs status')
+      if out_list:
+        return_dict['services_status']['nfs'] = ' '.join(out_list)
+
+      out_list = command.get_command_output('service tgtd status')
+      if out_list:
+        return_dict['services_status']['iscsi'] = ' '.join(out_list)
+
+      out_list = command.get_command_output('service ntpd status')
+      if out_list:
+        return_dict['services_status']['ntp'] = ' '.join(out_list)
+        
     template = "view_services_status.html"
   # Disks
   elif page == "disks":
@@ -362,10 +385,20 @@ def show(request, page, info = None):
         sorted_disks.append(key)
       si[info]["disk_pos"] = sorted_disks
       return_dict['node'] = si[info]
-      import salt.client
-      client = salt.client.LocalClient()
-      winbind = client.cmd(info,'cmd.run',['service winbind status'])
-      smb = client.cmd(info,'cmd.run',['service smb status'])
+
+      if common.use_salt():
+        import salt.client
+        client = salt.client.LocalClient()
+        winbind = client.cmd(info,'cmd.run',['service winbind status'])
+        smb = client.cmd(info,'cmd.run',['service smb status'])
+      else:
+        out_list = command.get_command_output('service winbind status')
+        if out_list:
+          return_dict['winbind'] = ' '.join(out_list)
+        out_list = command.get_command_output('service smb status')
+        if out_list:
+          return_dict['smb'] = ' '.join(out_list)
+
       return_dict['winbind'] = winbind[info]
       return_dict['smb'] = smb[info]
       return_dict['node_name'] = info
@@ -573,34 +606,27 @@ def flag_node(request):
 
   node_name = request.GET["node"]
   import os
-  import salt.client
-
-  client = salt.client.LocalClient()
   if production:
     blink_time = 255
   else:
     blink_time = 20 #default = 255
-  ret = client.cmd(node_name,'cmd.run',['ipmitool chassis identify %s' %(blink_time)])
-  print ret
-  if ret[node_name] == 'Chassis identify interval: %s seconds'%(blink_time):
-    return django.http.HttpResponse("Success")
+  if common.use_salt():
+    import salt.client
+    client = salt.client.LocalClient()
+    ret = client.cmd(node_name,'cmd.run',['ipmitool chassis identify %s' %(blink_time)])
+    print ret
+    if ret[node_name] == 'Chassis identify interval: %s seconds'%(blink_time):
+      return django.http.HttpResponse("Success")
+    else:
+      return_dict["error"] = "err"
+      return django.http.HttpResponse("Error")
   else:
-    return_dict["error"] = "err"
-    return django.http.HttpResponse("Error")
-  # str = "/opt/fractal/bin/client %s ipmitool chassis identify 255"%node_name
-  # iv_logging.debug("Flagging node %s using %s"%(node_name,str))
-  # r, rc = command.execute_with_rc("/opt/fractal/bin/client %s ipmitool chassis identify 255"%node_name)
-  # err = ""
-  # if rc == 0:
-  #   l = command.get_output_list(r)
-  #   if l:
-  #     for ln in l:
-  #       if ln.find("Success"):
-  #         return django.shortcuts.render_to_response("node_flagged.html", return_dict, context_instance = django.template.context.RequestContext(request))
-  #       err += ln
-  #       err += "."
-  # else:
-  #   err = "Error contacting node. Node down?"
+    out_list = command.get_command_output('service winbind status')
+    if 'Chassis identify interval: %s seconds'%(blink_time) in out_list[0]:
+      return django.http.HttpResponse("Success")
+    else:
+      return_dict["error"] = "err"
+      return django.http.HttpResponse("Error")
 
     
 @admin_login_required
@@ -700,10 +726,7 @@ def reset_to_factory_defaults(request):
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 @login_required
@@ -723,7 +746,40 @@ def internal_audit(request):
     response.write("Success")
   return response
 
-
+def reload_manifest(request):
+  try:
+    if request.method == "GET":
+      return_dict = {}
+      from integralstor_unicell import manifest_status as iu
+      mi = iu.generate_manifest_info()
+      return_dict["mi"] = mi[0][mi[0].keys()[0]] # Need the hostname here. 
+      return django.shortcuts.render_to_response("reload_manifest.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    elif request.method == "POST":
+      ret,rc = command.execute_with_rc("python %s/generate_manifest.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
+      if rc != 0:
+        err = ''
+        tl = command.get_output_list(ret)
+        if tl:
+          err = ','.join(tl)
+        tl = command.get_error_list(ret)
+        if tl:
+          err = err + ','.join(tl)
+        raise Exception(err)
+      ret,rc = command.execute_with_rc("python %s/generate_status.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
+      if rc != 0:      
+        err = ''
+        tl = command.get_output_list(ret)
+        if tl:
+          err = ','.join(tl)
+        tl = command.get_error_list(ret)
+        if tl:
+          err = err + ','.join(tl)
+        raise Exception(err)
+      return django.http.HttpResponseRedirect("/show/node_info/")
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
 

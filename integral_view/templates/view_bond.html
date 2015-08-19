@@ -20,7 +20,7 @@ IP Address
 {%if nic.bootproto == 'dhcp'%}
 DHCP Addressing - <br>
 {%elif nic.bootproto == 'static' %}
-Static Addressing - 
+Static Addressing - <br>
 {%endif%}
 {%if nic.addresses.AF_INET.0.addr %}
 Address - {{nic.addresses.AF_INET.0.addr}}<br>

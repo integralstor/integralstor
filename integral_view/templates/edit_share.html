@@ -134,7 +134,7 @@ function select_guest_ok() {
               </td>
               <td>
                 {% for choice in form.groups.field.choices %} 
-                  <div class="radio" >
+                  <div class="checkbox" >
                       <input type="radio" name="groups" id="id_users" value="{{choice.0}}" {%if choice.0 in form.initial.groups %} checked="checked"{%endif%}>{{choice.0}}
                   </div>
                 {%endfor%}

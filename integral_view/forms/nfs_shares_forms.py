@@ -17,6 +17,7 @@ class AddClientForm(forms.Form):
 class ShareForm(forms.Form):
 
   path = forms.CharField()
+  display_path = forms.CharField()
   clients = forms.CharField()
   readonly = forms.BooleanField(required=False)
   root_squash = forms.BooleanField(required=False)

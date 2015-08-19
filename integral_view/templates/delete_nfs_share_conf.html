@@ -1,15 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'nfs_base.html' %}
 
-{%block page-header%}
-  NFS Access
-  <br /><small>
-      NFS Access 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Delete NFS Share
-  </small>
-{%endblock%}
-
-{%block contents%}
+{% block inside_content %}
 
 <!-- Modal -->
 <div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

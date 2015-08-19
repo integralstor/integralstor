@@ -149,6 +149,24 @@
         <button type="submit" class="btn btn-primary">Save >></button>
 </form>
 
+<script>
+function check_status() {
+if (document.getElementById("id_set_owner").checked){
+  document.getElementsByName("uid")[0].disabled = "";
+}else{
+  document.getElementsByName("uid")[0].disabled = "disabled";
+}
+if (document.getElementById("id_set_group").checked){
+  document.getElementsByName("gid")[0].disabled = "";
+}else{
+  document.getElementsByName("gid")[0].disabled = "disabled";
+}
+}
+check_status()
+document.getElementById("id_set_owner").onchange = function (){check_status()}
+document.getElementById("id_set_group").onchange = function (){check_status()}
+
+</script>
 {%endblock%}
 {%block help_header%}
 Edit a directory ownership and permissions 

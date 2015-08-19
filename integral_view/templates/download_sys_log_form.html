@@ -1,15 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'logging_base.html' %}
 
-{%block page-header%}
-  Logging
-    <br /><small>
-      Logging
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Download system logs
-  </small>
-{%endblock%}
-
-{%block contents%}
+{% block inside_content %}
 
 <p id="p-instruction-text"> The requested log will be fetched as a zip file which you can save on your computer.</p>
 <form name="myform"  method="post">
@@ -43,3 +34,9 @@ Download system logs
 {%block help_body%}
 <p>System logs help in tracking down potential issues in each GRIDCell. These logs are specific to the GRIDCell so you need to select the particular GRIDCell and log type before downloading it. The logs will be downloaded onto your system in the form of a compressed ZIP file.</p>
 {%endblock%}
+
+{% block tab_active %}
+ <script>
+  make_tab_active("download_system_logs_tab")
+ </script>
+{% endblock %}

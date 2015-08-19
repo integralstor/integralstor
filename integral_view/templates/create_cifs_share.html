@@ -29,14 +29,14 @@ function select_guest_ok() {
 {%block inside_content %}
 
 {{conf_message}}
-<form class="form-horizontal" role="form"name="create_form" action="" method="post">
+<form class="form-horizontal" role="form" name="create_form" action="" method="post">
             <table  class="table " style="width:800px">
             <tr>
               <td>
             <label for="id_name">Share name:</label>
               </td>
               <td>
-                <input type="text"  name="name" class="form-control" id="id_name" placeholder="Share name" value={{form.name.value|default_if_none:""}}> 
+                <input type="text"  name="name" class="form-control" id="id_name" placeholder="Share name" value="{{form.name.value|default_if_none:""}}"> 
               </td>
               <td>
             {{ form.name.errors }}
@@ -59,10 +59,10 @@ function select_guest_ok() {
 
             <tr>
               <td>
-            <label for="id_path">Share path:</label>
+            <label for="id_path">Directory Selector:</label>
               </td>
               <td>
-                <input type="text"  name="path" class="form-control" id="id_path" placeholder="Click the Browse button to choose a directory.." disabled placeholder="Share Path" value={{form.path.value|default_if_none:""}}> 
+                <input type="text"  name="path" class="form-control" id="id_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value="{{form.path.value|default_if_none:""}}"> 
                     <a href="#" role="button" class="btn btn-default" onClick="displayTree();return false;"> Browse..</a>
                 <div id="pathdiv" style="display:inline"> </div>
               </td>
@@ -70,16 +70,24 @@ function select_guest_ok() {
             {{ form.path.errors }}
               </td>
             </tr>
-
             <tr>
               <td>
             <label for="new_folder">Create Directory in the selected path:</label>
               </td>
               <td>
-                <input type="text"  name="new_folder" class="form-control" id="new_folder" placeholder="Create a new folder"> 
+                <input type="text"  name="new_folder" class="form-control" id="new_folder" placeholder="Create a new folder">
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="display_path">Final Path</label>
               </td>
               <td>
-                {{ form.comment.errors }}
+                {{form.display_path}}
+                <span id="display_path_text"></span>
+              </td>
+              <td>
+                {{ form.display_path.errors }}
               </td>
             </tr>
             <tr>
@@ -135,6 +143,8 @@ function select_guest_ok() {
                   <div class="radio" >
                       <input type="checkbox" name="users" id="id_users" value="{{choice.0}}" {%if choice.0 in form.initial.users %} checked="checked"{%endif%}> {{choice.0}}
                   </div>
+                  {% empty %}
+                    No Users created
                 {%endfor%}
               </td>
               <td>
@@ -148,8 +158,10 @@ function select_guest_ok() {
               <td>
                 {% for choice in form.groups.field.choices %} 
                   <div class="radio" >
-                      <input type="checkbox" name="groups" id="id_groups" value="{{choice.0}}" {%if choice.0 in form.initial.groups %} checked="checked"{%endif%}>{{choice.0}}
+                      <input type="checkbox" name="groups" id="id_groups" value="{{choice.0}}" {%if choice.0 in form.initial.groups %} checked="checked"{%endif%}> {{choice.0}}
                   </div>
+                  {% empty %}
+                    No Groups created
                 {%endfor%}
               </td>
               <td>
@@ -177,14 +189,14 @@ $("form input[name='guest_ok']").click(function () {
     }
     });
 $(window).load(function() {
-    document.forms["create_form"].elements["guest_ok"].checked = false
-      set_select_field_disabled(document.getElementsByName('users'),false);
-      set_select_field_disabled(document.getElementsByName('groups'), false);
+    document.forms["create_form"].elements["guest_ok"].checked = true
+      set_select_field_disabled(document.getElementsByName('users'),true);
+      set_select_field_disabled(document.getElementsByName('groups'), true);
   });
 </script>
   <script src="/static/jstree/dist/jstree.js"></script>
   <script>
-	$("#id_vol").change(function(){
+	$("#id_dataset").change(function(){
 		location.reload();
 	});
   function displayTree() {
@@ -199,11 +211,6 @@ $(window).load(function() {
           },
           'data' : function (node) {
             var e = document.getElementById("id_dataset");
-            console.log(node)
-            console.log(e.options[e.selectedIndex].value)
-            console.log(node.data)
-            console.log(node.id)
-            console.log(node.text)
             if (node.data) {
               return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
             }
@@ -222,6 +229,7 @@ $(window).load(function() {
         document.forms["create_form"].elements["path"].value = rfp;
         document.forms["create_form"].elements["display_path"].value = rfp;
         document.getElementById("pathdiv").style.display = "none";
+        $("#new_folder").trigger('input')
       })
       .jstree();
   });
@@ -229,13 +237,16 @@ $(window).load(function() {
 $("#new_folder").on('input',function(){
 	var final_path = $("#id_path").val()
 	if (final_path === ""){
-		$("#display_path").val("/"+$(this).val())
+		$("#id_display_path").val("/"+$(this).val())
+		$("#display_path_text").text("/"+$(this).val())
 	}
 	else{
-		$("#display_path").val(final_path+$(this).val())
+		$("#id_display_path").val(final_path+"/"+$(this).val())
+		$("#display_path_text").text(final_path+"/"+$(this).val())
 	}
 });
-$("#id_dataset").change(function(){displayTree();});
+$("#id_display_path").addClass("form-control")
+$("#id_display_path").attr("style","display:none")
 </script>
 
 {%endblock%}
@@ -257,4 +268,12 @@ $("#id_dataset").change(function(){displayTree();});
   <li>Guest ok : Setting this will allow anyone to view and make changes to the contents of this share.</li>
   <li>Permitted users : The list of users who have access to this share. If the authentication method is set to Active Directory then this list is pulled from Active Directory itself. If the authentication method is set to Local Users then this list is pulled from the list of local users created on IntegralView. </li>
   <li>Permitted groups : The list of groups who have access to this share. If the authentication method is set to Active Directory then this list is pulled from Active Directory itself. </li>
+  </ul>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("create_cifs_shares_tab")
+  </script>
+{% endblock %}
+

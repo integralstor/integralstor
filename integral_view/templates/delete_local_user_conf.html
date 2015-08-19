@@ -1,6 +1,6 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'users-groups_base.html' %}
 
-{%block contents%}
+{% block inside_content %}
 
 <!-- Modal -->
 <div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -16,9 +16,6 @@
     </div>
   </div>
 </div>
-
-<span id="topic-text"> File access -> Local users -> Delete local user {{userid}} </span><br>
-
 
 <p id="p-warning-text">Are you sure you want to delete the local user "{{username}}"? </p>
 <br>

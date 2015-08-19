@@ -1,18 +1,7 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'storage_base.html' %}
 
+{% block inside_content %}
 
-{%block page-header%}
-  Volumes
-  <br /><small>
-      Volumes 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Background operations -> Replace a GRIDCell 
-
-  </small>
-{%endblock%}
-
-
-{%block contents%}
 <script type="text/javascript">
 function select(showid, hideid) {
   document.getElementById(hideid).style.display = 'none';

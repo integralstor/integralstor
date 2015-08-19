@@ -20,6 +20,11 @@ view_node_config(){
 }
 
 
+remove_minions(){
+  python /opt/integralstor/integralstor-unicell/scripts/python/clear_minions.py
+  pause
+}
+
 goto_shell() {
   su -l fractalio
   pause

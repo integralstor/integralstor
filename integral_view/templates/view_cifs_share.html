@@ -1,4 +1,4 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'cifs_base.html' %}
 <script type="text/javascript">
 function set_field_visibility() {
   var guest_ok = document.forms["create_form"].elements["guest_ok"];
@@ -25,23 +25,10 @@ function select_guest_ok() {
 }
 </script>
 
-{%block page-header%}
-  File Access
-  <br /><small>
-      File Access 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Shares 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      View Share
-
-  </small>
-{%endblock%}
-
-{%block contents%}
+{%block inside_content %}
 
 <p style="color:red;"> {{form.errors}}</p>
 {{conf_message}}
-
             <table class="table table-bordered">
             <tr>
               <th>
@@ -117,3 +104,9 @@ Share details
 {%block help_body%}
 <p>Use this screen to view details about a particular share that has been created. </p>
 {%endblock%}
+{% block tab_active %}
+  <script>
+   make_tab_active("view_cifs_shares_tab")
+  </script>
+{% endblock %}
+

@@ -5,8 +5,6 @@ import integral_view
 from integral_view.forms import local_user_forms
 from integral_view.samba import samba_settings, local_users
 
-import salt.client
-
 import integralstor_common
 from integralstor_common import audit, networking
 

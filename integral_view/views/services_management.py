@@ -1,5 +1,6 @@
 import django, django.template
 
+import subprocess 
 import integralstor_common
 import integralstor_unicell
 from integralstor_common import networking, audit, command
@@ -12,9 +13,9 @@ def view_services(request):
   
     if "action" in request.GET:
       if request.GET["action"] == "start_success":
-        conf = "Service start successful"
+        conf = "Service start successful. Please wait for a few seconds for the status below to be updated."
       elif request.GET["action"] == "stop_success":
-        conf = "Service stop successful"
+        conf = "Service stop successful. Please wait for a few seconds for the status below to be updated."
       elif request.GET["action"] == "stop_fail":
         conf = "Service stop failed"
       elif request.GET["action"] == "start_fail":
@@ -56,7 +57,6 @@ def change_service_status(request):
       return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
     audit_str = "Service status change of %s initiated to %s state."%(request.POST['service'], request.POST['action'])
     d, err = _change_service_status(request.POST['service'], request.POST['action'])
-    print d
     if not d:
       audit_str += 'Request failed.'
       audit.audit("change_service_status", audit_str, request.META["REMOTE_ADDR"])
@@ -114,15 +114,20 @@ def _get_service_status(service):
 def _change_service_status(service, action):
   d = {}
   try:
-    ret, rc = command.execute_with_rc('service %s %s'%(service, action))
+    #ret, rc = command.execute_with_rc('service %s %s'%(service, action))
+    cmd = 'service %s %s'%(service, action)
+    proc = subprocess.Popen(cmd.split())
+    rc = proc.wait()
     d['status_code'] = rc
     d['output_str'] = ''
+    '''
     out = command.get_output_list(ret)
     if out:
       d['output_str'] += ','.join(out)
     err = command.get_error_list(ret)
     if err:
       d['output_str'] += ','.join(err)
+    '''
   except Exception, e:
     return None, 'Error retrieving service status : %s'%str(e)
   else:

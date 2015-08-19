@@ -53,3 +53,8 @@ View all shares
 {%block help_body%}
   <p> This screen provides the list of all the shares that have been created on this IntegralStor system. To view details about a particular share, please select the the desired share from the list.</p>
 {%endblock%}
+{% block tab_active %}
+ <script>
+  make_tab_active("view_cifs_shares_tab")
+ </script>
+{% endblock %}

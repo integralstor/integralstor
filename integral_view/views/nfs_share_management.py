@@ -173,7 +173,7 @@ def create_nfs_share(request):
       return django.shortcuts.render_to_response("create_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       form = nfs_shares_forms.ShareForm(request.POST, dataset_list = ds_list)
-      path = request.POST["path"]
+      path = request.POST.get("path")
       return_dict['form'] = form
       if not form.is_valid():
         return django.shortcuts.render_to_response("create_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))

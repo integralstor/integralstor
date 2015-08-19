@@ -2,7 +2,7 @@ import django, django.template
 
 import integralstor_common
 import integralstor_unicell
-from integralstor_common import networking, audit
+from integralstor_common import networking, audit, command, common
 from django.contrib.auth.decorators import login_required
 
 import socket
@@ -373,7 +373,27 @@ def edit_hostname(request):
             raise Exception('Error setting domain name : %s'%err)
           else:
             raise Exception('Error setting domain name')
-
+        ret,rc = command.execute_with_rc("python %s/generate_manifest.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
+        if rc != 0:
+          err = ''
+          tl = command.get_output_list(ret)
+          if tl:
+            err = ','.join(tl)
+          tl = command.get_error_list(ret)
+          if tl:
+            err = err + ','.join(tl)
+          raise Exception(err)
+        ret,rc = command.execute_with_rc("python %s/generate_status.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
+        if rc != 0:      
+          err = ''
+          tl = command.get_output_list(ret)
+          if tl:
+            err = ','.join(tl)
+          tl = command.get_error_list(ret)
+          if tl:
+            err = err + ','.join(tl)
+          raise Exception(err)
+  
         audit_str = "Hostname set to %s."%cd['hostname']
         if 'domain_name' in cd:
           audit_str += 'Domain name set to %s'%cd['domain_name']

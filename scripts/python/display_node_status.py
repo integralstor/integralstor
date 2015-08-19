@@ -1,31 +1,33 @@
 
-from fractalio import networking, command
+from integralstor_common import networking, command
 import os, socket, sys
 
+from integralstor_common import common
 
 def display_status():
 
   try :
     hostname = socket.gethostname()
-    print "Salt master service status :",
-    r, rc = command.execute_with_rc('service salt-master status')
-    l = command.get_output_list(r)
-    if l:
-      print '\n'.join(l)
-    else:
-      l = command.get_error_list(r)
+    if common.use_salt():
+      print "Salt master service status :",
+      r, rc = command.execute_with_rc('service salt-master status')
+      l = command.get_output_list(r)
       if l:
         print '\n'.join(l)
-    print "Salt minion service status :",
-    r, rc = command.execute_with_rc('service salt-minion status')
-    l = command.get_output_list(r)
-    if l:
-      print '\n'.join(l)
-    else:
-      l = command.get_error_list(r)
-      print l
+      else:
+        l = command.get_error_list(r)
+        if l:
+          print '\n'.join(l)
+      print "Salt minion service status :",
+      r, rc = command.execute_with_rc('service salt-minion status')
+      l = command.get_output_list(r)
       if l:
         print '\n'.join(l)
+      else:
+        l = command.get_error_list(r)
+        print l
+        if l:
+          print '\n'.join(l)
     print "Samba service status :",
     r, rc = command.execute_with_rc('service smb status')
     l = command.get_output_list(r)

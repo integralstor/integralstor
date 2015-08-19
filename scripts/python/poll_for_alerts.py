@@ -1,7 +1,5 @@
 #!/usr/bin/python
 import sys, time
-import salt
-from salt import client
 
 import integralstor_common
 from integralstor_common import common, alerts, lock
@@ -20,7 +18,7 @@ def node_up(node):
           return False 
     return True
 
-def check_disk_status(client, node, node_name):
+def check_disk_status(node, node_name):
 
   alert_list = []
   try: 
@@ -45,7 +43,7 @@ def check_disk_status(client, node, node_name):
       s1 =  '%s/lcdmsg.py "Disk error slots" "%s"'%(common.get_python_scripts_path(), s)
     else:
       s1 =  '%s/lcdmsg.py "Integral-stor" "Unicell"'%common.get_python_scripts_path()
-    r1 = client.cmd(node_name, 'cmd.run', [s1])
+    ret, rc = command.execute_with_rc(s1)
   except Exception, e:
     return None, 'Error checking disk status : %s'%str(e)
   else:
@@ -138,14 +136,13 @@ def main():
   try :
     alert_list = []
   
-    client = salt.client.LocalClient()
     for node_name, node in si.items():
   
       if not node_up(node):
         alert_list.append("GRIDCell %s seems to be down."%node_name)
   
       # Check disks status
-      l, err = check_disk_status(client, node, node_name)
+      l, err = check_disk_status(node, node_name)
       if err:
         print 'Error generating disk status : %s'%err
       if l:

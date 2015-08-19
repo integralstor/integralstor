@@ -1,21 +1,16 @@
-{% extends 'logged_in_base.html' %}
+{% extends 'logging_base.html' %}
 
-{%block page-header%}
-  {{page_header}}
-    <br /><small>
-      {{page_header}}
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      {{page_sub_header}}
-  </small>
+{% block inside_content %}
+<span id="topic-text"></span><br>
 
-{%endblock%}
-
-
-{%block contents%}
-<span id="topic-text"> {{topic}}</span><br>
-
+  {% if 'alerts' in request.path %}
+<a href="/rotate_log/alerts" class="btn btn-primary">Rotate Alert Logs </a>
+  {% else %}
+<a href="/rotate_log/audit_trail" class="btn btn-primary">Rotate Audit Logs </a>
+  {% endif %}
 
 {% if not log_file_list %}
+
 
 <p id="p-instructional-text"> There are no historical logs to display.</p><br>
 
@@ -54,3 +49,17 @@ View historical logs
 {%block help_body%}
 <p>The IntegralStor system generates many types of logs as part of its normal functioning. Over time, these logs can grow in size. When a log grows too large, it can be rolled over so that the older log can be stored and a new file gets written to in its place.</p><p> This page is used to view the older rolled logs</p>
 {%endblock%}
+
+{% block tab_active %}
+<script>
+  var params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
+  if (params.success === "true" ) {
+    $("#topic-text").text("Log rotated successully")    
+  }
+  {% if 'alerts' in request.path %}
+    make_tab_active("view_rotated_alert_log_list_tab")
+  {% else%}
+    make_tab_active("view_rotated_audit_log_list_tab")
+  {% endif %}
+</script>
+{% endblock %}
