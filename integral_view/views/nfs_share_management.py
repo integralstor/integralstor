@@ -47,7 +47,6 @@ def view_nfs_share(request):
       if err:
         return_dict["error"] += err
     found = False
-    print exports_list
     for e in exports_list:
       if e['path'] == path:
         found = True
