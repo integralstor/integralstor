@@ -1,4 +1,4 @@
-import django, django.template
+import django, django.template,os
 
 import integralstor_common
 import integralstor_unicell
@@ -174,6 +174,7 @@ def create_nfs_share(request):
     else:
       form = nfs_shares_forms.ShareForm(request.POST, dataset_list = ds_list)
       path = request.POST.get("path")
+      display_path = request.POST.get("display_path")
       return_dict['form'] = form
       if not form.is_valid():
         return django.shortcuts.render_to_response("create_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
@@ -189,6 +190,8 @@ def create_nfs_share(request):
         return_dict["error"] = "Error creating NFS share information - %s"%str(e)
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
  
+      if not os.path.isdir(display_path):
+        os.mkdir(display_path)
       audit_str = "Created NFS share %s"%path
       audit.audit("create_nfs_share", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_nfs_shares?action=created')
