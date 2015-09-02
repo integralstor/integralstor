@@ -86,8 +86,17 @@
 </tr>
 {%endfor%}
 </table>
-<a href="/reload_manifest" role="button" class="btn btn-default">Scan for hardware changes..</a>
+<a href="/reload_manifest" role="button" class="btn btn-default">Scan for hardware changes</a>
+<a href="/download_sys_info/" id="download_sys_info" role="button" class="btn btn-default">Download Complete System Info</a>
 
+<script>
+  $("#download_sys_info").on('click',function(){
+    $(this).text("Processing");
+    setInterval(function(){
+      $("#download_sys_info").text("Download Complete System Info");
+    },10000);
+  });
+</script>
 {%endblock%}
 
 {%block help_header%}

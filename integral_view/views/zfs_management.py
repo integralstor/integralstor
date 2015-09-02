@@ -3,6 +3,7 @@ import django, django.template
 import integralstor_common
 import integralstor_unicell
 from integralstor_common import zfs, audit, ramdisk
+from integralstor_common import scheduler_utils
 from integralstor_unicell import nfs
 
 import integral_view
@@ -708,7 +709,24 @@ def create_zfs_snapshot(request):
         return django.shortcuts.render_to_response("create_zfs_snapshot.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
       try :
-        result, err = zfs.create_snapshot(cd['target'], cd['name'])
+        if request.POST.get("id_scheduler"):
+          target = cd['target']
+          result, err = zfs.get_create_snapshot_command(target)
+          if result:
+            # <QueryDict: {u'is_scheduler': [u'on'], u'target': [u'pool1'], u'is_week': [u''], u'is_hour': [u'', u''], u'is_month': [u'', u''], u'name': [u'snap1']}> /sbin/zfs snapshot pool1@snap1
+            min = request.POST.get('id_minute')
+            hour = request.POST.get('id_hour')
+            day_of_month = request.POST.get('id_day_of_month')
+            month = request.POST.get('id_month')
+            week = request.POST.get('id_week')
+            result = result + "$(date +\%d-\%m-\%Y-\%I-\%M)"
+            msg,err = scheduler_utils.create_cron("ZFS Snapshot Creation",min,hour,day_of_month,month,week,result,None)
+            if msg:
+              return_dict["conf"] = "Snapshot Schedule Successful"
+            else:
+              return_dict["conf"] = "Snapshot Schedule Unsuccessful"
+        else:
+          result, err = zfs.create_snapshot(cd['target'], cd['name'])
         if not result:
           if not err:
             raise Exception('Unknown error!')

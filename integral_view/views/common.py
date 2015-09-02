@@ -7,7 +7,7 @@ from django.conf import settings
 
 
 import integralstor_common
-from integralstor_common import command, db, common, audit, alerts, ntp, mail, zfs, file_processing,stats
+from integralstor_common import command, db, common, audit, alerts, ntp, mail, zfs, file_processing,stats,scheduler_utils
 
 import integralstor_unicell
 from integralstor_unicell import system_info
@@ -157,7 +157,7 @@ def dashboard(request,page):
   total_nodes = len(si)
   nodes = {}
   # Chart specific declarations
-  today_day = datetime.datetime.today().day
+  today_day = (datetime.date.today()).strftime('%d') # will return 02, instead of 2.
   value_list = []
   time_list = []
   use_salt = common.use_salt()
@@ -781,7 +781,35 @@ def reload_manifest(request):
     return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+def list_cron_jobs(request):
+  return_dict = {}
+  cron_jobs,err = scheduler_utils.list_all_cron()
+  if not err:
+    return_dict["cron_list"] = cron_jobs
+  return django.shortcuts.render_to_response("view_cron_jobs.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+def download_cron_log(request):
+  response = django.http.HttpResponse()
+  cron_name = request.POST.get('cron_name')
+  try:
+    response['Content-disposition'] = 'attachment; filename='+cron_name.replace(" ","_")+'.log'
+    response['Content-type'] = 'application/x-compressed'
+    with open(common.get_log_folder_path()+"/"+cron_name.replace(" ","_")+".log", 'rb') as f:
+      byte = f.read(1)
+      while byte:
+        response.write(byte)
+        byte = f.read(1)
+        response.flush()
+  except Exception as e:
+    print e
+    return django.http.HttpResponse(e)
+  return response
+
+def remove_cron_job(request):
+  cron_name = request.POST.get('cron_name')
+  delete,err = scheduler_utils.delete_cron_with_comment(cron_name)
+  if not err and delete:
+    return django.http.HttpResponseRedirect("/list_cron_jobs")
 
 
 ###  THE CODES BELOW ARE MAINTAINED FOR EITER HISTORICAL PURPOSES OR AS A PART OF BACKUP PROCESS.

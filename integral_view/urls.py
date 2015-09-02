@@ -2,9 +2,9 @@ from django.conf.urls import patterns, include, url
 
 from integral_view.views.admin_auth  import login, logout, change_admin_password, configure_email_settings 
 
-from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node, set_file_owner_and_permissions,dir_contents,dashboard,reload_manifest
+from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node, set_file_owner_and_permissions,dir_contents,dashboard,reload_manifest,list_cron_jobs,download_cron_log,remove_cron_job
 
-from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level
+from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level,download_sys_info
 
 from integral_view.views.cifs_share_management import view_cifs_shares, create_cifs_share, samba_server_settings, save_samba_server_settings, view_cifs_share, edit_cifs_share, delete_cifs_share, edit_auth_method
 
@@ -122,10 +122,14 @@ urlpatterns = patterns('',
     url(r'^refresh_alerts/([0-9_]*)', login_required(refresh_alerts)),
     url(r'^logout/', logout,name="logout"),
     url(r'^download_sys_log/', login_required(download_sys_log)),
+    url(r'^download_sys_info/', login_required(download_sys_info)),
     url(r'^rotate_log_list/', login_required(rotate_log)),
     url(r'^rotate_log/([A-Za-z_]+)', login_required(rotate_log)),
     url(r'^view_rotated_log_list/([A-Za-z_]+)', login_required(view_rotated_log_list)),
     url(r'^view_rotated_log_file/([A-Za-z_]+)', login_required(view_rotated_log_file)),
     url(r'dir_contents/',login_required(dir_contents)),
+    url(r'^list_cron_jobs/', login_required(list_cron_jobs)),
+    url(r'^download_cron_log', login_required(download_cron_log)),
+    url(r'^remove_cron_job', login_required(remove_cron_job)),
 )
 

@@ -26,16 +26,16 @@
             <label for="id_name">Snapshot name:</label>
               </td>
               <td>
-                <input type="text"  name="name" class="form-control" id="id_clients" placeholder="Enter a name of this snapshot" />
+                <input type="text"  name="name" class="form-control" id="id_clients" placeholder="Enter a name of this snapshot" value="Snapshot"/>
               </td>
               <td>
             {{ form.name.errors }}
               </td>
             </tr>
+            {% include 'scheduler.html' %}
             </table>
-
         <a href="/view_zfs_snapshots" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary">Save >></button>
+        <button type="submit" class="btn btn-primary">Save</button>
 </form>
 
 {%endblock%}

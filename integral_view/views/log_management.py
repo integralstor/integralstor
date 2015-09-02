@@ -1,4 +1,4 @@
-import zipfile, datetime
+import zipfile, datetime,os
 
 import django, django.template
 from  django.contrib import auth
@@ -147,7 +147,9 @@ def rotate_log(request, log_type=None):
     try:
       if log_type == "alerts":
         try:
-          alerts.rotate_alerts()
+          ret, err = alerts.rotate_alerts()
+          if err:
+            raise Exception(err)
           return_dict["message"] = "Alerts log successfully rotated."
           return django.http.HttpResponseRedirect("/view_rotated_log_list/alerts?success=true")
         except Exception, e:
@@ -155,7 +157,9 @@ def rotate_log(request, log_type=None):
           return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
       elif log_type == "audit_trail":
         try:
-          audit.rotate_audit_trail()
+          ret, err = audit.rotate_audit_trail()
+          if err:
+            raise Exception(err)
           return_dict["message"] = "Audit trail successfully rotated."
           return django.http.HttpResponseRedirect("/view_rotated_log_list/audit_trail/?success=true")
         except Exception, e:
@@ -173,7 +177,41 @@ def rotate_log(request, log_type=None):
         return_dict["error"] = "Unknown log type" 
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
   
-      
+def download_sys_info(request):
+  print "Request Recieved"
+  return_dict = {}
+  display_name = common.get_admin_vol_mountpoint()
+  zf_name = "system_info.zip"
+  try:
+    zf = zipfile.ZipFile(zf_name, 'w')
+    abs_src = os.path.abspath(display_name)
+    for dirname, subdirs, files in os.walk(display_name):
+      for filename in files:
+        absname = os.path.abspath(os.path.join(dirname, filename))
+        arcname = absname[len(abs_src) + 1:]
+        zf.write(absname, arcname)
+    logs = {'boot':'/var/log/boot.log', 'dmesg':'/var/log/dmesg', 'message':'/var/log/messages', 'smb':'/var/log/smblog.vfs', 'winbind':'/var/log/samba/log.winbindd','ctdb':'/var/log/log.ctdb','smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf'}
+    for key,value in logs.iteritems():
+        if os.path.isfile(value):
+          zf.write(value, key)
+    zf.close()
+  except Exception as e:
+    return_dict["error"] = "Error compressing remote log file : %s"%str(e)
+    return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+  try:
+    response = django.http.HttpResponse()
+    response['Content-disposition'] = 'attachment; filename=system_info.zip'
+    response['Content-type'] = 'application/x-compressed'
+    with open(zf_name, 'rb') as f:
+      byte = f.read(1)
+      while byte:
+        response.write(byte)
+        byte = f.read(1)
+        response.flush()
+  except Exception as e:
+    return None
+  return response
+
 def view_rotated_log_list(request, log_type):
 
   return_dict = {}
@@ -185,11 +223,15 @@ def view_rotated_log_list(request, log_type):
     if log_type == "alerts":
       return_dict["page_header"] = "Logging"
       return_dict["page_sub_header"] = "View historical alerts log"
-      l = alerts.get_log_file_list()
+      l, err = alerts.get_log_file_list()
+      if err:
+        raise Exception(err)
     elif log_type == "audit_trail":
       return_dict["page_header"] = "Logging"
       return_dict["page_sub_header"] = "View historical audit log"
-      l = audit.get_log_file_list()
+      l, err = audit.get_log_file_list()
+      if err:
+        raise Exception(err)
   
     return_dict["type"] = log_type
     return_dict["log_file_list"] = l
@@ -222,17 +264,17 @@ def view_rotated_log_file(request, log_type):
     file_name = request.POST["file_name"]
   
     if log_type == "alerts":
-      try:
-        l = alerts.load_alerts(file_name)
-        return_dict["alerts_list"] = l
-        return_dict["historical"] = True
-        return django.shortcuts.render_to_response('view_alerts.html', return_dict, context_instance = django.template.context.RequestContext(request))
-      except Exception, e:
-        return_dict["error"] = str(e)
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+      l, err = alerts.load_alerts(file_name)
+      if err:
+        raise Exception(err)
+      return_dict["alerts_list"] = l
+      return_dict["historical"] = True
+      return django.shortcuts.render_to_response('view_alerts.html', return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       try:
-        d = audit.get_lines(file_name)
+        d, err = audit.get_lines(file_name)
+        if err:
+          raise Exception(err)
         return_dict["audit_list"] = d
         return_dict["historical"] = True
         return django.shortcuts.render_to_response('view_audit_trail.html', return_dict, context_instance = django.template.context.RequestContext(request))

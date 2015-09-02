@@ -1,0 +1,70 @@
+{% extends 'scheduler_base.html' %}
+
+{%block inside_content %}
+
+{% if conf %}
+<i>{{conf}}</i>
+{%endif%}
+
+{% if not cron_list %}
+No cron jobs appear to have been created.
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<table class="table table-striped">
+<thead>
+<tr>
+<th>
+Cron Name
+</th>
+<th>
+Time
+</th>
+<th>
+&nbsp;
+</th>
+<th>
+&nbsp;
+</th>
+</thead>
+{%for d in cron_list %}
+<tr>
+  <td>
+    {{d.comment}}
+  </td>
+  <td>
+    {{d.minute}} {{d.hour}} {{d.day}} {{d.month}} {{d.dow}}
+  </td>
+  <td>
+    <form action="/download_cron_log" method="POST">
+      {% csrf_token %}
+      <input type="text" value="{{d.comment}}" name="cron_name" style="display:none;" />
+      <button class="btn btn-success pull-right">Download Cron Log</button>
+    </form>
+  </td>
+  <td>
+    <form action="/remove_cron_job" method="POST">
+      {% csrf_token %}
+      <input type="text" value="{{d.comment}}" name="cron_name" style="display:none;" />
+      <button class="btn btn-danger pull-right">Remove Cron</button>
+    </form>
+  </td>
+</tr>
+{%endfor%}
+</table>
+</div>
+{%endif%}
+
+{%endblock%}
+{%block help_header%}
+View all cron jobs 
+{%endblock%}
+{%block help_body%}
+<p>
+  Help Text to be added soon
+</p>
+{%endblock%}
+{% block tab_active %}
+ <script>
+  make_tab_active("view_cron_jobs_tab")
+ </script>
+{% endblock %}

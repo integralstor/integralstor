@@ -126,7 +126,9 @@ def configure_email_settings(request):
   return_dict = {}
   url = "edit_email_settings.html"
   if request.method=="GET":
-    d = mail.load_email_settings()
+    d, err = mail.load_email_settings()
+    if err:
+      raise Exception(err)
     if not d:
       form = admin_forms.ConfigureEmailForm()
     else:
@@ -159,13 +161,11 @@ def configure_email_settings(request):
         d["tls"] = False
       #print "Saving : "
       #print d
-      try:
-        mail.save_email_settings(d)
-      except Exception, e:
-        iv_logging.debug("Exception when trying to save email settings : %s"%e)
-        return django.http.HttpResponseRedirect("/show/email_settings?not_saved=1&err=%s"%str(e))
+      ret, err = mail.save_email_settings(d)
+      if err:
+        raise Exception(err)
 
-      ret = mail.send_mail(cd["email_server"], cd["email_server_port"], cd["username"], cd["pswd"], cd["tls"], cd["rcpt_list"], "Test email from FractalView", "This is a test email sent by the Fractal View system in order to confirm that your email settings are working correctly.")
+      ret = mail.send_mail(cd["email_server"], cd["email_server_port"], cd["username"], cd["pswd"], cd["tls"], cd["rcpt_list"], "Test email from IntegralStor", "This is a test email sent by the IntegralStor system in order to confirm that your email settings are working correctly.")
       if ret:
         return django.http.HttpResponseRedirect("/show/email_settings?saved=1&err=%s"%ret)
       else:
