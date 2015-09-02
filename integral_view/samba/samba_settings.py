@@ -8,11 +8,13 @@ import local_users
 
 import salt.client 
 
-db_path = common.get_db_path()
 
 def change_auth_method(security):
 
   try:
+    db_path, err = common.get_db_path()
+    if err:
+      raise Exception(err)
     cl = []
     cl.append(["update samba_global_common set security='%s' where id=1"%security])
     cl.append(["delete from samba_valid_users"])
@@ -25,6 +27,9 @@ def change_auth_method(security):
 def load_auth_settings():
   d = None
   try:
+    db_path, err = common.get_db_path()
+    if err:
+      raise Exception(err)
     conn = None
     d = db.read_single_row("%s/integral_view_config.db"%db_path, "select * from samba_global_common where id=1")
     if d and d["security"] == "ads":
@@ -40,6 +45,9 @@ def load_auth_settings():
 def save_auth_settings(d):
 
   try:
+    db_path, err = common.get_db_path()
+    if err:
+      raise Exception(err)
     cmd_list = []
     cmd = ["update samba_global_common set workgroup=?, netbios_name=?, security=?, include_homes_section=? where id = ?", (d["workgroup"], d["netbios_name"], d["security"], True, 1,)]
     cmd_list.append(cmd)
@@ -66,6 +74,9 @@ def save_auth_settings(d):
 def delete_auth_settings():
   conn = None
   try:
+    db_path, err = common.get_db_path()
+    if err:
+      raise Exception(err)
     conn = sqlite3.connect("%s/integral_view_config.db"%db_path)
     cur = conn.cursor()
     cur.execute("delete from samba_auth ")
@@ -83,6 +94,9 @@ def load_shares_list():
   conn = None
   l = None
   try:
+    db_path, err = common.get_db_path()
+    if err:
+      raise Exception(err)
     conn = sqlite3.connect("%s/integral_view_config.db"%db_path)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
@@ -107,6 +121,9 @@ def load_share_info(mode, index):
   d = None
   conn = None
   try:
+    db_path, err = common.get_db_path()
+    if err:
+      raise Exception(err)
     conn = sqlite3.connect("%s/integral_view_config.db"%db_path)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
@@ -135,6 +152,9 @@ def delete_share(share_id):
 
   conn = None
   try:
+    db_path, err = common.get_db_path()
+    if err:
+      raise Exception(err)
     conn = sqlite3.connect("%s/integral_view_config.db"%db_path)
     cur = conn.cursor()
     cur.execute("delete from samba_shares where share_id=?", (share_id, ))
@@ -152,6 +172,9 @@ def delete_share(share_id):
 def delete_all_shares():
   conn = None
   try:
+    db_path, err = common.get_db_path()
+    if err:
+      raise Exception(err)
     conn = sqlite3.connect("%s/integral_view_config.db"%db_path)
     cur = conn.cursor()
     cur.execute("delete from samba_shares ")
@@ -170,6 +193,9 @@ def save_share(share_id, name, comment, guest_ok, read_only, path, browseable, u
 
   conn = None
   try:
+    db_path, err = common.get_db_path()
+    if err:
+      raise Exception(err)
     conn = sqlite3.connect("%s/integral_view_config.db"%db_path)
     cur = conn.cursor()
     cur.execute("update samba_shares set comment=?, read_only=?, guest_ok=?, browseable=? where share_id=?", (comment, read_only, guest_ok, browseable,share_id, ))
@@ -196,6 +222,9 @@ def save_share(share_id, name, comment, guest_ok, read_only, path, browseable, u
 def create_share(name, comment, guest_ok, read_only, path, display_path, browseable, users, groups, vol):
   conn = None
   try:
+    db_path, err = common.get_db_path()
+    if err:
+      raise Exception(err)
     d, err = load_auth_settings()
     if err:
       raise Exception(err)
@@ -323,8 +352,13 @@ def generate_smb_conf():
     d, err = load_auth_settings()
     if err:
       raise Exception(err)
-    with open("%s/smb.conf"%common.get_smb_conf_path(), "w+") as f:
-      _generate_global_section(f, d)
+    smb_conf_path, err = common.get_smb_conf_path()
+    if err:
+      raise Exception(err)
+    with open("%s/smb.conf"%smb_conf_path, "w+") as f:
+      ret, err = _generate_global_section(f, d)
+      if err:
+        raise Exception(err)
       shl, err = load_shares_list()
       if err:
         raise Exception(err)
@@ -356,7 +390,10 @@ def generate_smb_conf():
 
 def _reload_config():
   try:
-    if common.use_salt():
+    use_salt, err = common.use_salt()
+    if err:
+      raise Exception(err)
+    if use_salt:
       errors = ''
       client = salt.client.LocalClient()
       r1 = client.cmd('*', 'cmd.run_all', ['smbcontrol all reload-config'])
@@ -369,13 +406,19 @@ def _reload_config():
         raise Exception(errors)
     else:
       cmd_to_run = 'smbcontrol all reload-config'
-      ret, rc = command.execute_with_rc(cmd_to_run)
+      (ret, rc), err = command.execute_with_rc(cmd_to_run)
+      if err:
+        raise Exception(err)
       if rc != 0:
         err = ''
-        tl = command.get_output_list(ret)
+        tl, er = command.get_output_list(ret)
+        if er:
+          raise Exception(er)
         if tl:
           err = ','.join(tl)
-        tl = command.get_error_list(ret)
+        tl, er = command.get_error_list(ret)
+        if er:
+          raise Exception(er)
         if tl:
           err = err + ','.join(tl)
         raise Exception("Return code : %d. Error : %s"%(rc, err))
@@ -389,7 +432,10 @@ def generate_krb5_conf():
     d, err = load_auth_settings()
     if err:
       raise Exception(err)
-    with open("%s/krb5.conf"%common.get_krb5_conf_path(), "w") as f:
+    krb5_conf_path, err = common.get_krb5_conf_path()
+    if err:
+      raise Exception(err)
+    with open("%s/krb5.conf"%krb5_conf_path, "w") as f:
       f.write("; This file has been programatically generated by the fractal view system. Do not modify it manually!\n\n")
       f.write("[logging]\n")
       f.write("  default = FILE:/var/log/krb5libs.log\n")
@@ -415,7 +461,10 @@ def generate_krb5_conf():
 def kinit(user, pswd, realm):
   try:
     cmd_to_run = 'echo "%s\n" | kinit %s@%s'%(pswd, user, realm)
-    if common.use_salt():
+    use_salt, err = common.use_salt()
+    if err:
+      raise Exception(err)
+    if use_salt:
       errors = []
       client = salt.client.LocalClient()
       print 'Running %s'%cmd_to_run
@@ -434,13 +483,19 @@ def kinit(user, pswd, realm):
       if errors:
         raise Exception(' '.join(errors))
     else:
-      ret, rc = command.execute_with_rc(cmd_to_run)
+      (ret, rc), err = command.execute_with_rc(cmd_to_run)
+      if err:
+        raise Exception(err)
       if rc != 0:
         err = ''
-        tl = command.get_output_list(ret)
+        tl, er = command.get_output_list(ret)
+        if er:
+          raise Exception(er)
         if tl:
           err = ','.join(tl)
-        tl = command.get_error_list(ret)
+        tl, er = command.get_error_list(ret)
+        if er:
+          raise Exception(er)
         if tl:
           err = err + ','.join(tl)
         raise Exception("Return code : %d. Error : %s"%(rc, err))
@@ -452,7 +507,10 @@ def kinit(user, pswd, realm):
 def net_ads_join(user, pswd, password_server):
   try:
     cmd_to_run = "net ads join -S %s  -U %s%%%s"%(password_server, user, pswd)
-    if common.use_salt():
+    use_salt, err = common.use_salt()
+    if err:
+      raise Exception(err)
+    if use_salt:
       errors = []
       client = salt.client.LocalClient()
       print 'Running %s'%cmd_to_run
@@ -472,13 +530,19 @@ def net_ads_join(user, pswd, password_server):
       if errors:
         raise Exception(' '.join(errors))
     else:
-      ret, rc = command.execute_with_rc(cmd_to_run)
+      (ret, rc), err = command.execute_with_rc(cmd_to_run)
+      if err:
+        raise Exception(err)
       if rc != 0:
         err = ''
-        tl = command.get_output_list(ret)
+        tl, er = command.get_output_list(ret)
+        if er:
+          raise Exception(er)
         if tl:
           err = ','.join(tl)
-        tl = command.get_error_list(ret)
+        tl, er = command.get_error_list(ret)
+        if er:
+          raise Exception(er)
         if tl:
           err = err + ','.join(tl)
         raise Exception("Return code : %d. Error : %s"%(rc, err))
@@ -489,7 +553,10 @@ def net_ads_join(user, pswd, password_server):
 
 def restart_samba_services():
   try:
-    if common.use_salt():
+    use_salt, err = common.use_salt()
+    if err:
+      raise Exception(err)
+    if use_salt:
       client = salt.client.LocalClient()
       rc = client.cmd('*', 'service.reload', ['smbd'] )
       print rc
@@ -498,9 +565,41 @@ def restart_samba_services():
       #rc = client.cmd('*', 'service.restart', ['nmbd'] )
       #print rc
     else:
-      ret, rc = command.execute_with_rc('service smbd reload')
-      ret, rc = command.execute_with_rc('service winbind restart')
-      ret, rc = command.execute_with_rc('service nmbd restart')
+      (ret, rc), err = command.execute_with_rc('service smbd reload')
+      if err:
+        raise Exception(err)
+      (ret, rc), err = command.execute_with_rc('service winbind restart')
+      if err:
+        raise Exception(err)
+      if rc != 0:
+        err = ''
+        tl, er = command.get_output_list(ret)
+        if er:
+          raise Exception(er)
+        if tl:
+          err = ','.join(tl)
+        tl, er = command.get_error_list(ret)
+        if er:
+          raise Exception(er)
+        if tl:
+          err = err + ','.join(tl)
+        raise Exception("Return code : %d. Error : %s"%(rc, err))
+      (ret, rc), err = command.execute_with_rc('service nmbd restart')
+      if err:
+        raise Exception(err)
+      if rc != 0:
+        err = ''
+        tl, er = command.get_output_list(ret)
+        if er:
+          raise Exception(er)
+        if tl:
+          err = ','.join(tl)
+        tl, er = command.get_error_list(ret)
+        if er:
+          raise Exception(er)
+        if tl:
+          err = err + ','.join(tl)
+        raise Exception("Return code : %d. Error : %s"%(rc, err))
   except Exception, e:
     return False, 'Error restarting samba services: %s'%str(e)
   else:
@@ -565,6 +664,9 @@ def load_valid_users_list(share_id):
   l = None
   conn = None
   try:
+    db_path, err = common.get_db_path()
+    if err:
+      raise Exception(err)
     conn = sqlite3.connect("%s/integral_view_config.db"%db_path)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
@@ -594,19 +696,54 @@ def _get_ad_users_or_groups(type):
       raise Exception(err)
     workgroup = d['workgroup']
     if type and type=="users":
-      c = command.execute_with_rc("wbinfo -u --domain=%s"%workgroup)
+      (ret, rc), err = command.execute_with_rc("wbinfo -u --domain=%s"%workgroup)
+      if err:
+        raise Exception(err)
+      if rc != 0:
+        err = ''
+        tl, er = command.get_output_list(ret)
+        if er:
+          raise Exception(er)
+        if tl:
+          err = ','.join(tl)
+        tl, er = command.get_error_list(ret)
+        if er:
+          raise Exception(er)
+        if tl:
+          err = err + ','.join(tl)
+        raise Exception("Return code : %d. Error : %s"%(rc, err))
+
     elif type and type=="groups":
-      c = command.execute_with_rc("wbinfo -g --domain=%s"%workgroup)
+      (ret, rc), err = command.execute_with_rc("wbinfo -g --domain=%s"%workgroup)
+      if err:
+        raise Exception(err)
+      if rc != 0:
+        err = ''
+        tl, er = command.get_output_list(ret)
+        if er:
+          raise Exception(er)
+        if tl:
+          err = ','.join(tl)
+        tl, er = command.get_error_list(ret)
+        if er:
+          raise Exception(er)
+        if tl:
+          err = err + ','.join(tl)
+        raise Exception("Return code : %d. Error : %s"%(rc, err))
     else:
       raise Exception("Unknown type specified.")
 
-    o = command.get_output_list(c[0])
+    o, err = command.get_output_list(ret[0])
+    if err:
+      raise Exception(err)
     #print "wbinfo output = "
     #print o
-    e = command.get_error_list(c[0])
+    e, err = command.get_error_list(ret[0])
+    if err:
+      raise Exception(err)
     #print "error = "
     #print e
-    if c[1] != 0:
+    if ret[1] != 0:
       err = ""
       if o:
         err += " ".join(o)

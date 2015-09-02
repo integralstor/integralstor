@@ -91,7 +91,9 @@ def change_service_status(request):
 def _get_service_status(service):
   d = {}
   try:
-    ret, rc = command.execute_with_rc('service %s status'%service[0])
+    (ret, rc), err = command.execute_with_rc('service %s status'%service[0])
+    if err:
+      raise Exception(err)
     d['status_code'] = rc
     if rc == 0:
       d['status_str'] = 'Running'
@@ -100,10 +102,14 @@ def _get_service_status(service):
     elif rc == 1:
       d['status_str'] = 'Error'
     d['output_str'] = ''
-    out = command.get_output_list(ret)
+    out, err = command.get_output_list(ret)
+    if err:
+      raise Exception(err)
     if out:
       d['output_str'] += ','.join(out)
-    err = command.get_error_list(ret)
+    err, e = command.get_error_list(ret)
+    if e:
+      raise Exception(e)
     if err:
       d['output_str'] += ','.join(err)
   except Exception, e:
@@ -120,14 +126,6 @@ def _change_service_status(service, action):
     rc = proc.wait()
     d['status_code'] = rc
     d['output_str'] = ''
-    '''
-    out = command.get_output_list(ret)
-    if out:
-      d['output_str'] += ','.join(out)
-    err = command.get_error_list(ret)
-    if err:
-      d['output_str'] += ','.join(err)
-    '''
   except Exception, e:
     return None, 'Error retrieving service status : %s'%str(e)
   else:

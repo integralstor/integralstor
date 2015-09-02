@@ -7,7 +7,7 @@ from django.conf import settings
 
 
 import integralstor_common
-from integralstor_common import command, db, common, audit, alerts, ntp, mail, zfs, file_processing,stats,scheduler_utils
+from integralstor_common import command, db, common, audit, alerts, ntp, mail, zfs, file_processing,stats
 
 import integralstor_unicell
 from integralstor_unicell import system_info
@@ -19,7 +19,6 @@ from integral_view.forms import common_forms
 from integral_view.samba import samba_settings, local_users
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-production = common.is_production()
 
 def dir_contents(request):
   path = request.GET.get("pool_name")
@@ -146,149 +145,188 @@ def _other_executeable(st):
 @login_required
 def dashboard(request,page):
   return_dict = {}
-  assert request.method == 'GET'
-  si = system_info.load_system_config()
-  #assert False
-  return_dict['system_info'] = si
-  #By default show error page
-  template = "logged_in_error.html"
-  num_nodes_bad = 0
-  total_pool = 0
-  total_nodes = len(si)
-  nodes = {}
-  # Chart specific declarations
-  today_day = (datetime.date.today()).strftime('%d') # will return 02, instead of 2.
-  value_list = []
-  time_list = []
-  use_salt = common.use_salt()
-      
-  info = si.keys()[0]
-  # CPU status
-  if page == "cpu":
-    cpu,err = stats.get_system_stats(today_day,"cpu")
-    value_dict = {}
-    value_dict = {}
-    for key in cpu.keys():
-      value_list = []
-      time_list = []
-      if key == "date":
-        pass
-      else:
-        for a in cpu[key]:
-          time_list.append(a[0])
-          value_list.append(a[1])
-        value_dict[key] = value_list
-    return_dict["data_dict"] = value_dict
-    queue,err = stats.get_system_stats(today_day,"queue")
-    value_dict = {}
-    for key in queue.keys():
-      value_list = []
-      time_list = []
-      if key == "date":
-        pass
-      else:
-        for a in queue[key]:
-          time_list.append(a[0])
-          value_list.append(a[1])
-        value_dict[key] = value_list
-    return_dict["data_dict_queue"] = value_dict
-    return_dict['node_name'] = info
-    return_dict['node'] = si[info]
-    d = {}
-    template = "view_cpu_status.html"
-  # Hardware
-  elif page == "hardware":
-    d = {}
-    d['ipmi_status'] = si[info]['ipmi_status']
-    return_dict['hardware_status'] =  d
-    return_dict['node_name'] = info
-    template = "view_hardware_status.html"
-  # Memory
-  elif page == "memory":
-    mem,err = stats.get_system_stats(today_day,"memory")
-    for a in mem["memfree"]:
-      time_list.append(a[0])
-      value_list.append(a[1])
-    return_dict['memory_status'] =  si[info]['memory']
-    template = "view_memory_status.html"
-  # Network
-  elif page == "network":
-    network,err = stats.get_system_stats(today_day,"network")
-    value_dict = {}
-    for key in network.keys():
-      value_list = []
-      time_list = []
-      if key == "date" or key == "lo":
-        pass
-      else:
-        for a in network[key]["ifutil-percent"]:
-          time_list.append(a[0])
-          value_list.append(a[1])
-        value_dict[key] = value_list
+  try:
+    if request.method != 'GET':
+      raise Exception('Invalid access method. Please use the menus')
+    si, err = system_info.load_system_config()
+    if err:
+      raise Exception(err)
+    if not si:
+      raise Exception('Error loading system configuration')
+    return_dict['system_info'] = si
+    #By default show error page
+    template = "logged_in_error.html"
+    num_nodes_bad = 0
+    total_pool = 0
+    total_nodes = len(si)
+    nodes = {}
+    # Chart specific declarations
+    today_day = datetime.datetime.today().day
+    value_list = []
+    time_list = []
+    use_salt, err = common.use_salt()
+    if err:
+      raise Exception(err)
         
-    return_dict["data_dict"] = value_dict
-    print si[info]["interfaces"]
-    return_dict["network_status"] = si[info]['interfaces']
-    template = "view_network_status.html"
-  # Services
-  elif page == "services":
-    return_dict['services_status'] = {}
-    if use_salt:
-      import salt.client
-      client = salt.client.LocalClient()
-      winbind = client.cmd(info,'cmd.run',['service winbind status'])
-      smb = client.cmd(info,'cmd.run',['service smb status'])
-      nfs = client.cmd(info,'cmd.run',['service nfs status'])
-      iscsi = client.cmd(info,'cmd.run',['service tgtd status'])
-      ntp = client.cmd(info,'cmd.run',['service ntpd status'])
-      return_dict['services_status']['winbind'] = winbind[info]
-      return_dict['services_status']['smb'] = smb[info]
-      return_dict['services_status']['nfs'] = nfs[info]
-      return_dict['services_status']['iscsi'] = iscsi[info]
-      return_dict['services_status']['ntp'] = ntp[info]
-    else:
+    ks = si.keys()
+    if not ks:
+      raise Exception('System configuration invalid')
+    info = ks[0]
+    # CPU status
+    if page == "cpu":
+      cpu,err = stats.get_system_stats(today_day,"cpu")
+      if err:
+        raise Exception(err)
+      value_dict = {}
+      if cpu:
+        for key in cpu.keys():
+          value_list = []
+          time_list = []
+          if key == "date":
+            pass
+          else:
+            if cpu[key]:
+              for a in cpu[key]:
+                time_list.append(a[0])
+                value_list.append(a[1])
+            value_dict[key] = value_list
+      return_dict["data_dict"] = value_dict
+      queue,err = stats.get_system_stats(today_day,"queue")
+      if err:
+        raise Exception(err)
+      value_dict = {}
+      if queue:
+        for key in queue.keys():
+          value_list = []
+          time_list = []
+          if key == "date":
+            pass
+          else:
+            for a in queue[key]:
+              time_list.append(a[0])
+              value_list.append(a[1])
+            value_dict[key] = value_list
+      return_dict["data_dict_queue"] = value_dict
+      return_dict['node_name'] = info
+      return_dict['node'] = si[info]
+      d = {}
+      template = "view_cpu_status.html"
+    # Hardware
+    elif page == "hardware":
+      d = {}
+      d['ipmi_status'] = si[info]['ipmi_status']
+      return_dict['hardware_status'] =  d
+      return_dict['node_name'] = info
+      template = "view_hardware_status.html"
+    # Memory
+    elif page == "memory":
+      mem,err = stats.get_system_stats(today_day,"memory")
+      if err:
+        raise Exception(err)
+      if mem:
+        for a in mem["memfree"]:
+          time_list.append(a[0])
+          value_list.append(a[1])
+      return_dict['memory_status'] =  si[info]['memory']
+      template = "view_memory_status.html"
+    # Network
+    elif page == "network":
+      network,err = stats.get_system_stats(today_day,"network")
+      if err:
+        raise Exception(err)
+      value_dict = {}
+      if network:
+        for key in network.keys():
+          value_list = []
+          time_list = []
+          if key == "date" or key == "lo":
+            pass
+          else:
+            for a in network[key]["ifutil-percent"]:
+              time_list.append(a[0])
+              value_list.append(a[1])
+            value_dict[key] = value_list
+          
+      return_dict["data_dict"] = value_dict
+      print si[info]["interfaces"]
+      return_dict["network_status"] = si[info]['interfaces']
+      template = "view_network_status.html"
+    # Services
+    elif page == "services":
+      return_dict['services_status'] = {}
+      if use_salt:
+        import salt.client
+        client = salt.client.LocalClient()
+        winbind = client.cmd(info,'cmd.run',['service winbind status'])
+        smb = client.cmd(info,'cmd.run',['service smb status'])
+        nfs = client.cmd(info,'cmd.run',['service nfs status'])
+        iscsi = client.cmd(info,'cmd.run',['service tgtd status'])
+        ntp = client.cmd(info,'cmd.run',['service ntpd status'])
+        return_dict['services_status']['winbind'] = winbind[info]
+        return_dict['services_status']['smb'] = smb[info]
+        return_dict['services_status']['nfs'] = nfs[info]
+        return_dict['services_status']['iscsi'] = iscsi[info]
+        return_dict['services_status']['ntp'] = ntp[info]
+      else:
+        out_list, err = command.get_command_output('service winbind status')
+        if err:
+          raise Exception(err)
+        if out_list:
+          return_dict['services_status']['winbind'] = ' '.join(out_list)
+  
+        out_list, err = command.get_command_output('service smb status')
+        if err:
+          raise Exception(err)
+        if out_list:
+          return_dict['services_status']['smb'] = ' '.join(out_list)
+  
+        out_list, err = command.get_command_output('service nfs status')
+        if err:
+          raise Exception(err)
+        if out_list:
+          return_dict['services_status']['nfs'] = ' '.join(out_list)
+  
+        out_list, err = command.get_command_output('service tgtd status')
+        if err:
+          raise Exception(err)
+        if out_list:
+          return_dict['services_status']['iscsi'] = ' '.join(out_list)
+  
+        out_list, err = command.get_command_output('service ntpd status')
+        if err:
+          raise Exception(err)
+        if out_list:
+          return_dict['services_status']['ntp'] = ' '.join(out_list)
+          
+      template = "view_services_status.html"
+    # Disks
+    elif page == "disks":
+      sorted_disks = []
+      if 'disks' in si[info] and si[info]['disks']:
+        for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
+          sorted_disks.append(key)
+      return_dict['node'] = si[info]
+      return_dict["disk_status"] = si[info]['disks']
+      return_dict["disk_pos"] = sorted_disks
+      return_dict['node_name'] = info
+      template = "view_disks_status.html"
+    # Pools
+    elif page == "pools":
+      pools, err = zfs.get_pools()
+      if err:
+        raise Exception(err)
+      if pools:
+        return_dict['pools'] = pools            
+      template = "view_pools_status.html"
+    return_dict["labels"] = time_list
+    return_dict["data"] = value_list
+    return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception, e:
+    s = str(e)
+    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-      out_list = command.get_command_output('service winbind status')
-      if out_list:
-        return_dict['services_status']['winbind'] = ' '.join(out_list)
-
-      out_list = command.get_command_output('service smb status')
-      if out_list:
-        return_dict['services_status']['smb'] = ' '.join(out_list)
-
-      out_list = command.get_command_output('service nfs status')
-      if out_list:
-        return_dict['services_status']['nfs'] = ' '.join(out_list)
-
-      out_list = command.get_command_output('service tgtd status')
-      if out_list:
-        return_dict['services_status']['iscsi'] = ' '.join(out_list)
-
-      out_list = command.get_command_output('service ntpd status')
-      if out_list:
-        return_dict['services_status']['ntp'] = ' '.join(out_list)
-        
-    template = "view_services_status.html"
-  # Disks
-  elif page == "disks":
-    sorted_disks = []
-    for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
-      sorted_disks.append(key)
-    return_dict['node'] = si[info]
-    return_dict["disk_status"] = si[info]['disks']
-    return_dict["disk_pos"] = sorted_disks
-    return_dict['node_name'] = info
-    template = "view_disks_status.html"
-  # Pools
-  elif page == "pools":
-    pools, err = zfs.get_pools()
-    if pools:
-      return_dict['pools'] = pools            
-    template = "view_pools_status.html"
-  return_dict["labels"] = time_list
-  return_dict["data"] = value_list
-  return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
-
+  
 @login_required    
 def show(request, page, info = None):
 
@@ -386,16 +424,21 @@ def show(request, page, info = None):
       si[info]["disk_pos"] = sorted_disks
       return_dict['node'] = si[info]
 
-      if common.use_salt():
+      use_salt, err = common.use_salt()
+      if use_salt:
         import salt.client
         client = salt.client.LocalClient()
         winbind = client.cmd(info,'cmd.run',['service winbind status'])
         smb = client.cmd(info,'cmd.run',['service smb status'])
       else:
-        out_list = command.get_command_output('service winbind status')
+        out_list, err = command.get_command_output('service winbind status')
+        if err:
+          raise Exception(err)
         if out_list:
           return_dict['winbind'] = ' '.join(out_list)
-        out_list = command.get_command_output('service smb status')
+        out_list, err = command.get_command_output('service smb status')
+        if err:
+          raise Exception(err)
         if out_list:
           return_dict['smb'] = ' '.join(out_list)
 
@@ -510,20 +553,36 @@ def admin_login_required(view):
   return new_view
 
 def refresh_alerts(request, random=None):
+  try:
     from datetime import datetime
     cmd_list = []
     #this command will insert or update the row value if the row with the user exists.
     cmd = ["INSERT OR REPLACE INTO admin_alerts (user, last_refresh_time) values (?,?);", (request.user.username, datetime.now())]
     cmd_list.append(cmd)
-    test = db.execute_iud("%s/integral_view_config.db"%common.get_db_path(), cmd_list)
-    if alerts.new_alerts():
+    db_path, err = common.get_db_path()
+    if err:
+      raise Exception(err)
+    test, err = db.execute_iud("%s/integral_view_config.db"%db_path, cmd_list)
+    if err:
+      raise Exception(err)
+    new_alerts_present, err = alerts.new_alerts()
+    if err:
+      raise Exception(err)
+    if new_alerts_present:
       import json
-      new_alerts = json.dumps([dict(alert=pn) for pn in alerts.load_alerts()])
+      alerts_list, err = alerts.load_alerts()
+      if err:
+        raise Exception(err)
+      if not alerts_list:
+        raise Exception('Error loading alerts')
+      new_alerts = json.dumps([dict(alert=pn) for pn in alerts_list])
       return django.http.HttpResponse(new_alerts, mimetype='application/json')
     else:
       clss = "btn btn-default btn-sm"
       message = "View alerts"
       return django.http.HttpResponse("No New Alerts")
+  except Exception, e:
+    return django.http.HttpResponse("Error loading alerts : %s"%str(e))
 
 @login_required
 def raise_alert(request):
@@ -535,7 +594,9 @@ def raise_alert(request):
   else:
     try:
       msg = request.REQUEST["msg"]
-      alerts.raise_alert(msg)
+      ret, err = alerts.raise_alert(msg)
+      if err:
+        raise Exception(err)
     except Exception, e:
       return_dict["error"] = "Error logging alert : %s"%e
       iv_logging.info("Error logging alert %s"%str(e))
@@ -599,36 +660,36 @@ def configure_ntp_settings(request):
 #@django.views.decorators.csrf.csrf_exempt
 def flag_node(request):
 
-  return_dict = {}
-  if "node" not in request.GET:
-    return_dict["error"] = "Error flagging node. No node specified"
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance = django.template.context.RequestContext(request))
-
-  node_name = request.GET["node"]
-  import os
-  if production:
+  try:
+    return_dict = {}
+    if "node" not in request.GET:
+      raise Exception("Error flagging node. No node specified")
+  
+    node_name = request.GET["node"]
     blink_time = 255
-  else:
-    blink_time = 20 #default = 255
-  if common.use_salt():
-    import salt.client
-    client = salt.client.LocalClient()
-    ret = client.cmd(node_name,'cmd.run',['ipmitool chassis identify %s' %(blink_time)])
-    print ret
-    if ret[node_name] == 'Chassis identify interval: %s seconds'%(blink_time):
-      return django.http.HttpResponse("Success")
+    use_salt, err = common.use_salt()
+    if use_salt:
+      import salt.client
+      client = salt.client.LocalClient()
+      ret = client.cmd(node_name,'cmd.run',['ipmitool chassis identify %s' %(blink_time)])
+      print ret
+      if ret[node_name] == 'Chassis identify interval: %s seconds'%(blink_time):
+        return django.http.HttpResponse("Success")
+      else:
+        raise Exception("")
     else:
-      return_dict["error"] = "err"
-      return django.http.HttpResponse("Error")
-  else:
-    out_list = command.get_command_output('service winbind status')
-    if 'Chassis identify interval: %s seconds'%(blink_time) in out_list[0]:
-      return django.http.HttpResponse("Success")
-    else:
-      return_dict["error"] = "err"
-      return django.http.HttpResponse("Error")
+      out_list, err = command.get_command_output('service winbind status')
+      if err:
+        raise Exception(err)
+      if 'Chassis identify interval: %s seconds'%(blink_time) in out_list[0]:
+        return django.http.HttpResponse("Success")
+      else:
+        raise Exception("")
+  except Exception, e:
+    return django.http.HttpResponse("Error")
 
     
+'''
 @admin_login_required
 def reset_to_factory_defaults(request):
   return_dict = {}
@@ -642,7 +703,7 @@ def reset_to_factory_defaults(request):
   
       #Reset the ntp config file
       try :
-        shutil.copyfile("%s/factory_defaults/ntp.conf"%fractalio.common.get_factory_defaults_path(), '%s/ntp.conf'%fractalio.common.get_ntp_conf_path())
+        shutil.copyfile("%s/factory_defaults/ntp.conf"%common.get_factory_defaults_path(), '%s/ntp.conf'%fractalio.common.get_ntp_conf_path())
         pass
       except Exception, e:
         return_dict["error"] = "Error reseting NTP configuration : %s"%e
@@ -729,6 +790,7 @@ def reset_to_factory_defaults(request):
     return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+'''
 @login_required
 def internal_audit(request):
 
@@ -755,23 +817,41 @@ def reload_manifest(request):
       return_dict["mi"] = mi[0][mi[0].keys()[0]] # Need the hostname here. 
       return django.shortcuts.render_to_response("reload_manifest.html", return_dict, context_instance=django.template.context.RequestContext(request))
     elif request.method == "POST":
-      ret,rc = command.execute_with_rc("python %s/generate_manifest.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
+      python_scripts_path, err = common.get_python_scripts_path()
+      if err:
+        raise Exception(err)
+      ss_path, err = common.get_system_status_path()
+      if err:
+        raise Exception(err)
+      (ret,rc), err = command.execute_with_rc("python %s/generate_manifest.py %s"%(python_scripts_path, ss_path))
+      if err:
+        raise Exception(err)
       if rc != 0:
         err = ''
-        tl = command.get_output_list(ret)
+        tl, er = command.get_output_list(ret)
+        if er:
+          raise Exception(er)
         if tl:
           err = ','.join(tl)
-        tl = command.get_error_list(ret)
+        tl, er = command.get_error_list(ret)
+        if er:
+          raise Exception(er)
         if tl:
           err = err + ','.join(tl)
         raise Exception(err)
-      ret,rc = command.execute_with_rc("python %s/generate_status.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
+      (ret,rc), err = command.execute_with_rc("python %s/generate_status.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
+      if err:
+        raise Exception(err)
       if rc != 0:      
         err = ''
-        tl = command.get_output_list(ret)
+        tl, er = command.get_output_list(ret)
+        if er:
+          raise Exception(er)
         if tl:
           err = ','.join(tl)
-        tl = command.get_error_list(ret)
+        tl, er = command.get_error_list(ret)
+        if er:
+          raise Exception(er)
         if tl:
           err = err + ','.join(tl)
         raise Exception(err)
@@ -781,35 +861,7 @@ def reload_manifest(request):
     return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def list_cron_jobs(request):
-  return_dict = {}
-  cron_jobs,err = scheduler_utils.list_all_cron()
-  if not err:
-    return_dict["cron_list"] = cron_jobs
-  return django.shortcuts.render_to_response("view_cron_jobs.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def download_cron_log(request):
-  response = django.http.HttpResponse()
-  cron_name = request.POST.get('cron_name')
-  try:
-    response['Content-disposition'] = 'attachment; filename='+cron_name.replace(" ","_")+'.log'
-    response['Content-type'] = 'application/x-compressed'
-    with open(common.get_log_folder_path()+"/"+cron_name.replace(" ","_")+".log", 'rb') as f:
-      byte = f.read(1)
-      while byte:
-        response.write(byte)
-        byte = f.read(1)
-        response.flush()
-  except Exception as e:
-    print e
-    return django.http.HttpResponse(e)
-  return response
-
-def remove_cron_job(request):
-  cron_name = request.POST.get('cron_name')
-  delete,err = scheduler_utils.delete_cron_with_comment(cron_name)
-  if not err and delete:
-    return django.http.HttpResponseRedirect("/list_cron_jobs")
 
 
 ###  THE CODES BELOW ARE MAINTAINED FOR EITER HISTORICAL PURPOSES OR AS A PART OF BACKUP PROCESS.

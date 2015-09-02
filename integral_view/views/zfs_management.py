@@ -866,7 +866,9 @@ def replace_disk(request):
     return_dict['system_config_list'] = si
     
     template = 'logged_in_error.html'
-    use_salt = common.use_salt()
+    use_salt, err = common.use_salt()
+    if err:
+      raise Exception(err)
   
     if request.method == "GET":
       return_dict["error"] = "Incorrect access method. Please use the menus"
@@ -927,14 +929,20 @@ def replace_disk(request):
                       return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
                 #print rc
               else:
-                ret, rc = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+                (ret, rc), err = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+                if err:
+                  raise Exception(err)
                 #print ret
                 if rc != 0:
                   err = "Error bringing the disk with serial number %s offline  : "%(serial_number)
-                  tl = command.get_output_list(ret)
+                  tl, er = command.get_output_list(ret)
+                  if er:
+                    raise Exception(er)
                   if tl:
                     err = ','.join(tl)
-                  tl = command.get_error_list(ret)
+                  tl, er = command.get_error_list(ret)
+                  if er:
+                    raise Exception(er)
                   if tl:
                     err = err + ','.join(tl)
                   return_dict["error"] = err
@@ -1010,14 +1018,20 @@ def replace_disk(request):
                 error = "Error replacing the disk on %s : "%(node)
                 return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
             else:
-                ret, rc = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+                (ret, rc), err = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+                if err:
+                  raise Exception(err)
                 #print ret
                 if rc != 0:
                   err = "Error replacing the disk  : "
-                  tl = command.get_output_list(ret)
+                  tl, er = command.get_output_list(ret)
+                  if er:
+                    raise Exception(er)
                   if tl:
                     err = ','.join(tl)
-                  tl = command.get_error_list(ret)
+                  tl, er = command.get_error_list(ret)
+                  if er:
+                    raise Exception(er)
                   if tl:
                     err = err + ','.join(tl)
                   return_dict["error"] = err
@@ -1038,14 +1052,20 @@ def replace_disk(request):
                     return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
               print rc
             else:
-              ret, rc = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+              (ret, rc), err = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+              if err:
+                raise Exception(err)
               #print ret
               if rc != 0:
                 err = "Error setting pool autoexpand on %s : "%(node)
-                tl = command.get_output_list(ret)
+                tl, er = command.get_output_list(ret)
+                if er:
+                  raise Exception(er)
                 if tl:
                   err = ','.join(tl)
-                tl = command.get_error_list(ret)
+                tl, er = command.get_error_list(ret)
+                if er:
+                  raise Exception(er)
                 if tl:
                   err = err + ','.join(tl)
                 return_dict["error"] = err
@@ -1072,31 +1092,65 @@ def replace_disk(request):
                 error = "Error bringing the new disk online on %s : "%(node)
                 return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
             else:
-              ret, rc = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+              (ret, rc), err = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+              if err:
+                raise Exception(err)
               #print ret
               if rc != 0:
                 err = "Error bringing the new disk online  : "
-                tl = command.get_output_list(ret)
+                tl, er = command.get_output_list(ret)
+                if er:
+                  raise Exception(er)
                 if tl:
                   err = ','.join(tl)
-                tl = command.get_error_list(ret)
+                tl, er = command.get_error_list(ret)
+                if er:
+                  raise Exception(er)
                 if tl:
                   err = err + ','.join(tl)
                 return_dict["error"] = err
                 return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-            ret, rc = integralstor_common.common.command.execute_with_rc('%s/generate_manifest.py'%integralstor_common.common.get_python_scripts_path())
+            (ret, rc), err = integralstor_common.common.command.execute_with_rc('%s/generate_manifest.py'%integralstor_common.common.get_python_scripts_path())
+            if err:
+              raise Exception(err)
             #print ret
             if rc != 0:
-              return_dict["error"] = "Could not regenrate the new hardware configuration. Error generating manifest. Return code %d"%rc
-              print ret
+              err = ""
+              tl, er = command.get_output_list(ret)
+              if er:
+                raise Exception(er)
+              if tl:
+                err = ','.join(tl)
+              tl, er = command.get_error_list(ret)
+              if er:
+                raise Exception(er)
+              if tl:
+                err = err + ','.join(tl)
+              return_dict["error"] = "Could not regenrate the new hardware configuration. Error generating manifest. %s"%%err
+              #print ret
               return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
             else:
-              ret, rc = integralstor_common.common.command.execute_with_rc('%s/generate_status.py'%integralstor_common.common.get_python_scripts_path())
+              (ret, rc), err = integralstor_common.common.command.execute_with_rc('%s/generate_status.py'%integralstor_common.common.get_python_scripts_path())
+              if err:
+                raise Exception(err)
               if rc != 0:
-                print ret
-                return_dict["error"] = "Could not regenrate the new hardware configuration. Error generating status. Return code %d"%rc
+                err = ""
+                tl, er = command.get_output_list(ret)
+                if er:
+                  raise Exception(er)
+                if tl:
+                  err = ','.join(tl)
+                tl, er = command.get_error_list(ret)
+                if er:
+                  raise Exception(er)
+                if tl:
+                  err = err + ','.join(tl)
+                return_dict["error"] = "Could not regenrate the new hardware configuration. Error generating status. %s"%%err
+                #print ret
                 return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-              si = system_info.load_system_config()
+              si, err = system_info.load_system_config()
+              if err:
+                raise Exception(err)
               return_dict["node"] = node
               return_dict["old_serial_number"] = serial_number
               return_dict["new_serial_number"] = new_serial_number

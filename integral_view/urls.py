@@ -10,7 +10,7 @@ from integral_view.views.cifs_share_management import view_cifs_shares, create_c
 
 from integral_view.views.local_user_management import view_local_users, create_local_user, change_local_user_password, delete_local_user, view_local_user, edit_local_user_gid, view_local_groups, edit_local_user_group_membership, view_local_group, create_local_group, delete_local_group
 
-from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share, create_nfs_share
+from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share, create_nfs_share, edit_nfs_share
 
 from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog, remove_zfs_slog, scrub_zfs_pool, create_zfs_zvol, view_zfs_zvol
 
@@ -106,6 +106,7 @@ urlpatterns = patterns('',
     url(r'^view_zfs_zvol/', login_required(view_zfs_zvol)),
     url(r'^create_nfs_share/', login_required(create_nfs_share)),
     url(r'^view_nfs_shares/', login_required(view_nfs_shares)),
+    url(r'^edit_nfs_share/', login_required(edit_nfs_share)),
     url(r'^view_nfs_share/', login_required(view_nfs_share)),
     url(r'^delete_nfs_share/', login_required(delete_nfs_share)),
     url(r'^create_cifs_share/', login_required(create_cifs_share)),

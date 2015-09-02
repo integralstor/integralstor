@@ -373,23 +373,42 @@ def edit_hostname(request):
             raise Exception('Error setting domain name : %s'%err)
           else:
             raise Exception('Error setting domain name')
-        ret,rc = command.execute_with_rc("python %s/generate_manifest.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
+        python_scripts_path, err = common.get_python_scripts_path()
+        if err:
+          raise Exception(err)
+        ss_path, err = common.get_system_status_path()
+        if err:
+          raise Exception(err)
+
+        (ret,rc), err = command.execute_with_rc("python %s/generate_manifest.py %s"%(python_scripts_path, ss_path))
+        if err:
+          raise Exception(err)
         if rc != 0:
           err = ''
-          tl = command.get_output_list(ret)
+          tl, er = command.get_output_list(ret)
+          if er:
+            raise Exception(er)
           if tl:
             err = ','.join(tl)
-          tl = command.get_error_list(ret)
+          tl, er = command.get_error_list(ret)
+          if er:
+            raise Exception(er)
           if tl:
             err = err + ','.join(tl)
           raise Exception(err)
-        ret,rc = command.execute_with_rc("python %s/generate_status.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
+        (ret,rc), err = command.execute_with_rc("python %s/generate_status.py %s"%(python_scripts_path, ss_path))
         if rc != 0:      
+        if err:
+          raise Exception(err)
           err = ''
-          tl = command.get_output_list(ret)
+          tl, er = command.get_output_list(ret)
+          if er:
+            raise Exception(er)
           if tl:
             err = ','.join(tl)
-          tl = command.get_error_list(ret)
+          tl, er = command.get_error_list(ret)
+          if er:
+            raise Exception(er)
           if tl:
             err = err + ','.join(tl)
           raise Exception(err)
@@ -397,7 +416,9 @@ def edit_hostname(request):
         audit_str = "Hostname set to %s."%cd['hostname']
         if 'domain_name' in cd:
           audit_str += 'Domain name set to %s'%cd['domain_name']
-        audit.audit("edit_hostname", audit_str, request.META["REMOTE_ADDR"])
+        ret, err = audit.audit("edit_hostname", audit_str, request.META["REMOTE_ADDR"])
+        if err:
+          raise Exception(err)
                 
       except Exception, e:
         return_dict["error"] = "Error setting hostname information - %s"%str(e)

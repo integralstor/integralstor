@@ -77,7 +77,9 @@ def download_sys_log(request):
   
         import os
 
-        use_salt = common.use_salt()
+        use_salt, err = common.use_salt()
+        if err:
+          raise Exception(err)
         if use_salt:
           import salt.client
           client = salt.client.LocalClient()

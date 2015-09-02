@@ -5,7 +5,6 @@ import integralstor_common
 from integralstor_common import common, alerts, lock
 from integralstor_unicell import lcd_display, system_info
 
-production = common.is_production()
 
 import atexit
 atexit.register(lock.release_lock, 'poll_for_alerts')
@@ -22,6 +21,9 @@ def check_disk_status(node, node_name):
 
   alert_list = []
   try: 
+    python_scripts_path, err = common.get_python_scripts_path()
+    if err:
+      raise Exception(err)
     err_pos = []
     s = ""
     if "disks" in node:
@@ -40,10 +42,12 @@ def check_disk_status(node, node_name):
         if i < 4:
           s += ' '
         i += 1
-      s1 =  '%s/lcdmsg.py "Disk error slots" "%s"'%(common.get_python_scripts_path(), s)
+      s1 =  '%s/lcdmsg.py "Disk error slots" "%s"'%(python_scripts_path, s)
     else:
-      s1 =  '%s/lcdmsg.py "Integral-stor" "Unicell"'%common.get_python_scripts_path()
-    ret, rc = command.execute_with_rc(s1)
+      s1 =  '%s/lcdmsg.py "Integral-stor" "Unicell"'%python_scripts_path
+    (ret, rc), err = command.execute_with_rc(s1)
+    if err:
+      raise Exception(err)
   except Exception, e:
     return None, 'Error checking disk status : %s'%str(e)
   else:

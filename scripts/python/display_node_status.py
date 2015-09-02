@@ -8,42 +8,69 @@ def display_status():
 
   try :
     hostname = socket.gethostname()
-    if common.use_salt():
+    use_salt, err = common.use_salt()
+    if err:
+      raise Exception(err)
+    if use_salt:
       print "Salt master service status :",
-      r, rc = command.execute_with_rc('service salt-master status')
-      l = command.get_output_list(r)
+      (r, rc), err = command.execute_with_rc('service salt-master status')
+      if err:
+        raise Exception(err)
+      l, err = command.get_output_list(r)
+      if err:
+        raise Exception(err)
       if l:
         print '\n'.join(l)
       else:
-        l = command.get_error_list(r)
+        l, err = command.get_error_list(r)
+        if err:
+          raise Exception(err)
         if l:
           print '\n'.join(l)
       print "Salt minion service status :",
-      r, rc = command.execute_with_rc('service salt-minion status')
-      l = command.get_output_list(r)
+      (r, rc), err = command.execute_with_rc('service salt-minion status')
+      if err:
+        raise Exception(err)
+      l, err = command.get_output_list(r)
+      if err:
+        raise Exception(err)
       if l:
         print '\n'.join(l)
       else:
-        l = command.get_error_list(r)
+        l, err = command.get_error_list(r)
+        if err:
+          raise Exception(err)
         print l
         if l:
           print '\n'.join(l)
     print "Samba service status :",
-    r, rc = command.execute_with_rc('service smb status')
-    l = command.get_output_list(r)
+    (r, rc), err = command.execute_with_rc('service smb status')
+    if err:
+      raise Exception(err)
+    l, err = command.get_output_list(r)
+    if err:
+      raise Exception(err)
     if l:
       print '\n'.join(l)
     else:
-      l = command.get_error_list(r)
+      l, err = command.get_error_list(r)
+      if err:
+        raise Exception(err)
       if l:
         print '\n'.join(l)
     print "Winbind service status :",
-    r, rc = command.execute_with_rc('service winbind status')
-    l = command.get_output_list(r)
+    (r, rc), err = command.execute_with_rc('service winbind status')
+    if err:
+      raise Exception(err)
+    l, err = command.get_output_list(r)
+    if err:
+      raise Exception(err)
     if l:
       print '\n'.join(l)
     else:
-      l = command.get_error_list(r)
+      l, err = command.get_error_list(r)
+      if err:
+        raise Exception(err)
       if l:
         print '\n'.join(l)
   except Exception, e:
