@@ -6,7 +6,6 @@ from integral_view.forms import samba_shares_forms
 from integral_view.samba import samba_settings
 
 
-import integralstor_common
 from integralstor_common import audit, networking,zfs
 
 def view_cifs_shares(request):

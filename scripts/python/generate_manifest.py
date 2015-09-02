@@ -27,12 +27,11 @@ def gen_manifest(path):
       #Now move the tmp to the actual manifest file name
       shutil.move(fulltmppath, fullpath)
   except Exception, e:
-    print 'Error generating manifest : %s'%str(e)
     lock.release_lock('generate_manifest')
-    return -1
+    return -1, 'Error generating manifest : %s'%str(e)
   else:
     lock.release_lock('generate_manifest')
-    return 0
+    return 0, None
 
 import atexit
 atexit.register(lock.release_lock, 'generate_manifest')
@@ -44,11 +43,15 @@ def main():
     if num_args > 1:
       path = sys.argv[1]
     else:
-      path = common.get_system_status_path()
+      path, err = common.get_system_status_path()
+      if err:
+        raise Exception(err)
       if not path:
         path = '/tmp'
     print "Generating the manifest in %s"%path
-    rc = gen_manifest(path)
+    rc, err = gen_manifest(path)
+    if err:
+      raise Exception(err)
     print rc
   except Exception, e:
     print "Error generating manifest file : %s"%e

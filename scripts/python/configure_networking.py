@@ -141,15 +141,22 @@ def configure_interface():
           print "Invalid value. Please try again."
       print
       if restart:
-        r, rc = command.execute_with_rc('service network restart')
+        (r, rc), err = command.execute_with_rc('service network restart')
+        if err:
+          raise Exception(err)
         if rc == 0:
           print "Network service restarted succesfully."
         else:
           print "Error restarting network services."
           raw_input('Press enter to return to the main menu')
           return -1
-        if common.use_salt():
-          r, rc = command.execute_with_rc('service salt-minion restart')
+        use_salt, err = common.use_salt()
+        if err:
+          raise Exception(err)
+        if use_salt:
+          (r, rc), err = command.execute_with_rc('service salt-minion restart')
+          if err:
+            raise Exception(err)
           if rc == 0:
             print "Salt minion service restarted succesfully."
           else:

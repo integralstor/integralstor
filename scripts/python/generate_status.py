@@ -25,38 +25,37 @@ def gen_status(path):
     #Now move the tmp to the actual manifest file name
     shutil.move(fulltmppath, fullpath)
   except Exception, e:
-    print 'Error generating status : %s'%str(e)
     lock.release_lock('generate_status')
-    return -1
+    return -1,  'Error generating status : %s'%str(e)
   else:
     lock.release_lock('generate_status')
-    return 0
+    return 0, None
 
 import atexit
 atexit.register(lock.release_lock, 'generate_status')
 
 def main():
 
-    '''
     try :
-    '''
-    num_args = len(sys.argv)
-    if num_args > 1:
-      path = sys.argv[1]
-    else:
-      path = common.get_system_status_path()
-      if not path:
-        path = '/tmp'
-    print "Generating the status in %s"%path
-    rc = gen_status(path)
-    print rc
-    '''
+      num_args = len(sys.argv)
+      if num_args > 1:
+        path = sys.argv[1]
+      else:
+        path, err = common.get_system_status_path()
+        if err:
+          raise Exception(err)
+        if not path:
+          path = '/tmp'
+      print "Generating the status in %s"%path
+      rc, err = gen_status(path)
+      if err:
+        raise Exception(err)
+      print rc
     except Exception, e:
-      print "Error generating manifest file : %s"%e
+      print "Error generating status file : %s"%e
       return -1
     else:
       return 0
-    '''
 
 
 if __name__ == "__main__":
