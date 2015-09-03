@@ -397,7 +397,9 @@ def edit_hostname(request):
             err = err + ','.join(tl)
           raise Exception(err)
         (ret,rc), err = command.execute_with_rc("python %s/generate_status.py %s"%(python_scripts_path, ss_path))
-        if rc != 0:      
+        if rc != 0:
+	  # there was nothing here. I have put a pass statement. Please review this again.
+          pass
         if err:
           raise Exception(err)
           err = ''

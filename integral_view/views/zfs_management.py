@@ -1126,7 +1126,7 @@ def replace_disk(request):
                 raise Exception(er)
               if tl:
                 err = err + ','.join(tl)
-              return_dict["error"] = "Could not regenrate the new hardware configuration. Error generating manifest. %s"%%err
+              return_dict["error"] = "Could not regenrate the new hardware configuration. Error generating manifest. %s"%err
               #print ret
               return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
             else:
@@ -1145,7 +1145,7 @@ def replace_disk(request):
                   raise Exception(er)
                 if tl:
                   err = err + ','.join(tl)
-                return_dict["error"] = "Could not regenrate the new hardware configuration. Error generating status. %s"%%err
+                return_dict["error"] = "Could not regenrate the new hardware configuration. Error generating status. %s"%err
                 #print ret
                 return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
               si, err = system_info.load_system_config()

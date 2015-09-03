@@ -159,11 +159,11 @@ def set_local_user_gid(d):
       raise Exception(err)
     if rc != 0:
       err = ''
-      out, error = command.get_error_list(ret))
+      out, error = command.get_error_list(ret)
       if error:
         raise Exception(error)
       err += ','.join(out)
-      out, error = command.get_output_list(ret))
+      out, error = command.get_output_list(ret)
       if error:
         raise Exception(error)
       err += ','.join(out)
@@ -194,11 +194,11 @@ def set_local_user_group_membership(d):
     (ret, rc), err = command.execute_with_conf_and_rc(r'usermod  -G %s %s'%(','.join(glist), d['username']))
     if rc != 0:
       err = ''
-      out, error = command.get_error_list(ret))
+      out, error = command.get_error_list(ret)
       if error:
         raise Exception(error)
       err += ','.join(out)
-      out, error = command.get_output_list(ret))
+      out, error = command.get_output_list(ret)
       if error:
         raise Exception(error)
       err += ','.join(out)

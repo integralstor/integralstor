@@ -137,7 +137,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
     'integral_view',
-    'zfs',
+#    'zfs',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -177,7 +177,7 @@ LOGGING = {
         'file': {
           'level': 'DEBUG',
           'class': 'logging.handlers.RotatingFileHandler',
-          'filename': '/var/log/fractalio/integral_view.log',
+          'filename': '/var/log/integralstor/integralstor-unicell/integral_view.log',
           'maxBytes': 1024*1024*5,
           'backupCount': 5,
           'formatter': 'standard'

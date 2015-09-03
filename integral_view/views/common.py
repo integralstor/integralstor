@@ -690,7 +690,7 @@ def flag_node(request):
     return django.http.HttpResponse("Error")
 
     
-'''
+#The below function was commented. Uncommented it. Please review it again
 @admin_login_required
 def reset_to_factory_defaults(request):
   return_dict = {}
@@ -791,7 +791,6 @@ def reset_to_factory_defaults(request):
     return_dict["error"] = "An error occurred when processing your request : %s"%s
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-'''
 @login_required
 def internal_audit(request):
 
