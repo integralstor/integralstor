@@ -336,7 +336,7 @@ def show(request, page, info = None):
 
     assert request.method == 'GET'
 
-    si = system_info.load_system_config()
+    si,err = system_info.load_system_config()
 
     #assert False
     return_dict['system_info'] = si
@@ -455,7 +455,7 @@ def show(request, page, info = None):
         frm = request.GET["from"]
         return_dict['frm'] = frm
       #return_dict['node'] = si[info]
-      return_dict['node'] = si[si.keys()[0]]
+      return_dict['node'] = si.keys()[0]
 
 
     elif page == "system_config":
@@ -487,6 +487,7 @@ def show(request, page, info = None):
 
         """
         for key, value in si.iteritems():
+	  print key
           #count the failures in case of Offline or degraded
           disk_failures = 0
           #Default background color
