@@ -1,4 +1,4 @@
-{% extends 'nfs_base.html' %}
+{% extends 'shares_base.html' %}
 
 {%block inside_content %}
 
@@ -40,8 +40,10 @@ Details
 {%endfor%}
 </table>
 </div>
-    <a href="/create_nfs_share" role="button" class="btn btn-default"> Create a new NFS share</a>
 {%endif%}
+<p>
+  <a href="/create_nfs_share/" class="btn btn-primary"> Create NFS Share </a>
+</p>
 
 {%endblock%}
 {%block help_header%}

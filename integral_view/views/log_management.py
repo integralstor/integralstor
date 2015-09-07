@@ -54,7 +54,9 @@ def download_sys_log(request):
 
   return_dict = {}
   try:
-    scl = system_info.load_system_config()
+    scl, err = system_info.load_system_config()
+    if err:
+      raise Exception(err)
     form = log_management_forms.SystemLogsForm(request.POST or None, system_config_list = scl)
   
     if request.method == 'POST':

@@ -3,11 +3,6 @@
 {% block inside_content %}
 <span id="topic-text"></span><br>
 
-  {% if 'alerts' in request.path %}
-<a href="/rotate_log/alerts" class="btn btn-primary">Rotate Alert Logs </a>
-  {% else %}
-<a href="/rotate_log/audit_trail" class="btn btn-primary">Rotate Audit Logs </a>
-  {% endif %}
 
 {% if not log_file_list %}
 

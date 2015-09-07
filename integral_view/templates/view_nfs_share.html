@@ -1,4 +1,4 @@
-{% extends 'nfs_base.html' %}
+{% extends 'shares_base.html' %}
 
 {% block inside_content %}
 
@@ -80,12 +80,16 @@
             {%endif%}
             </table>
 
-<a href="/view_nfs_shares" role="button" class="btn btn-default"><< NFS Shares list</a>
+<a href="/view_nfs_shares" role="button" class="btn btn-default">NFS Shares list</a>
 <a href="/edit_nfs_share?path={{share_info.path}}" role="button" class="btn btn-default">Modify..</a>
-<a href="/delete_nfs_share?path={{share_info.path}}" role="button" class="btn btn-default">Delete this NFS share..</a>
-
-
+<a href="/delete_nfs_share?path={{share_info.path}}" role="button" class="btn btn-danger">Delete this NFS share</a>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_nfs_shares_tab")
+  </script>
+{% endblock %}
 {%block help_header%}
 NFS Share details
 {%endblock%}

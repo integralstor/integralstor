@@ -15,6 +15,9 @@
 </tr>
 {%endfor%}
 </table>
+{%if alerts_list%}
+<a href="/rotate_log/alerts" class="btn btn-primary">Rotate Alert Logs </a>
+{%endif%}
 <br>
 {% if historical %}
 <a href="/view_rotated_log_list/alerts/" role="button" class="btn btn-default"> << Back to log list</a>

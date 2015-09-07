@@ -149,7 +149,9 @@ def configure_email_settings(request):
     return_dict = {}
     url = "edit_email_settings.html"
     if request.method=="GET":
-      d = mail.load_email_settings()
+      d, err = mail.load_email_settings()
+      if err:
+        raise Exception(err)
       if not d:
         form = admin_forms.ConfigureEmailForm()
       else:

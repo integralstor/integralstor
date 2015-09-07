@@ -1,15 +1,4 @@
-{% extends 'cifs_base.html' %}
-
-{%block page-header%}
-  File Access
-  <br /><small>
-      File Access 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Shares 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Delete Share
-  </small>
-{%endblock%}
+{% extends 'shares_base.html' %}
 
 {%block inside_content %}
 
@@ -34,12 +23,8 @@
 <input type=hidden name="name" value="{{name}}">
 <input type=hidden name="share_id" value="{{share_id}}">
 <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_cifs_share?access_mode=by_id&index={{share_id}}'"> &nbsp;&nbsp;
-<button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and delete >></button>
+<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete</button>
 </form>
-
-
-
-
 
 {%endblock%}
 {%block help_header%}

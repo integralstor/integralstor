@@ -1,4 +1,4 @@
-{% extends 'cifs_base.html' %}
+{% extends 'shares_base.html' %}
 
 {%block page-header%}
   CIFS Access
@@ -145,7 +145,7 @@ function select_guest_ok() {
             </table>
 
         <a href="/view_cifs_share?access_mode=by_id&index={{form.share_id.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary">Save >></button>
+        <button type="submit" class="btn btn-primary">Save</button>
 </form>
 <script type="text/javascript">
 function set_select_field_disabled(f, val) {

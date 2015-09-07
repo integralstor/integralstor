@@ -3,7 +3,13 @@
 
 <div class="row">
   <div class="col-sm-12 col-md-8 col-lg-8">
-    <canvas id="dashboard_chart" width="800" height="300"></canvas>
+    <span class="margin-left-5">Memory Graph</span>
+    {% if data %}
+      <canvas id="dashboard_chart" width="800" height="300"></canvas>
+    {% else %}
+      <br /> <br />
+      <span class="margin-left-5 red">No Data Found</span>
+    {% endif %}
   </div>
   <div class="col-sm-12 col-md-1 col-lg-1">
   </div>

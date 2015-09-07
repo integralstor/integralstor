@@ -1,4 +1,4 @@
-{% extends 'cifs_base.html' %}
+{% extends 'shares_base.html' %}
 
 {%block inside_content %}
 
@@ -45,6 +45,9 @@ Description
 </table>
 </div>
 {%endif%}
+<p>
+  <a href="/create_cifs_share/" class="btn btn-primary"> Create CIFS Share </a>
+</p>
 
 {%endblock%}
 {%block help_header%}

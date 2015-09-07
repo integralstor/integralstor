@@ -3,7 +3,12 @@
 <div class="row">
   <div class="col-sm-12 col-md-8 col-lg-8">
     <span class="margin-left-5"> CPU Utilization Graph</span>
-    <canvas id="dashboard_chart" width="800" height="300" class="margin-left-5"></canvas>
+    {% if data_dict %}
+      <canvas id="dashboard_chart" width="800" height="300" class="margin-left-5"></canvas>
+    {% else %}
+      <br /> <br />
+      <span class="margin-left-5 red">No Data Found</span>
+    {% endif %}
   </div>
   <div class="col-sm-12 col-md-2 col-lg-2">
   </div>
@@ -21,7 +26,12 @@
 <div class="row">
   <div class="col-sm-12 col-md-8 col-lg-8">
     <span class="margin-left-5">Load Average Graph</span>
-    <canvas id="queue_chart" width="800" height="300" class="margin-left-5"></canvas>
+    {% if data_dict_queue %}
+      <canvas id="queue_chart" width="800" height="300" class="margin-left-5"></canvas>
+    {% else %}
+      <br /> <br />
+      <span class="margin-left-5 red">No Data Found</span>
+    {% endif %}
   </div>
   <div class="col-sm-12 col-md-2 col-lg-2">
   </div>

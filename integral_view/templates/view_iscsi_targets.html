@@ -1,4 +1,4 @@
-{% extends 'iscsi_base.html' %}
+{% extends 'shares_base.html' %}
 
 {% block inside_content %}
 
@@ -13,7 +13,7 @@
 {% if not target_list %}
 No ISCSI targets appear to have been created. Click <a href="/create_iscsi_target/"> here</a> to create a new ISCSI target. 
 {%else %}
-<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<div>
 <table class="table table-striped">
 <thead>
 <tr>
@@ -55,6 +55,9 @@ LUNs
 </div>
 <br>
 {%endif%}
+<p>
+  <a href="/create_iscsi_target/" class="btn btn-primary"> Create an ISCSI Target </a>
+</p>
 
 {%endblock%}
 {%block help_header%}

@@ -1,0 +1,39 @@
+
+{% extends 'services_base.html' %}
+
+{% block inside_content %}
+
+
+<form id="edit_form" name="edit_form" action="" method="post">
+
+<p id="warning-text"> Warning : This action will result in access control settings being removed from all currently existing shares. </p>
+
+
+<div  style=" position:relative;border:0px solid #DDDDDD;width:600px; padding:15px 15px 15px;margin:0px 15px;border-radius:4px 4px 0px 0px">
+<form action="" method="POST">
+  <div class="form-group" >
+    <label for="id_auth_method">Auth method: </label>
+    <select id="id_auth_method" name="auth_method" class="form-control" >
+      <option value="ads" {% if samba_global_dict.security == "ads" %} selected{%endif%} >Active Directory</option>
+      <option value="users" {% if samba_global_dict.security == "users" %} selected{%endif%} >Local users</option>
+    </select>
+  </div>
+{% if error %}
+<p id="warning-text"> {{error}}</p>
+{%endif%}
+  <a href="/auth_server_settings" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+  <button type="submit" class="btn btn-primary">Change authentication method >></button>
+</div>
+</form>
+{%endblock%}
+{%block help_header%}
+Selecting an authentication method
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to select the authentication method that you would like to authenticate access to CIFS shares. Please note that if you change the authentication method then you will need to reapply access control to all existing shares.</p>
+{%endblock%}
+{% block tab_active %}
+  <script>
+   make_tab_active("auth_server_settings_tab")
+  </script>
+{% endblock %}

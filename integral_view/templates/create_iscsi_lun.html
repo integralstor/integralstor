@@ -1,4 +1,4 @@
-{% extends 'iscsi_base.html' %}
+{% extends 'shares_base.html' %}
 
 {% block inside_content %}
 
@@ -36,7 +36,7 @@
             </table>
 
         <a href="/view_iscsi_target?name={{form.target_name.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary">Create >></button>
+        <button type="submit" class="btn btn-primary">Create</button>
 </form>
 
 {%endblock%}

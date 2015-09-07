@@ -78,6 +78,9 @@ def check_interface_status(node, node_name):
     if "interfaces" in node:
       interfaces = node["interfaces"]
       for if_name, interface in interfaces.items():
+        if 'lo' in if_name:
+          continue
+        print if_name, interface
         if "status" in interface and interface["status"] != 'up':
           alert_list.append("The network interface %s has problems."%(if_name))
   except Exception, e:

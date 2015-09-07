@@ -41,6 +41,9 @@ Initiated from
 </tr>
 {%endfor%}
 </table>
+{%if audit_list%}
+<a href="/rotate_log/audit_trail" class="btn btn-primary">Rotate Audit Logs </a>
+{%endif%}
 </div>
 <br>
 {% if historical %}

@@ -161,7 +161,10 @@ def dashboard(request,page):
     total_nodes = len(si)
     nodes = {}
     # Chart specific declarations
-    today_day = datetime.datetime.today().day
+    today_day = (datetime.date.today()).strftime('%d') # will return 02, instead of 2.
+    #today_day = datetime.datetime.today().day
+    #if today_day < 10:
+    #  today_day = '0%d'%today_day
     value_list = []
     time_list = []
     use_salt, err = common.use_salt()
@@ -268,31 +271,31 @@ def dashboard(request,page):
         return_dict['services_status']['iscsi'] = iscsi[info]
         return_dict['services_status']['ntp'] = ntp[info]
       else:
-        out_list, err = command.get_command_output('service winbind status')
+        out_list, err = command.get_command_output('service winbind status', False)
         if err:
           raise Exception(err)
         if out_list:
           return_dict['services_status']['winbind'] = ' '.join(out_list)
   
-        out_list, err = command.get_command_output('service smb status')
+        out_list, err = command.get_command_output('service smb status', False)
         if err:
           raise Exception(err)
         if out_list:
           return_dict['services_status']['smb'] = ' '.join(out_list)
   
-        out_list, err = command.get_command_output('service nfs status')
+        out_list, err = command.get_command_output('service nfs status', False)
         if err:
           raise Exception(err)
         if out_list:
           return_dict['services_status']['nfs'] = ' '.join(out_list)
   
-        out_list, err = command.get_command_output('service tgtd status')
+        out_list, err = command.get_command_output('service tgtd status', False)
         if err:
           raise Exception(err)
         if out_list:
           return_dict['services_status']['iscsi'] = ' '.join(out_list)
   
-        out_list, err = command.get_command_output('service ntpd status')
+        out_list, err = command.get_command_output('service ntpd status', False)
         if err:
           raise Exception(err)
         if out_list:
@@ -350,12 +353,10 @@ def show(request, page, info = None):
     elif page == "ntp_settings":
 
       template = "view_ntp_settings.html"
-      try:
-        ntp_servers = ntp.get_ntp_servers()
-      except Exception, e:
-        return_dict["error"] = str(e)
-      else:
-        return_dict["ntp_servers"] = ntp_servers
+      ntp_servers, err = ntp.get_ntp_servers()
+      if err:
+        raise Exception(err)
+      return_dict["ntp_servers"] = ntp_servers
       if "saved" in request.REQUEST:
         return_dict["saved"] = request.REQUEST["saved"]
 
@@ -374,41 +375,37 @@ def show(request, page, info = None):
     elif page == "email_settings":
 
       #print "here"
-      try:
-        d = mail.load_email_settings()
-        if not d:
-          return_dict["email_not_configured"] = True
+      d, err = mail.load_email_settings()
+      if err:
+        raise Exception(err)
+      if not d:
+        return_dict["email_not_configured"] = True
+      else:
+        if d["tls"]:
+          d["tls"] = True
         else:
-          if d["tls"]:
-            d["tls"] = True
-          else:
-            d["tls"] = False
-          if d["email_alerts"]:
-            d["email_alerts"] = True
-          else:
-            d["email_alerts"] = False
-          return_dict["email_settings"] = d
-        if "saved" in request.REQUEST:
-          return_dict["saved"] = request.REQUEST["saved"]
-        if "not_saved" in request.REQUEST:
-          return_dict["not_saved"] = request.REQUEST["not_saved"]
-        if "err" in request.REQUEST:
-          return_dict["err"] = request.REQUEST["err"]
-        template = "view_email_settings.html"
-      except Exception, e:
-        iv_logging.debug("error loading email settings %s"%e)
-        return_dict["error"] = str(e)
+          d["tls"] = False
+        if d["email_alerts"]:
+          d["email_alerts"] = True
+        else:
+          d["email_alerts"] = False
+        return_dict["email_settings"] = d
+      if "saved" in request.REQUEST:
+        return_dict["saved"] = request.REQUEST["saved"]
+      if "not_saved" in request.REQUEST:
+        return_dict["not_saved"] = request.REQUEST["not_saved"]
+      if "err" in request.REQUEST:
+        return_dict["err"] = request.REQUEST["err"]
+      template = "view_email_settings.html"
 
     elif page == "audit_trail":
 
       al = None
-      try:
-        al = audit.get_lines()
-      except Exception, e:
-        return_dict["error"] = str(e)
-      else:
-        template = "view_audit_trail.html"
-        return_dict["audit_list"] = al
+      template = "view_audit_trail.html"
+      al, err = audit.get_lines()
+      if err:
+        raise Exception(err)
+      return_dict["audit_list"] = al
 
     elif page == "node_status":
       
@@ -521,7 +518,9 @@ def show(request, page, info = None):
     elif page == "alerts":
 
       template = "view_alerts.html"
-      alerts_list = alerts.load_alerts()
+      alerts_list, err = alerts.load_alerts()
+      if err:
+        raise Exception(err)
       return_dict['alerts_list'] = alerts_list
 
 
@@ -613,7 +612,9 @@ def configure_ntp_settings(request):
   return_dict = {}
   try:
     if request.method=="GET":
-      ntp_servers = ntp.get_ntp_servers()
+      ntp_servers, err = ntp.get_ntp_servers()
+      if err:
+        raise Exception(err)
       if not ntp_servers:
         form = common_forms.ConfigureNTPForm()
       else:
@@ -624,7 +625,9 @@ def configure_ntp_settings(request):
       if form.is_valid():
         iv_logging.debug("Got valid request to change NTP settings")
         cd = form.cleaned_data
-        si = system_info.load_system_config()
+        si, err = system_info.load_system_config()
+        if err:
+          raise Exception(err)
         server_list = cd["server_list"]
         if ',' in server_list:
           slist = server_list.split(',')
@@ -642,7 +645,9 @@ def configure_ntp_settings(request):
           temp.flush()
           temp.close()
         shutil.move('/tmp/ntp.conf', '/etc/ntp.conf')
-        ntp.restart_ntp_service()
+        ret, err = ntp.restart_ntp_service()
+        if err:
+          raise Exception(err)
         return django.http.HttpResponseRedirect("/show/ntp_settings?saved=1")
       else:
         #invalid form

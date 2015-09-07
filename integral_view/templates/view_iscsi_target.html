@@ -1,4 +1,4 @@
-{% extends 'iscsi_base.html' %}
+{% extends 'shares_base.html' %}
 
 {% block inside_content %}
 
@@ -46,7 +46,7 @@
                 {{lun.path}} 
               </td>
               <td>
-                <a href="/delete_iscsi_lun?target_name={{target.iqn}}&store={{lun.path}}" role="button" class="btn btn-default"> Remove this LUN </a>
+                <a href="/delete_iscsi_lun?target_name={{target.iqn}}&store={{lun.path}}" role="button" class="btn btn-danger"> Remove this LUN </a>
               </td>
             </tr>
               {%endif%}
@@ -85,7 +85,7 @@
                   {%endif%}
               </td>
               <td>
-                  <a href="/remove_iscsi_user_authentication?target_name={{target.iqn}}&username={{account.user}}&authentication_type={{account.type}}" role="button" class="btn btn-default"> Remove this user </a>
+                  <a href="/remove_iscsi_user_authentication?target_name={{target.iqn}}&username={{account.user}}&authentication_type={{account.type}}" role="button" class="btn btn-danger"> Remove this user </a>
               </td>
             </tr>
             {%endfor%}
@@ -107,7 +107,7 @@
             {{acl}}
             </td>
             <td>
-              <a href="/remove_iscsi_acl?target_name={{target.iqn}}&acl={{acl}}" role="button" class="btn btn-default"> Remove this ACL</a>
+              <a href="/remove_iscsi_acl?target_name={{target.iqn}}&acl={{acl}}" role="button" class="btn btn-danger"> Remove this ACL</a>
             </td>
           </tr>
           {%endfor%}
@@ -117,8 +117,8 @@
           <hr>
 
   <p>
- <a href="/view_iscsi_targets" role="button" class="btn btn-default"> << Back to targets list</a>
- <a href="/delete_iscsi_target?target_name={{target.iqn}}" role="button" class="btn btn-default"> Delete this ISCSI target</a>
+ <a href="/view_iscsi_targets" role="button" class="btn btn-default"> Back to targets list</a>
+ <a href="/delete_iscsi_target?target_name={{target.iqn}}" role="button" class="btn btn-danger">Delete this ISCSI target</a>
  </p>
  <br> <br>
 
