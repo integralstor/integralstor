@@ -2,7 +2,7 @@
 import sys, time
 
 import integralstor_common
-from integralstor_common import common, alerts, lock
+from integralstor_common import common, alerts, lock, command
 from integralstor_unicell import lcd_display, system_info
 
 
@@ -127,17 +127,18 @@ def check_load_average(node, node_name):
 
 def main():
 
-  if not lock.get_lock('poll_for_alerts'):
-      print 'Generate Status : Could not acquire lock. Exiting.'
-      sys.exit(-1)
 
   try :
-    si = system_info.load_system_config()
-  except Exception, e:
-    print "Error loading system config! Exiting."
-    sys.exit(-1)
-
-  try :
+    lck, err = lock.get_lock('poll_for_alerts')
+    if err:
+      raise Exception(err)
+    if not lck:
+      raise Exception('Could not acquire lock. Exiting.')
+    si, err = system_info.load_system_config()
+    if err:
+      raise Exception(err)
+    if not si:
+      raise Exception('Could not load system information')
     alert_list = []
   
     for node_name, node in si.items():

@@ -3,10 +3,9 @@ import django, django.template
 
 import integral_view
 from integral_view.forms import local_user_forms
-from integral_view.samba import samba_settings, local_users
 
-import integralstor_common
 from integralstor_common import audit, networking
+from integralstor_unicell import local_users
 
 def view_local_users(request):
 

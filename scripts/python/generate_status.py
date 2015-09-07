@@ -8,7 +8,10 @@ import pprint
   
 def gen_status(path):
   try :
-    if not lock.get_lock('generate_status'):
+    lck, err = lock.get_lock('generate_status')
+    if err:
+      raise Exception(err)
+    if not lck:
       raise Exception('Generate Status : Could not acquire lock.')
     fullmanifestpath = os.path.normpath("%s/master.manifest"%path)
     ret, err = manifest_status.generate_status_info(fullmanifestpath)

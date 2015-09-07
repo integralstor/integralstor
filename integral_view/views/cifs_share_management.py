@@ -1,19 +1,20 @@
 
 import django, django.template
 
-import integral_view, os
-from integral_view.forms import samba_shares_forms
-from integral_view.samba import samba_settings
+import os
+import integral_view
 
+from integral_view.forms import samba_shares_forms
 
 from integralstor_common import audit, networking,zfs
+from integralstor_unicell import cifs
 
 def view_cifs_shares(request):
 
   return_dict = {}
   try:
     template = 'logged_in_error.html'
-    shares_list, err = samba_settings.load_shares_list()
+    shares_list, err = cifs.load_shares_list()
     if err:
       raise Exception(err)
   
@@ -55,13 +56,13 @@ def view_cifs_share(request):
       return_dict["conf_message"] = "Information updated successfully"
   
     valid_users_list = None
-    share, err = samba_settings.load_share_info(access_mode, index)
+    share, err = cifs.load_share_info(access_mode, index)
     if err:
       raise Exception(err)
     if not share:
       raise Exception('Specified share not found')
 
-    valid_users_list, err = samba_settings.load_valid_users_list(share["share_id"])
+    valid_users_list, err = cifs.load_valid_users_list(share["share_id"])
     if err:
       raise Exception(err)
     if not share:
@@ -82,10 +83,10 @@ def edit_cifs_share(request):
 
   return_dict = {}
   try:
-    user_list, err = samba_settings.get_user_list()
+    user_list, err = cifs.get_user_list()
     if err:
       raise Exception(err)
-    group_list, err = samba_settings.get_group_list()
+    group_list, err = cifs.get_group_list()
     if err:
       raise Exception(err)
 
@@ -95,10 +96,10 @@ def edit_cifs_share(request):
         return_dict["error"] = "Unknown share specified"
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
       share_id = request.GET["share_id"]
-      share_dict, err = samba_settings.load_share_info("by_id", share_id)
+      share_dict, err = cifs.load_share_info("by_id", share_id)
       if err:
         raise Exception(err)
-      valid_users_list, err = samba_settings.load_valid_users_list(share_dict["share_id"])
+      valid_users_list, err = cifs.load_valid_users_list(share_dict["share_id"])
       if err:
         raise Exception(err)
   
@@ -172,10 +173,10 @@ def edit_cifs_share(request):
         else:
           groups = None
         #logger.debug("Save share request, name %s path %s, comment %s, read_only %s, browseable %s, guest_ok %s, users %s, groups %s, vol %s"%(name, path, comment, read_only, browseable, guest_ok, users, groups))
-        ret, err = samba_settings.save_share(share_id, name, comment, guest_ok, read_only, path, browseable, users, groups)
+        ret, err = cifs.save_share(share_id, name, comment, guest_ok, read_only, path, browseable, users, groups)
         if err:
           raise Exception(err)
-        ret, err = samba_settings.generate_smb_conf()
+        ret, err = cifs.generate_smb_conf()
         if err:
           raise Exception(err)
   
@@ -209,10 +210,10 @@ def delete_cifs_share(request):
       share_id = request.POST["share_id"]
       name = request.POST["name"]
       #logger.debug("Delete share request for name %s"%name)
-      ret, err = samba_settings.delete_share(share_id)
+      ret, err = cifs.delete_share(share_id)
       if err:
         raise Exception(err)
-      ret, err = samba_settings.generate_smb_conf()
+      ret, err = cifs.generate_smb_conf()
       if err:
         raise Exception(err)
   
@@ -229,10 +230,10 @@ def create_cifs_share(request):
 
   return_dict = {}
   try:
-    user_list, err = samba_settings.get_user_list()
+    user_list, err = cifs.get_user_list()
     if err:
       raise Exception(err)
-    group_list, err = samba_settings.get_group_list()
+    group_list, err = cifs.get_group_list()
     if err:
       raise Exception(err)
     pools, err = zfs.get_pools()
@@ -296,11 +297,11 @@ def create_cifs_share(request):
         vol = "unicell"
         #logger.debug("Create share request, name %s path %s, comment %s, read_only %s, browseable %s, guest_ok %s, users %s, groups %s, vol %s"%(name, path, comment, read_only, browseable, guest_ok, users, groups))
         print '1'
-        ret, err = samba_settings.create_share(name, comment, guest_ok, read_only, display_path, display_path, browseable, users, groups,vol)
+        ret, err = cifs.create_share(name, comment, guest_ok, read_only, display_path, display_path, browseable, users, groups,vol)
         print '2'
         if err:
           raise Exception(err)
-        ret, err = samba_settings.generate_smb_conf()
+        ret, err = cifs.generate_smb_conf()
         print '3'
         if err:
           raise Exception(err)
@@ -321,7 +322,7 @@ def samba_server_settings(request):
   return_dict = {}
   #print 'a1'
   try:
-    d, err = samba_settings.load_auth_settings()
+    d, err = cifs.load_auth_settings()
     if err:
       raise Exception(err)
   
@@ -356,7 +357,7 @@ def samba_server_settings(request):
 def edit_auth_method(request):
   return_dict = {}
   try:
-    d, err = samba_settings.load_auth_settings()
+    d, err = cifs.load_auth_settings()
     if err:
       raise Exception(err)
     return_dict["samba_global_dict"] = d
@@ -373,10 +374,10 @@ def edit_auth_method(request):
         return_dict["error"] = "Selected authentication method is the same as before." 
         return django.shortcuts.render_to_response('edit_auth_method.html', return_dict, context_instance=django.template.context.RequestContext(request))
   
-      ret, err = samba_settings.change_auth_method(security)
+      ret, err = cifs.change_auth_method(security)
       if err:
         raise Exception(err)
-      ret, err = samba_settings.generate_smb_conf()
+      ret, err = cifs.generate_smb_conf()
       if err:
         raise Exception(err)
   
@@ -414,24 +415,24 @@ def save_samba_server_settings(request):
     if form.is_valid():
       cd = form.cleaned_data
   
-      ret, err = samba_settings.save_auth_settings(cd)
+      ret, err = cifs.save_auth_settings(cd)
       if err:
         raise Exception(err)
       if cd["security"] == "ads":
-        ret, err = samba_settings.generate_krb5_conf()
+        ret, err = cifs.generate_krb5_conf()
         if err:
           raise Exception(err)
-      ret, err = samba_settings.generate_smb_conf()
+      ret, err = cifs.generate_smb_conf()
       if err:
         raise Exception(err)
       if cd["security"] == "ads":
-        rc, err = samba_settings.kinit("administrator", cd["password"], cd["realm"])
+        rc, err = cifs.kinit("administrator", cd["password"], cd["realm"])
         if err:
           raise Exception(err)
-        rc, err = samba_settings.net_ads_join("administrator", cd["password"], cd["password_server"])
+        rc, err = cifs.net_ads_join("administrator", cd["password"], cd["password_server"])
         if err:
           raise Exception(err)
-      ret, err = samba_settings.restart_samba_services()
+      ret, err = cifs.restart_samba_services()
       if err:
         raise Exception(err)
       #print '6'

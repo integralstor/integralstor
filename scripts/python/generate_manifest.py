@@ -6,7 +6,10 @@ from integralstor_unicell import manifest_status
 
 def gen_manifest(path):
   try:
-    if not lock.get_lock('generate_manifest'):
+    lck, err = lock.get_lock('generate_manifest')
+    if err:
+      raise Exception(err)
+    if not lck:
       raise Exception('Could not acquire lock.')
     ret, err = manifest_status.generate_manifest_info()
     if not ret :

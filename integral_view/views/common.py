@@ -10,13 +10,12 @@ import integralstor_common
 from integralstor_common import command, db, common, audit, alerts, ntp, mail, zfs, file_processing,stats,scheduler_utils
 
 import integralstor_unicell
-from integralstor_unicell import system_info
+from integralstor_unicell import system_info, cifs, local_users
 
 from integral_view.utils import iv_logging
 
 import integral_view
 from integral_view.forms import common_forms
-from integral_view.samba import samba_settings, local_users
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 production = common.is_production()
@@ -455,7 +454,7 @@ def show(request, page, info = None):
         frm = request.GET["from"]
         return_dict['frm'] = frm
       #return_dict['node'] = si[info]
-      return_dict['node'] = si.keys()[0]
+      return_dict['node'] = si[si.keys()[0]]
 
 
     elif page == "system_config":
@@ -728,14 +727,14 @@ def reset_to_factory_defaults(request):
   
       #Remove all shares 
       try:
-        samba_settings.delete_all_shares()
+        cifs.delete_all_shares()
       except Exception, e:
         #print str(e)
         return_dict["error"] = "Error deleting shares : %s."%e
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
   
       try:
-        samba_settings.delete_auth_settings()
+        cifs.delete_auth_settings()
       except Exception, e:
         return_dict["error"] = "Error deleting CIFS authentication settings : %s."%e
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
@@ -882,7 +881,6 @@ def download_cron_log(request):
         byte = f.read(1)
         response.flush()
   except Exception as e:
-    print e
     return django.http.HttpResponse(e)
   return response
 
