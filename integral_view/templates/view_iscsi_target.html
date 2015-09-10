@@ -1,6 +1,10 @@
 {% extends 'shares_base.html' %}
+{%block tab_header %}
+ISCSI target details
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 
 {{conf}}
@@ -55,7 +59,7 @@
             {%else%}
             No LUNs created
             {%endif%}
-            <a href="/create_iscsi_lun?target_name={{target.iqn}}" role="button" class="btn btn-default"> Add a LUN</a>
+            <a href="/create_iscsi_lun?target_name={{target.iqn}}" role="button" class="btn btn-primary"> Add a LUN</a>
             <hr>
             <h4> User based authentication:</h4>
             <hr>
@@ -94,8 +98,8 @@
           None defined
           {%endif%}
           <p>
-         <a href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=incoming" role="button" class="btn btn-default"> Add an initiator authentication user</a>
-         <a href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=outgoing" role="button" class="btn btn-default"> Add a target authentication user</a>
+         <a href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=incoming" role="button" class="btn btn-primary"> Add an initiator authentication user</a>
+         <a href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=outgoing" role="button" class="btn btn-primary"> Add a target authentication user</a>
          </p>
           <hr>
           <h4> ACLs (Authorized IPs/Initiators) :</h4>
@@ -113,7 +117,7 @@
           {%endfor%}
           </table>
           <p>
-          <a href="/add_iscsi_acl?target_name={{target.iqn}}" role="button" class="btn btn-default"> Add an ACL</a>
+          <a href="/add_iscsi_acl?target_name={{target.iqn}}" role="button" class="btn btn-primary"> Add an ACL</a>
           <hr>
 
   <p>

@@ -3,12 +3,14 @@
 {% block contents %}
   <div class="nav-tabs-custom">
 	<ul class="nav nav-tabs">
-	  <li><a href="/change_admin_password/">Change Admin Password</a></li>
+	  <li id="change_admin_pswd_tab"><a href="/change_admin_password/">Change Admin Password</a></li>
     {%if request.user.is_superuser%} <li><a href="/reset_to_factory_defaults/">Reset to factory defaults</a></li>{%endif%}
     {% include 'help_and_refresh.html' %}
 </ul>
 	<div class="tab-content">
 	  <div class="tab-pane active" id="content">
+    <span class="bigger-120"><i class="fa fa-circle-o text-yellow"></i> <span> {% block tab_header %}Information{% endblock %}</span></span>
+     <span class="white-space:pre-line"></span>
      {% block inside_content %}
       Information Not found. Please refresh the page
      {% endblock inside_content %}

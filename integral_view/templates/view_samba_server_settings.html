@@ -1,6 +1,10 @@
 {% extends 'services_base.html' %}
+{%block tab_header %}
+CIFS authentication settings
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 {% if not samba_global_dict %}
 <p id="p-instructional-text"> You have not configured authentication settings.</p><br>
@@ -85,8 +89,8 @@
             -->
             </table>
         </div>
-              <a href="/auth_server_settings?action=edit" role="button" class="btn btn-default" >Edit authentication settings</a>
-              <a href="/edit_auth_method" role="button" class="btn btn-default" >Change authentication method</a>
+              <a href="/auth_server_settings?action=edit" role="button" class="btn btn-primary" >Edit authentication settings</a>
+              <a href="/edit_auth_method" role="button" class="btn btn-primary" >Change authentication method</a>
 {%endif%}
 
 {%endblock%}

@@ -1,6 +1,10 @@
 {% extends 'networking_base.html' %}
+{%block tab_header %}
+NIC details
+{%endblock%}
 
 {%block inside_content %}
+<br><br>
 
 {% if conf %}
 <p><i>{{conf}}</i></p>
@@ -106,14 +110,14 @@ Speed
 </td>
 </tr>
 </table>
-<a href="/view_interfaces/" role="button" class="btn"> << Back to interface list</a>
+<a href="/view_interfaces/" role="button" class="btn btn-default">Back to interface list</a>
 {% if not nic.slave_to %}
-<a href="/edit_interface_address?name={{name}}" role="button" class="btn btn-default">Edit interface address..</a>
+<a href="/edit_interface_address?name={{name}}" role="button" class="btn btn-primary">Edit interface address..</a>
 {%endif%}
 {%if nic.up_status == 'up' %}
-<a href="/set_interface_state?name={{name}}&state=down" role="button" class="btn btn-default">Bring down this interface</a>
+<a href="/set_interface_state?name={{name}}&state=down" role="button" class="btn btn-danger">Bring down this interface</a>
 {%else %}
-<a href="/set_interface_state?name={{name}}&state=up" role="button" class="btn btn-default">Bring up this interface</a>
+<a href="/set_interface_state?name={{name}}&state=up" role="button" class="btn btn-success">Bring up this interface</a>
 {%endif%}
 
 <!--

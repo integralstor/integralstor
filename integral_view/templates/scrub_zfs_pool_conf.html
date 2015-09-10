@@ -1,28 +1,19 @@
 {% extends 'storage_base.html' %}
+{%block tab_header %}
+Initiating a ZFS pool check(scrub) - confirmation
+{%endblock%}
 
 {%block inside_content %}
+<br><br>
 
-<!-- Modal -->
-<div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-body" id="myModalBody">
-        <br><br><br>
-        <i class="fa fa-spinner fa-spin fa-4 blue"></i>
-        <br><br><br>
-        <p id="p-node-text">Processing.. Please wait.
-        <br><br><br>
-      </div>
-    </div>
-  </div>
-</div>
+
 
 <p id="p-warning-text">Scrubbing a pool can have a severe impact on the performance of the disks. <br><br>Are you sure you want to initiate a scrub on the ZFS pool with name  "{{name}}"? </p>
 <br>
 <form action="/scrub_zfs_pool/" method="POST">
 <input type=hidden name="name" value="{{name}}">
 <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_pools'"> &nbsp;&nbsp;
-<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and proceed >></button>
+<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and proceed</button>
 </form>
 
 

@@ -1,10 +1,14 @@
 {% extends 'users-groups_base.html' %}
+{%block tab_header %}
+Local user groups
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 
 {% if conf %}
-  <i>{{conf}}</i><br><br>
+  <p class="text-green">{{conf}}</p><br><br>
 {%endif%}
 {% if warnings %}
 <i>The following problems occurred during the process : {{warnings}}</i><br><br>
@@ -30,14 +34,14 @@ Groupname
     {{g.grpname}}
   </td>
   <td>
-    <a href="/view_local_group?grpname={{g.grpname}}&searchby=grpname" role="button" class="btn btn-default"> View details</a>
+    <a href="/view_local_group?grpname={{g.grpname}}&searchby=grpname" role="button" class="btn btn-info"> View details</a>
   </td>
 </tr>
 {%endfor%}
 </table>
 </div>
 <br>
-<a href="/create_local_group" role="button" class="btn btn-default"> Create a new local group</a>
+<a href="/create_local_group" role="button" class="btn btn-primary"> Create a new local group</a>
 {%endif%}
 
 {%endblock%}

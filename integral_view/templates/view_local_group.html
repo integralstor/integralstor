@@ -1,6 +1,10 @@
 {% extends 'users-groups_base.html' %}
+{%block tab_header %}
+Local user group details
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 {{conf}}
 
@@ -25,8 +29,8 @@
             </tr>
             </table>
 
- <a href="/view_local_groups" role="button" class="btn btn-default"> << Back to group list</a>
- <a href="/delete_local_group?grpname={{group.grpname}}" role="button" class="btn btn-default"> Delete this group</a>
+ <a href="/view_local_groups" role="button" class="btn btn-default"> Back to group list</a>
+ <a href="/delete_local_group?grpname={{group.grpname}}" role="button" class="btn btn-danger"> Delete this group</a>
 
 {%endblock%}
 {%block help_header%}

@@ -1,5 +1,8 @@
 {% extends 'shares_base.html' %}
 
+{%block tab_header %}
+Create a CIFS share
+{%endblock%}
 <script type="text/javascript">
 function set_field_visibility() {
   var guest_ok = document.forms["create_form"].elements["guest_ok"];
@@ -62,8 +65,8 @@ function select_guest_ok() {
             <label for="id_path">Directory Selector:</label>
               </td>
               <td>
-                <input type="text"  name="path" class="form-control" id="id_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value="{{form.path.value|default_if_none:""}}"> 
-                    <a href="#" role="button" class="btn btn-default" onClick="displayTree();return false;"> Browse..</a>
+                <input type="text"  name="display_path" class="form-control" id="id_display_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value="{{form.path.value|default_if_none:""}}"> 
+                    <a href="#" role="button" class="btn btn-primary" onClick="displayTree();return false;"> Browse..</a>
                 <div id="pathdiv" style="display:inline"> </div>
               </td>
               <td>
@@ -83,11 +86,11 @@ function select_guest_ok() {
                 <label for="display_path">Final Path</label>
               </td>
               <td>
-                {{form.display_path}}
+                {{form.path}}
                 <span id="display_path_text"></span>
               </td>
               <td>
-                {{ form.display_path.errors }}
+                {{ form.path.errors }}
               </td>
             </tr>
             <tr>
@@ -234,19 +237,23 @@ $(window).load(function() {
       .jstree();
   });
   }
-$("#new_folder").on('input',function(){
+if($("#id_path").val() != ""){
 	var final_path = $("#id_path").val()
+	$("#display_path_text").text(final_path)
+}
+$("#new_folder").on('input',function(){
+	var final_path = $("#id_display_path").val()
 	if (final_path === ""){
-		$("#id_display_path").val("/"+$(this).val())
+		$("#id_path").val("/"+$(this).val())
 		$("#display_path_text").text("/"+$(this).val())
 	}
 	else{
-		$("#id_display_path").val(final_path+"/"+$(this).val())
+		$("#id_path").val(final_path+"/"+$(this).val())
 		$("#display_path_text").text(final_path+"/"+$(this).val())
 	}
 });
-$("#id_display_path").addClass("form-control")
-$("#id_display_path").attr("style","display:none")
+$("#id_path").addClass("form-control")
+$("#id_path").attr("style","display:none")
 </script>
 
 {%endblock%}

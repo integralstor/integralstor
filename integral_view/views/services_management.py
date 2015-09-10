@@ -39,22 +39,22 @@ def view_services(request):
       template = "view_services.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "services_base.html"
+    return_dict["page_title"] = 'System services'
+    return_dict['tab'] = 'view_services_tab'
+    return_dict["error"] = 'Error loading system services status'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def change_service_status(request):
   return_dict = {}
   try:
     if request.method == "GET":
-      return_dict["error"] = "Invalid request. Please use the menus"
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      raise Exception("Invalid request. Please use the menus")
     if 'service' not in request.POST:
-      return_dict["error"] = "Invalid request. Please use the menus"
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      raise Exception("Invalid request. Please use the menus")
     if 'action' not in request.POST or request.POST['action'] not in ['start', 'stop']:
-      return_dict["error"] = "Invalid request. Please use the menus"
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      raise Exception("Invalid request. Please use the menus")
     audit_str = "Service status change of %s initiated to %s state."%(request.POST['service'], request.POST['action'])
     d, err = _change_service_status(request.POST['service'], request.POST['action'])
     if not d:
@@ -63,7 +63,7 @@ def change_service_status(request):
       if err:
         raise Exception(err)
       else:
-        raise Exception('An error occurred when changing service status')
+        raise Exception('Changing service status error')
 
     if d['status_code'] == 0:
       audit_str += 'Request succeeded.'
@@ -84,8 +84,11 @@ def change_service_status(request):
 
       
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "services_base.html"
+    return_dict["page_title"] = 'Modify system service state'
+    return_dict['tab'] = 'view_services_tab'
+    return_dict["error"] = 'Error modifying system services state'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def _get_service_status(service):

@@ -1,9 +1,13 @@
 {% extends 'networking_base.html' %}
+{%block tab_header %}
+System hostname
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 {% if conf %}
-<p><i>{{conf}}</i></p>
+<p class="text-green"><i>{{conf}}</i></p>
 {%endif%}
 
 {% if not hostname %}
@@ -32,7 +36,7 @@ No domain name set.
 </td>
 </tr>
 </table>
-<a href="/edit_hostname" role="button" class="btn btn-default">Edit hostname and domain name..</a>
+<a href="/edit_hostname" role="button" class="btn btn-primary">Edit hostname and domain name</a>
 {%endif%}
 </div>
 <p>

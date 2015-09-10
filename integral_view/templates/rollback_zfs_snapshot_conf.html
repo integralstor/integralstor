@@ -1,6 +1,10 @@
 {% extends 'storage_base.html' %}
+{%block tab_header %}
+Rollback a ZFS pool/dataset snapshot - confirmation
+{%endblock%}
 
 {%block inside_content %}
+<br><br>
 
 <!-- Modal -->
 <div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -23,7 +27,7 @@
 <input type=hidden name="name" value="{{name}}">
 <input type=hidden name="display_name" value="{{display_name}}">
 <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_snapshots'"> &nbsp;&nbsp;
-<button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and rollback >></button>
+<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and rollback</button>
 </form>
 
 

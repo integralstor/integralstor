@@ -1,6 +1,10 @@
 {% extends 'shares_base.html' %}
 
+{%block tab_header %}
+Create an ISCSI target
+{%endblock%}
 {% block inside_content %}
+<br><br>
 {{conf_message}}
 
 
@@ -21,7 +25,7 @@
     </table>
 
 <a href="/view_iscsi_targets" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-<button type="submit" class="btn btn-primary"> Create >> </button>
+<button type="submit" class="btn btn-primary"> Create </button>
 </form>
 
 {%endblock%}

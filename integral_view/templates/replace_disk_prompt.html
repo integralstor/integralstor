@@ -1,6 +1,10 @@
 {% extends 'storage_base.html' %}
+{%block tab_header %}
+Replacing a hard drive - Drive swap prompt
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 <!-- Modal -->
 <div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -29,7 +33,7 @@
 Please note the serial number of the newly installed drive for confirmation in the next step. The system will then scan the drives and prompt you with the newly recognized hard-drive serial number.</p>
 <p>Please click continue to proceed.  </p><br>
 
-      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/show/disk_status'"> &nbsp;&nbsp; <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Continue>></button>
+      <input type="button" class="btn btn-info cover-page" value="Cancel" onClick="window.location='/show/disk_status'"> &nbsp;&nbsp; <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Continue>></button>
 </form>
 
 

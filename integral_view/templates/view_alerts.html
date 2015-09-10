@@ -1,6 +1,14 @@
 {% extends 'logging_base.html' %}
+{%block tab_header %}
+{%if historical %}
+Older system alerts
+{%else%}
+System alerts
+{%endif%}
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 {% if alerts_list %}
 <table class="table table-bordered table-hover">
@@ -15,12 +23,12 @@
 </tr>
 {%endfor%}
 </table>
-{%if alerts_list%}
+{%if alerts_list and not historical%}
 <a href="/rotate_log/alerts" class="btn btn-primary">Rotate Alert Logs </a>
 {%endif%}
 <br>
 {% if historical %}
-<a href="/view_rotated_log_list/alerts/" role="button" class="btn btn-default"> << Back to log list</a>
+<a href="/view_rotated_log_list/alerts/" role="button" class="btn btn-default">Back to log list</a>
 {%endif%}
 {%else %}
 No alerts to display
@@ -36,6 +44,10 @@ View alerts
 
 {% block tab_active %}
 <script>
+{%if historical %}
+ make_tab_active("view_rotated_alert_log_list_tab")
+{%else%}
  make_tab_active("view_current_alerts_tab")
+{%endif%}
 </script>
 {% endblock %}

@@ -1,28 +1,17 @@
 {% extends 'networking_base.html' %}
+{%block tab_header %}
+Remove a NIC bond - confirmation
+{%endblock%}
 
 {% block inside_content %}
-
-<!-- Modal -->
-<div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-body" id="myModalBody">
-        <br><br><br>
-        <i class="fa fa-spinner fa-spin fa-4 blue"></i>
-        <br><br><br>
-        <p id="p-node-text">Processing.. Please wait.
-        <br><br><br>
-      </div>
-    </div>
-  </div>
-</div>
+<br><br>
 
 <p id="p-warning-text">Are you sure you want to remove the network bond "{{name}}"?  This will potentially result in a disruption of usage of the system.</p>
 <br>
 <form action="/remove_bond/" method="POST">
 <input type=hidden name="name" value="{{name}}">
-<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_bond?name="{{name}}"'"> &nbsp;&nbsp;
-<button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and continue >></button>
+<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_bond?name={{name}}'"> &nbsp;&nbsp;
+<button type="submit" class="btn btn-primary cover-page">Confirm and continue</button>
 </form>
 
 

@@ -1,6 +1,10 @@
 {% extends 'shares_base.html' %}
+{%block tab_header %}
+NFS share details
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 <p style="color:red;"> {{form.errors}}</p>
 {{conf_message}}
@@ -81,7 +85,7 @@
             </table>
 
 <a href="/view_nfs_shares" role="button" class="btn btn-default">NFS Shares list</a>
-<a href="/edit_nfs_share?path={{share_info.path}}" role="button" class="btn btn-default">Modify..</a>
+<a href="/edit_nfs_share?path={{share_info.path}}" role="button" class="btn btn-primary">Modify</a>
 <a href="/delete_nfs_share?path={{share_info.path}}" role="button" class="btn btn-danger">Delete this NFS share</a>
 {%endblock%}
 

@@ -1,6 +1,10 @@
 {% extends 'storage_base.html' %}
+{%block tab_header %}
+Remove ZFS pool's ramdisk write cache - confirmation
+{%endblock%}
 
 {%block inside_content %}
+<br><br>
 
 <!-- Modal -->
 <div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -23,7 +27,7 @@
 <input type=hidden name="pool" value="{{pool}}">
 <input type=hidden name="device" value="{{device}}">
 <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_pools'"> &nbsp;&nbsp;
-<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete >></button>
+<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete</button>
 </form>
 
 

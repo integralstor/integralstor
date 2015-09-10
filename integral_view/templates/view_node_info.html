@@ -1,7 +1,11 @@
 
 {% extends 'system_base.html' %}
+{%block tab_header %}
+System configuration
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 <table class="table table-bordered table-striped table-hover" style="width:60%">
 <tr>
   <th>
@@ -86,14 +90,15 @@
 </tr>
 {%endfor%}
 </table>
-<a href="/reload_manifest" role="button" class="btn btn-default">Scan for hardware changes</a>
-<a href="/download_sys_info/" id="download_sys_info" role="button" class="btn btn-default">Download Complete System Info</a>
+<a href="/reload_manifest" role="button" class="btn btn-primary cover-page">Scan for hardware changes</a>
+<a href="/download_sys_info/" id="download_sys_info" role="button" class="btn btn-success cover-page" >Download Complete System Info</a>
 
 <script>
   $("#download_sys_info").on('click',function(){
     $(this).text("Processing");
     setInterval(function(){
       $("#download_sys_info").text("Download Complete System Info");
+      $('.lightbox').hide();
     },10000);
   });
 </script>

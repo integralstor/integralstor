@@ -1,9 +1,13 @@
 {% extends 'shares_base.html' %}
+{%block tab_header %}
+CIFS shares
+{%endblock%}
 
 {%block inside_content %}
+<br><br>
 
 {% if conf %}
-<i>{{conf}}</i>
+<p class="text-green">{{conf}}</p><br><br>
 {%endif%}
 
 {% if not shares_list %}
@@ -38,7 +42,7 @@ Description
     {{d.comment}}
   </td>
   <td>
-    <a href="/view_cifs_share?access_mode=by_id&index={{d.share_id}}" role="button" class="btn btn-default"> Details</a>
+    <a href="/view_cifs_share?access_mode=by_id&index={{d.share_id}}" role="button" class="btn btn-info"> Details</a>
   </td>
 </tr>
 {%endfor%}

@@ -31,8 +31,11 @@ def view_cifs_shares(request):
       template = "view_cifs_shares.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "cifs_base.html"
+    return_dict["page_title"] = 'CIFS shares'
+    return_dict['tab'] = 'view_cifs_shares_tab'
+    return_dict["error"] = 'Error loading CIFS share list'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
@@ -75,8 +78,11 @@ def view_cifs_share(request):
   
     return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "cifs_base.html"
+    return_dict["page_title"] = 'CIFS share details'
+    return_dict['tab'] = 'view_cifs_shares_tab'
+    return_dict["error"] = 'Error loading CIFS share details'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def edit_cifs_share(request):
@@ -93,8 +99,8 @@ def edit_cifs_share(request):
     if request.method == "GET":
       # Shd be an edit request
       if "share_id" not in request.GET:
-        return_dict["error"] = "Unknown share specified"
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+        raise Exception("Unknown share specified")
+
       share_id = request.GET["share_id"]
       share_dict, err = cifs.load_share_info("by_id", share_id)
       if err:
@@ -189,8 +195,11 @@ def edit_cifs_share(request):
         #Invalid form
         return django.shortcuts.render_to_response('edit_cifs_share.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "cifs_base.html"
+    return_dict["page_title"] = 'Modify a CIFS share'
+    return_dict['tab'] = 'view_cifs_shares_tab'
+    return_dict["error"] = 'Error modifying CIFS share'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
@@ -221,8 +230,11 @@ def delete_cifs_share(request):
       audit.audit("delete_cifs_share", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_cifs_shares?action=deleted')
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "cifs_base.html"
+    return_dict["page_title"] = 'Delete a CIFS share'
+    return_dict['tab'] = 'view_cifs_shares_tab'
+    return_dict["error"] = 'Error deleting a  CIFS share'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
@@ -267,7 +279,7 @@ def create_cifs_share(request):
         if not path:
           return_dict["path_error"] = "Please choose a path."
           return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
-        display_path = cd["display_path"]    
+        display_path = cd["path"]    
         if not os.path.isdir(display_path):
           os.mkdir(display_path)
         if "comment" in cd:
@@ -312,8 +324,11 @@ def create_cifs_share(request):
       else:
         return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "cifs_base.html"
+    return_dict["page_title"] = 'Create a CIFS share'
+    return_dict['tab'] = 'view_cifs_shares_tab'
+    return_dict["error"] = 'Error creating a CIFS share'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
@@ -349,8 +364,11 @@ def samba_server_settings(request):
       return_dict["conf"] = "Information updated successfully"
     return django.shortcuts.render_to_response('view_samba_server_settings.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "services_base.html"
+    return_dict["page_title"] = 'Modify CIFS authentication settings'
+    return_dict['tab'] = 'auth_server_settings_tab'
+    return_dict["error"] = 'Error modifying CIFS authentication settings'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
@@ -383,8 +401,11 @@ def edit_auth_method(request):
   
     return django.http.HttpResponseRedirect('/auth_server_settings?action=edit')
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "services_base.html"
+    return_dict["page_title"] = 'Modify CIFS authentication method'
+    return_dict['tab'] = 'auth_server_settings_tab'
+    return_dict["error"] = 'Error modifying CIFS authentication method'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
   
 
@@ -394,20 +415,17 @@ def save_samba_server_settings(request):
   return_dict = {}
   try:
     if request.method != "POST":
-      return_dict["error"] = "Invalid access method. Please try again using the menus"
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      raise Exception("Invalid access method. Please try again using the menus")
   
     if "security" not in request.POST:
-      return_dict["error"] = "Invalid security specification. Please try again using the menus"
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      raise Exception("Invalid security specification. Please try again using the menus")
   
     if request.POST["security"] == "ads":
       form = samba_shares_forms.AuthADSettingsForm(request.POST)
     elif request.POST["security"] == "users":
       form = samba_shares_forms.AuthUsersSettingsForm(request.POST)
     else:
-      return_dict["error"] = "Invalid security specification. Please try again using the menus"
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      raise Exception("Invalid security specification. Please try again using the menus")
   
     return_dict["form"] = form
     return_dict["action"] = "edit"
@@ -448,8 +466,11 @@ def save_samba_server_settings(request):
     return django.http.HttpResponseRedirect('/auth_server_settings?action=saved')
     #return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "services_base.html"
+    return_dict["page_title"] = 'Modify CIFS authentication settings'
+    return_dict['tab'] = 'auth_server_settings_tab'
+    return_dict["error"] = 'Error modifying CIFS authentication settings'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 

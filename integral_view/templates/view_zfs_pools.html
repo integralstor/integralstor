@@ -1,9 +1,13 @@
 {% extends 'storage_base.html' %}
+{%block tab_header %}
+ZFS pools
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 {% if conf %}
-<p><i>{{conf}}</i></p>
+<p class="text-green"><i>{{conf}}</i></p>
 {%endif%}
 
 {% if not pool_list %}
@@ -57,13 +61,13 @@ No block device volumes in this pool
 {%endif%}
 </td>
 <td>
-<a href="/view_zfs_pool?name={{d.pool_name}}" role="button" class="btn btn-default"> View pool details</a>
+<a href="/view_zfs_pool?name={{d.pool_name}}" role="button" class="btn btn-info"> View pool details</a>
 </td>
 </tr>
 </table>
 {%endfor%}
 {%endif%}
-<a href="/create_zfs_pool" role="button" class="btn btn-default"> Create a new pool</a>
+<a href="/create_zfs_pool" role="button" class="btn btn-primary"> Create a new pool</a>
 </div>
 <p>
 

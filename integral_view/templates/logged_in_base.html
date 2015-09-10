@@ -133,7 +133,7 @@ function ()
                     <!-- sidebar menu: : style can be found in sidebar.less -->
                     <ul class="sidebar-menu">
                         <li id="dashboard_menu">
-                            <a href="/dashboard/cpu">
+                            <a href="/dashboard/disks">
                                 <i class="fa fa-dashboard"></i> <span>Dashboard</span>
                             </a>
                         </li>
@@ -181,28 +181,6 @@ function ()
                             <i class="fa fa-bell"></i> Logs, audit, alerts
                             </a>
                         </li>
-                        <!--
-                        <li class="treeview">
-                          <a href="#" class="treeview-toggle" data-toggle="treeview">
-                            <i class="fa fa-file-code-o"></i> Logging <i class="fa fa-angle-left pull-right"></i>
-                          </a>
-                          <ul class="treeview-menu">
-                            <li ><a style="font-size:13px;color:black;">System logs</a></li>
-                            <li><a href="/download_sys_log"> <i class="fa fa-angle-right"></i> Download system logs</a></li>
-                            <li ><a style="font-size:13px;color:black;">Alerts</a></li>
-                            <li><a href="/show/alerts"><i class="fa fa-angle-right"></i> View current alerts</a></li>
-                            <li><a href="/rotate_log/alerts"><i class="fa fa-angle-right"></i> Rotate alerts log</a></li>
-                            <li><a href="/view_rotated_log_list/alerts"><i class="fa fa-angle-right"></i> View older alerts</a></li>
-                            <li ><a style="font-size:13px;color:black;">Audit trail</a></li>
-                            <li><a href="/show/audit_trail/"><i class="fa fa-angle-right"></i> View current audit trail</a></li>
-                            <li><a href="/rotate_log/audit_trail"><i class="fa fa-angle-right"></i> Rotate audit trail</a></li>
-                            <li><a href="/view_rotated_log_list/audit_trail"><i class="fa fa-angle-right"></i> View older audit trails</a></li>
-                            <li ><a style="font-size:13px;color:black;">Integralview logging</a></li>
-
-                            <li><a href="/show/integral_view_log_level/"><i class="fa fa-angle-right"></i> View IntegralView log level</a></li>
-                          </ul>
-                        </li>
-                        -->
                         <li id="admin_menu">
                           <a href="/change_admin_password/"> 
                             <i class="fa fa-cogs"></i> Admin
@@ -217,6 +195,7 @@ function ()
             <aside class="content-wrapper">
                 <!-- Main content -->
                 <section id="contents" class="content">
+
                       {%block contents%}
 
                       {%endblock%}                      
@@ -242,13 +221,24 @@ function ()
           </h3>
       </div>
       <div class="modal-body" >
-      {%block help_body%}
+        {%block help_body%}
 
-      {%endblock%}
+        {%endblock%}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
+    </div>
+  </div>
+</div>
+<div class="lightbox" id="wait_lightbox">
+  <div class="row">
+    <div class="col-lg-12" style="margin-top:15%;color:#fff">
+      <h1>
+        {% block light-box-text %}
+        Processing . . . . 
+        {% endblock %}
+      </h1>
     </div>
   </div>
 </div>

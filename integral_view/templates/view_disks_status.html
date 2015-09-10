@@ -1,11 +1,16 @@
 {% extends 'dashboard_base.html' %}
+{%block tab_header %}
+Hard drives status
+{%endblock%}
 {% block inside_content %}
+<br><br>
 
       <img src="/static/images/diskmap1.png" width="900px;" class="img-responsive" />
       <span class="disk-center" id="{{disk_pos.1}}"><strong>{{disk_pos.1}}</strong></span>
       <span class="disk-center" id="{{disk_pos.2}}"><strong>{{disk_pos.2}}</strong></span>
       <span class="disk-center" id="{{disk_pos.3}}"><strong>{{disk_pos.3}}</strong></span>
       <span class="disk-center" id="{{disk_pos.4}}"><strong>{{disk_pos.4}}</strong></span>
+<br><br>
 <table class="table table-bordered table-hover table-responsive" style="width:800px">
 <thead>
 <th >

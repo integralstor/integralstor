@@ -1,10 +1,14 @@
 {% extends 'shares_base.html' %}
+{%block tab_header %}
+ISCSI targets
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 
 {% if conf %}
-  <i>{{conf}}</i><br><br>
+ <p class="text-green">{{conf}}</p><br><br>
 {%endif%}
 {% if warnings %}
 <i>The following problems occurred during the process : {{warnings}}</i><br><br>
@@ -14,7 +18,7 @@
 No ISCSI targets appear to have been created. Click <a href="/create_iscsi_target/"> here</a> to create a new ISCSI target. 
 {%else %}
 <div>
-<table class="table table-striped">
+<table class="table table-striped table-bordered">
 <thead>
 <tr>
 <th>
@@ -27,7 +31,7 @@ Target Name
 LUNs
 </th>
 <th>
-&nbsp;
+Details
 </th>
 </thead>
 {%for target in target_list %}
@@ -47,7 +51,7 @@ LUNs
   </td>
 
   <td>
-    <a href="/view_iscsi_target?name={{target.iqn}}" role="button" class="btn btn-default"> View details</a>
+    <a href="/view_iscsi_target?name={{target.iqn}}" role="button" class="btn btn-info"> View details</a>
   </td>
 </tr>
 {%endfor%}

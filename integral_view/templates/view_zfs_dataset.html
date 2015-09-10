@@ -1,9 +1,13 @@
 {% extends 'storage_base.html' %}
+{%block tab_header %}
+ZFS dataset details
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 {% if result %}
-<p><i>{{result}}</i></p>
+<p clas="text-green"><i>{{result}}</i></p>
 {%endif%}
 
 {% if not properties %}
@@ -11,8 +15,8 @@ No information for the specified dataset.
 {%else %}
 <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
 
-<h3>Dataset name - {{name}}</h3>
 
+<h3>Dataset name - {{name}}</h3>
 <table  class="table table-bordered">
 <tr>
 <th> Property name </th>
@@ -31,7 +35,7 @@ No information for the specified dataset.
 {%endfor%}
 </table>
 
-<p><a href="/edit_zfs_dataset?name={{name}}" role="button" class="btn btn-default"> Change dataset properties</a> &nbsp;&nbsp;<a href="/delete_zfs_dataset?name={{name}}&type=dataset" role="button" class="btn btn-default"> Delete this dataset..</a>&nbsp;&nbsp;<a href="/set_file_owner_and_permissions?path={{properties.mountpoint.value}}" role="button" class="btn btn-default"> Change ownership and permissions</a></p>
+<a href="/edit_zfs_dataset?name={{name}}" role="button" class="btn btn-primary"> Change dataset properties</a> &nbsp;&nbsp;<a href="/delete_zfs_dataset?name={{name}}&type=dataset" role="button" class="btn btn-danger"> Delete this dataset</a>&nbsp;&nbsp;<a href="/set_file_owner_and_permissions?path={{properties.mountpoint.value}}" role="button" class="btn btn-primary"> Change ownership and permissions</a><br><br>
 
 
 
@@ -40,7 +44,7 @@ No information for the specified dataset.
 <table  class="table table-bordered">
 <tr>
 <th > Child datasets </th>
-<th> <a href="/create_zfs_dataset?parent={{name}}" role="button" class="btn btn-default"> Create a new child dataset</a></th>
+<th> <a href="/create_zfs_dataset?parent={{name}}" role="button" class="btn btn-primary"> Create a new child dataset</a></th>
 </tr>
 {%for child in children%}
 <tr>
@@ -50,10 +54,11 @@ No information for the specified dataset.
 {%else%}
 <p> No child datasets created </p>
 {%endif%}
- <a href="/create_zfs_dataset?pool={{pool}}&parent={{name}}" role="button" class="btn btn-default"> Create a new child dataset</a>
+ <a href="/create_zfs_dataset?pool={{pool}}&parent={{name}}" role="button" class="btn btn-primary"> Create a new child dataset</a>
+<br><br>
+<a href="/view_zfs_pool?name={{pool}}" role="button" class="btn btn-default">Back to pool details</a><br><br>
 </div>
 {%endif%}
-<p>
 <!--
 <a href="/create_zfs_pool" role="button" class="btn btn-default"> Create a new ZFS pool</a>-->
 

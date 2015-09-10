@@ -1,10 +1,11 @@
 {% extends 'shares_base.html' %}
+{%block tab_header %}
+Create an NFS share
+{%endblock%}
 
 {% block inside_content %}
 
 {{conf_message}}
-
-
 <form id="create_form" name="create_form" action="/create_nfs_share/" method="post">
             <table class="table" style="width:800px">
             <tr>
@@ -27,8 +28,8 @@
             <label for="id_path">Share path:</label>
               </td>
               <td>
-                <input type="text" name="path" class="form-control" id="id_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value={{form.path.value|default_if_none:""}}> 
-                    <a href="#" role="button" class="btn btn-default" onClick="displayTree();return false;"> Browse..</a>
+                <input type="text" name="display_path" class="form-control" id="id_display_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value={{form.path.value|default_if_none:""}}> 
+                    <a href="#" role="button" class="btn btn-primary" onClick="displayTree();return false;"> Browse..</a>
                 <div id="pathdiv" style="display:inline"> </div>
               </td>
               <td>
@@ -51,11 +52,11 @@
                 <label for="display_path">Final Path</label>
               </td>
               <td>
-                {{ form.display_path }}
+                {{ form.path }}
                 <span id="display_path_text"></span>
               </td>
               <td>
-                {{ form.display_path.errors }}
+                {{ form.path.errors }}
               </td>
             </tr>
             <tr>
@@ -148,25 +149,24 @@
       .jstree();
   });
   }
-$("#new_folder").on('input',function(){
+if($("#id_path").val() != ""){
 	var final_path = $("#id_path").val()
+	$("#display_path_text").text(final_path)
+}
+$("#new_folder").on('input',function(){
+	var final_path = $("#id_display_path").val()
 	if (final_path === ""){
-		$("#id_display_path").val("/"+$(this).val())
+		$("#id_path").val("/"+$(this).val())
 		$("#display_path_text").text("/"+$(this).val())
 	}
 	else{
-		$("#id_display_path").val(final_path+"/"+$(this).val())
+		$("#id_path").val(final_path+"/"+$(this).val())
 		$("#display_path_text").text(final_path+"/"+$(this).val())
 	}
 });
-$("#id_display_path").addClass("form-control")
-$("#id_display_path").attr("style","display:none")
+$("#id_path").addClass("form-control")
+$("#id_path").attr("style","display:none")
 </script>
-{% block tab_active %}
-  <script>
-   make_tab_active("view_nfs_shares_tab")
-  </script>
-{% endblock %}
 {%endblock%}
 {%block help_header%}
 Create a  NFS share 
@@ -174,3 +174,8 @@ Create a  NFS share
 {%block help_body%}
 <p>Use this screen to create a NFS share. The settings will take effect upon saving this information.</p>
 {%endblock%}
+{% block tab_active %}
+  <script>
+   make_tab_active("view_nfs_shares_tab")
+  </script>
+{% endblock %}

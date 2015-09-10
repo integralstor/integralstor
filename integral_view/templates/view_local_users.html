@@ -1,13 +1,17 @@
 {% extends 'users-groups_base.html' %}
+{%block tab_header %}
+Local users
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 
 {% if conf %}
-  <i>{{conf}}</i><br><br>
+  <p class="text-green">{{conf}}</p><br><br>
 {%endif%}
 {% if warnings %}
-<i>The following problems occurred during the process : {{warnings}}</i><br><br>
+<p class="text-red">The following problems occurred during the process : {{warnings}}</p><br><br>
 {%endif%}
 
 {% if not user_list %}
@@ -56,14 +60,14 @@ Name
     {%endif%}
   </td>
   <td>
-    <a href="/view_local_user?username={{u.username}}&searchby=username" role="button" class="btn btn-default"> View details</a>
+    <a href="/view_local_user?username={{u.username}}&searchby=username" role="button" class="btn btn-info"> View details</a>
   </td>
 </tr>
 {%endfor%}
 </table>
 </div>
 <br>
-<a href="/create_local_user" role="button" class="btn btn-default"> Create a new local user</a>
+<a href="/create_local_user" role="button" class="btn btn-primary"> Create a new local user</a>
 {%endif%}
 
 {%endblock%}

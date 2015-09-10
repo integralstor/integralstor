@@ -1,9 +1,13 @@
 {% extends 'services_base.html' %}
+{%block tab_header %}
+System services
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 {% if conf %}
-<p>{{conf}}</p>
+<p class="text-green">{{conf}}</p>
 {%endif%}
 
 {% if not services %}
@@ -41,10 +45,10 @@ Error
 <form method='POST' action='/change_service_status/'>
 {%if service.info.status_code == 0 %}
 <input name='action' type='hidden' value='stop'>
-<button type="submit" class="btn btn-primary">Stop this service</button>
+<button type="submit" class="btn btn-danger cover-page">Stop this service</button>
 {%else%}
 <input name='action' type='hidden' value='start'>
-<button type="submit" class="btn btn-primary">Start this service</button>
+<button type="submit" class="btn btn-success cover-page">Start this service</button>
 {%endif%}
 <input name='service' type='hidden' value={{service.service}}>
 </form>
@@ -62,7 +66,19 @@ Error
 {%endif%}
 </div>
 <script>
-    setInterval(function(){location.reload()},10000);
+    setInterval(function(){
+    window.location.href = "/view_services/"
+    },30000);
+    $(".btn-success").click(function(){
+      setTimeout(function(){
+        window.location.href = "/view_services/?&action=start_success"; 
+      },5000);
+    });
+    $(".btn-danger").click(function(){
+      setTimeout(function(){
+        window.location.href = "/view_services/?&action=stop_success"; 
+      },5000);
+    });
 </script>
 
 {%endblock%}

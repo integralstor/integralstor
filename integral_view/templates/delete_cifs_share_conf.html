@@ -1,21 +1,12 @@
 {% extends 'shares_base.html' %}
+{%block tab_header %}
+Delete a CIFS share - confirmation
+{%endblock%}
 
 {%block inside_content %}
+<br><br>
 
 <!-- Modal -->
-<div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-body" id="myModalBody">
-        <br><br><br>
-        <i class="fa fa-spinner fa-spin fa-4 blue"></i>
-        <br><br><br>
-        <p id="p-node-text">Processing.. Please wait.
-        <br><br><br>
-      </div>
-    </div>
-  </div>
-</div>
 
 <p id="p-warning-text">Are you sure you want to delete the share named "{{name}}"? </p>
 <br>

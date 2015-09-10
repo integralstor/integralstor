@@ -1,6 +1,10 @@
 {% extends 'logging_base.html' %}
+{%block tab_header %}
+Download system logs
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 <p id="p-instruction-text"> The requested log will be fetched as a zip file which you can save on your computer.</p>
 <form name="myform"  method="post">
@@ -23,10 +27,18 @@
     </select>
     {{ form.sys_log_type.errors }}
   </div>
-  <button type="submit" class="btn btn-primary">Download >></button>
+  <button type="submit" id="download_logs"  class="btn btn-primary cover-page">Download</button>
 </div>
 </form>
-
+<script>
+  $("#download_logs").on('click',function(){
+    $(this).text("Processing");
+    setInterval(function(){
+      $("#download_logs").text("Download");
+      $('.lightbox').hide();
+    },10000);
+  });
+</script>
 {%endblock%}
 {%block help_header%}
 Download system logs

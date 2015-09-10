@@ -1,13 +1,20 @@
-{% extends 'logged_in_base.html' %}
-
-
-{%block page-header%}
-  Error Page
+{% extends base_template %}
+{%block tab_header %}
+{{page_title}}
 {%endblock%}
 
-{%block contents%}
+{%block inside_content %}
 
-<span id="error-heading"> Error processing request<span><br><br>
+<br>
+<hr>
+<span id="error-heading"> {{error}}<span><br><br>
+Error Details : {{error_details}}
+<br><br>
+<hr>
 
-<span id="error-text">{{ error }}</span>
 {%endblock%}
+{% block tab_active %}
+  <script>
+    make_tab_active("{{tab}}")
+  </script>
+{% endblock %}

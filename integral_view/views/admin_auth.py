@@ -66,7 +66,7 @@ def login(request):
     return_dict['form'] = form
 
     if authSucceeded:
-      return django.http.HttpResponseRedirect('/dashboard/cpu')
+      return django.http.HttpResponseRedirect('/dashboard/disks')
 
     # For all other cases, return to login screen with return_dict 
     # appropriately populated
@@ -90,8 +90,11 @@ def logout(request):
     django.contrib.auth.logout(request)
     return django.http.HttpResponseRedirect('/login/')
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "dashboard_base.html"
+    return_dict["page_title"] = 'Logout'
+    return_dict['tab'] = 'disks_tab'
+    return_dict["error"] = 'Error logging out'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
 
 
@@ -137,8 +140,11 @@ def change_admin_password(request):
       #User not authenticated so return a login screen
       return django.http.HttpResponseRedirect('/login/')
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "admin_base.html"
+    return_dict["page_title"] = 'Change admininistrator password'
+    return_dict['tab'] = 'change_admin_pswd_tab'
+    return_dict["error"] = 'Error changing administrator password'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
 
 
@@ -188,7 +194,9 @@ def configure_email_settings(request):
         if err:
           raise Exception(err)
 
-        ret = mail.send_mail(cd["email_server"], cd["email_server_port"], cd["username"], cd["pswd"], cd["tls"], cd["rcpt_list"], "Test email from IntegralStor", "This is a test email sent by the IntegralStor system in order to confirm that your email settings are working correctly.")
+        ret, err = mail.send_mail(cd["email_server"], cd["email_server_port"], cd["username"], cd["pswd"], cd["tls"], cd["rcpt_list"], "Test email from IntegralStor", "This is a test email sent by the IntegralStor system in order to confirm that your email settings are working correctly.")
+        if err:
+          raise Exception(err)
         if ret:
           return django.http.HttpResponseRedirect("/show/email_settings?saved=1&err=%s"%ret)
         else:
@@ -196,8 +204,11 @@ def configure_email_settings(request):
     return_dict["form"] = form
     return django.shortcuts.render_to_response(url, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "system_base.html"
+    return_dict["page_title"] = 'Change email notification settings'
+    return_dict['tab'] = 'email_tab'
+    return_dict["error"] = 'Error changing email notification settings'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
 
 

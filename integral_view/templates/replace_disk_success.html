@@ -1,6 +1,10 @@
 {% extends 'storage_base.html' %}
+{%block tab_header %}
+Replacing a hard drive - result
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 <!-- Modal -->
 <div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -18,7 +22,7 @@
 
 
 
-  <p > The system has successfully replaced the disk with serial number {{old_serial_number}} with a new disk with serial number {{new_serial_number}} on GRIDCell {{node}}.</p><br>
+  <p > The system has successfully replaced the disk with serial number {{old_serial_number}} with a new disk with serial number {{new_serial_number}} on {{node}}.</p><br>
 
 
 

@@ -1,44 +1,11 @@
 {% extends 'shares_base.html' %}
-
-{%block page-header%}
-  CIFS Access
-  <br /><small>
-      File Access 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Shares 
-      <i class="fa fa-angle-double-right smaller-80"></i>
-      Edit Share
-  </small>
+{%block tab_header %}
+Modify a CIFS share
 {%endblock%}
 
-<script type="text/javascript">
-/*
-function set_field_visibility() {
-  var guest_ok = document.forms["edit_form"].elements["guest_ok"];
-  var guest_ok_val;
-  for(var i = 0; i < guest_ok.length; i++){
-    if(guest_ok[i].checked){
-        guest_ok_val = guest_ok[i].value;
-    }
-  }
-  if (guest_ok_val=="yes") {
-    set_select_field_disabled(document.forms["edit_form"].elements["users"], true);
-  } else {
-    set_select_field_disabled(document.forms["edit_form"].elements["users"], false);
-  } 
-}
-function select_guest_ok() {
-  for (var i=0;i<2;i++)
-    if (document.forms["edit_form"].elements["guest_ok"][i].value == "no")
-      document.forms["edit_form"].elements["guest_ok"][i].checked = true;
-}
-*/
-</script>
-
-
 {%block inside_content %}
+<br><br>
 
-{{conf_message}}
 
 
 <form id="edit_form" name="edit_form" action="" method="post">
@@ -134,7 +101,7 @@ function select_guest_ok() {
               <td>
                 {% for choice in form.groups.field.choices %} 
                   <div class="radio" >
-                      <input type="radio" name="groups" id="id_users" value="{{choice.0}}" {%if choice.0 in form.initial.groups %} checked="checked"{%endif%}>{{choice.0}}
+                      <input type="checkbox" name="groups" id="id_users" value="{{choice.0}}" {%if choice.0 in form.initial.groups %} checked="checked"{%endif%}>{{choice.0}}
                   </div>
                 {%endfor%}
               </td>

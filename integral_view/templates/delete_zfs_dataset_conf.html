@@ -1,7 +1,11 @@
 {% extends 'storage_base.html' %}
+{%block tab_header %}
+Delete a ZFS dataset - confirmation
+{%endblock%}
 
 
 {%block inside_content %}
+<br><br>
 
 <!-- Modal -->
 <div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -32,7 +36,7 @@
 {%else%}
 <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_dataset?name={{name}}'"> &nbsp;&nbsp;
 {%endif%}
-<button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and delete >></button>
+<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete</button>
 </form>
 
 

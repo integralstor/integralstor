@@ -1,28 +1,19 @@
 {% extends 'users-groups_base.html' %}
+{%block tab_header %}
+Delete a local user - confirmation
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 <!-- Modal -->
-<div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-body" id="myModalBody">
-        <br><br><br>
-        <i class="fa fa-spinner fa-spin fa-4 blue"></i>
-        <br><br><br>
-        <p id="p-node-text">Processing.. Please wait.
-        <br><br><br>
-      </div>
-    </div>
-  </div>
-</div>
 
 <p id="p-warning-text">Are you sure you want to delete the local user "{{username}}"? </p>
 <br>
 <form action="/delete_local_user/" method="POST">
 <input type=hidden name="username" value="{{username}}">
 <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_local_users'"> &nbsp;&nbsp;
-<button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and delete >></button>
+<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete >></button>
 </form>
 
 
@@ -36,3 +27,9 @@ Deleting local users.
 {%block help_body%}
 <p>Confirming this operation results in a local user of the IntegralStor system being deleted.</p>
 {%endblock%}
+
+{% block tab_active %}
+ <script>
+  make_tab_active("view_local_users_tab")
+ </script>
+{% endblock %}

@@ -103,10 +103,9 @@ def set_file_owner_and_permissions(request):
         ret, err = file_processing.set_dir_ownership_and_permissions(cd)
         if not ret:
           if err:
-            return_dict["error"] = err
+            raise Exception(err)
           else:
-            return_dict["error"] = "Error setting directory ownership/permissions. "
-          return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+            raise Exception("Error setting directory ownership/permissions.")
   
         audit_str = "Modified directory ownsership/permissions for %s"%cd["path"]
         audit.audit("modify_dir_owner_permissions", audit_str, request.META["REMOTE_ADDR"])
@@ -117,8 +116,11 @@ def set_file_owner_and_permissions(request):
         #Invalid form
         return django.shortcuts.render_to_response('set_file_owner_and_permissions.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Modify ownership/permissions on a directory'
+    return_dict['tab'] = 'dir_permissions_tab'
+    return_dict["error"] = 'Error modifying directory ownership/permissions'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def _owner_readable(st):
@@ -177,6 +179,9 @@ def dashboard(request,page):
     info = ks[0]
     # CPU status
     if page == "cpu":
+      return_dict["page_title"] = 'CPU statistics'
+      return_dict['tab'] = 'cpu_tab'
+      return_dict["error"] = 'Error loading CPU statistics'
       cpu,err = stats.get_system_stats(today_day,"cpu")
       if err:
         raise Exception(err)
@@ -216,6 +221,9 @@ def dashboard(request,page):
       template = "view_cpu_status.html"
     # Hardware
     elif page == "hardware":
+      return_dict["page_title"] = 'Hardware status'
+      return_dict['tab'] = 'hardware_tab'
+      return_dict["error"] = 'Error loading hardware status'
       d = {}
       d['ipmi_status'] = si[info]['ipmi_status']
       return_dict['hardware_status'] =  d
@@ -223,6 +231,9 @@ def dashboard(request,page):
       template = "view_hardware_status.html"
     # Memory
     elif page == "memory":
+      return_dict["page_title"] = 'Memory statistics'
+      return_dict['tab'] = 'memory_tab'
+      return_dict["error"] = 'Error loading memory statistics'
       mem,err = stats.get_system_stats(today_day,"memory")
       if err:
         raise Exception(err)
@@ -234,6 +245,9 @@ def dashboard(request,page):
       template = "view_memory_status.html"
     # Network
     elif page == "network":
+      return_dict["page_title"] = 'Network statistics'
+      return_dict['tab'] = 'network_tab'
+      return_dict["error"] = 'Error loading Network statistics'
       network,err = stats.get_system_stats(today_day,"network")
       if err:
         raise Exception(err)
@@ -256,6 +270,9 @@ def dashboard(request,page):
       template = "view_network_status.html"
     # Services
     elif page == "services":
+      return_dict["page_title"] = 'System services status'
+      return_dict['tab'] = 'services_tab'
+      return_dict["error"] = 'Error loading system services status'
       return_dict['services_status'] = {}
       if use_salt:
         import salt.client
@@ -304,6 +321,9 @@ def dashboard(request,page):
       template = "view_services_status.html"
     # Disks
     elif page == "disks":
+      return_dict["page_title"] = 'Hard drives status'
+      return_dict['tab'] = 'disk_tab'
+      return_dict["error"] = 'Error loading hard drives status'
       sorted_disks = []
       if 'disks' in si[info] and si[info]['disks']:
         for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
@@ -315,6 +335,9 @@ def dashboard(request,page):
       template = "view_disks_status.html"
     # Pools
     elif page == "pools":
+      return_dict["page_title"] = 'ZFS pools status'
+      return_dict['tab'] = 'pools_tab'
+      return_dict["error"] = 'Error loading ZFS pools status'
       pools, err = zfs.get_pools()
       if err:
         raise Exception(err)
@@ -325,8 +348,8 @@ def dashboard(request,page):
     return_dict["data"] = value_list
     return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "dashboard_base.html"
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
   
@@ -336,9 +359,9 @@ def show(request, page, info = None):
   return_dict = {}
   try:
 
-    assert request.method == 'GET'
-
     si,err = system_info.load_system_config()
+    if err:
+      raise Exception(err)
 
     #assert False
     return_dict['system_info'] = si
@@ -352,6 +375,10 @@ def show(request, page, info = None):
 
     elif page == "ntp_settings":
 
+      return_dict['base_template'] = "services_base.html"
+      return_dict["page_title"] = 'Network Time Protocol(NTP) settings '
+      return_dict['tab'] = 'ntp_settings_tab'
+      return_dict["error"] = 'Error loading Network Time Protocol(NTP) settings '
       template = "view_ntp_settings.html"
       ntp_servers, err = ntp.get_ntp_servers()
       if err:
@@ -375,6 +402,10 @@ def show(request, page, info = None):
     elif page == "email_settings":
 
       #print "here"
+      return_dict['base_template'] = "system_base.html"
+      return_dict["page_title"] = 'Email notifications settings '
+      return_dict['tab'] = 'email_tab'
+      return_dict["error"] = 'Error loading email notifications settings '
       d, err = mail.load_email_settings()
       if err:
         raise Exception(err)
@@ -399,7 +430,11 @@ def show(request, page, info = None):
       template = "view_email_settings.html"
 
     elif page == "audit_trail":
-
+ 
+      return_dict['base_template'] = "logging_base.html"
+      return_dict["page_title"] = 'System audit trail'
+      return_dict['tab'] = 'view_current_audit_tab'
+      return_dict["error"] = 'Error loading system audit trail'
       al = None
       template = "view_audit_trail.html"
       al, err = audit.get_lines()
@@ -407,45 +442,14 @@ def show(request, page, info = None):
         raise Exception(err)
       return_dict["audit_list"] = al
 
-    elif page == "node_status":
-      
-      template = "view_node_status.html"
-      if not info:
-        info = si.keys()[0]
-      if "from" in request.GET:
-        frm = request.GET["from"]
-        return_dict['frm'] = frm
-      sorted_disks = []
-      for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
-        sorted_disks.append(key)
-      si[info]["disk_pos"] = sorted_disks
-      return_dict['node'] = si[info]
-
-      use_salt, err = common.use_salt()
-      if use_salt:
-        import salt.client
-        client = salt.client.LocalClient()
-        winbind = client.cmd(info,'cmd.run',['service winbind status'])
-        smb = client.cmd(info,'cmd.run',['service smb status'])
-      else:
-        out_list, err = command.get_command_output('service winbind status')
-        if err:
-          raise Exception(err)
-        if out_list:
-          return_dict['winbind'] = ' '.join(out_list)
-        out_list, err = command.get_command_output('service smb status')
-        if err:
-          raise Exception(err)
-        if out_list:
-          return_dict['smb'] = ' '.join(out_list)
-
-      return_dict['winbind'] = winbind[info]
-      return_dict['smb'] = smb[info]
-      return_dict['node_name'] = info
 
 
     elif page == "node_info":
 
+      return_dict['base_template'] = "system_base.html"
+      return_dict["page_title"] = 'System configuration'
+      return_dict['tab'] = 'node_info_tab'
+      return_dict["error"] = 'Error loading system configuration'
       template = "view_node_info.html"
       if "from" in request.GET:
         frm = request.GET["from"]
@@ -454,69 +458,12 @@ def show(request, page, info = None):
       return_dict['node'] = si[si.keys()[0]]
 
 
-    elif page == "system_config":
-
-      template = "view_system_config.html"
-
-    elif page == "system_status":
-     #Disk Status page and system status page has been integrated.
-     #assert False
-
-      #Get the disk status
-      disk_status = {}
-      disk_new = {}
-
-      if request.GET.get("node_id") is not None:
-        disk_status = si[request.GET.get("node_id")]
-        return_dict["disk_status"] = {}
-        return_dict["disk_status"][request.GET.get("node_id")] = disk_status
-        template = "view_disk_status_details.html"
-
-      else:
-        """
-          Iterate the system information, and get the following data :
-            1. The status of every disk
-            2. The status of the pool
-            3. The name of the pool
-            4. Calcualte the background_color
-            Format : {'node_id':{'name':'pool_name','background_color':'background_color','disks':{disks_pool}}}
-
-        """
-        for key, value in si.iteritems():
-	  print key
-          #count the failures in case of Offline or degraded
-          disk_failures = 0
-          #Default background color
-          background_color = "bg-green" 
-          disk_new[key] = {}
-          disk_new[key]["disks"] = {}
-          for disk_key, disk_value in si[key]["disks"].iteritems():
-            #print disk_key, disk_value
-            if disk_value["rotational"]:
-              disk_new[key]["disks"][disk_key] = disk_value["status"]
-            #print disk_value["status"]
-            if disk_value["status"] != "PASSED":
-              disk_failures += 1
-            if disk_failures >= 1:
-              background_color = "bg-yellow"
-            if disk_failures >= 4:
-              background_color == "bg-red"
-          
-          if si[key]['node_status_str'] == "Degraded":
-            background_color = "bg-yellow"
-          #print type(si[key]["pools"][0]["state"])
-          if si[key]["pools"][0]["state"] == unicode("ONLINE"):
-            background_color == "bg-red"
-          disk_new[key]["background_color"] = background_color
-          disk_new[key]["name"] = si[key]["pools"][0]["name"]
-          sorted_disks = []
-          for key1,value1 in sorted(si[key]["disks"].iteritems(), key=lambda (k,v):v["position"]):
-            sorted_disks.append(key1)
-          disk_new[key]["disk_pos"] = sorted_disks
-
-
     elif page == "alerts":
 
+      return_dict['base_template'] = "logging_base.html"
+      return_dict["page_title"] = 'System alerts'
+      return_dict['tab'] = 'view_current_alerts_tab'
+      return_dict["error"] = 'Error loading system alerts'
       template = "view_alerts.html"
       alerts_list, err = alerts.load_alerts()
       if err:
@@ -526,11 +473,7 @@ def show(request, page, info = None):
 
     return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    if "Another transaction is in progress".lower() in s.lower():
-      return_dict["error"] = "An underlying storage operation has locked a volume so we are unable to process this request. Please try after a couple of seconds"
-    else:
-      return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 #this function takes a user argument checks if the user has administrator rights and then returns True.
@@ -656,8 +599,11 @@ def configure_ntp_settings(request):
     return_dict["form"] = form
     return django.shortcuts.render_to_response(url, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "system_base.html"
+    return_dict["page_title"] = 'Modify email notifications settings'
+    return_dict['tab'] = 'email_tab'
+    return_dict["error"] = 'Error modifying email notifications settings'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
@@ -814,12 +760,17 @@ def internal_audit(request):
   return response
 
 def reload_manifest(request):
+  return_dict = {}
   try:
     if request.method == "GET":
-      return_dict = {}
       from integralstor_unicell import manifest_status as iu
-      mi = iu.generate_manifest_info()
-      return_dict["mi"] = mi[0][mi[0].keys()[0]] # Need the hostname here. 
+      mi, err = iu.generate_manifest_info()
+      #print mi, err
+      if err:
+        raise Exception(err)
+      if not mi:
+        raise Exception('Could not load new configuration')
+      return_dict["mi"] = mi[mi.keys()[0]] # Need the hostname here. 
       return django.shortcuts.render_to_response("reload_manifest.html", return_dict, context_instance=django.template.context.RequestContext(request))
     elif request.method == "POST":
       python_scripts_path, err = common.get_python_scripts_path()
@@ -828,50 +779,40 @@ def reload_manifest(request):
       ss_path, err = common.get_system_status_path()
       if err:
         raise Exception(err)
-      (ret,rc), err = command.execute_with_rc("python %s/generate_manifest.py %s"%(python_scripts_path, ss_path))
+      #(ret,rc), err = command.execute_with_rc("python %s/generate_manifest.py %s"%(python_scripts_path, ss_path))
+      ret, err = command.get_command_output("python %s/generate_manifest.py %s"%(python_scripts_path, ss_path))
+      #print 'mani', ret, err
       if err:
         raise Exception(err)
-      if rc != 0:
-        err = ''
-        tl, er = command.get_output_list(ret)
-        if er:
-          raise Exception(er)
-        if tl:
-          err = ','.join(tl)
-        tl, er = command.get_error_list(ret)
-        if er:
-          raise Exception(er)
-        if tl:
-          err = err + ','.join(tl)
-        raise Exception(err)
-      (ret,rc), err = command.execute_with_rc("python %s/generate_status.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
+      #(ret,rc), err = command.execute_with_rc("python %s/generate_status.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
+      ret, err = command.get_command_output("python %s/generate_status.py %s"%(python_scripts_path, ss_path))
+      #print 'stat', ret, err
       if err:
-        raise Exception(err)
-      if rc != 0:      
-        err = ''
-        tl, er = command.get_output_list(ret)
-        if er:
-          raise Exception(er)
-        if tl:
-          err = ','.join(tl)
-        tl, er = command.get_error_list(ret)
-        if er:
-          raise Exception(er)
-        if tl:
-          err = err + ','.join(tl)
         raise Exception(err)
       return django.http.HttpResponseRedirect("/show/node_info/")
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "system_base.html"
+    return_dict["page_title"] = 'Reload system configuration'
+    return_dict['tab'] = 'node_info_tab'
+    return_dict["error"] = 'Error reloading system configuration'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def list_cron_jobs(request):
   return_dict = {}
-  cron_jobs,err = scheduler_utils.list_all_cron()
-  if not err:
+  try:
+    cron_jobs,err = scheduler_utils.list_all_cron()
+    if err:
+      raise Exception(err)
     return_dict["cron_list"] = cron_jobs
-  return django.shortcuts.render_to_response("view_cron_jobs.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    return django.shortcuts.render_to_response("view_cron_jobs.html", return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception, e:
+    return_dict['base_template'] = "scheduler_base.html"
+    return_dict["page_title"] = 'Scheduled jobs'
+    return_dict['tab'] = 'view_cron_jobs_tab'
+    return_dict["error"] = 'Error loading scheduled jobs information'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def download_cron_log(request):
   response = django.http.HttpResponse()
@@ -890,10 +831,22 @@ def download_cron_log(request):
   return response
 
 def remove_cron_job(request):
-  cron_name = request.POST.get('cron_name')
-  delete,err = scheduler_utils.delete_cron_with_comment(cron_name)
-  if not err and delete:
-    return django.http.HttpResponseRedirect("/list_cron_jobs")
+  try:
+    cron_name = request.POST.get('cron_name')
+    delete,err = scheduler_utils.delete_cron_with_comment(cron_name)
+    if err:
+      raise Exception(err)
+    if delete:
+      return django.http.HttpResponseRedirect("/list_cron_jobs")
+    else:
+      raise Exception('Error deleting a scheduled job')
+  except Exception, e:
+    return_dict['base_template'] = "scheduler_base.html"
+    return_dict["page_title"] = 'Scheduled jobs'
+    return_dict['tab'] = 'view_cron_jobs_tab'
+    return_dict["error"] = 'Error removing scheduled jobs information'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
 ###  THE CODES BELOW ARE MAINTAINED FOR EITER HISTORICAL PURPOSES OR AS A PART OF BACKUP PROCESS.
@@ -907,4 +860,99 @@ def del_email_settings(request):
   except Exception, e:
     iv_logging.debug("Error clearing email settings %s"%e)
     return django.http.HttpResponse("Problem clearing email settings %s"%str(e))
+
+
+    elif page == "system_status":
+     #Disk Status page and system status page has been integrated.
+     #assert False
+
+      #Get the disk status
+      disk_status = {}
+      disk_new = {}
+
+      if request.GET.get("node_id") is not None:
+        disk_status = si[request.GET.get("node_id")]
+        return_dict["disk_status"] = {}
+        return_dict["disk_status"][request.GET.get("node_id")] = disk_status
+        template = "view_disk_status_details.html"
+
+      else:
+        """
+          Iterate the system information, and get the following data :
+            1. The status of every disk
+            2. The status of the pool
+            3. The name of the pool
+            4. Calcualte the background_color
+            Format : {'node_id':{'name':'pool_name','background_color':'background_color','disks':{disks_pool}}}
+
+        """
+        for key, value in si.iteritems():
+	  print key
+          #count the failures in case of Offline or degraded
+          disk_failures = 0
+          #Default background color
+          background_color = "bg-green" 
+          disk_new[key] = {}
+          disk_new[key]["disks"] = {}
+          for disk_key, disk_value in si[key]["disks"].iteritems():
+            #print disk_key, disk_value
+            if disk_value["rotational"]:
+              disk_new[key]["disks"][disk_key] = disk_value["status"]
+            #print disk_value["status"]
+            if disk_value["status"] != "PASSED":
+              disk_failures += 1
+            if disk_failures >= 1:
+              background_color = "bg-yellow"
+            if disk_failures >= 4:
+              background_color == "bg-red"
+          
+          if si[key]['node_status_str'] == "Degraded":
+            background_color = "bg-yellow"
+          #print type(si[key]["pools"][0]["state"])
+          if si[key]["pools"][0]["state"] == unicode("ONLINE"):
+            background_color == "bg-red"
+          disk_new[key]["background_color"] = background_color
+          disk_new[key]["name"] = si[key]["pools"][0]["name"]
+          sorted_disks = []
+          for key1,value1 in sorted(si[key]["disks"].iteritems(), key=lambda (k,v):v["position"]):
+            sorted_disks.append(key1)
+          disk_new[key]["disk_pos"] = sorted_disks
+
+    elif page == "node_status":
+      
+      template = "view_node_status.html"
+      if not info:
+        info = si.keys()[0]
+      if "from" in request.GET:
+        frm = request.GET["from"]
+        return_dict['frm'] = frm
+      sorted_disks = []
+      for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
+        sorted_disks.append(key)
+      si[info]["disk_pos"] = sorted_disks
+      return_dict['node'] = si[info]
+
+      use_salt, err = common.use_salt()
+      if use_salt:
+        import salt.client
+        client = salt.client.LocalClient()
+        winbind = client.cmd(info,'cmd.run',['service winbind status'])
+        smb = client.cmd(info,'cmd.run',['service smb status'])
+      else:
+        out_list, err = command.get_command_output('service winbind status')
+        if err:
+          raise Exception(err)
+        if out_list:
+          return_dict['winbind'] = ' '.join(out_list)
+        out_list, err = command.get_command_output('service smb status')
+        if err:
+          raise Exception(err)
+        if out_list:
+          return_dict['smb'] = ' '.join(out_list)
+
+      return_dict['winbind'] = winbind[info]
+      return_dict['smb'] = smb[info]
+      return_dict['node_name'] = info
+
+
 '''

@@ -1,9 +1,7 @@
-{% extends 'nfs_base.html' %}
-
+{% extends 'shares_base.html' %}
 
 {% block inside_content %}
-
-
+<br><br>
 
 {{conf_message}}
 
@@ -69,7 +67,7 @@
             </table>
 
         <a href="/view_nfs_share/?path={{form.path.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary">Save >></button>
+        <button type="submit" class="btn btn-primary">Save </button>
 </form>
 
 {%endblock%}
@@ -79,3 +77,9 @@ Edit NFS share
 {%block help_body%}
 <p>Use this screen to change the settings for a particular NFS share. The settings will take effect upon saving this information.</p>
 {%endblock%}
+
+{% block tab_active %}
+   <script>
+    make_tab_active("view_nfs_shares_tab")
+   </script>
+{% endblock %}

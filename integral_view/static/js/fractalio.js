@@ -15,4 +15,7 @@
       }
       function make_side_menu_active(id){
           $("#"+id).addClass('active')
-      }
+      };
+      $(".cover-page").click(function(){
+        $('.lightbox').show();
+      });

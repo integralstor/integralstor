@@ -1,6 +1,10 @@
 {% extends 'services_base.html' %}
+{%block tab_header %}
+Modify CIFS authentication settings
+{%endblock%}
 
 {%block inside_content %}
+<br><br>
 <p id="p-instruction-text">{{conf}}</p>
 {{form.errors}}
 
@@ -55,20 +59,6 @@
   <a href="/auth_server_settings/" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;<button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');"> Save </button>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-body" id="myModalBody">
-        <br><br><br>
-        <i class="fa fa-spinner fa-spin fa-4 blue"></i>
-        <br><br><br>
-        <p id="p-node-text">Processing.. Please wait.
-        <br><br><br>
-      </div>
-    </div>
-  </div>
-</div>
 
 {%endblock%}
 {%block help_header%}

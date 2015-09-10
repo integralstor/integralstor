@@ -1,6 +1,10 @@
 {% extends 'storage_base.html' %}
+{%block tab_header %}
+ZFS pool/dataset snapshots
+{%endblock%}
 
 {%block inside_content %}
+<br><br>
 
 {% if conf %}
 <p><i>{{conf}}</i></p>
@@ -51,13 +55,13 @@ Rename this snapshot
 <td>{{d.used}}</td>
 <td>{{d.refer}}</td>
 <td>
-<a href="/delete_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-default"> Delete</a>
+<a href="/delete_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-danger"> Delete</a>
 </td>
 <td>
-<a href="/rollback_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-default"> Rollback</a>
+<a href="/rollback_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-success"> Rollback</a>
 </td>
 <td>
-<a href="/rename_zfs_snapshot?snapshot_name={{d.snapshot_name}}&ds_name={{d.dataset}}" role="button" class="btn btn-default"> Rename</a>
+<a href="/rename_zfs_snapshot?snapshot_name={{d.snapshot_name}}&ds_name={{d.dataset}}" role="button" class="btn btn-primary"> Rename</a>
 </td>
 </tr>
 {%endfor%}

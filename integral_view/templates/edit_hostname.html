@@ -1,6 +1,10 @@
 {% extends 'networking_base.html' %}
+{%block tab_header %}
+Modify the system's hostname
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 {{conf_message}}
 
@@ -33,7 +37,7 @@
 
 <p> This process may take a few seconds as the system has to reload the system configuration on a hostname change.</p>
         <a href="/view_hostname" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary">Save >></button>
+        <button type="submit" class="btn btn-primary cover-page">Save</button>
 </form>
 
 {%endblock%}

@@ -1,6 +1,10 @@
 {% extends 'users-groups_base.html' %}
+{%block tab_header %}
+Modify the group membership of a local user
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 {{conf_message}}
 
@@ -37,7 +41,7 @@
             </table>
 
         <a href="/view_local_user?searchby=username&username={{form.username.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary">Save >></button>
+        <button type="submit" class="btn btn-primary">Save </button>
 </form>
 
 {%endblock%}

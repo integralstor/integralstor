@@ -1,6 +1,10 @@
 {% extends 'logging_base.html' %}
+{%block tab_header %}
+Rolled log files
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 <span id="topic-text"></span><br>
 
 
@@ -26,7 +30,7 @@
     <td>
       <form method="POST" action="/view_rotated_log_file/{{type}}/">
       <input type="hidden" name="file_name" value="{{td.file_name}}">
-      <button type="submit" class="btn btn-default">View file</button>
+      <button type="submit" class="btn btn-primary">View file</button>
       </form>
     </td>
   </tr>

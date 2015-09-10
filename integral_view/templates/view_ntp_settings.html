@@ -1,6 +1,10 @@
 {% extends 'services_base.html' %}
+{%block tab_header %}
+Network Time Protocol(NTP) settings
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 {% if error %}
 
@@ -32,7 +36,7 @@
 {%endfor%}
             </table>
 
-<a href="/configure_ntp_settings/" role="button" class="btn btn-default">Modify..</a>
+<a href="/configure_ntp_settings/" role="button" class="btn btn-primary">Modify</a>
 
 {%endif%}
 

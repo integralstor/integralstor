@@ -1,11 +1,15 @@
 {% extends 'system_base.html' %}
+{%block tab_header %}
+Reload system configuration - Results and confirmation
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 The scanned hardware configuration is displayed below. Would you like to accept this configuration?<br><br>
 <form action="." method="POST">
   <input type="text" value="yes" class="form-control" name="action" style="display:none">
-  <button class="btn btn-primary">Yes</button>
+  <button class="btn btn-primary cover-page">Yes</button>
   <a class="btn btn-default" href="/show/node_info/">No</a>
 </form><br>
 <table class="table table-bordered table-striped table-hover" style="width:60%">

@@ -1,4 +1,7 @@
 {% extends 'networking_base.html' %}
+{%block tab_header %}
+Modify the IP address of an NIC/bond
+{%endblock%}
 
 <!--
 <script type="text/javascript">
@@ -28,6 +31,7 @@ function select_guest_ok() {
 
 
 {% block inside_content %}
+<br><br>
 
 {{conf_message}}
 

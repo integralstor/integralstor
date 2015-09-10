@@ -1,6 +1,10 @@
 {% extends 'networking_base.html' %}
+{%block tab_header %}
+DNS servers
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 {% if conf %}
 <p><i>{{conf}}</i></p>
@@ -28,7 +32,7 @@
 {%endfor%}
             </table>
 
-<a href="/edit_dns_nameservers/" role="button" class="btn btn-default">Modify DNS Name servers</a>
+<a href="/edit_dns_nameservers/" role="button" class="btn btn-primary">Modify DNS Name servers</a>
 
 {%endif%}
 

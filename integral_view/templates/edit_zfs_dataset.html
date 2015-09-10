@@ -1,6 +1,10 @@
 {% extends 'storage_base.html' %}
+{%block tab_header %}
+Modify a ZFS dataset configuration
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 {%if request.GET.result %}
 {{request.GET.result}}
@@ -59,7 +63,7 @@
             </table>
 
         <a href="/view_zfs_dataset/?name={{form.name.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary">Save >></button>
+        <button type="submit" class="btn btn-primary">Save</button>
 </form>
 
 {%endblock%}

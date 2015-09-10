@@ -3,15 +3,17 @@
 {% block contents %}
   <div class="nav-tabs-custom">
 	<ul class="nav nav-tabs">
-    <li id="view_current_audit_tab"><a href="/show/audit_trail" >View current audit trail</a></li>
-    <li id="view_current_alerts_tab"><a href="/show/alerts" >View current alerts</a></li>
+    <li id="view_current_audit_tab"><a href="/show/audit_trail" >View audit trail</a></li>
+    <li id="view_current_alerts_tab"><a href="/show/alerts" >View alerts</a></li>
 	  <li id="download_system_logs_tab"><a href="/download_sys_log">Download system logs</a></li>
-	  <li id="view_rotated_alert_log_list_tab"><a href="/view_rotated_log_list/alerts">View Old alert logs</a></li>
-	  <li id="view_rotated_audit_log_list_tab"><a href="/view_rotated_log_list/audit_trail">View Old audit logs</a></li>
+	  <li id="view_rotated_alert_log_list_tab"><a href="/view_rotated_log_list/alerts">View old alert</a></li>
+	  <li id="view_rotated_audit_log_list_tab"><a href="/view_rotated_log_list/audit_trail">View old audit logs</a></li>
     {% include 'help_and_refresh.html' %}
 </ul>
 	<div class="tab-content">
 	  <div class="tab-pane active" id="content">
+    <span class="bigger-120"><i class="fa fa-circle-o text-yellow"></i> <span> {% block tab_header %}Information{% endblock %}</span></span>
+     <span class="white-space:pre-line"></span>
      {% block inside_content %}
       Information Not found. Please refresh the page
      {% endblock inside_content %}

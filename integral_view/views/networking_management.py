@@ -15,32 +15,34 @@ def view_interfaces(request):
   try:
     template = 'logged_in_error.html'
     nics, err = networking.get_interfaces()
-    if not nics and err:
-      return_dict["error"] = "Error loading network interface information : %s"%err
+    if err:
+      raise Exception(err)
     bonds, err = networking.get_bonding_info_all()
-    if not bonds and err:
-      return_dict["error"] = "Error loading network bonding information : %s"%err
+    if err:
+      raise Exception(err)
   
-    if not "error" in return_dict:
-      if "action" in request.GET:
-        if request.GET["action"] == "saved":
-          conf = "Network interface information successfully updated"
-        if request.GET["action"] == "removed_bond":
-          conf = "Network bond successfully removed"
-        if request.GET["action"] == "state_down":
-          conf = "Network interface successfully disabled. The state change may take a couple of seconds to reflect on this page so please refresh it to check the updated status."
-        if request.GET["action"] == "state_up":
-          conf = "Network interface successfully enabled. The state change may take a couple of seconds to reflect on this page so please refresh it to check the updated status."
-        if request.GET["action"] == "created_bond":
-          conf = "Network bond successfully created. Please edit the address information for the bond in order to use it."
-        return_dict["conf"] = conf
-      return_dict["nics"] = nics
-      return_dict["bonds"] = bonds
-      template = "view_interfaces.html"
+    if "action" in request.GET:
+      if request.GET["action"] == "saved":
+        conf = "Network interface information successfully updated"
+      if request.GET["action"] == "removed_bond":
+        conf = "Network bond successfully removed"
+      if request.GET["action"] == "state_down":
+        conf = "Network interface successfully disabled. The state change may take a couple of seconds to reflect on this page so please refresh it to check the updated status."
+      if request.GET["action"] == "state_up":
+        conf = "Network interface successfully enabled. The state change may take a couple of seconds to reflect on this page so please refresh it to check the updated status."
+      if request.GET["action"] == "created_bond":
+        conf = "Network bond successfully created. Please edit the address information for the bond in order to use it."
+      return_dict["conf"] = conf
+    return_dict["nics"] = nics
+    return_dict["bonds"] = bonds
+    template = "view_interfaces.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "networking_base.html"
+    return_dict["page_title"] = 'View network interfaces'
+    return_dict['tab'] = 'view_interfaces_tab'
+    return_dict["error"] = 'Error loading interfaces'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def view_nic(request):
@@ -48,18 +50,14 @@ def view_nic(request):
   try:
     template = 'logged_in_error.html'
     if 'name' not in request.REQUEST:
-      return_dict["error"] = "Error loading network interface information : No interface name specified."
-      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+      raise Exception("Error loading network interface information : No interface name specified.")
     
     name = request.REQUEST['name']
     interfaces, err = networking.get_interfaces()
-
-    if not interfaces and err:
-      return_dict["error"] = "Error loading network interface information : %s"%err
-      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+    if err:
+      raise Exception(err)
     elif name not in interfaces:
-      return_dict["error"] = "Error loading network interface information : Specified interface not found"
-      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+      raise Exception("Specified interface not found")
 
     return_dict['nic'] = interfaces[name]
     return_dict['name'] = name
@@ -67,8 +65,11 @@ def view_nic(request):
     template = "view_nic.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "networking_base.html"
+    return_dict["page_title"] = 'View network interface details'
+    return_dict['tab'] = 'view_interfaces_tab'
+    return_dict["error"] = 'Error loading interface details'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def set_interface_state(request):
@@ -76,11 +77,10 @@ def set_interface_state(request):
   return_dict = {}
   try:
     if 'name' not in request.REQUEST:
-      return_dict["error"] = "Error setting interface state - No interface name specified. Please use the menus"%str(e)
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      raise Exception("No interface name specified. Please use the menus")
+
     if 'state' not in request.REQUEST:
-      return_dict["error"] = "Error setting interface state - No state specified. Please use the menus"%str(e)
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      raise Exception("No state specified. Please use the menus")
 
     name = request.REQUEST["name"]
     return_dict["name"] = name
@@ -93,18 +93,20 @@ def set_interface_state(request):
     else:
       result, err = networking.set_interface_state(name, state)
       if not result:
-        if not err:
-          return_dict["error"] = "Error setting interface state"
+        if err:
+          raise Exception(err)
         else:
-          return_dict["error"] = "Error setting interface state - %s"%err
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+          raise Exception("Error setting interface state")
  
       audit_str = "Set the state of network interface %s to %s"%(name, state)
       audit.audit("set_interface_state", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_interfaces?action=state_%s'%state)
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "networking_base.html"
+    return_dict["page_title"] = 'Set interface state'
+    return_dict['tab'] = 'view_interfaces_tab'
+    return_dict["error"] = 'Error setting interface state'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def view_bond(request):
@@ -112,26 +114,21 @@ def view_bond(request):
   try:
     template = 'logged_in_error.html'
     if 'name' not in request.REQUEST:
-      return_dict["error"] = "Error loading network bond information : No bond name specified."
-      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+      raise Exception("No bond name specified.")
     
     name = request.REQUEST['name']
 
     interfaces, err = networking.get_interfaces()
-    if not interfaces and err:
-      return_dict["error"] = "Error loading network interface information : %s"%err
-      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+    if err:
+      raise Exception(err)
     elif name not in interfaces:
-      return_dict["error"] = "Error loading network interface information : Specified interface not found"
-      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+      raise Exception("Specified interface not found")
 
     bond, err = networking.get_bonding_info(name)
-    if not bond and err:
-      return_dict["error"] = "Error loading network bond information : %s"%err
-      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
-    elif not bond:
-      return_dict["error"] = "Error loading network bond information : Specified bond not found"
-      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+    if err:
+      raise Exception(err)
+    if not bond:
+      raise Exception("Specified bond not found")
 
     return_dict['nic'] = interfaces[name]
     return_dict['bond'] = bond
@@ -140,8 +137,11 @@ def view_bond(request):
     template = "view_bond.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "networking_base.html"
+    return_dict["page_title"] = 'View network bond details'
+    return_dict['tab'] = 'view_interfaces_tab'
+    return_dict["error"] = 'Error loading network bond details'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def edit_interface_address(request):
@@ -152,13 +152,10 @@ def edit_interface_address(request):
 
     name = request.REQUEST["name"]
     interfaces, err = networking.get_interfaces()
-
-    if not interfaces and err:
-      return_dict["error"] = "Error loading network interface information : %s"%err
-      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
-    elif name not in interfaces:
-      return_dict["error"] = "Error loading network interface information : Specified interface not found"
-      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+    if err:
+      raise Exception(err)
+    elif not interfaces or name not in interfaces:
+      raise Exception("Specified interface not found")
     return_dict['nic'] = interfaces[name]
 
     if request.method == "GET":
@@ -176,7 +173,7 @@ def edit_interface_address(request):
       if 'gateways' in interfaces[name] and interfaces[name]['gateways']:
         if interfaces[name]['gateways'][0][2]:
           initial['default_gateway'] = interfaces[name]['gateways'][0][0]
-      print initial
+      #print initial
 
       form = networking_forms.NICForm(initial=initial)
       return_dict['form'] = form
@@ -190,32 +187,24 @@ def edit_interface_address(request):
       result_str = ""
       audit_str = "Changed the following dataset properties for dataset %s : "%name
       success = False
-      try :
-        result, err = networking.set_interface_ip_info(cd['name'], cd)
-        if not result:
-          if err:
-            raise Exception(err)
-          else:
-            raise Exception('Error setting interface IP address ')
-        result, err = networking.restart_networking()
-        if not result:
-          if err:
-            raise Exception(err)
-          else:
-            raise Exception('Error setting interface IP address. Could not restart networking services.')
-        audit_str = 'Changed the address of %s. New values are IP : %s, netmask: %s'%(cd['name'], cd['ip'], cd['netmask']) 
-        if 'default_gateway' in cd:
-          audit_str += ', default gateway : %s'%cd['default_gateway']
-        audit.audit("edit_interface_address", audit_str, request.META["REMOTE_ADDR"])
+      result, err = networking.set_interface_ip_info(cd['name'], cd)
+      if err:
+        raise Exception(err)
+      result, err = networking.restart_networking()
+      if err:
+        raise Exception(err)
+      audit_str = 'Changed the address of %s. New values are IP : %s, netmask: %s'%(cd['name'], cd['ip'], cd['netmask']) 
+      if 'default_gateway' in cd:
+        audit_str += ', default gateway : %s'%cd['default_gateway']
+      audit.audit("edit_interface_address", audit_str, request.META["REMOTE_ADDR"])
                 
-      except Exception, e:
-        return_dict["error"] = "Error saving interface address information - %s"%str(e)
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
- 
       return django.http.HttpResponseRedirect('/view_nic?name=%s&result=addr_changed'%(name))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "networking_base.html"
+    return_dict["page_title"] = 'Modify network interface addressing'
+    return_dict['tab'] = 'view_interfaces_tab'
+    return_dict["error"] = 'Error modifying network interface addressing'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def create_bond(request):
@@ -223,16 +212,14 @@ def create_bond(request):
   try:
 
     interfaces, err = networking.get_interfaces()
-    if not interfaces:
-      return_dict["error"] = "Error loading network interface information : No interfaces found"
-      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
     if err:
-      return_dict["error"] = "Error loading network interface information : %s"%err
-      return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+      raise Exception(err)
+    if not interfaces:
+      raise Exception("Error loading network interface information : No interfaces found")
 
     bonds, err = networking.get_bonding_info_all()
-    if not bonds and err:
-      return_dict["error"] = "Error loading network bonding information : %s"%err
+    if err:
+      raise Exception(err)
 
     return_dict['interfaces'] = interfaces
     if_list = []
@@ -256,23 +243,19 @@ def create_bond(request):
       if not form.is_valid():
         return django.shortcuts.render_to_response("create_bond.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
-      try :
-        result, err = networking.create_bond(cd['name'], cd['slaves'], int(cd['mode']))
-        if not result:
-          if not err:
-            raise Exception('Unknown error!')
-          else:
-            raise Exception(err)
-      except Exception, e:
-        return_dict["error"] = "Error creating network bond- %s"%str(e)
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      result, err = networking.create_bond(cd['name'], cd['slaves'], int(cd['mode']))
+      if not err:
+        raise Exception(err)
  
-      audit_str = "Created a network bond named %s with slaves"%(cd['name'], ','.join(cd['slaves']))
+      audit_str = "Created a network bond named %s with slaves %s"%(cd['name'], ','.join(cd['slaves']))
       audit.audit("create_bond", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_interfaces?action=created_bond')
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "networking_base.html"
+    return_dict["page_title"] = 'Create a network interface bond'
+    return_dict['tab'] = 'view_interfaces_tab'
+    return_dict["error"] = 'Error creating a network interface bond'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def remove_bond(request):
@@ -280,8 +263,7 @@ def remove_bond(request):
   return_dict = {}
   try:
     if 'name' not in request.REQUEST:
-      return_dict["error"] = "Error removing bond - No bond name specified. Please use the menus"%str(e)
-      return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      raise Exception("No bond name specified. Please use the menus")
 
     name = request.REQUEST["name"]
     return_dict["name"] = name
@@ -293,17 +275,19 @@ def remove_bond(request):
       result, err = networking.remove_bond(name)
       if not result:
         if not err:
-          return_dict["error"] = "Error removing bond"
+          raise Exception("Error removing bond")
         else:
-          return_dict["error"] = "Error removing bond - %s"%err
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+          raise Exception(err)
  
       audit_str = "Removed network bond %s"%(name)
       audit.audit("remove_bond", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_interfaces?action=removed_bond')
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "networking_base.html"
+    return_dict["page_title"] = 'Remove a network interface bond'
+    return_dict['tab'] = 'view_interfaces_tab'
+    return_dict["error"] = 'Error removing a network interface bond'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def view_hostname(request):
@@ -313,8 +297,7 @@ def view_hostname(request):
     hostname = socket.gethostname()
     domain_name,err = networking.get_domain_name()
     if err:
-      print err
-      return_dict["error"] = "Error getting domain name : %s"%err
+      raise Exception(err)
   
     if not "error" in return_dict:
       if "action" in request.GET:
@@ -326,8 +309,11 @@ def view_hostname(request):
       template = "view_hostname.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "networking_base.html"
+    return_dict["page_title"] = 'View system hostname'
+    return_dict['tab'] = 'view_hostname_tab'
+    return_dict["error"] = 'Error loading system hostname'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def edit_hostname(request):
@@ -339,13 +325,11 @@ def edit_hostname(request):
       hostname = socket.gethostname()
       domain_name,err = networking.get_domain_name()
       if err:
-        print err
         raise Exception(err)
 
       initial = {}
       initial['hostname'] = hostname
       initial['domain_name'] = domain_name
-      print initial
 
       form = networking_forms.EditHostnameForm(initial=initial)
       return_dict['form'] = form
@@ -357,79 +341,50 @@ def edit_hostname(request):
         return django.shortcuts.render_to_response("edit_hostname.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
       result_str = ""
-      try :
-        domain_name = None
-        if 'domain_name' in cd:
-          domain_name = cd['domain_name']
-        result, err = networking.set_hostname(cd['hostname'], domain_name)
-        if not result:
-          if err:
-            raise Exception('Error setting hostname : %s'%err)
-          else:
-            raise Exception('Error setting hostname')
-        result, err = networking.set_domain_name(domain_name)
-        if not result:
-          if err:
-            raise Exception('Error setting domain name : %s'%err)
-          else:
-            raise Exception('Error setting domain name')
-        python_scripts_path, err = common.get_python_scripts_path()
+      domain_name = None
+      if 'domain_name' in cd:
+        domain_name = cd['domain_name']
+      result, err = networking.set_hostname(cd['hostname'], domain_name)
+      if not result:
         if err:
           raise Exception(err)
-        ss_path, err = common.get_system_status_path()
+        else:
+          raise Exception('Error setting hostname')
+      result, err = networking.set_domain_name(domain_name)
+      if not result:
         if err:
           raise Exception(err)
+        else:
+          raise Exception('Error setting domain name')
+      python_scripts_path, err = common.get_python_scripts_path()
+      if err:
+        raise Exception(err)
+      ss_path, err = common.get_system_status_path()
+      if err:
+        raise Exception(err)
 
-        (ret,rc), err = command.execute_with_rc("python %s/generate_manifest.py %s"%(python_scripts_path, ss_path))
-        if err:
-          raise Exception(err)
-        if rc != 0:
-          err = ''
-          tl, er = command.get_output_list(ret)
-          if er:
-            raise Exception(er)
-          if tl:
-            err = ','.join(tl)
-          tl, er = command.get_error_list(ret)
-          if er:
-            raise Exception(er)
-          if tl:
-            err = err + ','.join(tl)
-          raise Exception(err)
-        (ret,rc), err = command.execute_with_rc("python %s/generate_status.py %s"%(python_scripts_path, ss_path))
-        if rc != 0:
-	  # there was nothing here. I have put a pass statement. Please review this again.
-          pass
-        if err:
-          raise Exception(err)
-          err = ''
-          tl, er = command.get_output_list(ret)
-          if er:
-            raise Exception(er)
-          if tl:
-            err = ','.join(tl)
-          tl, er = command.get_error_list(ret)
-          if er:
-            raise Exception(er)
-          if tl:
-            err = err + ','.join(tl)
-          raise Exception(err)
-  
-        audit_str = "Hostname set to %s."%cd['hostname']
-        if 'domain_name' in cd:
-          audit_str += 'Domain name set to %s'%cd['domain_name']
-        ret, err = audit.audit("edit_hostname", audit_str, request.META["REMOTE_ADDR"])
-        if err:
-          raise Exception(err)
-                
-      except Exception, e:
-        return_dict["error"] = "Error setting hostname information - %s"%str(e)
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
- 
+      ret, err = command.get_command_output("python %s/generate_manifest.py %s"%(python_scripts_path, ss_path))
+      if err:
+        raise Exception(err)
+
+      ret, err = command.get_command_output("python %s/generate_status.py %s"%(python_scripts_path, ss_path))
+      if err:
+        raise Exception(err)
+
+      audit_str = "Hostname set to %s."%cd['hostname']
+      if 'domain_name' in cd:
+        audit_str += 'Domain name set to %s'%cd['domain_name']
+      ret, err = audit.audit("edit_hostname", audit_str, request.META["REMOTE_ADDR"])
+      if err:
+        raise Exception(err)
+              
       return django.http.HttpResponseRedirect('/view_hostname?result=saved')
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "networking_base.html"
+    return_dict["page_title"] = 'Modify system hostname'
+    return_dict['tab'] = 'view_hostname_tab'
+    return_dict["error"] = 'Error modifying system hostname'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def view_dns_nameservers(request):
@@ -437,20 +392,21 @@ def view_dns_nameservers(request):
   try:
     ns_list, err = networking.get_name_servers()
     if err:
-      print err
-      return_dict["error"] = "Error getting DNS name servers : %s"%err
+      raise Exception(err)
   
-    if not "error" in return_dict:
-      if "action" in request.GET:
-        if request.GET["action"] == "saved":
-          conf = "Name servers successfully updated"
-        return_dict["conf"] = conf
-      return_dict['name_servers'] = ns_list
-      template = "view_dns_nameservers.html"
+    if "action" in request.GET:
+      if request.GET["action"] == "saved":
+        conf = "Name servers successfully updated"
+      return_dict["conf"] = conf
+    return_dict['name_servers'] = ns_list
+    template = "view_dns_nameservers.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "networking_base.html"
+    return_dict["page_title"] = 'View DNS servers'
+    return_dict['tab'] = 'view_dns_nameservers_tab'
+    return_dict["error"] = 'Error loading DNS servers'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
@@ -460,6 +416,8 @@ def edit_dns_nameservers(request):
   return_dict = {}
   try:
     ns_list, err = networking.get_name_servers()
+    if err:
+      raise Exception(err)
     if request.method=="GET":
       if not ns_list:
         form = networking_forms.DNSNameServersForm()
@@ -490,6 +448,9 @@ def edit_dns_nameservers(request):
     return_dict["form"] = form
     return django.shortcuts.render_to_response(url, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
+    return_dict['base_template'] = "networking_base.html"
+    return_dict["page_title"] = 'Modify DNS servers'
+    return_dict['tab'] = 'view_dns_nameservers_tab'
+    return_dict["error"] = 'Error modifying DNS servers'
+    return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))

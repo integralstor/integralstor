@@ -1,6 +1,10 @@
 {% extends 'storage_base.html' %}
+{%block tab_header %}
+Modify a ZFS pool's write cache
+{%endblock%}
 
 {%block inside_content %}
+<br><br>
 
 {%if request.GET.result %}
 {{request.GET.result}}

@@ -1,12 +1,16 @@
 {% extends 'networking_base.html' %}
+{%block tab_header %}
+NICs and bonds
+{%endblock%}
 
 {% block inside_content %}
+<br><br>
 
 {% if conf %}
-<p><i>{{conf}}</i></p>
+<p class="text-green"><i>{{conf}}</i></p>
 {%endif%}
 
-<h3> Network interfaces </h3>
+<h4> Network interfaces </h4>
 {% if not nics %}
 <p>No network interfaces appear to be present. </p>
 {%else %}
@@ -56,7 +60,7 @@ No
 {%endif%}
 </td>
 <td>
-<a href="/view_nic?name={{name}}" role="button" class="btn btn-default"> View interface details</a>
+<a href="/view_nic?name={{name}}" role="button" class="btn btn-info"> View interface details</a>
 </td>
 </tr>
 {%endif%}
@@ -65,7 +69,7 @@ No
 {%endif%}
 </div>
 <p>
-<h3> Network bonds </h3>
+<h4> Network bonds </h4>
 {% if not bonds %}
 <p>No network bonds appear to be present. </p>
 {%else %}
@@ -116,13 +120,13 @@ No
 {%endfor%}
 </td>
 <td>
-<a href="/view_bond?name={{name}}" role="button" class="btn btn-default"> View bond details</a>
+<a href="/view_bond?name={{name}}" role="button" class="btn btn-info"> View bond details</a>
 </td>
 </tr>
 {%endfor%}
 </table>
 {%endif%}
-<a href="/create_bond" role="button" class="btn btn-default"> Create a new bond</a>
+<a href="/create_bond" role="button" class="btn btn-primary"> Create a new bond</a>
 
 {%endblock%}
 {%block help_header%}
