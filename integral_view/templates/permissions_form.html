@@ -1,12 +1,12 @@
 
-{{form.path}}
+		{{form.path}}
             <table class="table" style="width:800px">
             <tr>
               <td>
             <label for="id_path">Set permissions for :</label>
               </td>
               <td>
-            {{ form.path.value }}
+            	<span id="id_path_value">{{ form.path.value }}</span>
               </td>
               <td>
               &nbsp
@@ -136,7 +136,26 @@
               &nbsp;
               </td>
             </tr>
-            </table>
-
+	</table>
         <a href="/view_zfs_pools" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
         <button type="submit" class="btn btn-primary">Save</button>
+
+
+<script>
+function check_status() {
+if (document.getElementById("id_set_owner").checked){
+  document.getElementsByName("uid")[0].disabled = "";
+}else{
+  document.getElementsByName("uid")[0].disabled = "disabled";
+}
+if (document.getElementById("id_set_group").checked){
+  document.getElementsByName("gid")[0].disabled = "";
+}else{
+  document.getElementsByName("gid")[0].disabled = "disabled";
+}
+}
+check_status()
+document.getElementById("id_set_owner").onchange = function (){check_status()}
+document.getElementById("id_set_group").onchange = function (){check_status()}
+
+</script>
