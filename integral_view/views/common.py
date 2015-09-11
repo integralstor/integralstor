@@ -442,10 +442,7 @@ def show(request, page, info = None):
         raise Exception(err)
       return_dict["audit_list"] = al
 
-
-
     elif page == "node_info":
-
       return_dict['base_template'] = "system_base.html"
       return_dict["page_title"] = 'System configuration'
       return_dict['tab'] = 'node_info_tab'

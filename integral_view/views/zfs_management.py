@@ -12,7 +12,7 @@ from integral_view.forms import zfs_forms
 def view_zfs_pools(request):
   return_dict = {}
   try:
-    template = 'logged_in_error.html'
+    template = "view_zfs_pools.html"
     pool_list, err = zfs.get_pools()
     if err:
       raise Exception(err)
@@ -41,8 +41,7 @@ def view_zfs_pools(request):
       elif request.GET["action"] == "changed_slog":
         conf = "ZFS pool write cache successfully set"
       return_dict["conf"] = conf
-      return_dict["pool_list"] = pool_list
-      template = "view_zfs_pools.html"
+    return_dict["pool_list"] = pool_list
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
@@ -853,7 +852,7 @@ def replace_disk(request):
   
       if "conf" in request.POST:
         if "node" not in request.POST or  "serial_number" not in request.POST:
-          raise Exception("Incorrect access method. Please use the menus"
+          raise Exception("Incorrect access method. Please use the menus")
         elif request.POST["node"] not in si:
           raise Exception("Unknown node. Please use the menus")
         elif "step" not in request.POST :

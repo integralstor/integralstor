@@ -46,7 +46,7 @@ def view_nfs_share(request):
     if err:
       raise Exception(err)
     if not exports_list:
-      raise Exception('Error loading NFS exports information ")
+      raise Exception('Error loading NFS exports information')
     found = False
     for e in exports_list:
       if e['path'] == path:
