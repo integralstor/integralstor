@@ -8,9 +8,10 @@ from django.conf import settings
 
 import integralstor_common
 from integralstor_common import command, db, common, audit, alerts, ntp, mail, zfs, file_processing,stats,scheduler_utils
+from integralstor_common import cifs as cifs_common
 
 import integralstor_unicell
-from integralstor_unicell import system_info, cifs, local_users
+from integralstor_unicell import system_info, local_users
 
 from integral_view.utils import iv_logging
 
@@ -675,14 +676,14 @@ def reset_to_factory_defaults(request):
   
       #Remove all shares 
       try:
-        cifs.delete_all_shares()
+        cifs_common.delete_all_shares()
       except Exception, e:
         #print str(e)
         return_dict["error"] = "Error deleting shares : %s."%e
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
   
       try:
-        cifs.delete_auth_settings()
+        cifs_common.delete_auth_settings()
       except Exception, e:
         return_dict["error"] = "Error deleting CIFS authentication settings : %s."%e
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))

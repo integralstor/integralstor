@@ -7,14 +7,15 @@ import integral_view
 from integral_view.forms import samba_shares_forms
 
 from integralstor_common import audit, networking,zfs
-from integralstor_unicell import cifs
+from integralstor_common import cifs as cifs_common
+from integralstor_unicell import cifs as cifs_unicell
 
 def view_cifs_shares(request):
 
   return_dict = {}
   try:
     template = 'logged_in_error.html'
-    shares_list, err = cifs.load_shares_list()
+    shares_list, err = cifs_common.load_shares_list()
     if err:
       raise Exception(err)
   
@@ -59,13 +60,13 @@ def view_cifs_share(request):
       return_dict["conf_message"] = "Information updated successfully"
   
     valid_users_list = None
-    share, err = cifs.load_share_info(access_mode, index)
+    share, err = cifs_common.load_share_info(access_mode, index)
     if err:
       raise Exception(err)
     if not share:
       raise Exception('Specified share not found')
 
-    valid_users_list, err = cifs.load_valid_users_list(share["share_id"])
+    valid_users_list, err = cifs_common.load_valid_users_list(share["share_id"])
     if err:
       raise Exception(err)
     if not share:
@@ -89,10 +90,10 @@ def edit_cifs_share(request):
 
   return_dict = {}
   try:
-    user_list, err = cifs.get_user_list()
+    user_list, err = cifs_unicell.get_user_list()
     if err:
       raise Exception(err)
-    group_list, err = cifs.get_group_list()
+    group_list, err = cifs_unicell.get_group_list()
     if err:
       raise Exception(err)
 
@@ -102,10 +103,10 @@ def edit_cifs_share(request):
         raise Exception("Unknown share specified")
 
       share_id = request.GET["share_id"]
-      share_dict, err = cifs.load_share_info("by_id", share_id)
+      share_dict, err = cifs_common.load_share_info("by_id", share_id)
       if err:
         raise Exception(err)
-      valid_users_list, err = cifs.load_valid_users_list(share_dict["share_id"])
+      valid_users_list, err = cifs_common.load_valid_users_list(share_dict["share_id"])
       if err:
         raise Exception(err)
   
@@ -179,10 +180,10 @@ def edit_cifs_share(request):
         else:
           groups = None
         #logger.debug("Save share request, name %s path %s, comment %s, read_only %s, browseable %s, guest_ok %s, users %s, groups %s, vol %s"%(name, path, comment, read_only, browseable, guest_ok, users, groups))
-        ret, err = cifs.save_share(share_id, name, comment, guest_ok, read_only, path, browseable, users, groups)
+        ret, err = cifs_common.save_share(share_id, name, comment, guest_ok, read_only, path, browseable, users, groups)
         if err:
           raise Exception(err)
-        ret, err = cifs.generate_smb_conf()
+        ret, err = cifs_unicell.generate_smb_conf()
         if err:
           raise Exception(err)
   
@@ -219,10 +220,10 @@ def delete_cifs_share(request):
       share_id = request.POST["share_id"]
       name = request.POST["name"]
       #logger.debug("Delete share request for name %s"%name)
-      ret, err = cifs.delete_share(share_id)
+      ret, err = cifs_common.delete_share(share_id)
       if err:
         raise Exception(err)
-      ret, err = cifs.generate_smb_conf()
+      ret, err = cifs_unicell.generate_smb_conf()
       if err:
         raise Exception(err)
   
@@ -242,10 +243,10 @@ def create_cifs_share(request):
 
   return_dict = {}
   try:
-    user_list, err = cifs.get_user_list()
+    user_list, err = cifs_unicell.get_user_list()
     if err:
       raise Exception(err)
-    group_list, err = cifs.get_group_list()
+    group_list, err = cifs_unicell.get_group_list()
     if err:
       raise Exception(err)
     pools, err = zfs.get_pools()
@@ -308,13 +309,13 @@ def create_cifs_share(request):
           groups = None
         vol = "unicell"
         #logger.debug("Create share request, name %s path %s, comment %s, read_only %s, browseable %s, guest_ok %s, users %s, groups %s, vol %s"%(name, path, comment, read_only, browseable, guest_ok, users, groups))
-        print '1'
-        ret, err = cifs.create_share(name, comment, guest_ok, read_only, display_path, display_path, browseable, users, groups,vol)
-        print '2'
+        #print '1'
+        ret, err = cifs_common.create_share(name, comment, guest_ok, read_only, display_path, display_path, browseable, users, groups,vol)
+        #print '2'
         if err:
           raise Exception(err)
-        ret, err = cifs.generate_smb_conf()
-        print '3'
+        ret, err = cifs_unicell.generate_smb_conf()
+        #print '3'
         if err:
           raise Exception(err)
   
@@ -337,7 +338,7 @@ def samba_server_settings(request):
   return_dict = {}
   #print 'a1'
   try:
-    d, err = cifs.load_auth_settings()
+    d, err = cifs_common.load_auth_settings()
     if err:
       raise Exception(err)
   
@@ -375,7 +376,7 @@ def samba_server_settings(request):
 def edit_auth_method(request):
   return_dict = {}
   try:
-    d, err = cifs.load_auth_settings()
+    d, err = cifs_common.load_auth_settings()
     if err:
       raise Exception(err)
     return_dict["samba_global_dict"] = d
@@ -392,10 +393,10 @@ def edit_auth_method(request):
         return_dict["error"] = "Selected authentication method is the same as before." 
         return django.shortcuts.render_to_response('edit_auth_method.html', return_dict, context_instance=django.template.context.RequestContext(request))
   
-      ret, err = cifs.change_auth_method(security)
+      ret, err = cifs_common.change_auth_method(security)
       if err:
         raise Exception(err)
-      ret, err = cifs.generate_smb_conf()
+      ret, err = cifs_unicell.generate_smb_conf()
       if err:
         raise Exception(err)
   
@@ -433,24 +434,24 @@ def save_samba_server_settings(request):
     if form.is_valid():
       cd = form.cleaned_data
   
-      ret, err = cifs.save_auth_settings(cd)
+      ret, err = cifs_common.save_auth_settings(cd)
       if err:
         raise Exception(err)
       if cd["security"] == "ads":
-        ret, err = cifs.generate_krb5_conf()
+        ret, err = cifs_common.generate_krb5_conf()
         if err:
           raise Exception(err)
-      ret, err = cifs.generate_smb_conf()
+      ret, err = cifs_unicell.generate_smb_conf()
       if err:
         raise Exception(err)
       if cd["security"] == "ads":
-        rc, err = cifs.kinit("administrator", cd["password"], cd["realm"])
+        rc, err = cifs_unicell.kinit("administrator", cd["password"], cd["realm"])
         if err:
           raise Exception(err)
-        rc, err = cifs.net_ads_join("administrator", cd["password"], cd["password_server"])
+        rc, err = cifs_unicell.net_ads_join("administrator", cd["password"], cd["password_server"])
         if err:
           raise Exception(err)
-      ret, err = cifs.restart_samba_services()
+      ret, err = cifs_unicell.restart_samba_services()
       if err:
         raise Exception(err)
       #print '6'
