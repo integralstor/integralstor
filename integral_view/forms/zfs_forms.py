@@ -51,6 +51,7 @@ class CreatePoolForm(forms.Form):
     pol = None
     if kwargs:
       pol = kwargs.pop('pool_types')
+      num_free_disks = kwargs.pop('num_free_disks')
     super(CreatePoolForm, self).__init__(*args, **kwargs)
     ch = []
     if pol:
@@ -60,13 +61,17 @@ class CreatePoolForm(forms.Form):
       if 'raid5' in pol:
         self.fields['num_raid_disks'] = forms.IntegerField(required=False)
       if 'raid10' in pol:
-        self.fields['stripe_width'] = forms.IntegerField(required=False)
+        max_stripe_width = num_free_disks/2
+        ch = []
+        for i in range(max_stripe_width):
+          ch.append(('%d'%(i+1), '%d'%(i+1)))
+        self.fields['stripe_width'] = forms.ChoiceField(choices=ch)
       self.fields['pool_type'] = forms.ChoiceField(choices=ch)
 
   def clean(self):
     cd = super(CreatePoolForm, self).clean()
     num_disks = cd['num_disks']
-    if cd['pool_type'] in ['raid10', 'raid5', 'raid6']:
+    if cd['pool_type'] in ['raid5', 'raid6']:
       if ('num_raid_disks' not in cd) or (not cd['num_raid_disks']):
         self._errors["num_raid_disks"] = self.error_class(["The number of RAID disks is required for a RAID pool"])
       if cd['num_raid_disks'] > num_disks:
@@ -74,9 +79,8 @@ class CreatePoolForm(forms.Form):
       if cd['pool_type'] == 'raid10':
         if ('stripe_width' not in cd) or (not cd['stripe_width']):
           self._errors["stripe_width"] = self.error_class(["Stripe width is required for a RAID 10 pool"])
-        if cd['stripe_width']*cd['num_raid_disks'] > num_disks:
+        if cd['stripe_width']*2 > num_disks:
           self._errors["stripe_width"] = self.error_class(["The number of disks with the stripe width and RAID disks combination exceeds the number of available disks. Only %d disks available"%num_disks])
-          self._errors["num_raid_disks"] = self.error_class(["The number of RAID disks is required for a RAID pool"])
     return cd
 
 
