@@ -54,7 +54,11 @@ Create a ZFS pool
             <label for="id_stripe_width">RAID 10 stripe width:</label>
               </td>
               <td>
-                <input type="text"  name="strip_width" class="form-control" id="id_num_raid_disks" placeholder="Enter the RAID 10 stripe width" />
+                  <select name="stripe_width" class="form-control">
+                  {% for choice in form.stripe_width.field.choices %}
+                    <option value="{{choice.0}}" {%if choice.0 == form.initial.stripe_width %} selected="selected"{%endif%}>{{choice.1}}</option>
+                  {%endfor%}
+                  </select>
               </td>
               <td>
             {{ form.stripe_width.errors }}
