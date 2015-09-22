@@ -24,10 +24,10 @@ Create a ZFS pool
             </tr>
             <tr>
               <td>
-            <label for="id_type">Data protection schema :</label>
+            <label for="id_pool_type">Data protection schema :</label>
               </td>
               <td>
-                  <select name="pool_type" class="form-control">
+                  <select name="pool_type" class="form-control" id="id_pool_type">
                   {% for choice in form.pool_type.field.choices %}
                     <option value="{{choice.0}}" {%if choice.0 == form.initial.pool_type %} selected="selected"{%endif%}>{{choice.1}}</option>
                   {%endfor%}
@@ -54,7 +54,7 @@ Create a ZFS pool
             <label for="id_stripe_width">RAID 10 stripe width:</label>
               </td>
               <td>
-                  <select name="stripe_width" class="form-control">
+                  <select name="stripe_width" class="form-control" id="id_stripe_width">
                   {% for choice in form.stripe_width.field.choices %}
                     <option value="{{choice.0}}" {%if choice.0 == form.initial.stripe_width %} selected="selected"{%endif%}>{{choice.1}}</option>
                   {%endfor%}
@@ -67,9 +67,33 @@ Create a ZFS pool
             </table>
 
         <a href="/view_zfs_pools" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary">Save >></button>
+        <button type="submit" class="btn btn-primary">Save</button>
 </form>
-
+<script>
+$(document).ready(function(){
+  $("#id_num_raid_disks").attr('disabled','disabled');
+  $("#id_stripe_width").attr('disabled','disabled');
+  $("#id_pool_type").on('change',function(){
+    var val = $(this).val();
+    if (val == "mirror"){
+      $("#id_num_raid_disks").attr('disabled','disabled');
+      $("#id_stripe_width").attr('disabled','disabled');
+    }
+    if (val == "raid5"){
+      $("#id_num_raid_disks").removeAttr('disabled');
+      $("#id_stripe_width").attr('disabled','disabled');
+    }
+    if (val == "raid6"){
+      $("#id_num_raid_disks").removeAttr('disabled');
+      $("#id_stripe_width").attr('disabled','disabled');
+    }
+    if (val == "raid10"){
+      $("#id_num_raid_disks").removeAttr('disabled');
+      $("#id_stripe_width").removeAttr('disabled');
+    }
+  })
+});
+</script>
 {%endblock%}
 {%block help_header%}
 Create a  ZFS Pool
