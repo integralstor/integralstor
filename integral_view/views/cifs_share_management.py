@@ -9,6 +9,7 @@ from integral_view.forms import samba_shares_forms
 from integralstor_common import audit, networking,zfs
 from integralstor_common import cifs as cifs_common
 from integralstor_unicell import cifs as cifs_unicell
+from integralstor_unicell import local_users
 
 def view_cifs_shares(request):
 
@@ -433,8 +434,9 @@ def save_samba_server_settings(request):
   
     if form.is_valid():
       cd = form.cleaned_data
-  
+      print "Calling auth save settings" 
       ret, err = cifs_common.save_auth_settings(cd)
+      print "save settings done"
       if err:
         raise Exception(err)
       if cd["security"] == "ads":
@@ -444,6 +446,10 @@ def save_samba_server_settings(request):
       ret, err = cifs_unicell.generate_smb_conf()
       if err:
         raise Exception(err)
+      ret, err = local_users.create_local_user('integralstor_guest', 'IntegralStor_Guest_User', 'integralstorguest')
+      # Monkey patch to say skip if user exists. Fix it in integralstor_unicell.cifs
+      if 'The user "integralstor_guest" already exists' in err:
+        pass
       if cd["security"] == "ads":
         rc, err = cifs_unicell.kinit("administrator", cd["password"], cd["realm"])
         if err:

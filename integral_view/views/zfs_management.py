@@ -1143,7 +1143,7 @@ def modify_dir_permissions(request):
   return_dict = {}
   try:
     if 'path' not in request.REQUEST:
-      path = "/pool/ds1/test3/"
+      path = "/"
       #raise Exception('Path not specified')
     else:
       path = request.REQUEST['path']
