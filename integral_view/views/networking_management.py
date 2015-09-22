@@ -13,7 +13,6 @@ from integral_view.forms import networking_forms
 def view_interfaces(request):
   return_dict = {}
   try:
-    template = 'logged_in_error.html'
     nics, err = networking.get_interfaces()
     if err:
       raise Exception(err)
@@ -35,8 +34,7 @@ def view_interfaces(request):
       return_dict["conf"] = conf
     return_dict["nics"] = nics
     return_dict["bonds"] = bonds
-    template = "view_interfaces.html"
-    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+    return django.shortcuts.render_to_response('view_interfaces.html', return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
     return_dict["page_title"] = 'View network interfaces'
@@ -48,7 +46,6 @@ def view_interfaces(request):
 def view_nic(request):
   return_dict = {}
   try:
-    template = 'logged_in_error.html'
     if 'name' not in request.REQUEST:
       raise Exception("Error loading network interface information : No interface name specified.")
     
@@ -62,8 +59,7 @@ def view_nic(request):
     return_dict['nic'] = interfaces[name]
     return_dict['name'] = name
       
-    template = "view_nic.html"
-    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+    return django.shortcuts.render_to_response('view_nic.html', return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
     return_dict["page_title"] = 'View network interface details'
@@ -112,7 +108,6 @@ def set_interface_state(request):
 def view_bond(request):
   return_dict = {}
   try:
-    template = 'logged_in_error.html'
     if 'name' not in request.REQUEST:
       raise Exception("No bond name specified.")
     
@@ -134,8 +129,7 @@ def view_bond(request):
     return_dict['bond'] = bond
     return_dict['name'] = name
       
-    template = "view_bond.html"
-    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+    return django.shortcuts.render_to_response('view_bond.html', return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
     return_dict["page_title"] = 'View network bond details'
@@ -293,7 +287,6 @@ def remove_bond(request):
 def view_hostname(request):
   return_dict = {}
   try:
-    template = 'logged_in_error.html'
     hostname = socket.gethostname()
     domain_name,err = networking.get_domain_name()
     if err:
@@ -306,8 +299,7 @@ def view_hostname(request):
         return_dict["conf"] = conf
       return_dict['domain_name'] = domain_name
       return_dict['hostname'] = hostname
-      template = "view_hostname.html"
-    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+    return django.shortcuts.render_to_response('view_hostname.html', return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
     return_dict["page_title"] = 'View system hostname'

@@ -39,7 +39,6 @@ def view_nfs_share(request):
   return_dict = {}
   try:
     path = request.GET['path']
-    template = 'logged_in_error.html'
     if not path:
       raise Exception("No path specified. Please use the menus.")
     exports_list, err = nfs.load_exports_list()
@@ -56,9 +55,7 @@ def view_nfs_share(request):
     if not found:
       raise Exception("Requested share not found.")
   
-    if not "error" in return_dict:
-      template = "view_nfs_share.html"
-    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+    return django.shortcuts.render_to_response('view_nfs_share.html', return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
     return_dict["page_title"] = 'View NFS share details'

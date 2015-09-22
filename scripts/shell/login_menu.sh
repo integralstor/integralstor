@@ -19,6 +19,12 @@ view_node_config(){
   pause
 }
 
+generate_manifest_and_status(){
+  python /opt/integralstor/integralstor-unicell/scripts/python/generate_manifest.py
+  python /opt/integralstor/integralstor-unicell/scripts/python/generate_status.py
+  pause
+}
+
 
 goto_shell() {
   su -l fractalio
@@ -46,7 +52,8 @@ show_menu() {
   echo "3. Shutdown"
   echo "4. View configuration"
   echo "5. View process status"
-  echo "6. Exit menu"
+  echo "6. Scan system configuration"
+  echo "7. Exit menu"
 }
 
 read_input(){
@@ -58,7 +65,8 @@ read_input(){
     3) do_shutdown;;
     4) view_node_config;;
     5) view_node_status;;
-    6) exit 0;;
+    6) generate_manifest_and_status;;
+    7) exit 0;;
     *)  echo "Not a Valid INPUT" && sleep 2
   esac
 }
