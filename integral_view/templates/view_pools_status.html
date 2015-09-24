@@ -4,6 +4,9 @@ ZFS pools status
 {%endblock%}
 {% block inside_content %}
 <br><br>
+{%if not pools %}
+No storage pools created
+{%else%}
 <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 <div class="box-group" id="accordion">
    {%for pool in pools %}
@@ -157,6 +160,7 @@ ZFS pools status
   </div>
 
 
+{%endif%}
 
 
 {% endblock %}
