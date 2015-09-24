@@ -42,7 +42,7 @@ Create a ZFS pool
             <label for="id_num_raid_disks">Number of disks in the RAID :</label>
               </td>
               <td>
-                <input type="text"  name="num_raid_disks" class="form-control" id="id_num_raid_disks" placeholder="Number of disks under raid, {{num_disks}} currently unused disks" />
+                <input type="number" max=4 min=0 name="num_raid_disks" class="form-control" id="id_num_raid_disks" placeholder="Number of disks under raid, {{num_disks}} currently unused disks" />
               </td>
               <td>
             {{ form.num_raid_disks.errors }}
@@ -67,7 +67,7 @@ Create a ZFS pool
             </table>
 
         <a href="/view_zfs_pools" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary cover-page">Save</button>
 </form>
 <script>
 $(document).ready(function(){
@@ -88,7 +88,7 @@ $(document).ready(function(){
       $("#id_stripe_width").attr('disabled','disabled');
     }
     if (val == "raid10"){
-      $("#id_num_raid_disks").removeAttr('disabled');
+      $("#id_num_raid_disks").attr('disabled','disabled');
       $("#id_stripe_width").removeAttr('disabled');
     }
   })

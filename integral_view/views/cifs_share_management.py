@@ -15,20 +15,23 @@ def view_cifs_shares(request):
 
   return_dict = {}
   try:
+    template = 'logged_in_error.html'
     shares_list, err = cifs_common.load_shares_list()
     if err:
       raise Exception(err)
   
-    if "action" in request.GET:
-      if request.GET["action"] == "saved":
-        conf = "Share information successfully updated"
-      elif request.GET["action"] == "created":
-        conf = "Share successfully created"
-      elif request.GET["action"] == "deleted":
-        conf = "Share successfully deleted"
-      return_dict["conf"] = conf
-    return_dict["shares_list"] = shares_list
-    return django.shortcuts.render_to_response('view_cifs_shares.html', return_dict, context_instance = django.template.context.RequestContext(request))
+    if not "error" in return_dict:
+      if "action" in request.GET:
+        if request.GET["action"] == "saved":
+          conf = "Share information successfully updated"
+        elif request.GET["action"] == "created":
+          conf = "Share successfully created"
+        elif request.GET["action"] == "deleted":
+          conf = "Share successfully deleted"
+        return_dict["conf"] = conf
+      return_dict["shares_list"] = shares_list
+      template = "view_cifs_shares.html"
+    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "cifs_base.html"
     return_dict["page_title"] = 'CIFS shares'
@@ -43,6 +46,7 @@ def view_cifs_share(request):
 
   return_dict = {}
   try:
+    template = 'logged_in_error.html'
   
     if request.method != "GET":
       raise Exception("Incorrect access method. Please use the menus")
@@ -72,8 +76,9 @@ def view_cifs_share(request):
     return_dict["share"] = share
     if valid_users_list:
         return_dict["valid_users_list"] = valid_users_list
+    template = 'view_cifs_share.html'
   
-    return django.shortcuts.render_to_response('view_cifs_share.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "cifs_base.html"
     return_dict["page_title"] = 'CIFS share details'
@@ -466,6 +471,7 @@ def save_samba_server_settings(request):
     return_dict["conf_message"] = "Information successfully updated"
     #print '8'
     return django.http.HttpResponseRedirect('/auth_server_settings?action=saved')
+    #return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "services_base.html"
     return_dict["page_title"] = 'Modify CIFS authentication settings'

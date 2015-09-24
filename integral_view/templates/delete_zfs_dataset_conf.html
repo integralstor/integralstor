@@ -7,20 +7,6 @@ Delete a ZFS dataset - confirmation
 {%block inside_content %}
 <br><br>
 
-<!-- Modal -->
-<div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-body" id="myModalBody">
-        <br><br><br>
-        <i class="fa fa-spinner fa-spin fa-4 blue"></i>
-        <br><br><br>
-        <p id="p-node-text">Processing.. Please wait.
-        <br><br><br>
-      </div>
-    </div>
-  </div>
-</div>
 
 {%if type == 'zvol' %}
 <p id="p-warning-text">Are you sure you want to delete the ZFS block device volume with name  "{{name}}"? </p>
@@ -55,3 +41,10 @@ Deleting a ZFS dataset
 <p>Confirming this operation results in the specified ZFS dataset being deleted from the system. Please ensure that this is actually intended before continuing.</p>
 {%endif%}
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}
+

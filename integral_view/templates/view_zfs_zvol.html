@@ -49,3 +49,10 @@ View ZFS block device volume details
 {%block help_body%}
   <p> This screen list ZFS block device volume details and allows you to delete this volume.  </p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}
+

@@ -20,8 +20,8 @@ view_node_config(){
 }
 
 generate_manifest_and_status(){
-  python /opt/integralstor/integralstor-unicell/scripts/python/generate_manifest.py
-  python /opt/integralstor/integralstor-unicell/scripts/python/generate_status.py
+  python /opt/integralstor/integralstor-unicell/scripts/python/generate_manifest.py /opt/integralstor/integralstor-unicell/config/status/
+  python /opt/integralstor/integralstor-unicell/scripts/python/generate_status.py /opt/integralstor/integralstor-unicell/config/status/
   pause
 }
 

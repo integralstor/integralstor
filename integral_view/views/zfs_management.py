@@ -56,6 +56,7 @@ def view_zfs_pools(request):
 def view_zfs_pool(request):
   return_dict = {}
   try:
+    template = 'logged_in_error.html'
     if 'name' not in request.REQUEST:
       raise Exception("No pool specified.")
     
@@ -76,7 +77,8 @@ def view_zfs_pool(request):
     return_dict['pool'] = pool
     return_dict['pool_name'] = pool_name
       
-    return django.shortcuts.render_to_response('view_zfs_pool.html', return_dict, context_instance = django.template.context.RequestContext(request))
+    template = "view_zfs_pool.html"
+    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'ZFS pool details'
@@ -210,6 +212,7 @@ def set_zfs_slog(request):
   return_dict = {}
   try:
     
+    template = 'logged_in_error.html'
 
     if 'pool' not in request.REQUEST:
       raise Exception("No pool specified.")
@@ -332,6 +335,7 @@ def remove_zfs_slog(request):
 def view_zfs_dataset(request):
   return_dict = {}
   try:
+    template = 'logged_in_error.html'
     if 'name' not in request.REQUEST:
       raise Exception("No dataset specified.")
     
@@ -361,7 +365,8 @@ def view_zfs_dataset(request):
     if 'result' in request.GET:
       return_dict['result'] = request.GET['result']
 
-    return django.shortcuts.render_to_response('view_zfs_dataset.html', return_dict, context_instance = django.template.context.RequestContext(request))
+    template = "view_zfs_dataset.html"
+    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'ZFS dataset details'
@@ -580,6 +585,7 @@ def create_zfs_zvol(request):
 def view_zfs_zvol(request):
   return_dict = {}
   try:
+    template = 'logged_in_error.html'
     if 'name' not in request.REQUEST:
       raise Exception("No block device volume specified.")
     
@@ -616,6 +622,7 @@ def view_zfs_zvol(request):
 def view_zfs_snapshots(request):
   return_dict = {}
   try:
+    template = 'logged_in_error.html'
 
     #If the list of snapshots is for a particular dataset or pool, get the name of that ds or pool
     name = None
@@ -830,6 +837,7 @@ def replace_disk(request):
 
     return_dict['system_config_list'] = si
     
+    template = 'logged_in_error.html'
     use_salt, err = common.use_salt()
     if err:
       raise Exception(err)
