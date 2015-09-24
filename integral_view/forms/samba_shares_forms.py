@@ -17,7 +17,7 @@ class AuthADSettingsForm(forms.Form):
 
   def clean(self):
     cd = super(AuthADSettingsForm, self).clean()
-    if not networking.is_valid_ip(cd['password_server_ip']):
+    if not networking.validate_ip(cd['password_server_ip']):
       del cd["password_server_ip"]
       self._errors["password_server_ip"] = self.error_class(["Please specify a valid IP address"])
     return cd
