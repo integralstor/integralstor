@@ -771,19 +771,19 @@ def reload_manifest(request):
       return_dict["mi"] = mi[mi.keys()[0]] # Need the hostname here. 
       return django.shortcuts.render_to_response("reload_manifest.html", return_dict, context_instance=django.template.context.RequestContext(request))
     elif request.method == "POST":
-      python_scripts_path, err = common.get_python_scripts_path()
+      common_python_scripts_path, err = common.get_common_python_scripts_path()
       if err:
         raise Exception(err)
       ss_path, err = common.get_system_status_path()
       if err:
         raise Exception(err)
-      #(ret,rc), err = command.execute_with_rc("python %s/generate_manifest.py %s"%(python_scripts_path, ss_path))
-      ret, err = command.get_command_output("python %s/generate_manifest.py %s"%(python_scripts_path, ss_path))
+      #(ret,rc), err = command.execute_with_rc("python %s/generate_manifest.py %s"%(common_python_scripts_path, ss_path))
+      ret, err = command.get_command_output("python %s/generate_manifest.py %s"%(common_python_scripts_path, ss_path))
       #print 'mani', ret, err
       if err:
         raise Exception(err)
       #(ret,rc), err = command.execute_with_rc("python %s/generate_status.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
-      ret, err = command.get_command_output("python %s/generate_status.py %s"%(python_scripts_path, ss_path))
+      ret, err = command.get_command_output("python %s/generate_status.py %s"%(common_python_scripts_path, ss_path))
       #print 'stat', ret, err
       if err:
         raise Exception(err)

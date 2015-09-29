@@ -359,15 +359,18 @@ def edit_hostname(request):
       python_scripts_path, err = common.get_python_scripts_path()
       if err:
         raise Exception(err)
+      common_python_scripts_path, err = common.get_common_python_scripts_path()
+      if err:
+        raise Exception(err)
       ss_path, err = common.get_system_status_path()
       if err:
         raise Exception(err)
 
-      ret, err = command.get_command_output("python %s/generate_manifest.py %s"%(python_scripts_path, ss_path))
+      ret, err = command.get_command_output("python %s/generate_manifest.py %s"%(common_python_scripts_path, ss_path))
       if err:
         raise Exception(err)
 
-      ret, err = command.get_command_output("python %s/generate_status.py %s"%(python_scripts_path, ss_path))
+      ret, err = command.get_command_output("python %s/generate_status.py %s"%(common_python_scripts_path, ss_path))
       if err:
         raise Exception(err)
 

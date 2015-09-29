@@ -959,6 +959,9 @@ def replace_disk(request):
             python_scripts_path, err = integralstor_common.common.get_python_scripts_path()
             if err:
               raise Exception(err)
+            common_python_scripts_path, err = integralstor_common.common.get_common_python_scripts_path()
+            if err:
+              raise Exception(err)
             #they have confirmed the new disk serial number
             #get the id of the disk and
             #zpool replace poolname old disk new disk
@@ -1074,7 +1077,7 @@ def replace_disk(request):
                 if tl:
                   err = err + ','.join(tl)
                 raise Exception(err)
-            (ret, rc), err = integralstor_common.common.command.execute_with_rc('%s/generate_manifest.py'%python_scripts_path)
+            (ret, rc), err = integralstor_common.common.command.execute_with_rc('%s/generate_manifest.py'%common_python_scripts_path)
             if err:
               raise Exception(err)
             #print ret
@@ -1093,7 +1096,7 @@ def replace_disk(request):
               raise Exception("Could not regenrate the new hardware configuration. Error generating manifest. %s"%err)
               #print ret
             else:
-              (ret, rc), err = integralstor_common.common.command.execute_with_rc('%s/generate_status.py'%python_scripts_path)
+              (ret, rc), err = integralstor_common.common.command.execute_with_rc('%s/generate_status.py'%common_python_scripts_path)
               if err:
                 raise Exception(err)
               if rc != 0:

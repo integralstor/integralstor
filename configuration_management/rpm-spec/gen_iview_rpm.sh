@@ -29,7 +29,7 @@ cd /tmp
 echo "Please type your github.com username"
 read github_username
 echo
-git clone https://$github_username@github.com/fractalio/integral-view.git
+git clone https://$github_username@github.com/fractalio/integralstor-unicell.git
 
 # To change the branch
 echo "Enter your branch name to checkout : "
@@ -170,9 +170,9 @@ echo "/usr/local/bin/uwsgi --emperor /etc/uwsgi/vassals --uid root --gid root" >
 chmod 755 /opt/fractalio/scripts/python/*
 chmod 755 /opt/fractalio/scripts/shell/*
 
-(crontab -l 2>/dev/null; echo "*/1 * * * * /opt/fractalio/scripts/python/generate_status.py > /tmp/out_status >> /tmp/err_status") | crontab -
+(crontab -l 2>/dev/null; echo "*/1 * * * * /opt/integralstor/integralstor_common/scripts/python/generate_status.py > /tmp/out_status >> /tmp/err_status") | crontab -
 
-(crontab -l 2>/dev/null; echo "*/1 * * * * /opt/fractalio/scripts/python/poll_for_alerts.py > /tmp/out_alerts >> /tmp/err_alerts") | crontab -
+(crontab -l 2>/dev/null; echo "*/1 * * * * /opt/integralstor/integralstor_common/scripts/python/poll_for_alerts.py > /tmp/out_alerts >> /tmp/err_alerts") | crontab -
 
 # I have commented this out for future reference and use.
 #(crontab -l 2>/dev/null; echo "*/1 * * * * /etc/fractalio/python/generate_status.py > /tmp/out_status >> /tmp/err_status") | crontab -
