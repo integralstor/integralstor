@@ -10,8 +10,8 @@ APP_DEBUG = False
 LOGIN_URL = '/login/'
 
 DB_LOCATION, err = common.get_db_path()
-STATIC_DIR_PATH = '/opt/integralstor/integralstor-unicell/integral_view/static'
-TEMPLATE_DIR_PATH = "/opt/integralstor/integralstor-unicell/integral_view/templates"
+STATIC_DIR_PATH = '/opt/integralstor/integralstor_unicell/integral_view/static'
+TEMPLATE_DIR_PATH = "/opt/integralstor/integralstor_unicell/integral_view/templates"
 
 
 TEMPLATE_DEBUG = DEBUG
@@ -177,7 +177,7 @@ LOGGING = {
         'file': {
           'level': 'DEBUG',
           'class': 'logging.handlers.RotatingFileHandler',
-          'filename': '/var/log/integralstor/integralstor-unicell/integral_view.log',
+          'filename': '/var/log/integralstor/integralstor_unicell/integral_view.log',
           'maxBytes': 1024*1024*5,
           'backupCount': 5,
           'formatter': 'standard'

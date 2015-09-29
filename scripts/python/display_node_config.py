@@ -54,7 +54,7 @@ if __name__ == '__main__':
   print
   print
   print
-  print "Integralstor Unicell configuration"
+  print "Integralstor Node configuration"
   print "----------------------------------"
   rc = display_config()
   print

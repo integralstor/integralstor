@@ -22,7 +22,7 @@
 BASE=ramdisk
 RETVAL=0
 LOCKFILE=/var/lock/subsys/${BASE}
-file=/opt/integralstor/integralstor-unicell/ramdisks
+file=/opt/integralstor/integralstor_unicell/ramdisks
 start() {
 
 cat $file | while read line

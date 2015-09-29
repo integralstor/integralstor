@@ -6,22 +6,22 @@ pause(){
  
 configure_network_interface(){
   #echo "configure networking called"
-  python /opt/integralstor/integralstor-unicell/scripts/python/configure_networking.py interface
+  python /opt/integralstor/integralstor_unicell/scripts/python/configure_networking.py interface
 }
 
 
 view_node_status(){
-  python /opt/integralstor/integralstor-unicell/scripts/python/display_node_status.py
+  python /opt/integralstor/integralstor_unicell/scripts/python/display_node_status.py
   pause
 }
 view_node_config(){
-  python /opt/integralstor/integralstor-unicell/scripts/python/display_node_config.py
+  python /opt/integralstor/integralstor_unicell/scripts/python/display_node_config.py
   pause
 }
 
 generate_manifest_and_status(){
-  python /opt/integralstor/integralstor-unicell/scripts/python/generate_manifest.py
-  python /opt/integralstor/integralstor-unicell/scripts/python/generate_status.py
+  python /opt/integralstor/integralstor_common/scripts/python/generate_manifest.py
+  python /opt/integralstor/integralstor_common/scripts/python/generate_status.py
   pause
 }
 
