@@ -9,6 +9,7 @@ from integralstor_common import networking, audit, command
 def view_services(request):
   return_dict = {}
   try:
+    template = 'logged_in_error.html'
   
     if "action" in request.GET:
       if request.GET["action"] == "start_success":
@@ -35,7 +36,8 @@ def view_services(request):
       services_dict[service[0]]['info'] = sd
 
       return_dict["services"] = services_dict
-    return django.shortcuts.render_to_response('view_services.html', return_dict, context_instance = django.template.context.RequestContext(request))
+      template = "view_services.html"
+    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "services_base.html"
     return_dict["page_title"] = 'System services'

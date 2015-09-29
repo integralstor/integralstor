@@ -158,6 +158,7 @@ def dashboard(request,page):
       raise Exception('Error loading system configuration')
     return_dict['system_info'] = si
     #By default show error page
+    template = "logged_in_error.html"
     num_nodes_bad = 0
     total_pool = 0
     total_nodes = len(si)
@@ -367,6 +368,7 @@ def show(request, page, info = None):
     return_dict['system_info'] = si
 
     #By default show error page
+    template = "logged_in_error.html"
 
     if page == "dir_contents":
       #CHANGE THIS TO SHOW LOCAL DIR LISTINGS!!

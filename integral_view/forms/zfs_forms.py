@@ -63,10 +63,8 @@ class CreatePoolForm(forms.Form):
       if 'raid10' in pol:
         max_stripe_width = num_free_disks/2
         stripes = []
-        i = 2
-        while i <= max_stripe_width:
-          stripes.append(('%d'%i, '%d'%i))
-          i += 1
+        for i in range(max_stripe_width):
+          stripes.append(('%d'%(i+1), '%d'%(i+1)))
         self.fields['stripe_width'] = forms.ChoiceField(choices=stripes,required=False)
       self.fields['pool_type'] = forms.ChoiceField(choices=ch)
 

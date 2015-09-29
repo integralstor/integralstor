@@ -69,3 +69,10 @@ View all ZFS pools
 {%block help_body%}
   <p> This screen provides the list of all the ZFS pools that have been created on this IntegralStor system. To view details about a particular ZFS pool, please select the the desired pool from the list.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}
+
