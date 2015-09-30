@@ -19,14 +19,15 @@ Disk serial number
 <th >
 S.M.A.R.T status
 </th>
-<td>
-Action
-</td>
+<th>
+Disk replacement
+</th>
 </thead>
 {%for sn, disk in disk_status.items %}
+{%if disk.boot_device %}
 <tr>
 <td>
-{{sn}}  {%if disk.boot_device %} (OS disk) {%else%} (Data disk){%endif%}
+{{sn}}  (OS disk) 
 </td>
 <td>
 {{disk.status}} &nbsp;&nbsp;
@@ -37,7 +38,7 @@ Action
 {%endif%}
 </td>
 <td>
-    {% if disk.status != 'PASSED' %}
+{%if disk.status != 'PASSED'%}
       {%if disk.pool%}
       <form method="POST" action="/replace_disk/">
         <input type="hidden" name="node" value="{{node_name}}">
@@ -48,9 +49,45 @@ Action
       {%else%}
         <button  class="btn btn-primary" onClick ="alert('This disk is not part of any ZFS pool so you can go ahead and replace it safely');"> Replace (swap out) this disk </button>
       {%endif%}
-    {%endif%}
+{%else%}
+Healthy disk. No replacement necessary.
+{%endif%}
 </td>
 </tr>
+{%endif%}
+{%endfor%}
+{%for sn, disk in disk_status.items %}
+{%if not disk.boot_device %}
+<tr>
+<td>
+{{sn}}  (Data disk) 
+</td>
+<td>
+{{disk.status}} &nbsp;&nbsp;
+{%if disk.status == 'PASSED'%}
+<i class="fa fa-check-circle green fa-2x"></i>
+{%else%}
+<i class="fa fa-remove red fa-2x"></i>
+{%endif%}
+</td>
+<td>
+{%if disk.status != 'PASSED'%}
+      {%if disk.pool%}
+      <form method="POST" action="/replace_disk/">
+        <input type="hidden" name="node" value="{{node_name}}">
+        <input type="hidden" name="serial_number" value="{{sn}}">
+        <input type="hidden" name="step" value="offline_disk">
+          <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');"> Replace (swap out) this disk </button>
+      </form>
+      {%else%}
+        <button  class="btn btn-primary" onClick ="alert('This disk is not part of any ZFS pool so you can go ahead and replace it safely');"> Replace (swap out) this disk </button>
+      {%endif%}
+{%else%}
+Healthy disk. No replacement necessary.
+{%endif%}
+</td>
+</tr>
+{%endif%}
 {%endfor%}
 </table>
 {% endblock %}

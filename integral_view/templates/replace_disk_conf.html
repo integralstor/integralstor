@@ -27,15 +27,15 @@ Replace a hard drive  - initial confirmation
   <input type=hidden name="serial_number" value="{{serial_number}}">
   <input type=hidden name="step" value="offline_disk">
 
-  <p > You have chosen to replace a disk with serial number "{{serial_number}}" on GRIDCell "{{node}}". On confirmation, we will safely guide you through this process.</p><br>
+  <p > You have chosen to replace a disk with serial number "{{serial_number}}" on node  "{{node}}". On confirmation, we will safely guide you through this process.</p><br>
       <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/show/disk_status'"> &nbsp;&nbsp; <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and proceed >></button>
 </form>
 
 
 {%endblock%}
 {%block help_header%}
-Replace a disk within a GRIDCell
+Replace a disk within a node 
 {%endblock%}
 {%block help_body%}
-<p>This screen is intended for the administrator to confirm that the correct disk has been chosen to be replaced on the correct GRIDCell. Replacing an incorrect disk may result in data loss so please confirm this information. The replace disk process involves multiple steps so please note down the information provided correctly and confirm that all is ok before proceeding.</p>
+<p>This screen is intended for the administrator to confirm that the correct disk has been chosen to be replaced on the correct node . Replacing an incorrect disk may result in data loss so please confirm this information. The replace disk process involves multiple steps so please note down the information provided correctly and confirm that all is ok before proceeding.</p>
 {%endblock%}

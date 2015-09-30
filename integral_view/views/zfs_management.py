@@ -2,10 +2,10 @@ import django, django.template
 
 import integralstor_common
 import integralstor_unicell
-from integralstor_common import zfs, audit, ramdisk,file_processing
-from integralstor_common import scheduler_utils
+from integralstor_common import zfs, audit, ramdisk,file_processing, common, command
+from integralstor_common import scheduler_utils, manifest_status
 from integralstor_common import cifs as common_cifs
-from integralstor_unicell import nfs,local_users, iscsi_stgt
+from integralstor_unicell import nfs,local_users, iscsi_stgt, system_info
 
 import json, time, os, shutil, tempfile, os.path, re, subprocess, sys, shutil, pwd, grp, stat,datetime
 
@@ -956,7 +956,7 @@ def replace_disk(request):
                       raise Exception(error)
                 #print rc
               else:
-                (ret, rc), err = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+                (ret, rc), err = command.execute_with_rc(cmd_to_run)
                 if err:
                   raise Exception(err)
                 #print ret
@@ -976,6 +976,8 @@ def replace_disk(request):
               #if disk_status == "Disk Missing":
               #  #Issue a reboot now, wait for a couple of seconds for it to shutdown and then redirect to the template to wait for reboot..
               #  pass
+              audit_str = "Replace disk - Disk with serial number %s brought offline"%serial_number
+              audit.audit("replace_disk_offline_disk", audit_str, request.META["REMOTE_ADDR"])
               return_dict["serial_number"] = serial_number
               return_dict["node"] = node
               return_dict["pool"] = pool
@@ -994,20 +996,31 @@ def replace_disk(request):
             return_dict["pool"] = pool
             return_dict["old_id"] = old_id
             old_disks = si[node]["disks"].keys()
+            result = False
             if use_salt:
               client = salt.client.LocalClient()
               rc = client.cmd(node, 'integralstor.disk_info_and_status')
+              if rc and node in rc:
+                result = True
+                new_disks = rc[node]
             else:
               rc, err = manifest_status.disk_info_and_status()
               if err:
                 raise Exception(err)
-            if rc and node in rc:
-              new_disks = rc[node].keys()
+              if rc:
+                result = True
+                new_disks = rc
+            if result:
+              #print '1'
               if new_disks:
-                for disk in new_disks:
+                #print new_disks.keys()
+                #print old_disks
+                for disk in new_disks.keys():
+                  #print disk
                   if disk not in old_disks:
+                    #print '3'
                     return_dict["inserted_disk_serial_number"] = disk
-                    return_dict["new_id"] = rc[node][disk]["id"]
+                    return_dict["new_id"] = new_disks[disk]["id"]
                     break
                 if "inserted_disk_serial_number" not in return_dict:
                   raise Exception("Could not detect any new disk.")
@@ -1015,10 +1028,10 @@ def replace_disk(request):
                   template = "replace_disk_confirm_new_disk.html"
           elif step == "online_new_disk":
   
-            python_scripts_path, err = integralstor_common.common.get_python_scripts_path()
+            python_scripts_path, err = common.get_python_scripts_path()
             if err:
               raise Exception(err)
-            common_python_scripts_path, err = integralstor_common.common.get_common_python_scripts_path()
+            common_python_scripts_path, err = common.get_common_python_scripts_path()
             if err:
               raise Exception(err)
             #they have confirmed the new disk serial number
@@ -1048,7 +1061,7 @@ def replace_disk(request):
               else:
                 raise Exception("Error replacing the disk on %s : "%(node))
             else:
-                (ret, rc), err = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+                (ret, rc), err = command.execute_with_rc(cmd_to_run)
                 if err:
                   raise Exception(err)
                 #print ret
@@ -1081,7 +1094,7 @@ def replace_disk(request):
                     return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
               print rc
             else:
-              (ret, rc), err = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+              (ret, rc), err = command.execute_with_rc(cmd_to_run)
               if err:
                 raise Exception(err)
               #print ret
@@ -1119,7 +1132,7 @@ def replace_disk(request):
               else:
                 raise Exception("Error bringing the new disk online on %s : "%(node))
             else:
-              (ret, rc), err = integralstor_common.common.command.execute_with_rc(cmd_to_run)
+              (ret, rc), err = command.execute_with_rc(cmd_to_run)
               if err:
                 raise Exception(err)
               #print ret
@@ -1136,7 +1149,7 @@ def replace_disk(request):
                 if tl:
                   err = err + ','.join(tl)
                 raise Exception(err)
-            (ret, rc), err = integralstor_common.common.command.execute_with_rc('%s/generate_manifest.py'%common_python_scripts_path)
+            (ret, rc), err = command.execute_with_rc('%s/generate_manifest.py'%common_python_scripts_path)
             if err:
               raise Exception(err)
             #print ret
@@ -1155,7 +1168,7 @@ def replace_disk(request):
               raise Exception("Could not regenrate the new hardware configuration. Error generating manifest. %s"%err)
               #print ret
             else:
-              (ret, rc), err = integralstor_common.common.command.execute_with_rc('%s/generate_status.py'%common_python_scripts_path)
+              (ret, rc), err = command.execute_with_rc('%s/generate_status.py'%common_python_scripts_path)
               if err:
                 raise Exception(err)
               if rc != 0:
@@ -1175,6 +1188,8 @@ def replace_disk(request):
               si, err = system_info.load_system_config()
               if err:
                 raise Exception(err)
+              audit_str = "Replace disk - Disk with serial number %s successfully replaced by new disk with serial number %s"%(serial_number, new_serial_number)
+              audit.audit("replace_disk_replaced_disk", audit_str, request.META["REMOTE_ADDR"])
               return_dict["node"] = node
               return_dict["old_serial_number"] = serial_number
               return_dict["new_serial_number"] = new_serial_number

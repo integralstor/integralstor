@@ -12,7 +12,7 @@ from integral_view.views.local_user_management import view_local_users, create_l
 
 from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share, create_nfs_share, edit_nfs_share
 
-from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog, remove_zfs_slog, scrub_zfs_pool, create_zfs_zvol, view_zfs_zvol,modify_dir_permissions
+from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog, remove_zfs_slog, scrub_zfs_pool, create_zfs_zvol, view_zfs_zvol,modify_dir_permissions, replace_disk
 
 #from zfs.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
 
@@ -117,7 +117,7 @@ urlpatterns = patterns('',
     url(r'^delete_cifs_share/', login_required(delete_cifs_share)),
     url(r'^auth_server_settings/', login_required(samba_server_settings)),
     url(r'^save_samba_server_settings/', login_required(save_samba_server_settings)),
-    #url(r'^replace_disk/', login_required(replace_disk)),
+    url(r'^replace_disk/', login_required(replace_disk)),
     url(r'^edit_integral_view_log_level/', login_required(edit_integral_view_log_level)),
     url(r'^show/([A-Za-z0-9_]+)/([a-zA-Z0-9_\-\.]*)', login_required(show),name="show_page"),
     url(r'^refresh_alerts/([0-9_]*)', login_required(refresh_alerts)),

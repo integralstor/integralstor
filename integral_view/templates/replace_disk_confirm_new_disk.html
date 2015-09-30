@@ -31,14 +31,14 @@ Replacing a hard drive - confirmation of new drive details
   <input type=hidden name="new_serial_number" value="{{inserted_disk_serial_number}}">
   <input type=hidden name="step" value="online_new_disk">
 
-  <p > The system has detected a new disk with serial number {{inserted_disk_serial_number}} on GRIDCell {{node}}. If this is correct, please continue and it will replace the disk with serial number {{serial_number}}. </p><br>
+  <p > The system has detected a new disk with serial number {{inserted_disk_serial_number}} on node  {{node}}. If this is correct, please continue and it will replace the disk with serial number {{serial_number}}. </p><br>
       <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/show/disk_status'"> &nbsp;&nbsp; <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and proceed >></button>
 </form>
 
 
 {%endblock%}
 {%block help_header%}
-Replace a disk within a GRIDCell
+Replace a disk within a node 
 {%endblock%}
 {%block help_body%}
 <p>After the administrator has replaced a faulty disk with a new disk, the system scans for the disks and reports what it finds as the information about the new disk. Please confirm that this information is correct before proceeding.</p>
