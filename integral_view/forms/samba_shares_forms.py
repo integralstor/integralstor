@@ -48,7 +48,7 @@ class CreateShareForm(forms.Form):
   share_id =  forms.IntegerField(widget=forms.HiddenInput, required = False)
   name = forms.CharField()
   dataset = forms.CharField(required=False)
-  path = forms.CharField(required=False)
+  path = forms.CharField()
   display_path = forms.CharField(required=False)
   comment = forms.CharField(required=False)
   browseable = forms.BooleanField(required=False)

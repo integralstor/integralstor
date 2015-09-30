@@ -4,7 +4,8 @@ import integralstor_common
 import integralstor_unicell
 from integralstor_common import zfs, audit, ramdisk,file_processing
 from integralstor_common import scheduler_utils
-from integralstor_unicell import nfs,local_users
+from integralstor_common import cifs as common_cifs
+from integralstor_unicell import nfs,local_users, iscsi_stgt
 
 import json, time, os, shutil, tempfile, os.path, re, subprocess, sys, shutil, pwd, grp, stat,datetime
 
@@ -185,6 +186,37 @@ def delete_zfs_pool(request):
     if 'name' not in request.REQUEST:
       raise Exception("No pool specified. Please use the menus")
     name = request.REQUEST["name"]
+    nfs_shares, err = nfs.get_shares_on_subpath('%s/'%name)
+    if err:
+      raise Exception(err)
+    cifs_shares, err = common_cifs.get_shares_on_subpath('%s/'%name)
+    if err:
+      raise Exception(err)
+    luns, err = iscsi_stgt.get_luns_on_subpath('%s/'%name)
+    if err:
+      raise Exception(err)
+    if nfs_shares or cifs_shares or luns:
+      elements = []
+      if nfs_shares:
+        shl=[]
+        for sh in nfs_shares:
+          shl.append(sh['path'])
+        elements .append('NFS share(s) : %s'%' , '.join(shl))
+      if cifs_shares:
+        print '1'
+        shl=[]
+        for sh in cifs_shares:
+          shl.append(sh['name'])
+        elements .append('CIFS share(s) : %s'%' , '.join(shl))
+        print '2'
+      if luns:
+        shl=[]
+        for sh in luns:
+          print sh
+          shl.append(sh['path'][9:])
+        elements .append('ISCSI LUN(s) : %s'%' , '.join(shl))
+        print '3'
+      raise Exception('The pool cannot be deleted as the following components exist on this pool : %s. Please delete them first before deleting the pool.'%' , '.join(elements))
     return_dict["name"] = name
     if request.method == "GET":
       #Return the conf page
@@ -453,6 +485,33 @@ def delete_zfs_dataset(request):
     else:
       type = request.REQUEST['type']
     name = request.REQUEST["name"]
+    nfs_shares, err = nfs.get_shares_on_subpath('%s/'%name)
+    if err:
+      raise Exception(err)
+    cifs_shares, err = common_cifs.get_shares_on_subpath('%s/'%name)
+    if err:
+      raise Exception(err)
+    luns, err = iscsi_stgt.get_luns_on_subpath('%s/'%name)
+    if err:
+      raise Exception(err)
+    if nfs_shares or cifs_shares or luns:
+      elements = []
+      if nfs_shares:
+        shl=[]
+        for sh in nfs_shares:
+          shl.append(sh['path'])
+        elements .append('NFS share(s) : %s'%' , '.join(shl))
+      if cifs_shares:
+        shl=[]
+        for sh in cifs_shares:
+          shl.append(sh['name'])
+        elements .append('CIFS share(s) : %s'%' , '.join(shl))
+      if luns:
+        shl=[]
+        for sh in luns:
+          shl.append(sh['path'][9:])
+        elements .append('ISCSI LUN(s) : %s'%' , '.join(shl))
+      raise Exception('The dataset cannot be deleted as the following components exist on this pool : %s. Please delete them first before deleting the pool.'%' , '.join(elements))
     return_dict["name"] = name
     return_dict["type"] = type
     if request.method == "GET":
