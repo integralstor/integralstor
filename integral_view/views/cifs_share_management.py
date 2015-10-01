@@ -33,7 +33,7 @@ def view_cifs_shares(request):
       template = "view_cifs_shares.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    return_dict['base_template'] = "cifs_base.html"
+    return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'CIFS shares'
     return_dict['tab'] = 'view_cifs_shares_tab'
     return_dict["error"] = 'Error loading CIFS share list'
@@ -80,7 +80,7 @@ def view_cifs_share(request):
   
     return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    return_dict['base_template'] = "cifs_base.html"
+    return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'CIFS share details'
     return_dict['tab'] = 'view_cifs_shares_tab'
     return_dict["error"] = 'Error loading CIFS share details'
@@ -197,7 +197,7 @@ def edit_cifs_share(request):
         #Invalid form
         return django.shortcuts.render_to_response('edit_cifs_share.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    return_dict['base_template'] = "cifs_base.html"
+    return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'Modify a CIFS share'
     return_dict['tab'] = 'view_cifs_shares_tab'
     return_dict["error"] = 'Error modifying CIFS share'
@@ -232,7 +232,7 @@ def delete_cifs_share(request):
       audit.audit("delete_cifs_share", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_cifs_shares?action=deleted')
   except Exception, e:
-    return_dict['base_template'] = "cifs_base.html"
+    return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'Delete a CIFS share'
     return_dict['tab'] = 'view_cifs_shares_tab'
     return_dict["error"] = 'Error deleting a  CIFS share'
@@ -326,7 +326,7 @@ def create_cifs_share(request):
       else:
         return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    return_dict['base_template'] = "cifs_base.html"
+    return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'Create a CIFS share'
     return_dict['tab'] = 'view_cifs_shares_tab'
     return_dict["error"] = 'Error creating a CIFS share'
@@ -446,10 +446,10 @@ def save_samba_server_settings(request):
       ret, err = cifs_unicell.generate_smb_conf()
       if err:
         raise Exception(err)
-      ret, err = local_users.create_local_user('integralstor_guest', 'IntegralStor_Guest_User', 'integralstorguest')
+      #ret, err = local_users.create_local_user('integralstor_guest', 'IntegralStor_Guest_User', 'integralstorguest')
       # Monkey patch to say skip if user exists. Fix it in integralstor_unicell.cifs
-      if 'The user "integralstor_guest" already exists' in err:
-        pass
+      #if 'The user "integralstor_guest" already exists' in err:
+      #  pass
       if cd["security"] == "ads":
         rc, err = cifs_unicell.kinit("administrator", cd["password"], cd["realm"])
         if err:
