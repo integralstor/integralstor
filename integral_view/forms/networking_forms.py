@@ -68,3 +68,11 @@ class CreateBondForm(forms.Form):
     if name in self.existing_bonds:
       self._errors["name"] = self.error_class(["A bond or interface of this name already exists. Please choose another name."])
     return cd
+
+class CreateRouteForm(forms.Form):
+
+  type = forms.ChoiceField(widget=forms.Select,choices=[('default','default'),('static','static')],required=False)
+  ip = forms.GenericIPAddressField(protocol='IPv4', required=True)
+  netmask = forms.GenericIPAddressField(protocol='IPv4', required=True)
+  gateway = forms.GenericIPAddressField(protocol='IPv4', required = True)
+  
