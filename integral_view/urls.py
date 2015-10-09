@@ -16,7 +16,7 @@ from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, vi
 
 #from zfs.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
 
-from integral_view.views.networking_management import view_interfaces, view_nic, view_bond, set_interface_state, edit_interface_address, create_bond, remove_bond, view_hostname, edit_hostname, view_dns_nameservers, edit_dns_nameservers
+from integral_view.views.networking_management import view_interfaces, view_nic, view_bond, set_interface_state, edit_interface_address, create_bond, remove_bond, view_hostname, edit_hostname, view_dns_nameservers, edit_dns_nameservers,view_route, create_route,edit_route,delete_route
 
 from integral_view.views.services_management import view_services, change_service_status
 
@@ -133,6 +133,11 @@ urlpatterns = patterns('',
     url(r'^download_cron_log', login_required(download_cron_log)),
     url(r'^remove_cron_job', login_required(remove_cron_job)),
     url(r'^modify_dir_permissions', login_required(modify_dir_permissions)),
+    url(r'^view_routes', login_required(view_route)),
+    url(r'^create_route', login_required(create_route)),
+    url(r'^edit_route', login_required(edit_route)),
+    url(r'^delete_route', login_required(delete_route)),
+  
 
 )
 

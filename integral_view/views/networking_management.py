@@ -3,6 +3,7 @@ import django, django.template
 import integralstor_common
 import integralstor_unicell
 from integralstor_common import networking, audit, command, common
+from integralstor_common import route_utils as route
 from django.contrib.auth.decorators import login_required
 
 import socket
@@ -457,3 +458,57 @@ def edit_dns_nameservers(request):
     return_dict["error"] = 'Error modifying DNS servers'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def create_route(request):
+  return_dict = {}
+  if request.method == 'GET':
+    form = networking_forms.CreateRouteForm()
+  else:
+    form = networking_forms.CreateRouteForm(request.POST)
+    if form.is_valid():
+      cd = form.cleaned_data
+      status,err = route.add_route(cd['ip'],cd['gateway'],cd['netmask'])
+      if err:
+        return_dict['error'] = err
+      else:
+        return django.http.HttpResponseRedirect('/view_routes/')
+  return_dict['form'] = form
+  return django.shortcuts.render_to_response("create_route.html", return_dict, context_instance=django.template.context.RequestContext(request))
+  
+
+def edit_route(request):
+  return_dict = {}
+  if request.method == 'GET':
+    form = networking_forms.CreateRouteForm(request.GET)
+  else:
+    form = networking_forms.CreateRouteForm(request.POST)
+    if form.is_valid():
+      cd = form.cleaned_data
+      status,err = route.delete_route(cd['ip'],cd['netmask'])
+      status,err = route.add_route(cd['ip'],cd['gateway'],cd['netmask'])
+      if err:
+        return_dict['error'] = err
+      else:
+        return django.http.HttpResponseRedirect('/view_routes/')
+  return_dict['form'] = form
+  return django.shortcuts.render_to_response("create_route.html", return_dict, context_instance=django.template.context.RequestContext(request))
+  pass
+
+def delete_route(request):
+  if request.method == "POST":
+    ip = request.POST.get('ip')
+    netmask = request.POST.get('netmask')
+    gateway = request.POST.get('gateway')
+    status,err = route.delete_route(ip,netmask)
+    if err:
+        return_dict['error'] = err
+        return django.http.HttpResponseRedirect('/view_routes/')
+    else:
+        return django.http.HttpResponseRedirect('/view_routes/')
+  else:
+    return django.http.HttpResponseRedirect('/view_routes/')
+        
+def view_route(request):
+  return_dict = {}
+  return_dict['routes'] = route.list_routes()
+  return django.shortcuts.render_to_response("list_routes.html", return_dict, context_instance=django.template.context.RequestContext(request))

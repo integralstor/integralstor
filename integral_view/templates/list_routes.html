@@ -1,0 +1,44 @@
+{% extends 'networking_base.html' %}
+
+{% block inside_content %}
+	<table class="table table-bordered">
+	    <th>
+		<td>IP</td>
+ 		<td>Netmask</td>
+		<td>Gateway</td>
+		<td>Interface</td>
+		<td></td>
+		<td></td>
+  	    </th>
+	    {% for route in routes %}
+            	<tr>
+			<!-- I really dont understand why this td is required. If we remove the below td, the table just dosent display right.-->
+			<td></td>
+			<td> {{route.0}} </td>
+			<td> {{route.1}} </td>
+			<td> {{route.2}} </td> 
+			<td> {{route.7}} </td>
+			<td>
+				<form action="/edit_route/" method="GET">
+				{% csrf_token %}
+				<input type="text" value="{{route.0}}" name="ip" style="display:none;">
+				<input type="text" value="{{route.2}}" name="netmask" style="display:none;">
+				<input type="text" value="{{route.1}}" name="gateway" style="display:none;">
+				<button class="btn btn-success" type="submit">Edit</button> 
+				</form>
+
+			</td>
+			<td>
+				<form action="/delete_route/" method="POST">
+				{% csrf_token %}
+				<input type="text" value="{{route.0}}" name="ip" style="display:none;">
+				<input type="text" value="{{route.2}}" name="netmask" style="display:none;">
+				<input type="text" value="{{route.1}}" name="gateway" style="display:none;">
+				<button class="btn btn-danger" type="submit">Delete</button> 
+				</form>
+			</td>
+                </tr>
+	    {% endfor %}
+	</table>
+<a class="btn btn-primary" href="/create_route/">Create a route</a>
+{% endblock %}
