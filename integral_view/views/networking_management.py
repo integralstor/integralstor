@@ -170,7 +170,7 @@ def edit_interface_address(request):
         if 'addresses' in interfaces[name] and 'AF_INET' in interfaces[name]['addresses'] and interfaces[name]['addresses']['AF_INET']:
           initial['ip'] = interfaces[name]['addresses']['AF_INET'][0]['addr']
           initial['netmask'] = interfaces[name]['addresses']['AF_INET'][0]['netmask']
-      print interfaces[name]
+      #print interfaces[name]
       if 'gateways' in interfaces[name] and interfaces[name]['gateways']:
         if interfaces[name]['gateways'][0][2]:
           initial['default_gateway'] = interfaces[name]['gateways'][0][0]
@@ -467,10 +467,10 @@ def create_route(request):
     form = networking_forms.CreateRouteForm(request.POST)
     if form.is_valid():
       cd = form.cleaned_data
-      status,err = route.add_route(cd['ip'],cd['gateway'],cd['netmask'])
+      status,err = route.add_route(cd['ip'],cd['gateway'],cd['netmask'],cd['interface'])
       if err:
         return_dict['error'] = err
-      else:
+      else: 
         return django.http.HttpResponseRedirect('/view_routes/')
   return_dict['form'] = form
   return django.shortcuts.render_to_response("create_route.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -485,7 +485,7 @@ def edit_route(request):
     if form.is_valid():
       cd = form.cleaned_data
       status,err = route.delete_route(cd['ip'],cd['netmask'])
-      status,err = route.add_route(cd['ip'],cd['gateway'],cd['netmask'])
+      status,err = route.add_route(cd['ip'],cd['gateway'],cd['netmask'],cd['interface'])
       if err:
         return_dict['error'] = err
       else:

@@ -1,4 +1,7 @@
 {% extends 'networking_base.html' %}
+{%block tab_header %}
+Create/Edit default route
+{%endblock%}
 
 {% block inside_content %}
 	<form action="." class="form-horizontal" name ="create_route_form" role="form" method="POST">
@@ -56,6 +59,21 @@
             </tr>
             <tr>
               <td>
+            <label for="id_interface">Interface:</label>
+              </td>
+              <td>
+                  <select id="id_interface" name="interface" class="form-control">
+                  {% for choice in form.interface.field.choices %}
+                    <option value="{{choice.0}}">{{choice.1}}</option>
+                  {%endfor%}
+                  </select>
+              </td>
+              <td>
+            {{ form.interface.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
               </td>
               <td>
              <button type="submit" class="btn btn-success">Add Route</button> 
@@ -83,4 +101,17 @@
 		})
 	})
 </script>
+{% endblock %}
+{%block help_header%}
+  Create a network route help
+{%endblock%}
+
+{%block help_body%}
+Help about creating a network route
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_routes_tab")
+  </script>
 {% endblock %}

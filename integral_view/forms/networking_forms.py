@@ -71,8 +71,21 @@ class CreateBondForm(forms.Form):
 
 class CreateRouteForm(forms.Form):
 
-  type = forms.ChoiceField(widget=forms.Select,choices=[('default','default'),('static','static')],required=False)
+  type = forms.ChoiceField(widget=forms.Select,choices=[('default','default')],required=False)
   ip = forms.GenericIPAddressField(protocol='IPv4', required=True)
   netmask = forms.GenericIPAddressField(protocol='IPv4', required=True)
   gateway = forms.GenericIPAddressField(protocol='IPv4', required = True)
-  
+  interface = None
+ 
+  def __init__(self,*args,**kwargs):
+    super(CreateRouteForm, self).__init__(*args, **kwargs)
+    ch = []
+    interfaces, err = networking.get_interfaces()
+    for key,value in interfaces.iteritems():
+      #print value['addresses']['AF_INET']
+      # check if the interface has an ip address assigned to it ?
+      if (value['up_status'] == 'up') and ('AF_INET' in value['addresses']):
+        # Just make sure the ip addr is not the localhost address. Just in case.
+        if value['addresses']['AF_INET'][0]['addr'] != "127.0.0.1":
+          ch.append((key,key))
+    self.fields["interface"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=ch)

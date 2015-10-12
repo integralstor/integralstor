@@ -1,6 +1,11 @@
 {% extends 'networking_base.html' %}
 
+{%block tab_header %}
+Routes
+{%endblock%}
 {% block inside_content %}
+{{err}}
+	{% if routes %}
 	<table class="table table-bordered">
 	    <th>
 		<td>IP</td>
@@ -40,5 +45,16 @@
                 </tr>
 	    {% endfor %}
 	</table>
-<a class="btn btn-primary" href="/create_route/">Create a route</a>
+       {% else %}
+		<br /> <br />
+              	No Default route exist. Please create a default route.
+		<br /> <br />
+		<a class="btn btn-primary" href="/create_route/">Create a route</a>
+	{% endif %}
+{% endblock %}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_routes_tab")
+  </script>
 {% endblock %}
