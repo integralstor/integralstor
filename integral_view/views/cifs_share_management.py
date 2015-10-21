@@ -282,7 +282,7 @@ def create_cifs_share(request):
           return_dict["path_error"] = "Please choose a path."
           return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
         display_path = cd["path"]    
-        if not os.path.isdir(display_path):
+        if not os.path.exists(display_path):
           os.mkdir(display_path)
         if "comment" in cd:
           comment = cd["comment"]
