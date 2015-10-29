@@ -3,7 +3,7 @@ import django, django.template
 import subprocess 
 import integralstor_common
 import integralstor_unicell
-from integralstor_common import networking, audit, command
+from integralstor_common import networking, audit, command, ssh
 
   
 def view_services(request):
@@ -22,7 +22,7 @@ def view_services(request):
         conf = "Service start failed"
       return_dict["conf"] = conf
     services_dict = {}
-    services = [('network', 'Networking'), ('ntpd','NTP'), ('smb', 'CIFS - smb'), ('winbind', 'CIFS - winbind'), ('tgtd', 'ISCSI'), ('nfs', 'NFS')]
+    services = [('network', 'Networking'), ('ntpd','NTP'), ('smb', 'CIFS - smb'), ('winbind', 'CIFS - winbind'), ('tgtd', 'ISCSI'), ('nfs', 'NFS'),('vsftpd','FTP')]
     for service in services:
       services_dict[service[0]] = {} 
       services_dict[service[0]]['name'] =  service[1]
@@ -90,6 +90,43 @@ def change_service_status(request):
     return_dict["error"] = 'Error modifying system services state'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def add_ssh_key(request):
+  return_dict = {}
+  if request.method == 'POST':
+    authorized_key = request.POST.get('authorized_key')
+    status,err = ssh.add_ssh_key(authorized_key)
+    if not err:
+      return django.http.HttpResponseRedirect('/view_ssh_key/')
+    else:
+      return_dict['err'] = err
+      return_dict['authorized_key'] = authorized_key
+      return django.shortcuts.render_to_response("add_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
+  else:
+    return django.shortcuts.render_to_response("add_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    
+
+def edit_ssh_key(request):
+  pass
+
+def list_ssh_keys(request):
+  pass
+
+def delete_ssh_keys(request):
+  pass
+
+def get_my_ssh_key(request):
+  return_dict = {}
+  key = ssh.get_ssh_key() 
+  return_dict['my_ssh_key'] = key
+  return django.shortcuts.render_to_response("show_my_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def regenerate_ssh_key(request):
+  return_dict = {}
+  key = ssh.generate_new_ssh_key() 
+  return_dict['my_ssh_key'] = key
+  return django.shortcuts.render_to_response("show_my_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 
 def _get_service_status(service):
   d = {}
