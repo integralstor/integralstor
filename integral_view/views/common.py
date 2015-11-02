@@ -761,7 +761,7 @@ def reload_manifest(request):
   return_dict = {}
   try:
     if request.method == "GET":
-      from integralstor_unicell import manifest_status as iu
+      from integralstor_common import manifest_status as iu
       mi, err = iu.generate_manifest_info()
       #print mi, err
       if err:

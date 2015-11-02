@@ -3,7 +3,7 @@ import django, django.template
 import subprocess 
 import integralstor_common
 import integralstor_unicell
-from integralstor_common import networking, audit, command, ssh
+from integralstor_common import networking, audit, command
 
   
 def view_services(request):
