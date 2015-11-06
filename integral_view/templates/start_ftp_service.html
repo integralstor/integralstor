@@ -1,0 +1,25 @@
+{% extends 'services_base.html'%}
+{% block tab_header %}FTP Service Configuration {% endblock %}
+
+{% block inside_content %}
+<div class="row"> 
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+		{{first_time}}
+	</div>
+</div>
+<div class="row"> 
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+		<form action="/start_ftp_service" method="POST" class="form-horizontal">
+			{% csrf_token%}
+			<select name="dataset" class="form-control"> 
+				{% for dataset in datasets %}
+					<option value="{{dataset.mountpoint}}">{{dataset.name}}</option>
+				{% endfor %}
+			</select>
+			<br />
+			<button type="submit" class="btn btn-primary">Start FTP Service </button>
+		</form>
+	</div>
+</div>
+	
+{% endblock %}
