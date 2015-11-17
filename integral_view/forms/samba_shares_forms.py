@@ -51,7 +51,7 @@ class CreateShareForm(forms.Form):
   path = forms.CharField()
   display_path = forms.CharField(required=False)
   comment = forms.CharField(required=False)
-  browseable = forms.BooleanField(required=False)
+  browseable = forms.BooleanField(required=False,initial=True)
   read_only = forms.BooleanField(required=False)
   guest_ok = forms.BooleanField(required=False)
 
