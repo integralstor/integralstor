@@ -12,11 +12,33 @@ class EditHostnameForm(forms.Form):
     hostname = cd['hostname']
     if '.' in hostname:
       self._errors["hostname"] = self.error_class(["Please enter a hostname without the domain name component (no '.'s allowed)"])
+    valid, err = networking.validate_hostname(hostname)
+    if err:
+      self._errors["hostname"] = self.error_class([err])
+    elif not valid:
+      self._errors["hostname"] = self.error_class(['Invalid hostname. Only alphabets, digits and hyphens permitted.'])
     return cd
 
 class DNSNameServersForm(forms.Form):
 
   nameservers = common_forms.MultipleServerField()
+
+  def clean(self):
+    cd = super(DNSNameServersForm, self).clean()
+    nameservers = cd['nameservers']
+    if ',' in nameservers:
+      slist = nameservers.split(',')
+    else:
+      slist = nameservers.split(' ')
+    for server in slist:
+      valid, err = networking.validate_ip(server)
+      if err:
+        self._errors["nameservers"] = self.error_class(["Error validating DNS server IP address %s : %s"%(server, err)])
+        break
+      elif not valid:
+        self._errors["nameservers"] = self.error_class(["Invalid DNS server IP address : %s"%server])
+        break
+    return cd
 
 class NICForm(forms.Form):
 

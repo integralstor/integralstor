@@ -245,8 +245,11 @@ def create_bond(request):
         return django.shortcuts.render_to_response("create_bond.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
       result, err = networking.create_bond(cd['name'], cd['slaves'], int(cd['mode']))
-      if not err:
-        raise Exception(err)
+      if not result:
+        if err:
+          raise Exception(err)
+        else:
+          raise Exception('Bond creation failed!')
  
       audit_str = "Created a network bond named %s with slaves %s"%(cd['name'], ','.join(cd['slaves']))
       audit.audit("create_bond", audit_str, request.META["REMOTE_ADDR"])
