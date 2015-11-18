@@ -244,6 +244,7 @@ def create_bond(request):
       if not form.is_valid():
         return django.shortcuts.render_to_response("create_bond.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
+      print cd
       result, err = networking.create_bond(cd['name'], cd['slaves'], int(cd['mode']))
       if not result:
         if err:

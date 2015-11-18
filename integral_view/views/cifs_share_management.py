@@ -284,6 +284,7 @@ def create_cifs_share(request):
         display_path = cd["path"]    
         if not os.path.exists(display_path):
           os.mkdir(display_path)
+        os.chown(path,500,500)
         if "comment" in cd:
           comment = cd["comment"]
         else:

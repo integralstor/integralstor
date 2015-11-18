@@ -42,6 +42,18 @@ Error
 {%endif%}
 </td>
 <td>
+{% if 'FTP' in service.name %}
+{%if service.info.status_code == 0 %}
+	<form method='POST' action='/change_service_status/'>
+		<input name='service' type='hidden' value={{service.service}}>
+		<input name='action' type='hidden' value='stop'>
+		<button type="submit" class="btn btn-danger cover-page">Stop this service</button>
+	</form>
+	{%else%}
+<a href="/start_ftp_service" class="btn btn-success">Start this service</a>
+{%endif%}
+{%else%}
+
 <form method='POST' action='/change_service_status/'>
 {%if service.info.status_code == 0 %}
 <input name='action' type='hidden' value='stop'>
@@ -52,6 +64,7 @@ Error
 {%endif%}
 <input name='service' type='hidden' value={{service.service}}>
 </form>
+{%endif%}
 </td>
 <td>
 {%if service.info %}

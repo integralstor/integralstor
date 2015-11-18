@@ -14,12 +14,12 @@ No storage pools created
                     <div class="panel box {%if pool.config.pool.root.status.state == 'ONLINE' %} box-success {%else%} box-danger{%endif%}">
                       <div class="box-header with-border">
                         <h4 class="box-title">
-                          <a class="" aria-expanded="true" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                          <a class="" aria-expanded="true" data-toggle="collapse" data-parent="#accordion" href="#pool_{{forloop.counter}}">
                             Pool : {{pool.pool_name}}, State : {{pool.config.pool.root.status.state}} (Click for more details..)
                           </a> 
                         </h4>
                       </div>
-                      <div style="" aria-expanded="true" id="collapseOne" class="panel-collapse collapse">
+                      <div style="" aria-expanded="true" id="pool_{{forloop.counter}}" class="panel-collapse collapse">
                         <div class="box-body">
 
 
