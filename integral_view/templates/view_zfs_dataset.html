@@ -39,22 +39,6 @@ No information for the specified dataset.
 
 
 
-<b> Child datasets under this dataset </b>
-{% if children %}
-<table  class="table table-bordered">
-<tr>
-<th > Child datasets </th>
-<th> <a href="/create_zfs_dataset?parent={{name}}" role="button" class="btn btn-primary"> Create a new child dataset</a></th>
-</tr>
-{%for child in children%}
-<tr>
-<td colspan=2>{{child}}</td>
-</tr>
-{%endfor%}
-{%else%}
-<p> No child datasets created </p>
-{%endif%}
- <a href="/create_zfs_dataset?pool={{pool}}&parent={{name}}" role="button" class="btn btn-primary"> Create a new child dataset</a>
 <br><br>
 <a href="/view_zfs_pool?name={{pool}}" role="button" class="btn btn-default">Back to pool details</a><br><br>
 </div>

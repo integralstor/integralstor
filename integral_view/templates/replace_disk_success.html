@@ -22,7 +22,8 @@ Replacing a hard drive - result
 
 
 
-  <p > The system has successfully replaced the disk with serial number {{old_serial_number}} with a new disk with serial number {{new_serial_number}} on {{node}}.</p><br>
+  <p > The system has successfully scheduled a task for replacing the disk with serial number {{old_serial_number}} with a new disk with serial number {{new_serial_number}} on {{node}}. This process may take a short while to be initiated and complete.</p><br>
+<a href='/view_background_tasks'> Click here to view the status of the scheduled tasks.</a>
 
 
 
@@ -31,5 +32,5 @@ Replacing a hard drive - result
 Replace a disk - results
 {%endblock%}
 {%block help_body%}
-<p>The old disk has been successfully been replaced with the new disk. The internal RAID process will repopulate the appropriate data onto the new disk.</p>
+<p>A background process to replace the old disk has been successfully initiated. The internal RAID process (if applicable) will repopulate the appropriate data onto the new disk.</p>
 {%endblock%}

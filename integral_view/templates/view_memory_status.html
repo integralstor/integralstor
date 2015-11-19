@@ -38,6 +38,14 @@ System memory statistics
 </table>
 {% endblock %}
 
+{%block help_header%}
+View memory status
+{%endblock%}
+{%block help_body%}
+  <p> 
+  This page displays the memory usage statistics along with a historical memory usage chart.
+  </p>
+{%endblock%}
 {% block tab_active %}
   <script>
    make_tab_active("memory_tab")

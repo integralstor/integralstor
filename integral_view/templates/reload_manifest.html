@@ -26,7 +26,7 @@ The scanned hardware configuration is displayed below. Would you like to accept 
     Memory
   </th>
   <td>
-    {{ mi.mem_total}} MB
+    {{ mi.memory.mem_total.value}} {{mi.memory.mem_total.unit}}
   </td>
 </tr>
 <tr>
@@ -91,7 +91,7 @@ The scanned hardware configuration is displayed below. Would you like to accept 
   {{if_name}}
   </td>
   <td>
-  {{inter.mac_addr}}
+  {{inter.hwaddr}}
   </td>
 </tr>
 {%endfor%}
@@ -107,9 +107,3 @@ The scanned hardware configuration is displayed below. Would you like to accept 
 
 
 
-def reload_manifest(request):
-  return_dict = {}
-  from integralstor_unicell import manifest_status as iu
-  mi = iu.generate_manifest_info()
-  return_dict["mi"] = mi[0]["rams-server.fractalio.lan"]
-  return django.shortcuts.render_to_response("reload_manifest.html", return_dict, context_instance=django.template.context.RequestContext(request))

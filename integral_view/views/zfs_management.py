@@ -9,7 +9,6 @@ from integralstor_unicell import nfs,local_users, iscsi_stgt, system_info
 
 import json, time, os, shutil, tempfile, os.path, re, subprocess, sys, shutil, pwd, grp, stat,datetime
 
-import integral_view
 from integral_view.forms import zfs_forms,common_forms
   
 def view_zfs_pools(request):
@@ -1023,11 +1022,37 @@ def replace_disk(request):
                     return_dict["new_id"] = new_disks[disk]["id"]
                     break
                 if "inserted_disk_serial_number" not in return_dict:
-                  raise Exception("Could not detect any new disk.")
+                  raise Exception("Could not detect any new disk. Please check the new disk is inserted and give the system a few seconds to detect the drive and refresh the page to try again.")
                 else:
                   template = "replace_disk_confirm_new_disk.html"
           elif step == "online_new_disk":
   
+            pool = request.POST["pool"]
+            old_id = request.POST["old_id"]
+            new_id = request.POST["new_id"]
+            new_serial_number = request.POST["new_serial_number"]
+            db_path, err = common.get_db_path()
+            if err:
+              raise Exception(err)
+            common_python_scripts_path, err = common.get_common_python_scripts_path()
+            if err:
+              raise Exception(err)
+            cmd_list = []
+            cmd_list.append({'Replace old disk':'zpool replace -f %s %s %s'%(pool, old_id, new_id)})
+            cmd_list.append({'Online the new disk':'zpool online %s %s'%(pool, new_id)})
+            cmd_list.append({'Regenerate the system configuration':'%s/generate_manifest.py'%common_python_scripts_path})
+            ret, err = scheduler_utils.schedule_a_job(db_path,'Disk replacement',cmd_list,None,retries=0)
+            if err:
+              raise Exception(err)
+            if not ret:
+              raise Exception('Error scheduling disk replacement tasks')
+            audit_str = "Replace disk - Scheduled a task for replacing the old disk with serial number %s with the new disk with serial number %s"%(serial_number, new_serial_number)
+            audit.audit("replace_disk_replaced_disk", audit_str, request.META["REMOTE_ADDR"])
+            return_dict["node"] = node
+            return_dict["old_serial_number"] = serial_number
+            return_dict["new_serial_number"] = new_serial_number
+            template = "replace_disk_success.html"
+            '''
             python_scripts_path, err = common.get_python_scripts_path()
             if err:
               raise Exception(err)
@@ -1079,6 +1104,7 @@ def replace_disk(request):
                     err = err + ','.join(tl)
                   raise Exception(err)
             '''
+            '''
             cmd_to_run = "zpool set autoexpand=on %s"%pool
             if use_salt:
               print 'Running %s'%cmd_to_run
@@ -1115,6 +1141,7 @@ def replace_disk(request):
             if new_serial_number in si[node]["disks"]:
               disk = si[node]["disks"][new_serial_number]
               disk_id = disk["id"]
+            '''
             '''
             cmd_to_run = 'zpool online %s %s'%(pool, new_id)
             if use_salt:
@@ -1195,6 +1222,7 @@ def replace_disk(request):
               return_dict["new_serial_number"] = new_serial_number
               template = "replace_disk_success.html"
   
+          '''
           return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
           
       else:

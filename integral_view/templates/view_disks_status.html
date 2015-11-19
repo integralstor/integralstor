@@ -78,6 +78,14 @@ Healthy disk. No replacement necessary.
 {%endfor%}
 </table>
 {% endblock %}
+{%block help_header%}
+View disk status
+{%endblock%}
+{%block help_body%}
+  <p> 
+  This screen displays the status of all the disks in the system. The information includes the S.M.A.R.T information and the disk position in the chassis. If there is an issue with a disk, then a button next to the disk will give you the option of replacing the disk. Clicking on this button will take you through a wizard for the disk replacement process.
+  </p>
+{%endblock%}
 
 
 {% block tab_active %}

@@ -86,6 +86,14 @@ CPU related statistics
     </table>
     {%endif%}
 {% endblock %}
+{%block help_header%}
+View CPU status
+{%endblock%}
+{%block help_body%}
+  <p> 
+  This page displays the recent load average and the CPU utilization for the CPUs.
+  </p>
+{%endblock%}
 {% block tab_active%}
     <script>
     make_tab_active("cpu_tab")

@@ -4,14 +4,16 @@
 
 CREATE TABLE "scheduler_commands" (
     "command_id" integer NOT NULL PRIMARY KEY,
+    "name" varchar(100) NOT NULL,
+    "command"  varchar(400) NOT NULL,
     "task_ref_id" integer NOT NULL,
-    "status" varchar(100) NOT NULL,
-    "return_code" varchar(10) NOT NULL,
-    "output" text NOT NULL,
-    "errors" text NOT NULL,
+    "status" varchar(100),
+    "return_code" varchar(10),
+    "output" text,
+    "errors" text,
+    "retries" integer NOT NULL,
     FOREIGN KEY(task_ref_id) REFERENCES scheduler_tasks(task_id)
 );
-
 
 CREATE TABLE "scheduler_tasks" (
     "task_id" integer NOT NULL PRIMARY KEY,
