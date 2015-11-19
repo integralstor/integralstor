@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 
 from integral_view.views.admin_auth  import login, logout, change_admin_password, configure_email_settings 
 
-from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node, set_file_owner_and_permissions,dir_contents,dashboard,reload_manifest,list_cron_jobs,download_cron_log,remove_cron_job
+from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node, set_file_owner_and_permissions,dir_contents,dashboard,reload_manifest,list_cron_jobs,download_cron_log,remove_cron_job,view_background_tasks,view_task_details
 
 from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level,download_sys_info
 
@@ -18,7 +18,7 @@ from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, vi
 
 from integral_view.views.networking_management import view_interfaces, view_nic, view_bond, set_interface_state, edit_interface_address, create_bond, remove_bond, view_hostname, edit_hostname, view_dns_nameservers, edit_dns_nameservers,view_route, create_route,edit_route,delete_route
 
-from integral_view.views.services_management import view_services, change_service_status
+from integral_view.views.services_management import view_services, change_service_status, start_ftp_service
 
 from integral_view.views.stgt_iscsi_management import view_targets, view_target, create_iscsi_target, delete_iscsi_target, add_iscsi_user_authentication, remove_iscsi_user_authentication, create_iscsi_lun, delete_iscsi_lun, add_iscsi_acl, remove_iscsi_acl
 
@@ -132,11 +132,14 @@ urlpatterns = patterns('',
     url(r'^list_cron_jobs/', login_required(list_cron_jobs)),
     url(r'^download_cron_log', login_required(download_cron_log)),
     url(r'^remove_cron_job', login_required(remove_cron_job)),
+    url(r'^view_background_tasks/', login_required(view_background_tasks)),
+    url(r'^view_task_details/([0-9]*)', login_required(view_task_details)),
     url(r'^modify_dir_permissions', login_required(modify_dir_permissions)),
     url(r'^view_routes', login_required(view_route)),
     url(r'^create_route', login_required(create_route)),
     url(r'^edit_route', login_required(edit_route)),
     url(r'^delete_route', login_required(delete_route)),
+    url(r'^start_ftp_service', login_required(start_ftp_service)),
   
 
 )
