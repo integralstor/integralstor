@@ -7,7 +7,7 @@ from django.conf import settings
 
 
 import integralstor_common
-from integralstor_common import command, db, common, audit, alerts, ntp, mail, zfs, file_processing,stats,scheduler_utils
+from integralstor_common import command, db, common, audit, alerts, ntp, mail, zfs, file_processing,stats,scheduler_utils,common
 from integralstor_common import cifs as cifs_common
 
 import integralstor_unicell
@@ -331,6 +331,7 @@ def dashboard(request,page):
           sorted_disks.append(key)
       return_dict['node'] = si[info]
       return_dict["disk_status"] = si[info]['disks']
+      print si[info]['disks']
       return_dict["disk_pos"] = sorted_disks
       return_dict['node_name'] = info
       template = "view_disks_status.html"
@@ -503,7 +504,7 @@ def refresh_alerts(request, random=None):
     db_path, err = common.get_db_path()
     if err:
       raise Exception(err)
-    test, err = db.execute_iud("%s/integral_view_config.db"%db_path, cmd_list)
+    test, err = db.execute_iud(db_path, cmd_list)
     if err:
       raise Exception(err)
     new_alerts_present, err = alerts.new_alerts()
@@ -847,110 +848,31 @@ def remove_cron_job(request):
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
-###  THE CODES BELOW ARE MAINTAINED FOR EITER HISTORICAL PURPOSES OR AS A PART OF BACKUP PROCESS.
-###  PLEASE DO CONFIRM BELOW DELETING OR DELETE WHEN PUSHING THE DEVELOP TO MASTER AS A PROCESS OF CODE CLEANUP.
-
-'''
-def del_email_settings(request):
+def view_background_tasks(request):
+  return_dict = {}
+  db_path = settings.DATABASES["default"]["NAME"]
   try:
-    mail.delete_email_settings()
-    return django.http.HttpResponse("Successfully cleared email settings.")
+    return_dict["back_jobs"] = scheduler_utils.get_background_jobs(db_path)
+    return django.shortcuts.render_to_response("view_background_tasks.html", return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    iv_logging.debug("Error clearing email settings %s"%e)
-    return django.http.HttpResponse("Problem clearing email settings %s"%str(e))
+    return_dict['base_template'] = "scheduler_base.html"
+    return_dict["page_title"] = 'Background jobs'
+    return_dict['tab'] = 'view_background_tasks_tab'
+    return_dict["error"] = 'Error retriving background tasks'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-
-    elif page == "system_status":
-     #Disk Status page and system status page has been integrated.
-     #assert False
-
-      #Get the disk status
-      disk_status = {}
-      disk_new = {}
-
-      if request.GET.get("node_id") is not None:
-        disk_status = si[request.GET.get("node_id")]
-        return_dict["disk_status"] = {}
-        return_dict["disk_status"][request.GET.get("node_id")] = disk_status
-        template = "view_disk_status_details.html"
-
-      else:
-        """
-          Iterate the system information, and get the following data :
-            1. The status of every disk
-            2. The status of the pool
-            3. The name of the pool
-            4. Calcualte the background_color
-            Format : {'node_id':{'name':'pool_name','background_color':'background_color','disks':{disks_pool}}}
-
-        """
-        for key, value in si.iteritems():
-	  print key
-          #count the failures in case of Offline or degraded
-          disk_failures = 0
-          #Default background color
-          background_color = "bg-green" 
-          disk_new[key] = {}
-          disk_new[key]["disks"] = {}
-          for disk_key, disk_value in si[key]["disks"].iteritems():
-            #print disk_key, disk_value
-            if disk_value["rotational"]:
-              disk_new[key]["disks"][disk_key] = disk_value["status"]
-            #print disk_value["status"]
-            if disk_value["status"] != "PASSED":
-              disk_failures += 1
-            if disk_failures >= 1:
-              background_color = "bg-yellow"
-            if disk_failures >= 4:
-              background_color == "bg-red"
-          
-          if si[key]['node_status_str'] == "Degraded":
-            background_color = "bg-yellow"
-          #print type(si[key]["pools"][0]["state"])
-          if si[key]["pools"][0]["state"] == unicode("ONLINE"):
-            background_color == "bg-red"
-          disk_new[key]["background_color"] = background_color
-          disk_new[key]["name"] = si[key]["pools"][0]["name"]
-          sorted_disks = []
-          for key1,value1 in sorted(si[key]["disks"].iteritems(), key=lambda (k,v):v["position"]):
-            sorted_disks.append(key1)
-          disk_new[key]["disk_pos"] = sorted_disks
-
-    elif page == "node_status":
-      
-      template = "view_node_status.html"
-      if not info:
-        info = si.keys()[0]
-      if "from" in request.GET:
-        frm = request.GET["from"]
-        return_dict['frm'] = frm
-      sorted_disks = []
-      for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
-        sorted_disks.append(key)
-      si[info]["disk_pos"] = sorted_disks
-      return_dict['node'] = si[info]
-
-      use_salt, err = common.use_salt()
-      if use_salt:
-        import salt.client
-        client = salt.client.LocalClient()
-        winbind = client.cmd(info,'cmd.run',['service winbind status'])
-        smb = client.cmd(info,'cmd.run',['service smb status'])
-      else:
-        out_list, err = command.get_command_output('service winbind status')
-        if err:
-          raise Exception(err)
-        if out_list:
-          return_dict['winbind'] = ' '.join(out_list)
-        out_list, err = command.get_command_output('service smb status')
-        if err:
-          raise Exception(err)
-        if out_list:
-          return_dict['smb'] = ' '.join(out_list)
-
-      return_dict['winbind'] = winbind[info]
-      return_dict['smb'] = smb[info]
-      return_dict['node_name'] = info
-
-
-'''
+def view_task_details(request,task_id):
+  return_dict = {}
+  db_path = settings.DATABASES["default"]["NAME"]
+  try:
+    return_dict["task_name"] = scheduler_utils.get_background_job(db_path,int(task_id))["task_name"]
+    return_dict["tasks"] = scheduler_utils.get_task_details(db_path,int(task_id))
+    return django.shortcuts.render_to_response("view_task_details.html", return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception, e:
+    return_dict['base_template'] = "scheduler_base.html"
+    return_dict["page_title"] = 'Background jobs'
+    return_dict['tab'] = 'view_background_tasks_tab'
+    return_dict["error"] = 'Error retriving background task details'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
