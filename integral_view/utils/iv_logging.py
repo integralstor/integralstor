@@ -14,7 +14,7 @@ def set_log_level(level):
     if level not in [logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL]:
       logger.setLevel(logging.INFO)
     else:
-      d1, err = db.read_single_row("%s/integral_view_config.db"%db_path, "select * from global_params")
+      d1, err = db.read_single_row(db_path, "select * from global_params")
       if err:
         raise Exception(err)
       cmd_list = []
@@ -23,7 +23,7 @@ def set_log_level(level):
       else:
         cmd = ["insert into global_params (logging_level, id) values(?,?)", (level, 1,)]
       cmd_list.append(cmd)
-      ret, err = db.execute_iud("%s/integral_view_config.db"%db_path, cmd_list)
+      ret, err = db.execute_iud(db_path, cmd_list)
       if err:
         raise Exception(err)
       logger.setLevel(level)
@@ -57,7 +57,7 @@ def get_log_level():
   conn = None
   log_level = None
   try :
-    d, err = db.read_single_row("%s/integral_view_config.db"%db_path, "select * from global_params where id=1")
+    d, err = db.read_single_row(db_path, "select * from global_params where id=1")
     if err:
       raise Exception(err)
     if d  and "logging_level" in d:
@@ -67,7 +67,7 @@ def get_log_level():
       cmd_list = []
       cmd = ["insert into global_params (logging_level, id) values(?,?)", (logging.INFO, 1,)]
       cmd_list.append(cmd)
-      ret, err = db.execute_iud("%s/integral_view_config.db"%db_path, cmd_list)
+      ret, err = db.execute_iud(db_path, cmd_list)
       if err:
         raise Exception(err)
       log_level =  logging.INFO
