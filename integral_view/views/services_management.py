@@ -3,7 +3,7 @@ import django, django.template,os
 import subprocess 
 import integralstor_common
 import integralstor_unicell
-from integralstor_common import networking, audit, command,zfs
+from integralstor_common import networking, audit, command,zfs,common,scheduler_utils
 from integralstor_unicell import local_users
 
   
@@ -162,11 +162,17 @@ def _change_service_status(service, action):
   d = {}
   try:
     #ret, rc = command.execute_with_rc('service %s %s'%(service, action))
-    cmd = 'service %s %s'%(service, action)
-    proc = subprocess.Popen(cmd.split())
-    rc = proc.wait()
-    d['status_code'] = rc
-    d['output_str'] = ''
+    cmd = {'%s %s'%(service, action):'service %s %s'%(service, action)}
+    cmd_list= [cmd]
+    task_name = "%s %s"%(service,action)
+    db_path,err = common.get_db_path()
+    status,err = scheduler_utils.schedule_a_job(db_path,task_name,cmd_list)
+    if not err:
+      d['output_str'] = 'Scheduled for restart'
+      d['status_code'] = 0 
+    else:
+      d['output_str'] = 'Schedule failed. Please try again'
+      d['status_code'] = -1
   except Exception, e:
     return None, 'Error retrieving service status : %s'%str(e)
   else:
@@ -194,7 +200,6 @@ def start_ftp_service(request):
       if not os.path.exists(dataset+"/"+user['username']):
         os.makedirs(dataset+"/"+user['username'])
       os.chown(dataset+"/"+user['username'],user['uid'],user['gid'])
-
     audit_str = "Service status change of vsftpd initiated to start state."
     d, err = _change_service_status('vsftpd','start')
     if not d:
@@ -232,7 +237,6 @@ def start_ftp_service(request):
     template = "start_ftp_service.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   
-
 if __name__ == '__main__':
   print _get_service_status(('ntpd', 'NTP'))
   print _get_service_status(('network', 'networking'))
