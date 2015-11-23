@@ -458,7 +458,7 @@ def save_samba_server_settings(request):
         rc, err = cifs_unicell.net_ads_join("administrator", cd["password"], cd["password_server"])
         if err:
           raise Exception(err)
-      ret, err = cifs_unicell.restart_samba_services()
+      ret, err = cifs_unicell.reload_configuration()
       if err:
         raise Exception(err)
       #print '6'
