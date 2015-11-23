@@ -6,7 +6,7 @@ CPU related statistics
 <br><br>
 <div class="row">
   <div class="col-sm-12 col-md-8 col-lg-8">
-    <span class="margin-left-5"> CPU Utilization Graph</span>
+    <span class="margin-left-5"> CPU Utilization Graph (Utilization VS Time)</span>
     {% if data_dict %}
       <canvas id="dashboard_chart" width="800" height="300" class="margin-left-5"></canvas>
     {% else %}
@@ -29,7 +29,7 @@ CPU related statistics
 </div>
 <div class="row">
   <div class="col-sm-12 col-md-8 col-lg-8">
-    <span class="margin-left-5">Load Average Graph</span>
+    <span class="margin-left-5">Load Average Graph (Load Average VS Time) </span>
     {% if data_dict_queue %}
       <canvas id="queue_chart" width="800" height="300" class="margin-left-5"></canvas>
     {% else %}
@@ -116,7 +116,7 @@ Chart.types.Line.extend({
     Chart.types.Line.prototype.initialize.apply(this, arguments);
     var xLabels = this.scale.xLabels;
     xLabels.forEach(function (label, i) {
-  if ( i % 60 != 0 )
+  if ( i % 60 == 0 )
         xLabels[i] = '';
     })
   }

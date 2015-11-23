@@ -75,6 +75,18 @@ NTP Service
 {%endif%}
 </td>
 </tr>
+<tr>
+<td >
+FTP Service
+</td>
+<td >
+{%if services_status.ftp|slice:"-13:" == "is running..."%}
+<i class="fa fa-check-circle green fa-2x"></i>
+{%else%}
+<i class="fa fa-remove red fa-2x"></i>
+{%endif%}
+</td>
+</tr>
 </table>
 {% endblock %}
 

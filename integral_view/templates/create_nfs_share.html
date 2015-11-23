@@ -113,6 +113,9 @@ Create an NFS share
 	$("#id_dataset").change(function(){
 		location.reload();
 	});
+  var dataset_path = $("#id_dataset").val()
+  $("#display_path_text").text(dataset_path)
+  $("#id_path").val(dataset_path)
   function displayTree() {
       document.getElementById("pathdiv").style.display = "block";
       $('#pathdiv').jstree({ 'core' : {
@@ -156,8 +159,8 @@ if($("#id_path").val() != ""){
 $("#new_folder").on('input',function(){
 	var final_path = $("#id_display_path").val()
 	if (final_path === ""){
-		$("#id_path").val("/"+$(this).val())
-		$("#display_path_text").text("/"+$(this).val())
+		$("#id_path").val(dataset_path+"/"+$(this).val())
+		$("#display_path_text").text(dataset_path+"/"+$(this).val())
 	}
 	else{
 		$("#id_path").val(final_path+"/"+$(this).val())

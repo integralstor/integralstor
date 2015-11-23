@@ -1,0 +1,38 @@
+{% extends 'scheduler_base.html' %}
+
+{% block tab_header %}
+  Background Jobs
+{% endblock %}
+
+{% block inside_content %}
+
+  <br /> <br />
+{% if back_jobs %}
+
+{% load utilities %}
+<div class="">
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <td> Job Name </td>
+        <td> Status </td>
+        <td> Create Time </td>
+        <td> Initiate Time </td>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in back_jobs %}
+        <tr>
+          <td><a href="/view_task_details/{{job.task_id}}"> {{job.task_name}}</a> </td>
+          <td> {{job.status}} </td>
+          <td> {{job.create_time|print_timestamp}} </td>
+          <td> {{job.initiate_time|print_timestamp}} </td>
+        </tr>
+      {% endfor %}
+    </tbody> 
+  </table>
+</div>
+{% else %}
+        No background tasks scheduled
+{% endif %}
+{% endblock %}

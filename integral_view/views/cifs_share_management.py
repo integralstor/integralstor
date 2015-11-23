@@ -70,6 +70,7 @@ def view_cifs_share(request):
     valid_users_list, err = cifs_common.load_valid_users_list(share["share_id"])
     if err:
       raise Exception(err)
+    print valid_users_list
     if not share:
       raise Exception("Error retrieving share information for  %s" %share_name)
 

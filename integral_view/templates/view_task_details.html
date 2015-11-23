@@ -1,0 +1,55 @@
+{% extends 'scheduler_base.html' %}
+
+{% block tab_header %}
+  {{task_name}}
+{% endblock %}
+
+{% block inside_content %}
+<br /> <br />
+{%for task in tasks %}
+<div class="panel box {%if task.return_code == '0' %} box-success {%else%} box-danger{%endif%}">
+  <div class="box-header with-border">
+    <h4 class="box-title">
+      <a class="" aria-expanded="true" data-toggle="collapse" data-parent="#accordion" href="#pool_{{forloop.counter}}">
+        {{task.name}}
+      </a> 
+    </h4>
+  </div>
+  <div style="" aria-expanded="true" id="pool_{{forloop.counter}}" class="panel-collapse collapse">
+    <div class="box-body">
+      <table>
+      <tbody>
+        <tr>
+          <td colspan=1> Command </td>
+          <td> {{task.command}} </td>
+        </tr>
+        <tr>
+          <td colspan=1> Status </td>
+          <td> {{task.status}} </td>
+        </tr>
+        <tr>
+          <td colspan=1> Output </td>
+          <td> {{task.output}} </td>
+        </tr>
+        <tr>
+          <td colspan=1> Error </td>
+          <td> {{task.errors}} </td>
+        </tr>
+        <tr>
+          <td colspan=1> Retries </td>
+          <td> {{task.retries}} </td>
+        </tr>
+      </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+{% block tab_active %}
+<script>
+   make_tab_active("view_background_tasks_tab")
+</script>
+{% endblock%}
+

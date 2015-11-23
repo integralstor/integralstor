@@ -7,7 +7,7 @@ System memory statistics
 
 <div class="row">
   <div class="col-sm-12 col-md-8 col-lg-8">
-    <span class="margin-left-5">Memory Graph</span>
+    <span class="margin-left-5">Memory Graph (Total Memory VS Time) </span>
     {% if data %}
       <canvas id="dashboard_chart" width="800" height="300"></canvas>
     {% else %}
@@ -64,7 +64,7 @@ Chart.types.Line.extend({
     Chart.types.Line.prototype.initialize.apply(this, arguments);
     var xLabels = this.scale.xLabels;
     xLabels.forEach(function (label, i) {
-      if ( i % 60 != 0 )
+      if ( i % 60 == 0 )
         xLabels[i] = '';
     })
   }

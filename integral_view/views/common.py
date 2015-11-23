@@ -283,11 +283,13 @@ def dashboard(request,page):
         nfs = client.cmd(info,'cmd.run',['service nfs status'])
         iscsi = client.cmd(info,'cmd.run',['service tgtd status'])
         ntp = client.cmd(info,'cmd.run',['service ntpd status'])
+        ftp = client.cmd(info,'cmd.run',['service vsftpd status'])
         return_dict['services_status']['winbind'] = winbind[info]
         return_dict['services_status']['smb'] = smb[info]
         return_dict['services_status']['nfs'] = nfs[info]
         return_dict['services_status']['iscsi'] = iscsi[info]
         return_dict['services_status']['ntp'] = ntp[info]
+        return_dict['services_status']['ftp'] = ftp[info]
       else:
         out_list, err = command.get_command_output('service winbind status', False)
         if err:
@@ -318,6 +320,12 @@ def dashboard(request,page):
           raise Exception(err)
         if out_list:
           return_dict['services_status']['ntp'] = ' '.join(out_list)
+
+        out_list, err = command.get_command_output('service vsftpd status', False)
+        if err:
+          raise Exception(err)
+        if out_list:
+          return_dict['services_status']['ftp'] = ' '.join(out_list)
           
       template = "view_services_status.html"
     # Disks
