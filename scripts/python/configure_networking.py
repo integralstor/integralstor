@@ -1,4 +1,4 @@
-import os, socket, re, sys
+import os, socket, re, sys, time
 from integralstor_common import networking, command, common
 
 def configure_interface():
@@ -38,15 +38,13 @@ def configure_interface():
       raise Exception('Error retrieving interface information : %s'%err)
     '''
     if ip_info:
-      print ip_info
       ip = ip_info["ipaddr"]
       netmask = ip_info["netmask"]
-      gatway = ip_info["gateway"]
+      gateway = ip_info["default_gateway"]
     else:
       ip = None
       netmask = None
       gateway = None
-    #print ip_info
     old_boot_proto, err = networking.get_interface_bootproto(ifname)
     if err:
       raise Exception('Error retrieving interface information : %s'%err)
@@ -107,8 +105,8 @@ def configure_interface():
             config_changed = True
         elif netmask:
           valid_input = True
-        if not valid_input:
-          print "Invalid value. Please try again."
+      if not valid_input:
+        print "Invalid value. Please try again."
       print
 
       if gateway:
@@ -137,7 +135,7 @@ def configure_interface():
       if boot_proto == 'static':
         d['ip'] = ip
         d['netmask'] = netmask
-        d['gateway'] = gateway
+        d['default_gateway'] = gateway
       ret, err = networking.set_interface_ip_info(ifname, d)
       if not ret:
         if err:
