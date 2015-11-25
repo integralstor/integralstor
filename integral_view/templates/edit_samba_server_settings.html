@@ -15,17 +15,17 @@ Modify CIFS authentication settings
 {%if form.data.security == "ads" or form.initial.security == "ads"%}
   <div class="form-group" >
     <label for="id_password_server" >Authentication server DNS name:</label>
-    <input type="text"  name="password_server" class="form-control" id="id_password_server" placeholder="Authentication server DNS name" value="{{form.password_server.value}}"> 
+    <input type="text"  name="password_server" class="form-control" id="id_password_server" placeholder="Authentication server DNS name" value="{{form.password_server.value|default_if_none:''}}"> 
     {{ form.password_server.errors }}
   </div>
   <div class="form-group" >
     <label for="id_password_server_ip" >Authentication server IP address:</label>
-    <input type="text"  name="password_server_ip" class="form-control" id="id_password_server_ip" placeholder="Authentication server IP Address" value="{{form.password_server_ip.value}}"> 
+    <input type="text"  name="password_server_ip" class="form-control" id="id_password_server_ip" placeholder="Authentication server IP Address" value="{{form.password_server_ip.value|default_if_none:''}}"> 
     {{ form.password_server_ip.errors }}
   </div>
   <div class="form-group" >
     <label for="id_realm" >AD Domain/Realm:</label>
-    <input type="text"  name="realm" class="form-control" id="id_realm" placeholder="AD Domain/Realm:" value="{{form.realm.value}}"> 
+    <input type="text"  name="realm" class="form-control" id="id_realm" placeholder="AD Domain/Realm:" value="{{form.realm.value|default_if_none:''}}"> 
     {{ form.realm.errors }}
   </div>
   <!--
@@ -53,7 +53,7 @@ Modify CIFS authentication settings
 {%endif%}
   <div class="form-group" >
     <label for="id_workgroup" >Workgroup:</label>
-    <input type="text"  name="workgroup" class="form-control" id="id_workgroup" placeholder="Workgroup" value="{{form.workgroup.value}}"> 
+    <input type="text"  name="workgroup" class="form-control" id="id_workgroup" placeholder="Workgroup" value="{{form.workgroup.value|default_if_none:''}}"> 
     {{ form.workgroup.errors }}
   </div>
   <a href="/auth_server_settings/" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;<button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');"> Save </button>

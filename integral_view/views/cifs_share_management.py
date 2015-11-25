@@ -349,7 +349,8 @@ def samba_server_settings(request):
       ini = {}
       if d:    
         for k in d.keys():
-          ini[k] = d[k] 
+          if d[k]:
+            ini[k] = d[k] 
       if d and d["security"] == "ads":
         form = samba_shares_forms.AuthADSettingsForm(initial=ini)
       #elif d["security"] == "users":

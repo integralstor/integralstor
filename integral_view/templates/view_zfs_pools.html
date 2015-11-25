@@ -67,7 +67,10 @@ No block device volumes in this pool
 </table>
 {%endfor%}
 {%endif%}
-<a href="/create_zfs_pool" role="button" class="btn btn-primary"> Create a new pool</a>
+<a href="/create_zfs_pool" role="button" class="btn btn-primary"> Create a new pool</a> &nbsp;&nbsp;
+{% if not pool_list %}
+<a href="/import_zfs_pool_from_disks" role="button" class="btn btn-primary"> Recover pool(s) from data disks</a> &nbsp;&nbsp;
+{%endif%}
 </div>
 <p>
 
@@ -76,5 +79,5 @@ No block device volumes in this pool
 View all ZFS pools
 {%endblock%}
 {%block help_body%}
-  <p> This screen provides the list of all the ZFS pools that have been created on this IntegralStor system. To view details about a particular ZFS pool, please select the the desired pool from the list.</p>
+  <p> This screen provides the list of all the ZFS pools that have been created on this IntegralStor system. To view details about a particular ZFS pool, please select the the desired pool from the list. If your boot drive has been rebuilt from scratch and you still have your ZFS pools on the data drives, then you can use the "Recover pools from disks" button to try and recover the ZFS pools directly from the data drives.</p>
 {%endblock%}

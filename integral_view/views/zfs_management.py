@@ -88,6 +88,27 @@ def view_zfs_pool(request):
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
+def import_zfs_pool_from_disks(request):
+  return_dict = {}
+  try:
+    template = 'logged_in_error.html'
+    
+    output, err = command.get_command_output('zpool import -maf')
+    if err:
+      raise Exception(err)
+
+    return_dict['output'] = out
+      
+    template = "import_pool_from_disks_result.html"
+    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'ZFS pools'
+    return_dict['tab'] = 'view_zfs_pools_tab'
+    return_dict["error"] = 'Error importing ZFS pool(s) from disks'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 def create_zfs_pool(request):
   return_dict = {}
   try:
@@ -554,19 +575,14 @@ def create_zfs_dataset(request):
     return_dict['pool'] = pool
 
     if request.method == "GET":
-      parent = None
-      if 'parent' in request.GET:
-        parent = request.GET['parent']
       #Return the conf page
       initial = {}
-      if parent:
-        initial['parent'] = parent
       initial['pool'] = pool
-      form = zfs_forms.CreateDatasetForm(initial=initial, datasets = datasets)
+      form = zfs_forms.CreateDatasetForm(initial=initial)
       return_dict['form'] = form
       return django.shortcuts.render_to_response("create_zfs_dataset.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
-      form = zfs_forms.CreateDatasetForm(request.POST, datasets = datasets)
+      form = zfs_forms.CreateDatasetForm(request.POST)
       return_dict['form'] = form
       if not form.is_valid():
         return django.shortcuts.render_to_response("create_zfs_dataset.html", return_dict, context_instance = django.template.context.RequestContext(request))
@@ -576,14 +592,14 @@ def create_zfs_dataset(request):
         properties['compression'] = 'on'
       if 'dedup' in cd and cd['dedup']:
         properties['dedup'] = 'on'
-      result, err = zfs.create_dataset(cd['parent'], cd['name'], properties)
+      result, err = zfs.create_dataset(cd['pool'], cd['name'], properties)
       if not result:
         if not err:
           raise Exception('Unknown error!')
         else:
           raise Exception(err)
  
-      audit_str = "Created a ZFS dataset named %s/%s"%(cd['parent'], cd['name'])
+      audit_str = "Created a ZFS dataset named %s/%s"%(cd['pool'], cd['name'])
       audit.audit("create_zfs_dataset", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_zfs_pools?action=created_dataset')
   except Exception, e:
