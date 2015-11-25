@@ -17,10 +17,7 @@
 <script src="/static/bootstrap/js/bootstrap.min.js" ></script>
 
 <script type="text/javascript">
-/*
-var auto_refresh = setInterval(
-function ()
-{
+function get_alerts(){
   $.get('/refresh_alerts/',function(data){
       $.each(data,function(){
         var alerts = $.parseJSON(JSON.stringify(this));
@@ -30,8 +27,9 @@ function ()
         });
       });
   });
-}, 20000);
-*/
+}
+var auto_refresh = setInterval(function (){get_alerts()}, 20000);
+get_alerts()
 </script>
 
 {%block header_scripts%}

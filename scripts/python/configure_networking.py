@@ -1,4 +1,4 @@
-import os, socket, re, sys
+import os, socket, re, sys, time
 from integralstor_common import networking, command, common
 
 def configure_interface():
@@ -43,13 +43,15 @@ def configure_interface():
     else:
       ip = None
       netmask = None
-    #print ip_info
+
+    if "default_gateway" in ip_info:
+      gateway = ip_info["default_gateway"]
+    else:
+      gateway = None
+      
     old_boot_proto, err = networking.get_interface_bootproto(ifname)
     if err:
       raise Exception('Error retrieving interface information : %s'%err)
-    
-
-
 
     config_changed = False
 
@@ -107,16 +109,37 @@ def configure_interface():
             config_changed = True
         elif netmask:
           valid_input = True
+      if not valid_input:
+        print "Invalid value. Please try again."
+      print
+
+      if gateway:
+        str_to_print = "Enter gateway (currently %s, press enter to retain current value) : "%gateway
+      else:
+        str_to_print = "Enter gateway (currently not set) : "
+      valid_input = False
+      while not valid_input:
+        input = raw_input(str_to_print)
+        if input:
+          ok, err = networking.validate_ip(input)
+          if err:
+            raise Exception('Error validating gateway : %s'%err)
+          if ok:
+            valid_input = True
+            gateway = input
+            config_changed = True
+        elif gateway:
+          valid_input = True
         if not valid_input:
           print "Invalid value. Please try again."
       print
-
     if config_changed:
       d = {}
       d['addr_type'] = boot_proto
       if boot_proto == 'static':
         d['ip'] = ip
         d['netmask'] = netmask
+        d['default_gateway'] = gateway
       ret, err = networking.set_interface_ip_info(ifname, d)
       if not ret:
         if err:

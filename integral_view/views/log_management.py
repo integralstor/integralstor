@@ -1,16 +1,33 @@
-import zipfile, datetime,os
+import zipfile, datetime,os,shutil
 
 import django, django.template
 from  django.contrib import auth
+from django.core.files.storage import default_storage
 
 from integralstor_common import common, audit, alerts
 
 from integralstor_unicell import system_info
 
 import integral_view
-from integral_view.forms import log_management_forms
+from integral_view.forms import log_management_forms,common_forms
 from integral_view.utils import iv_logging
 
+
+def handle_uploaded_file(f):
+  with open('/tmp/upload.zip', 'wb+') as destination:
+    for chunk in f.chunks():
+      destination.write(chunk)
+  return True,"/tmp/upload.zip"
+
+def copy_and_overwrite(from_path, to_path):
+  if os.path.exists(to_path):
+    shutil.rmtree(to_path)
+  shutil.copytree(from_path, to_path)
+  return True
+
+def copy_file_and_overwrite(from_path,to_path):
+  shutil.copyfile(from_path,to_path)
+  return True
 
 def edit_integral_view_log_level(request):
 
@@ -169,18 +186,19 @@ def rotate_log(request, log_type=None):
 def download_sys_info(request):
   return_dict = {}
   try:
-    display_name, err = common.get_config_dir()
+    display_name, err = common.get_platform_root()
     if err:
       raise Exception(err)
     zf_name = "system_info.zip"
     try:
       zf = zipfile.ZipFile(zf_name, 'w')
-      abs_src = os.path.abspath(display_name[0])
-      for dirname, subdirs, files in os.walk(display_name[0]):
-        for filename in files:
-          absname = os.path.abspath(os.path.join(dirname, filename))
-          arcname = absname[len(abs_src) + 1:]
-          zf.write(absname, arcname)
+      abs_src = os.path.abspath(display_name)
+      for dirname, subdirs, files in os.walk(display_name):
+        if "config" in dirname:
+          for filename in files:
+            absname = os.path.abspath(os.path.join(dirname, filename))
+            arcname = absname[len(abs_src) + 1:]
+            zf.write(absname, arcname)
       logs = {'boot':'/var/log/boot.log', 'dmesg':'/var/log/dmesg', 'message':'/var/log/messages', 'smb':'/var/log/smblog.vfs', 'winbind':'/var/log/samba/log.winbindd','ctdb':'/var/log/log.ctdb','smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf'}
       for key,value in logs.iteritems():
           if os.path.isfile(value):
@@ -204,6 +222,35 @@ def download_sys_info(request):
     return_dict['tab'] = 'node_info_tab'
     return_dict["error"] = 'Error downloading system information'
     return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def upload_sys_info(request):
+  return_dict = {}
+  try:
+    if request.method == "POST" :
+      status,path = handle_uploaded_file(request.FILES['file_field'])
+      if path:
+        print path
+        zip = zipfile.ZipFile(path,'r')
+        data = zip.namelist()
+        move = zip.extractall("/tmp/upload/")
+        logs = {'boot':'/var/log/boot.log', 'dmesg':'/var/log/dmesg', 'message':'/var/log/messages', 'smb':'/var/log/smblog.vfs', 'winbind':'/var/log/samba/log.winbindd','ctdb':'/var/log/log.ctdb','smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf'}
+        for key,value in logs.iteritems():
+          if key and os.path.isfile(key):
+            copy_file_and_overwrite("/tmp/upload/"+key,value)
+        copy_and_overwrite("/tmp/upload/config",common.get_config_dir()[0])
+        return django.http.HttpResponseRedirect("/show/node_info/")
+    else:
+      form = common_forms.FileUploadForm()
+      return_dict["form"] = form  
+      return django.shortcuts.render_to_response("upload_sys_info.html", return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception,e:
+    return_dict['base_template'] = "logging_base.html"
+    return_dict["error"] = 'Error displaying rotated log list'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+   
 
 def view_rotated_log_list(request, log_type):
 
