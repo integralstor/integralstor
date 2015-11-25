@@ -1,0 +1,51 @@
+{% extends 'system_base.html' %}
+
+{% block tab_header %}
+  Restore system to a configuration
+{% endblock %}
+
+{% block inside_content %}
+
+  <form action="." method="post" enctype="multipart/form-data" class="form-horizontal" id="upload-form" role="form"> 
+
+    {%csrf_token%}
+<div class="form-group">
+                  <label for="upload_file" class="col-sm-2 control-label">Upload system configuration</label>
+                  <div class="col-sm-10">
+                    <input id="upload_file" type="file" name="file_field" class="form-control">
+                    <p class="help-block">Select a previously downloaded zip file for an upload here</p>
+                  </div>
+                </div>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirm-upload">Upload Config</button>
+  </form>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="confirm-upload">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Warning</h4>
+      </div>
+      <div class="modal-body">
+        <p>This will reset your server to a different configuration. Are you sure you want to do this? </p>
+        <p> This will delete your share, configurations ip settings and revert back everything. </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+        <button type="button" id="go-ahead" class="btn btn-danger">I understand the risks ! Do it.</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+  $("#go-ahead").on('click',function(){
+     $('form#upload-form').submit(); 
+  });
+</script>
+{% endblock %}
+{% block tab_active %}
+<script>
+   make_tab_active("node_info_tab")
+</script>
+{% endblock%}
