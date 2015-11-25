@@ -14,18 +14,6 @@ class CreateDatasetForm(forms.Form):
   compression = forms.BooleanField(required=False)
   dedup = forms.BooleanField(required=False)
   pool = forms.CharField()
-  
-  def __init__(self, *args, **kwargs):
-    dsll = None
-    if kwargs:
-      dsl = kwargs.pop('datasets')
-    super(CreateDatasetForm, self).__init__(*args, **kwargs)
-    ch = []
-    if dsl:
-      for i in dsl:
-        tup = (i,i)
-        ch.append(tup)
-    self.fields['parent'] = forms.ChoiceField(choices=ch)
 
 class CreateZvolForm(forms.Form):
   name = forms.CharField()

@@ -8,22 +8,19 @@ Create a ZFS dataset
 
 {{conf_message}}
 
+{{form.errors}}
 <form id="create_form" name="create_form" action="/create_zfs_dataset/" method="post">
 <input type="hidden" name="pool" value="{{pool}}">
             <table class="table" style="width:800px">
             <tr>
               <td>
-            <label for="id_parent">Parent :</label>
+            <label >Parent pool :</label>
               </td>
               <td>
-                  <select name="parent" class="form-control">
-                  {% for choice in form.parent.field.choices %}
-                    <option value="{{choice.0}}" {%if choice.0 == form.initial.parent %} selected="selected"{%endif%}>{{choice.1}}</option>
-                  {%endfor%}
-                  </select>
+                {{form.pool.value}}
               </td>
               <td>
-            {{ form.parent.errors }}
+                &nbsp;
               </td>
             </tr>
             <tr>

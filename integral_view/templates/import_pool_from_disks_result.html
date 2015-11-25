@@ -1,0 +1,23 @@
+{% extends 'storage_base.html' %}
+{%block tab_header %}
+ZFS pools import
+{%endblock%}
+
+{% block inside_content %}
+<br><br>
+{%if output %}
+
+Results of the import operation : <p>
+{{output}}
+
+{%else%}
+
+There dont seem to be any ZFS pools available on the disks to be imported or the disks may have been corrupted.
+{%endif%}
+{%endblock%}
+{%block help_header%}
+View all ZFS pools
+{%endblock%}
+{%block help_body%}
+  <p> This screen displays the result of an attempt at importing existing ZFS pools from the data drives.</p>
+{%endblock%}

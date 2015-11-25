@@ -299,7 +299,9 @@ def view_hostname(request):
   return_dict = {}
   try:
     template = 'logged_in_error.html'
-    hostname = socket.gethostname()
+    hostname, err = networking.get_hostname()
+    if err:
+      raise Exception(err)
     domain_name,err = networking.get_domain_name()
     if err:
       raise Exception(err)
@@ -327,7 +329,9 @@ def edit_hostname(request):
 
     hostname = socket.gethostname()
     if request.method == "GET":
-      hostname = socket.gethostname()
+      hostname, err = networking.get_hostname()
+      if err:
+        raise Exception(err)
       domain_name,err = networking.get_domain_name()
       if err:
         raise Exception(err)

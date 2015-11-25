@@ -16,7 +16,7 @@ Modify the system's hostname
             <label for="id_hostname">Hostname (without domain name component):</label>
               </td>
               <td>
-                <input type="text"  name="hostname" class="form-control" id="id_hostname" placeholder="Enter hostname" value="{%if form.initial.hostname%}{{form.initial.hostname}}{%endif%}"/>
+                <input type="text"  name="hostname" class="form-control" id="id_hostname" placeholder="Enter hostname" value="{%if form.initial.hostname%}{{form.initial.hostname}}{%else%}{{form.hostname.value}}{%endif%}"/>
               </td>
               <td>
             {{ form.hostname.errors }}
@@ -27,7 +27,7 @@ Modify the system's hostname
             <label for="id_domain_name">Domain name:</label>
               </td>
               <td>
-                <input type="text"  name="domain_name" class="form-control" id="id_domain_name" placeholder="Enter domain name" value="{%if form.initial.domain_name%}{{form.initial.domain_name}}{%endif%}"/>
+                <input type="text"  name="domain_name" class="form-control" id="id_domain_name" placeholder="Enter domain name" value="{%if form.initial.domain_name%}{{form.initial.domain_name}}{%else%}{{form.domain_name.value}}{%endif%}"/>
               </td>
               <td>
             {{ form.domain_name.errors }}
