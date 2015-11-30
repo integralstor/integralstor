@@ -40,18 +40,19 @@ def configure_interface():
     if ip_info:
       ip = ip_info["ipaddr"]
       netmask = ip_info["netmask"]
+      if "default_gateway" in ip_info:
+        gateway = ip_info["default_gateway"]
+      else:
+        gateway = None
     else:
       ip = None
       netmask = None
-
-    if "default_gateway" in ip_info:
-      gateway = ip_info["default_gateway"]
-    else:
       gateway = None
-      
+    
     old_boot_proto, err = networking.get_interface_bootproto(ifname)
     if err:
       raise Exception('Error retrieving interface information : %s'%err)
+      time.sleep(5)
 
     config_changed = False
 
