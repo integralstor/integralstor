@@ -187,6 +187,7 @@ def download_sys_info(request):
   return_dict = {}
   try:
     display_name, err = common.get_platform_root()
+    print display_name
     if err:
       raise Exception(err)
     zf_name = "system_info.zip"
@@ -201,6 +202,7 @@ def download_sys_info(request):
             zf.write(absname, arcname)
       logs = {'boot':'/var/log/boot.log', 'dmesg':'/var/log/dmesg', 'message':'/var/log/messages', 'smb':'/var/log/smblog.vfs', 'winbind':'/var/log/samba/log.winbindd','ctdb':'/var/log/log.ctdb','smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf'}
       for key,value in logs.iteritems():
+          print value
           if os.path.isfile(value):
             zf.write(value, key)
       zf.close()

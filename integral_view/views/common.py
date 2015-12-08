@@ -334,9 +334,9 @@ def dashboard(request,page):
       return_dict['tab'] = 'disk_tab'
       return_dict["error"] = 'Error loading hard drives status'
       sorted_disks = []
-      if 'disks' in si[info] and si[info]['disks']:
-        for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
-          sorted_disks.append(key)
+      #if 'disks' in si[info] and si[info]['disks']:
+      #  for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
+      #    sorted_disks.append(key)
       return_dict['node'] = si[info]
       return_dict["disk_status"] = si[info]['disks']
       print si[info]['disks']

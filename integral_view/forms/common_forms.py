@@ -76,3 +76,6 @@ class AddNodesForm(forms.Form):
       tup = (minion, minion)
       ch.append(tup)   
     self.fields["nodes"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, choices=ch)
+
+class FileUploadForm(forms.Form):
+  file_field = forms.FileField()

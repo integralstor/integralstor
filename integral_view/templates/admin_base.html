@@ -4,7 +4,7 @@
   <div class="nav-tabs-custom">
 	<ul class="nav nav-tabs">
 	  <li id="change_admin_pswd_tab"><a href="/change_admin_password/">Change Admin Password</a></li>
-    {%if request.user.is_superuser%} <li><a href="/reset_to_factory_defaults/">Reset to factory defaults</a></li>{%endif%}
+    <!--{%if request.user.is_superuser%} <li><a href="/reset_to_factory_defaults/">Reset to factory defaults</a></li>{%endif%} -->
     {% include 'help_and_refresh.html' %}
 </ul>
 	<div class="tab-content">
