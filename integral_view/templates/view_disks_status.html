@@ -14,23 +14,22 @@ Hard drives status
 
 	    <div class="info-box-content">
 		    <span class="info-box-text" id="disk_{{ forloop.counter0 }}_serial">No Disk</span>
-		    <span class="info-box-number" id="disk_{{forloop.counter0}}_status">Status : None</span>
+		    <span class="info-box-number" id="disk_{{forloop.counter0}}_status">&nbsp;</span>
 	    </div>
 	    <!-- /.info-box-content -->
     </div>
   </div>
   {% endfor %}
 </div>
-
 <script>
 {%for sn, disk in disk_status.items %}
-{%if disk.status != 'PASSED' and disk.status != 'OK' %}
+{%if disk.status != 'PASSED' and disk.status != 'OK' and not disk.boot_device%}
   $('#disk_{{disk.scsi_info.2}}_serial').text("{{sn}}")
   $('#disk_{{disk.scsi_info.2}}_status').text("Status :{{disk.status}}")
   $('#disk_{{disk.scsi_info.2}}_colour').removeClass('bg-purple').addClass('bg-red')
-{%else%}
+{%elif not disk.boot_device%}
 	$('#disk_{{disk.scsi_info.2}}_status').text("Status :OK")
-  $('#disk_{{disk.scsi_info.2}}_serial').text("{{sn}}")
+  $('#disk_{{disk.scsi_info.2}}_serial').html("Ser No. : <br>{{sn}}")
   $('#disk_{{disk.scsi_info.2}}_colour').removeClass('bg-purple').addClass('bg-green')
 {%endif%}
 {%endfor%}

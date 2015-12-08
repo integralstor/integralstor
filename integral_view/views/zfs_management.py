@@ -97,7 +97,7 @@ def import_zfs_pool_from_disks(request):
     if err:
       raise Exception(err)
 
-    return_dict['output'] = out
+    return_dict['output'] = output
       
     template = "import_pool_from_disks_result.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
