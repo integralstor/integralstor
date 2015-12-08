@@ -3,7 +3,14 @@
 Hard drives status
 {%endblock%}
 {% block inside_content %}
-<br><br>
+<style>
+	.info-box-icon {
+		width: 60px;
+	}
+	.info-box-content {
+		margin-left: 60px;
+	}
+</style>
 
 <h4> Disk positions </h4>
 <div class="row">
@@ -24,12 +31,12 @@ Hard drives status
 <script>
 {%for sn, disk in disk_status.items %}
 {%if disk.status != 'PASSED' and disk.status != 'OK' and not disk.boot_device%}
-  $('#disk_{{disk.scsi_info.2}}_serial').text("{{sn}}")
+  $('#disk_{{disk.scsi_info.2}}_serial').html("S No. : {{sn}}")
   $('#disk_{{disk.scsi_info.2}}_status').text("Status :{{disk.status}}")
   $('#disk_{{disk.scsi_info.2}}_colour').removeClass('bg-purple').addClass('bg-red')
 {%elif not disk.boot_device%}
-	$('#disk_{{disk.scsi_info.2}}_status').text("Status :OK")
-  $('#disk_{{disk.scsi_info.2}}_serial').html("Ser No. : <br>{{sn}}")
+  $('#disk_{{disk.scsi_info.2}}_serial').html("S No. : {{sn}}")
+  $('#disk_{{disk.scsi_info.2}}_status').text("Status :OK")
   $('#disk_{{disk.scsi_info.2}}_colour').removeClass('bg-purple').addClass('bg-green')
 {%endif%}
 {%endfor%}
