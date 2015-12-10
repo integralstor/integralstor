@@ -16,14 +16,15 @@ Hard drives status
 <div class="row">
   {% for i in "xxxxxxxxxxxx" %}
   <div class="col-sm-12 col-md-3 col-lg-3">
-    <div class="info-box">
-	    <span class="info-box-icon bg-purple" id="disk_{{forloop.counter0}}_colour">{{forloop.counter0|add:'1'}}</span>
-
-	    <div class="info-box-content">
-		    <span class="info-box-text" id="disk_{{ forloop.counter0 }}_serial">No Disk</span>
-		    <span class="info-box-number" id="disk_{{forloop.counter0}}_status">&nbsp;</span>
-	    </div>
-	    <!-- /.info-box-content -->
+      <div class="box box-default box-solid" id="disk_{{forloop.counter0}}_colour">
+        <div class="box-header with-border">
+          <h3 class="box-title" id="disk_{{ forloop.counter0 }}_serial">No Disk</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body" id="disk_{{forloop.counter0}}_status">
+         No Status exists 
+        </div>
+        <!-- /.box-body -->
     </div>
   </div>
   {% endfor %}
@@ -31,13 +32,13 @@ Hard drives status
 <script>
 {%for sn, disk in disk_status.items %}
 {%if disk.status != 'PASSED' and disk.status != 'OK' and not disk.boot_device%}
-  $('#disk_{{disk.scsi_info.2}}_serial').html("S No. : {{sn}}")
+  $('#disk_{{disk.scsi_info.2}}_serial').html("Sl No. : {{sn}}")
   $('#disk_{{disk.scsi_info.2}}_status').text("Status :{{disk.status}}")
-  $('#disk_{{disk.scsi_info.2}}_colour').removeClass('bg-purple').addClass('bg-red')
+  $('#disk_{{disk.scsi_info.2}}_colour').removeClass('box-default').addClass('box-danger')
 {%elif not disk.boot_device%}
-  $('#disk_{{disk.scsi_info.2}}_serial').html("S No. : {{sn}}")
+  $('#disk_{{disk.scsi_info.2}}_serial').html("Sl No. : {{sn}}")
   $('#disk_{{disk.scsi_info.2}}_status').text("Status :OK")
-  $('#disk_{{disk.scsi_info.2}}_colour').removeClass('bg-purple').addClass('bg-green')
+  $('#disk_{{disk.scsi_info.2}}_colour').removeClass('box-default').addClass('box-success')
 {%endif%}
 {%endfor%}
 </script>

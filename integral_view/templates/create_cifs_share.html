@@ -131,7 +131,8 @@ function select_guest_ok() {
             <label for="id_guest_ok">Accessible to all(guest ok):</label>
               </td>
               <td>
-            {{ form.guest_ok }}
+            {{ form.guest_ok }}<br />
+		<span id="guest_help"></span>
               </td>
               <td>
             {{ form.guest_ok.errors }}
@@ -184,15 +185,18 @@ function set_select_field_disabled(f, val) {
 }
 $("form input[name='guest_ok']").click(function () { 
     if (document.forms["create_form"].elements["guest_ok"].checked) {
+      document.getElementById('guest_help').innerHTML = "Guest Access enabled. Disable to select Users and Groups"
       set_select_field_disabled(document.getElementsByName('users'), true);
       set_select_field_disabled(document.getElementsByName('groups'), true);
     } else {
+      document.getElementById('guest_help').innerHTML = ""
       set_select_field_disabled(document.getElementsByName('users'),false);
       set_select_field_disabled(document.getElementsByName('groups'), false);
     }
     });
 $(window).load(function() {
     document.forms["create_form"].elements["guest_ok"].checked = true
+      document.getElementById('guest_help').innerHTML = "Guest Access enabled. Disable to select Users and Groups"
       set_select_field_disabled(document.getElementsByName('users'),true);
       set_select_field_disabled(document.getElementsByName('groups'), true);
   });
