@@ -178,6 +178,22 @@ def _change_service_status(service, action):
   else:
     return d, None
 
+def _reboot_system(action):
+  d = {}
+  try:
+    ret, rc = command.execute_with_rc(action)
+    if not err:
+      d['output_str'] = 'Scheduled for restart'
+      d['status_code'] = 0 
+    else:
+      d['output_str'] = 'Schedule failed. Please try again'
+      d['status_code'] = -1
+  except Exception, e:
+    return None, 'Error retrieving service status : %s'%str(e)
+  else:
+    return d, None
+
+
 ## This is a lot of hack inside just to get it work. Re-write when rewriting the architecture.
 def start_ftp_service(request):
   return_dict = {}
@@ -253,7 +269,38 @@ def start_ftp_service(request):
       return_dict["error_details"] = str(e)
       return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
       
-  
+def reboot(request):
+  return_dict = {}
+  audit_str = ""
+  if request.method == "POST":
+    try:
+      d, err = _reboot_system('reboot')
+      if not d:
+        audit_str += 'Request failed.'
+        audit.audit("Rebooting System", audit_str, request.META["REMOTE_ADDR"])
+        if err:
+          raise Exception(err)
+        else:
+          raise Exception('Reboot Scheduling Error')
+
+      if d['status_code'] == 0:
+        audit_str += 'Reboot Succeeded succeeded.'
+      else:
+        audit_str += 'Request failed.'
+      audit.audit("Reboot ", audit_str, request.META["REMOTE_ADDR"])
+      return django.shortcuts.render_to_response("reboot.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    except Exception, e:
+      return_dict['base_template'] = "admin_base.html"
+      return_dict["page_title"] = 'Reboot'
+      return_dict['tab'] = 'reboot'
+      return_dict["error"] = 'Reboot Happening. Please Wait ...!'
+      return_dict["error_details"] = str(e)
+      return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+  if request.method == "GET":
+    return django.shortcuts.render_to_response("reboot.html", return_dict, context_instance=django.template.context.RequestContext(request))
+     
+
 if __name__ == '__main__':
   print _get_service_status(('ntpd', 'NTP'))
   print _get_service_status(('network', 'networking'))

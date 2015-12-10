@@ -60,6 +60,7 @@ get_alerts()
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <span>
                                   <i class="fa fa-exclamation-triangle white bigger-140" id="alert_icon"></i>
+					&nbsp;Alerts
                                 </span>
                             </a>
                             <ul class="dropdown-menu" id="alerts_dropdown">
@@ -74,44 +75,8 @@ get_alerts()
                                 <li class="footer"><a href="/show/alerts/">See All Messages</a></li>
                             </ul>
                         </li>
-                        <li class="dropdown user user-menu">
-                            <a href="#" classstyle="min-height: 590px;"="dropdown-toggle" data-toggle="dropdown">
-                                <i class="fa fa-user green"></i>
-                                <span>{{request.user.username|default:'admin'}} <i class="caret"></i></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <!-- User image -->
-                                <li class="user-header">
-                                    <img src="/static/images/LOGO-transparent.png" class="img-circle" alt="User Image">
-                                    <p>
-                                        {{request.user.username|default:'admin'}}
-                                        <!-- <br /><small>Member since Nov. 2012</small> -->
-                                    </p>
-                                </li>
-                                <!-- Menu Body -->
-                                <!--
-                                 <li class="user-body">
-                                    <div class="col-xs-4 text-center">
-                                        <a href="#">Followers</a>
-                                    </div>
-                                    <div class="col-xs-4 text-center">
-                                        <a href="#">Sales</a>
-                                    </div>
-                                    <div class="col-xs-4 text-center">
-                                        <a href="#">Friends</a>
-                                    </div>
-                                </li> -->
-                                <!-- Menu Footer-->
-                                <li class="user-footer">
-                                    <div class="pull-left">
-                                        <a href="{%url 'change_admin_password'%}" class="btn btn-default btn-flat">Change Password</a>
-                                    </div>
-                                    <div class="pull-right">
-                                        <a href="{%url 'logout'%}" class="btn btn-default btn-flat">Sign out</a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
+                        <li><a href="{%url 'change_admin_password'%}">Change Password</a></li>
+                        <li><a href="{%url 'logout'%}" >Sign out</a></li>
                     </ul>
                 </div>
             </nav>
@@ -124,9 +89,9 @@ get_alerts()
                 <!-- sidebar: style can be found in sidebar.less -->
                 <section class="sidebar">
                   <div class="user-panel">
-                    <div class="pull-left image">
+                    <div class="image" style="margin-left:20%">
                       <!--<a href="/dashboard/cpu" class="white hidden-phone"><img src="/static/images/fractalio name-white.png" width="170" height="45"/></a> -->
-                      <a href="/dashboard/cpu" class="white hidden-phone text-center"><img src="/static/images/istor.png" width="150" height="60"/></a>
+                      <a href="/dashboard/cpu" class="white hidden-phone text-center"><img src="/static/images/istor.png" width="120" height="60"/></a>
                    </div>
                   </div>
                     <!-- sidebar menu: : style can be found in sidebar.less -->
