@@ -45,7 +45,7 @@ do_shutdown() {
 show_menu() {
   clear
   echo "-------------------------------"	
-  echo " IntegralStore Unicell - Menu"
+  echo " IntegralSTOR UNIcell - Menu"
   echo "-------------------------------"
   echo "1. Configure a network interface"
   echo "2. Reboot"
@@ -66,7 +66,6 @@ read_input(){
     4) view_node_config;;
     5) view_node_status;;
     6) generate_manifest_and_status;;
-    7) exit 0;;
     *)  echo "Not a Valid INPUT" && sleep 2
   esac
 }
