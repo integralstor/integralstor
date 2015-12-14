@@ -37,6 +37,8 @@ Hardware components status
    {%endif%}
    </td>
    </tr>
+    {% empty %}
+	Hardware Status can be detected only on IPMI enabled devices.
    {%endfor%}
 </table>
 {% endblock %}
