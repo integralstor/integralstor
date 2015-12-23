@@ -337,6 +337,9 @@ def dashboard(request,page):
       #if 'disks' in si[info] and si[info]['disks']:
       #  for key,value in sorted(si[info]["disks"].iteritems(), key=lambda (k,v):v["position"]):
       #    sorted_disks.append(key)
+      platform,err = common.get_hardware_platform()
+      if not err:
+        return_dict['hardware'] = platform
       return_dict['node'] = si[info]
       return_dict["disk_status"] = si[info]['disks']
       print si[info]['disks']
