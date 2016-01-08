@@ -46,7 +46,7 @@ class CreatePoolForm(forms.Form):
       for i in pol:
         tup = (i,i)
         ch.append(tup)
-      if ('raid5' in pol) or (raid6 in pol):
+      if ('raid5' in pol) or ('raid6' in pol):
         self.fields['num_raid_disks'] = forms.IntegerField(required=False)
       if 'raid10' in pol:
         max_stripe_width = num_free_disks/2
