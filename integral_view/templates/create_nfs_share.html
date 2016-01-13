@@ -13,14 +13,24 @@ Create an NFS share
             <label for="id_dataset">Underlying ZFS Dataset :</label>
               </td>
               <td>
-                  <select id = "id_dataset" name="dataset" class="form-control">
+                  <select id="id_dataset" class="form-control">
                   {% for choice in form.dataset.field.choices %}
-                    <option value="{{choice.0}}" {%if choice.0 == form.initial.path %} selected="selected"{%endif%}>{{choice.1}}</option>
+                    <option value="{{choice.0}}" {%if choice.0 == form.initial.path %} selected="selected"{%endif%} onclick="option_selected(this)">{{choice.1}}</option>
                   {%endfor%}
-                  </select>
+                  </select> </td>
+              <td>
+            {{ form.dataset.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            	<label for="id_dataset">Selected ZFS Dataset :</label>
               </td>
               <td>
-              {{ form.dataset.errors }}
+		<input id="val_dataset" name="dataset" readonly class="form-control"/>
+              </td>
+              <td>
+              	{{ form.dataset.errors }}
               </td>
             </tr>
             <tr>
@@ -110,6 +120,22 @@ Create an NFS share
 </form>
   <script src="/static/jstree/dist/jstree.js"></script>
   <script>
+	function option_selected(a){
+		localStorage.setItem('last_selected',a.value);
+		localStorage.setItem('last_selected_time',new Date().getTime());
+		location.reload();
+	};
+	function change_dataset(a){
+	};
+	var one_min = 60 * 1000
+	if ((new Date) - localStorage.getItem('last_selected_time') < one_min){
+		$("#val_dataset").val(localStorage.getItem('last_selected'));
+		$("#id_dataset option[value='"+localStorage.getItem('last_selected')+"']").attr("selected","selected")
+	}else{
+      		localStorage.removeItem('last_selected');
+      		localStorage.removeItem('last_selected_time');
+		$("#val_dataset").val($("#id_dataset").val());
+	}
 	$("#id_dataset").change(function(){
 		location.reload();
 	});
