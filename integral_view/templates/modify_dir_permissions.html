@@ -12,11 +12,22 @@
             	<label for="id_dataset">Underlying ZFS Dataset :</label>
               </td>
               <td>
-                  <select id = "id_dataset" name="dataset" class="form-control">
+                  <select id = "id_dataset" class="form-control" onchange="change_dataset(this)">
                   {% for choice in dataset %}
-		    <option value="/{{choice}}">{{choice}}</option>
+		    <option value="/{{choice}}" onclick="option_selected(this)">{{choice}}</option>
                   {%endfor%}
                   </select>
+              </td>
+              <td>
+              	{{ form.dataset.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            	<label for="id_dataset">Selected ZFS Dataset :</label>
+              </td>
+              <td>
+		<input id="val_dataset" name="dataset" readonly class="form-control"/>
               </td>
               <td>
               	{{ form.dataset.errors }}
@@ -40,9 +51,23 @@
 </form>
   <script src="/static/jstree/dist/jstree.js"></script>
   <script>
-	$("#id_dataset").change(function(){
+	function option_selected(a){
+		localStorage.setItem('last_selected',a.value);
+		localStorage.setItem('last_selected_time',new Date().getTime());
 		location.reload();
-	});
+	};
+	function change_dataset(a){
+	};
+	// Invalidate the local storage value after 1 min.
+	var one_min = 60 * 1000
+	if ((new Date) - localStorage.getItem('last_selected_time') < one_min){
+		$("#val_dataset").val(localStorage.getItem('last_selected'));
+		$("#id_dataset option[value='"+localStorage.getItem('last_selected')+"']").attr("selected","selected")
+	}else{
+      		localStorage.removeItem('last_selected');
+      		localStorage.removeItem('last_selected_time');
+		$("#val_dataset").val($("#id_dataset").val());
+	}
   function displayTree() {
       document.getElementById("pathdiv").style.display = "block";
       $('#pathdiv').jstree({ 'core' : {
@@ -54,12 +79,15 @@
               '/dir_contents'; 
           },
           'data' : function (node) {
-            var e = document.getElementById("id_dataset");
-            if (node.data) {
-              return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
+            var e = document.getElementById("val_dataset")
+            if (node.data) {              //return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
+
+              //return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
+              return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.value};
             }
             else
-              return { 'dir' : node.text , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
+              //return { 'dir' : node.text , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
+              return { 'dir' : node.text , 'id':node.id, "pool_name": e.value};
             }
             
           }
