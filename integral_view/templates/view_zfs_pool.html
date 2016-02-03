@@ -22,6 +22,9 @@ No information for the specified pool. Click <a href="/view_zfs_pools/"> here</a
 <td><a href="/delete_zfs_pool?name={{pool.pool_name}}" role="button" class="btn btn-danger"> Delete this pool</a></td>
 <td><a href="/set_file_owner_and_permissions?path={{pool.properties.mountpoint.value}}" role="button" class="btn btn-info"> Change ownership and permissions</a></td>
 <td><a href="/scrub_zfs_pool?name={{pool.pool_name}}" role="button" class="btn btn-info">Initiate a scrub</a></td>
+{%if can_expand_pool %}
+<td><a href="/expand_zfs_pool?pool_name={{pool.pool_name}}" role="button" class="btn btn-info">Expand this pool</a></td>
+{%endif%}
 </tr>
 </table>
 <h4> Pool information </h4>

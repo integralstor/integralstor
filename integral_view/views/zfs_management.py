@@ -22,6 +22,8 @@ def view_zfs_pools(request):
     if "action" in request.GET:
       if request.GET["action"] == "saved":
         conf = "ZFS pool information successfully updated"
+      elif request.GET["action"] == "expanded_pool":
+        conf = "ZFS pool successfully expanded"
       elif request.GET["action"] == "created_pool":
         conf = "ZFS pool successfully created"
       elif request.GET["action"] == "set_permissions":
@@ -82,6 +84,9 @@ def view_zfs_pool(request):
     if err:
       raise Exception(err)
 
+    (can_expand, new_pool_type), err = zfs.can_expand_pool(pool_name)
+
+    return_dict['can_expand_pool'] = can_expand
     return_dict['num_free_disks_for_spares'] = num_free_disks_for_spares
     return_dict['snap_list'] = snap_list
     return_dict['pool'] = pool
@@ -155,11 +160,14 @@ def create_zfs_pool(request):
       if not form.is_valid():
         return django.shortcuts.render_to_response("create_zfs_pool.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
+      print cd
       vdev_list = None
       if cd['pool_type'] in ['raid5', 'raid6']:
         vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], cd['num_raid_disks'])
       elif cd['pool_type'] == 'raid10':
         vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], stripe_width = cd['stripe_width'])
+      elif cd['pool_type'] in ['raid50', 'raid60']:
+        vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], cd['num_raid_disks'], stripe_width = cd['stripe_width'])
       else:
         vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'])
       if err:
@@ -180,6 +188,37 @@ def create_zfs_pool(request):
     return_dict["page_title"] = 'ZFS pool creation'
     return_dict['tab'] = 'view_zfs_pools_tab'
     return_dict["error"] = 'Error creating a ZFS pool'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def expand_zfs_pool(request):
+  return_dict = {}
+  try:
+    if 'pool_name' not in request.REQUEST:
+      raise Exception('Pool not specified. Please use the menus.')
+    pool_name = request.REQUEST['pool_name']
+    if request.method == 'GET':
+      (can_expand, new_pool_type), err = zfs.can_expand_pool(pool_name)
+      if err:
+        raise Exception(err)
+      if not can_expand:
+        raise Exception('Cannot expand the specified pool.')
+      return_dict['new_pool_type'] = new_pool_type
+      return_dict['pool_name'] = pool_name
+      return django.shortcuts.render_to_response("expand_zfs_pool_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      ret, err = zfs.expand_pool(pool_name)
+      if err:
+        raise Exception(err)
+      audit_str = "Expanded the ZFS pool named %s"%pool_name
+      audit.audit("expand_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pools?action=expanded_pool')
+  
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'ZFS pool expansion'
+    return_dict['tab'] = 'view_zfs_pools_tab'
+    return_dict["error"] = 'Error expanding a ZFS pool'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
