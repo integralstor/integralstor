@@ -26,6 +26,7 @@ No information for the specified pool. Click <a href="/view_zfs_pools/"> here</a
 </table>
 <h4> Pool information </h4>
 <table class="table table-bordered table-hover table-responsive" style="width:800px">
+<tr><th> Pool type </th> <td>{{pool.config.pool.type.upper}}<td></tr>
 <tr><th> Pool state </th> <td>{{pool.state}}<td></tr>
 <tr><th> Pool errors </th> <td>{{pool.errors}}<td></tr>
 <tr> <th> Pool scan </th> <td>{{pool.scan}}<td></tr>
@@ -33,15 +34,15 @@ No information for the specified pool. Click <a href="/view_zfs_pools/"> here</a
 <b> Pool components</b>
 <ul>
   {%for child in pool.config.pool.root.children %}
-  <li> Name - {{child.name}}, Type - {{child.type}}, Status - State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
+  <li> {{child.name}} ({{child.type}}), State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
     {%if child.children %}
     <ul>
       {%for gr_child in child.children %}
-        <li> Name - {{gr_child.name}}, Type - {{gr_child.type}}, Status - State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
+        <li> {{gr_child.name}} ({{gr_child.type}}), State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
         {%if gr_child.children %}
         <ul>
           {%for gr_gr_child in gr_child.children %}
-            <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
+            <li> {{gr_gr_child.name}} ({{gr_gr_child.type}}), State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
   
           {%endfor%}
         </ul>
@@ -51,6 +52,35 @@ No information for the specified pool. Click <a href="/view_zfs_pools/"> here</a
     {%endif%}
   {%endfor%}
 </ul>
+
+<hr>
+<h4> Spare disks </h4>
+{% if pool.config.spares %}
+  <table class="table table-bordered table-hover table-responsive" >
+  <th>
+    Disk ID
+  </th>
+  <th>
+    Status
+  </th>
+  {%for id, status in pool.config.spares.items%}
+  <tr>
+    <td>
+      {{id}}
+    </td>
+    <td>
+      {{status}}
+    </td>
+  </tr>
+  {%endfor%}
+  </table>
+{%else%}
+No spare disks assigned. <br><br>
+{%endif%}
+<a href="/add_zfs_spares?pool_name={{pool.pool_name}}" role="button" class="btn btn-primary" {% if not num_free_disks_for_spares  %} disabled {%endif%}>Add spare drive(s)</a>
+{% if pool.config.spares %}
+<a href="/remove_zfs_spare?pool_name={{pool.pool_name}}" role="button" class="btn btn-danger">Remove a spare disk</a>
+{%endif%}
 
 <hr>
 <h4> Write cache information </h4>

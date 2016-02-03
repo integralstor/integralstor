@@ -42,7 +42,12 @@ def view_zfs_pools(request):
         conf = "ZFS write cache successfully removed"
       elif request.GET["action"] == "changed_slog":
         conf = "ZFS pool write cache successfully set"
-      return_dict["conf"] = conf
+      elif request.GET["action"] == "added_spares":
+        conf = "Successfully added spare disks to the pool"
+      elif request.GET["action"] == "removed_spare":
+        conf = "Successfully removed a spare disk from the pool"
+      if conf:
+        return_dict["conf"] = conf
     return_dict["pool_list"] = pool_list
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
@@ -69,10 +74,15 @@ def view_zfs_pool(request):
     elif not pool:
       raise Exception("Specified pool not found")
 
+    num_free_disks_for_spares, err = zfs.get_free_disks_for_spares(pool_name)
+    if err:
+      raise Exception(err)
+
     snap_list, err = zfs.get_snapshots(pool_name)
     if err:
       raise Exception(err)
 
+    return_dict['num_free_disks_for_spares'] = num_free_disks_for_spares
     return_dict['snap_list'] = snap_list
     return_dict['pool'] = pool
     return_dict['pool_name'] = pool_name
@@ -122,12 +132,16 @@ def create_zfs_pool(request):
 
     pool_types = []
     if len(free_disks) >= 2 :
-      pool_types.append('mirror')
+      pool_types.append(('mirror', 'MIRROR'))
     if len(free_disks) >= 3 :
-      pool_types.append('raid5')
+      pool_types.append(('raid5', 'RAID-5'))
     if len(free_disks) >= 4 :
-      pool_types.append('raid6')
-      pool_types.append('raid10')
+      pool_types.append(('raid6', 'RAID-6'))
+      pool_types.append(('raid10', 'RAID-10'))
+    if len(free_disks) >= 6 :
+      pool_types.append(('raid50', 'RAID-50'))
+    if len(free_disks) >= 8 :
+      pool_types.append(('raid60', 'RAID-60'))
 
     if request.method == "GET":
       #Return the conf page
@@ -894,6 +908,76 @@ def rename_zfs_snapshot(request):
     return_dict["page_title"] = 'Rename a ZFS snapshot'
     return_dict['tab'] = 'view_zfs_snapshots_tab'
     return_dict["error"] = 'Error renaming a loading ZFS snapshot'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def add_zfs_spares(request):
+  return_dict = {}
+  try:
+    if 'pool_name' not in request.REQUEST:
+      raise Exception('No pool specified. Please use the menus')
+    pool_name = request.REQUEST['pool_name']
+    free_drives, err = zfs.get_free_disks_for_spares(pool_name)
+    if err:
+      raise Exception(err)
+    num_free_drives = len(free_drives)
+    if request.method == 'GET':
+      if num_free_drives == 0:
+        raise Exception('There are no free drives to be added as spares')
+      form = zfs_forms.AddSparesForm(num_free_drives = num_free_drives)
+      return_dict['form'] = form
+      return_dict['pool_name'] = pool_name
+      return django.shortcuts.render_to_response("add_zfs_spares.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      form = zfs_forms.AddSparesForm(request.POST, num_free_drives = num_free_drives)
+      return_dict['form'] = form
+      if not form.is_valid():
+        return django.shortcuts.render_to_response("add_zfs_spares.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      cd = form.cleaned_data
+      num_spares = cd['num_spares']
+      #print num_spares
+      ret, err = zfs.add_spares_to_pool(pool_name, int(num_spares))
+      if err:
+        raise Exception(err)
+      audit_str = "Added %s spare drive(s) to pool %s"%(num_spares, pool_name)
+      audit.audit("add_zfs_spares", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pools?action=added_spares')
+      
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Add spare drives to a ZFS pool'
+    return_dict['tab'] = 'view_zfs_pools_tab'
+    return_dict["error"] = 'Error adding spares drives to a ZFS pool'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def remove_zfs_spare(request):
+  return_dict = {}
+  try:
+    if 'pool_name' not in request.REQUEST:
+      raise Exception('No pool specified. Please use the menus')
+    pool_name = request.REQUEST['pool_name']
+    spares, err = zfs.get_pool_spares(pool_name)
+    if err:
+      raise Exception(err)
+    if not spares:
+      raise Exception('The pool does not have any spare drives assigned to it')
+    if request.method == 'GET':
+      return_dict['pool_name'] = pool_name
+      return django.shortcuts.render_to_response("remove_zfs_spare_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      ret, err = zfs.remove_a_spare_from_pool(pool_name)
+      if err:
+        raise Exception(err)
+      audit_str = "Removed a  spare drive from pool %s"%pool_name
+      audit.audit("remove_zfs_spare", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pools?action=removed_spare')
+      
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Remove a spare disk from a ZFS pool'
+    return_dict['tab'] = 'view_zfs_pools_tab'
+    return_dict["error"] = 'Error removing a  spares disk from a ZFS pool'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 

@@ -12,7 +12,7 @@ from integral_view.views.local_user_management import view_local_users, create_l
 
 from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share, create_nfs_share, edit_nfs_share
 
-from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog, remove_zfs_slog, scrub_zfs_pool, create_zfs_zvol, view_zfs_zvol,modify_dir_permissions, replace_disk, import_zfs_pool_from_disks
+from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog, remove_zfs_slog, scrub_zfs_pool, create_zfs_zvol, view_zfs_zvol,modify_dir_permissions, replace_disk, import_zfs_pool_from_disks, add_zfs_spares, remove_zfs_spare
 
 #from zfs.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
 
@@ -86,6 +86,8 @@ urlpatterns = patterns('',
     url(r'^create_local_user/', login_required(create_local_user)),
     url(r'^delete_local_user/', login_required(delete_local_user)),
     url(r'^change_local_user_password/', login_required(change_local_user_password)),
+    url(r'^add_zfs_spares/', login_required(add_zfs_spares)),
+    url(r'^remove_zfs_spare/', login_required(remove_zfs_spare)),
     url(r'^view_zfs_snapshots/', login_required(view_zfs_snapshots)),
     url(r'^create_zfs_snapshot/', login_required(create_zfs_snapshot)),
     url(r'^import_zfs_pool_from_disks/', login_required(import_zfs_pool_from_disks)),

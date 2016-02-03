@@ -23,9 +23,11 @@ No storage pools created
                         <div class="box-body">
 
 
-      <h3> Pool name : {{pool.pool_name}} </h3>
       <table class="table table-bordered table-hover table-responsive" style="width:800px">
       <thead>
+        <th >
+        Pool name
+        </th>
         <th >
         Pool type
         </th>
@@ -41,7 +43,10 @@ No storage pools created
       </thead>
       <tr>
         <td>
-          {{pool.config.pool.type}}
+          {{pool.pool_name}}
+        </td>
+        <td>
+          {{pool.config.pool.type.upper}}
         </td>
         <td>
           {{pool.config.pool.root.status.read}} read errors, <br>{{pool.config.pool.root.status.write}} write errors, <br>{{pool.config.pool.root.status.read}} checksum errors 
@@ -54,39 +59,38 @@ No storage pools created
         </td>
       </tr>
       </table>
-      <h4>Component status :</h4>
-      <h5>Pool status</h5>
+      <h4>Storage pool status</h4>
       <ul>
-        <li> Pool Status - State ({{pool.config.pool.root.status.state}}), Read ({{pool.config.pool.root.status.read}}), Write ({{pool.config.pool.root.status.write}}), Checksum ({{pool.config.pool.root.status.chksum}})
+        <li> {{pool.pool_name}} (Pool)- State ({{pool.config.pool.root.status.state}}), Read ({{pool.config.pool.root.status.read}}), Write ({{pool.config.pool.root.status.write}}), Checksum ({{pool.config.pool.root.status.chksum}})
             {%if pool.config.pool.root.status.state == 'ONLINE'%}
-              <i class="fa fa-check-circle green fa-2x"></i>	
+              <i class="fa fa-check-circle green fa-1x"></i>	
             {%else%}
               <i class="fa fa-remove red fa-2x"></i>	
             {%endif%}
           <ul>
             
             {%for child in pool.config.pool.root.children %}
-            <li> Name - {{child.name}}, Type - {{child.type}}, Status - State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
+            <li> {{child.name}} ({{child.type}}), State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
             {%if child.status.state == 'ONLINE'%}
-              <i class="fa fa-check-circle green fa-2x"></i>	
+              <i class="fa fa-check-circle green fa-1x"></i>	
             {%else%}
               <i class="fa fa-remove red fa-2x"></i>	
             {%endif%}
               {%if child.children %}
               <ul>
                 {%for gr_child in child.children %}
-                  <li> Name - {{gr_child.name}}, Type - {{gr_child.type}}, Status - State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
+                  <li> {{gr_child.name}} ({{gr_child.type}}), State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
                   {%if gr_child.status.state == 'ONLINE'%}
-                    <i class="fa fa-check-circle green fa-2x"></i>	
+                    <i class="fa fa-check-circle green fa-1x"></i>	
                   {%else%}
                     <i class="fa fa-remove red fa-2x"></i>	
                   {%endif%}
                   {%if gr_child.children %}
                   <ul>
                     {%for gr_gr_child in gr_child.children %}
-                      <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
+                      <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, <br>Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
                       {%if gr_gr_child.status.state == 'ONLINE'%}
-                        <i class="fa fa-check-circle green fa-2x"></i>	
+                        <i class="fa fa-check-circle green fa-1x"></i>	
                       {%else%}
                         <i class="fa fa-remove red fa-2x"></i>	
                       {%endif%}
@@ -100,10 +104,31 @@ No storage pools created
             {%endfor%}
           </ul>
       </ul>
-
-      <h5>Write cache status</h5>
+      {%if pool.config.spares%}
+      <h4>Spare disk status</h4>
+      <table class="table table-bordered table-hover table-responsive" >
+      <th>
+        Disk ID
+      </th>
+      <th>
+        Status
+      </th>
+      {%for id, status in pool.config.spares.items%}
+      <tr>
+        <td>
+          {{id}}
+        </td>
+        <td>
+          {{status}}
+        </td>
+      </tr>
+      {%endfor%}
+      </table>
+      {%endif%}
 
       {% if pool.config.logs %}
+      <h4>Write cache status</h4>
+
         <ul>
         {%if pool.config.logs.root.status %}
         <li>  Write cache Status - State ({{pool.config.logs.root.status.state}}), Read ({{pool.config.logs.root.status.read}}), Write ({{pool.config.logs.root.status.write}}), Checksum ({{pool.config.logs.root.status.chksum}})
