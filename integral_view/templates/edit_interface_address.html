@@ -3,33 +3,6 @@
 Modify the IP address of an NIC/bond
 {%endblock%}
 
-<!--
-<script type="text/javascript">
-/*
-function set_field_visibility() {
-  var guest_ok = document.forms["edit_form"].elements["guest_ok"];
-  var guest_ok_val;
-  for(var i = 0; i < guest_ok.length; i++){
-    if(guest_ok[i].checked){
-        guest_ok_val = guest_ok[i].value;
-    }
-  }
-  if (guest_ok_val=="yes") {
-    set_select_field_disabled(document.forms["edit_form"].elements["users"], true);
-  } else {
-    set_select_field_disabled(document.forms["edit_form"].elements["users"], false);
-  } 
-}
-function select_guest_ok() {
-  for (var i=0;i<2;i++)
-    if (document.forms["edit_form"].elements["guest_ok"][i].value == "no")
-      document.forms["edit_form"].elements["guest_ok"][i].checked = true;
-}
-*/
-</script>
--->
-
-
 {% block inside_content %}
 <br><br>
 
@@ -89,13 +62,24 @@ function select_guest_ok() {
             </tr>
             <tr>
               <td>
-            <label for="id_ip">Default gateway:</label>
+            <label for="id_default_gateway">Default gateway:</label>
               </td>
               <td>
                 <input type="text"  name="default_gateway" class="form-control optional" id="id_default_gateway" placeholder="Default gateway address" value="{%if form.initial.default_gateway%}{{form.initial.default_gateway}}{%endif%}"/>
               </td>
               <td>
             {{ form.default_gateway.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            	<label for="id_mtu">MTU framesize (for jumbo frames) :</label>
+              </td>
+              <td>
+                <input type="text"  name="mtu" class="form-control optional" id="id_mtu" placeholder="Frame size MTU" value="{%if form.initial.mtu%}{{form.initial.mtu}}{%endif%}"/>
+              </td>
+              <td>
+            {{ form.mtu.errors }}
               </td>
             </tr>
             </table>

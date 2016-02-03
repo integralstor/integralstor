@@ -163,6 +163,9 @@ def edit_interface_address(request):
 
       initial = {}
       initial['name'] = name
+      initial['mtu'] = name
+      if 'mtu' in interfaces[name] and interfaces[name]['mtu']:
+      	initial['mtu'] = interfaces[name]['mtu']
       if 'bootproto' in interfaces[name] and interfaces[name]['bootproto'] == 'dhcp':
         initial['addr_type'] = 'dhcp'
       else:

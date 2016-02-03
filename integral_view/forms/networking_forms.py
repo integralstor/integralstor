@@ -46,6 +46,7 @@ class NICForm(forms.Form):
   ip = forms.GenericIPAddressField(protocol='IPv4', required=False)
   netmask = forms.GenericIPAddressField(protocol='IPv4', required=False)
   default_gateway = forms.GenericIPAddressField(protocol='IPv4', required = False)
+  mtu = forms.IntegerField(initial=1500, max_value=9000)
   ch = [('static', r'Static'), ('dhcp', r'DHCP')]
   addr_type = forms.ChoiceField(choices=ch, widget=forms.RadioSelect())
 
