@@ -32,9 +32,12 @@ Bonding status
 <th>
 IP configured?
 </th>
+<th>
+VLAN IDs
+</th>
 </tr>
 {%for name, d in nics.items %}
-{%if not d.bonding_master and name != 'lo'%}
+{%if not d.bonding_master and name != 'lo' and not d.vlan%}
 <tr>
 <td>
 {{name}}
@@ -57,6 +60,13 @@ Not bonded
 Yes
 {%else%}
 No
+{%endif%}
+</td>
+<td>
+{%if d.vlan_ids %}
+{{d.vlan_ids|join:", "}}
+{%else%}
+None
 {%endif%}
 </td>
 <td>

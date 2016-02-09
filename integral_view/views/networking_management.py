@@ -27,6 +27,10 @@ def view_interfaces(request):
         conf = "Network interface information successfully updated"
       if request.GET["action"] == "removed_bond":
         conf = "Network bond successfully removed"
+      if request.GET["action"] == "removed_vlan":
+        conf = "VLAN successfully removed"
+      if request.GET["action"] == "created_vlan":
+        conf = "VLAN successfully created"
       if request.GET["action"] == "state_down":
         conf = "Network interface successfully disabled. The state change may take a couple of seconds to reflect on this page so please refresh it to check the updated status."
       if request.GET["action"] == "state_up":
@@ -60,7 +64,21 @@ def view_nic(request):
     elif name not in interfaces:
       raise Exception("Specified interface not found")
 
+    if interfaces[name]['vlan']:
+      if '.' not in name:
+        raise Exception('Invalid VLAN name : %s'%name)
+      comps = name.split('.')
+      if len(comps) != 2:
+        raise Exception('Invalid VLAN name : %s'%name)
+      return_dict['parent_nic'] = comps[0]
+
     return_dict['nic'] = interfaces[name]
+    if interfaces[name]['vlan_ids']:
+      return_dict['vlans'] = []
+      for vlan_id in interfaces[name]['vlan_ids']:
+        if '%s.%d'%(name, vlan_id) in interfaces:
+          return_dict['vlans'].append({'name':'%s.%d'%(name, vlan_id), 'vlan_id':vlan_id, 'info':interfaces['%s.%d'%(name, vlan_id)]})
+    return_dict['interfaces'] = interfaces
     return_dict['name'] = name
       
     template = "view_nic.html"
@@ -189,7 +207,6 @@ def edit_interface_address(request):
         return django.shortcuts.render_to_response("edit_interface_address.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
       result_str = ""
-      audit_str = "Changed the following dataset properties for dataset %s : "%name
       success = False
       result, err = networking.set_interface_ip_info(cd['name'], cd)
       if err:
@@ -208,6 +225,98 @@ def edit_interface_address(request):
     return_dict["page_title"] = 'Modify network interface addressing'
     return_dict['tab'] = 'view_interfaces_tab'
     return_dict["error"] = 'Error modifying network interface addressing'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def create_vlan(request):
+  return_dict = {}
+  try:
+
+    if 'nic' not in request.REQUEST:
+      raise Exception('No base network interface specified. Please use the menus.')
+
+    interfaces, err = networking.get_interfaces()
+    if err:
+      raise Exception(err)
+
+    if not interfaces:
+      raise Exception("Error loading network interface information : No interfaces found")
+
+    return_dict['interfaces'] = interfaces
+    if_list = []
+    existing_vlans = []
+    for if_name, iface in interfaces.items():
+      if '.' in if_name:
+        comps = if_name.split('.')
+        if len(comps) != 2:
+          raise Exception('Invalid VLAN specification found : %s'%if_name)
+        if int(comps[1]) not in existing_vlans:
+          existing_vlans.append(int(comps[1]))
+    if request.method == "GET":
+      form = networking_forms.CreateVLANForm(existing_vlans = existing_vlans, initial = {'base_interface': request.REQUEST['nic']})
+      return_dict['form'] = form
+      return django.shortcuts.render_to_response("create_vlan.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      form = networking_forms.CreateVLANForm(request.POST, existing_vlans = existing_vlans)
+      return_dict['form'] = form
+      if not form.is_valid():
+        return django.shortcuts.render_to_response("create_vlan.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      cd = form.cleaned_data
+      #print cd
+      result, err = networking.create_vlan(cd['base_interface'], cd['vlan_id'])
+      if not result:
+        if err:
+          raise Exception(err)
+        else:
+          raise Exception('VLAN creation failed!')
+
+      result, err = networking.restart_networking()
+      if err:
+        raise Exception(err)
+ 
+      audit_str = "Created a network VLAN with id  %d on the base interface %s"%(cd['vlan_id'], cd['base_interface'])
+      audit.audit("create_vlan", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_interfaces?action=created_vlan')
+  except Exception, e:
+    return_dict['base_template'] = "networking_base.html"
+    return_dict["page_title"] = 'Create a network VLAN'
+    return_dict['tab'] = 'view_interfaces_tab'
+    return_dict["error"] = 'Error creating a network VLAN'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def remove_vlan(request):
+  return_dict = {}
+  try:
+    if 'name' not in request.REQUEST:
+      raise Exception("No VLAN name specified. Please use the menus")
+
+    name = request.REQUEST["name"]
+    return_dict["name"] = name
+
+    if request.method == "GET" :
+      #Return the conf page
+      return django.shortcuts.render_to_response("remove_vlan_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      result, err = networking.remove_vlan(name)
+      if not result:
+        if not err:
+          raise Exception("Error removing VLAN")
+        else:
+          raise Exception(err)
+
+      result, err = networking.restart_networking()
+      if err:
+        raise Exception(err)
+ 
+      audit_str = "Removed VLAN %s"%(name)
+      audit.audit("remove_vlan", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_interfaces?action=removed_vlan')
+  except Exception, e:
+    return_dict['base_template'] = "networking_base.html"
+    return_dict["page_title"] = 'Remove a VLAN'
+    return_dict['tab'] = 'view_interfaces_tab'
+    return_dict["error"] = 'Error removing a VLAN'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 

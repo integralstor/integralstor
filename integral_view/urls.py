@@ -16,7 +16,7 @@ from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, vi
 
 #from zfs.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
 
-from integral_view.views.networking_management import view_interfaces, view_nic, view_bond, set_interface_state, edit_interface_address, create_bond, remove_bond, view_hostname, edit_hostname, view_dns_nameservers, edit_dns_nameservers,view_route, create_route,edit_route,delete_route
+from integral_view.views.networking_management import view_interfaces, view_nic, view_bond, set_interface_state, edit_interface_address, create_bond, remove_bond, view_hostname, edit_hostname, view_dns_nameservers, edit_dns_nameservers,view_route, create_route,edit_route,delete_route, remove_vlan, create_vlan
 
 from integral_view.views.services_management import view_services, change_service_status, start_ftp_service,reboot
 
@@ -73,6 +73,8 @@ urlpatterns = patterns('',
     url(r'^view_dns_nameservers/', login_required(view_dns_nameservers)),
     url(r'^edit_dns_nameservers/', login_required(edit_dns_nameservers)),
     url(r'^view_bond/', login_required(view_bond)),
+    url(r'^remove_vlan/', login_required(remove_vlan)),
+    url(r'^create_vlan/', login_required(create_vlan)),
     url(r'^remove_bond/', login_required(remove_bond)),
     url(r'^create_bond/', login_required(create_bond)),
     url(r'^edit_local_user_gid/', login_required(edit_local_user_gid)),

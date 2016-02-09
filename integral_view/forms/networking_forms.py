@@ -64,6 +64,25 @@ class NICForm(forms.Form):
         self._errors["netmask"] = self.error_class(["Invalid netmask"])
     return cd
 
+class CreateVLANForm(forms.Form):
+
+  vlan_id = forms.IntegerField()
+  base_interface = forms.CharField(widget=forms.HiddenInput)
+  existing_bonds = None
+
+  def __init__(self, *args, **kwargs):
+    dsll = None
+    if kwargs:
+      self.existing_vlans = kwargs.pop('existing_vlans')
+    super(CreateVLANForm, self).__init__(*args, **kwargs)
+
+  def clean(self):
+    cd = super(CreateVLANForm, self).clean()
+    vlan_id = cd['vlan_id']
+    if vlan_id in self.existing_vlans:
+      self._errors["name"] = self.error_class(["A VLAN of that ID already exists. Please choose another VLAN ID."])
+    return cd
+
 class CreateBondForm(forms.Form):
 
   name = forms.CharField()

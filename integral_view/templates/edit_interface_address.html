@@ -76,7 +76,7 @@ Modify the IP address of an NIC/bond
             	<label for="id_mtu">MTU framesize (for jumbo frames) :</label>
               </td>
               <td>
-                <input type="text"  name="mtu" class="form-control optional" id="id_mtu" placeholder="Frame size MTU" value="{%if form.initial.mtu%}{{form.initial.mtu}}{%endif%}"/>
+                <input type="text"  name="mtu" class="form-control" id="id_mtu" placeholder="Frame size MTU" value="{%if form.initial.mtu%}{{form.initial.mtu}}{%endif%}"/>
               </td>
               <td>
             {{ form.mtu.errors }}
