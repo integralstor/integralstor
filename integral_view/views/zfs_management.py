@@ -24,6 +24,10 @@ def view_zfs_pools(request):
         conf = "ZFS pool information successfully updated"
       elif request.GET["action"] == "expanded_pool":
         conf = "ZFS pool successfully expanded"
+      elif request.GET["action"] == "set_quota":
+        conf = "ZFS quota successfully set"
+      elif request.GET["action"] == "removed_quota":
+        conf = "ZFS quota successfully removed"
       elif request.GET["action"] == "created_pool":
         conf = "ZFS pool successfully created"
       elif request.GET["action"] == "set_permissions":
@@ -86,11 +90,16 @@ def view_zfs_pool(request):
 
     (can_expand, new_pool_type), err = zfs.can_expand_pool(pool_name)
 
+    quotas, err = zfs.get_all_quotas(pool_name)
+    if err:
+      raise Exception(err)
+
     return_dict['can_expand_pool'] = can_expand
     return_dict['num_free_disks_for_spares'] = num_free_disks_for_spares
     return_dict['snap_list'] = snap_list
     return_dict['pool'] = pool
     return_dict['pool_name'] = pool_name
+    return_dict['quotas'] = quotas
       
     template = "view_zfs_pool.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
@@ -102,6 +111,98 @@ def view_zfs_pool(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+def set_zfs_quota(request):
+  return_dict = {}
+  try:
+    if 'path' not in request.REQUEST or 'ug_type' not in request.REQUEST or 'path_type' not in request.REQUEST:
+      raise Exception("Malformed request. Please use the menus")
+    path_type = request.REQUEST["path_type"]
+    path = request.REQUEST["path"]
+    ug_type = request.REQUEST["ug_type"]
+    if ug_type not in ['user', 'group']:
+      raise Exception("Malformed request. Please use the menus")
+    if ug_type == 'user':
+      ugl, err = local_users.get_local_users()
+    else:
+      ugl, err = local_users.get_local_groups()
+    if err:
+      raise Exception(err)
+    ug_list = []
+    for ug in ugl:
+      if ug_type == 'user':
+        ug_list.append(ug['username'])
+      else:
+        ug_list.append(ug['grpname'])
+    return_dict["path"] = path
+    return_dict["path_type"] = path_type
+    return_dict["ug_type"] = ug_type
+    if request.method == "GET":
+      form = zfs_forms.QuotaForm(user_group_list = ug_list, initial={'ug_type': ug_type, 'path':path})
+      return_dict['form'] = form
+      return django.shortcuts.render_to_response("set_zfs_quota.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      form = zfs_forms.QuotaForm(request.POST, user_group_list = ug_list)
+      return_dict['form'] = form
+      if not form.is_valid():
+        return django.shortcuts.render_to_response("set_zfs_quota.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      cd = form.cleaned_data
+      if cd['ug_type'] == 'user':
+        user = True
+      else:
+        user = False
+      ret, err = zfs.set_quota(cd['path'], cd['ug_name'], '%d%s'%(cd['size'], cd['unit']), user)
+      if err:
+        raise Exception(err)
+      audit_str = "Set ZFS quota for %s %s for %s to %s%s"%(cd['ug_type'], cd['ug_name'], cd['path'], cd['size'], cd['unit'])
+      audit.audit("set_zfs_quota", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pools?action=set_quota')
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Setting ZFS quota'
+    return_dict['tab'] = 'view_zfs_pools_tab'
+    return_dict["error"] = 'Error setting ZFS quota'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def remove_zfs_quota(request):
+  return_dict = {}
+  try:
+    if 'path' not in request.REQUEST or 'ug_name' not in request.REQUEST or 'ug_type' not in request.REQUEST or 'path_type' not in request.REQUEST:
+      raise Exception("Malformed request. Please use the menus")
+    path = request.REQUEST["path"]
+    path_type = request.REQUEST["path_type"]
+    ug_name = request.REQUEST["ug_name"]
+    ug_type = request.REQUEST["ug_type"]
+
+    return_dict["path"] = path
+    return_dict["path_type"] = path_type
+    return_dict["ug_name"] = ug_name
+    return_dict["ug_type"] = ug_type
+    if request.method == "GET":
+      #Return the conf page
+      return django.shortcuts.render_to_response("remove_zfs_quota_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      if ug_type == 'user':
+        user = True
+      else:
+        user = False
+      result, err = zfs.set_quota(path, ug_name, 'none', user)
+      if not result:
+        if not err:
+          raise Exception('Unknown error!')
+        else:
+          raise Exception(err)
+ 
+      audit_str = "Removed ZFS quota for %s %s for %s"%(ug_type, ug_name, path)
+      audit.audit("remove_zfs_quota", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pools?action=removed_quota')
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Removing ZFS quota'
+    return_dict['tab'] = 'view_zfs_pools_tab'
+    return_dict["error"] = 'Error removing ZFS quota'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def import_zfs_pool_from_disks(request):
   return_dict = {}
@@ -160,7 +261,7 @@ def create_zfs_pool(request):
       if not form.is_valid():
         return django.shortcuts.render_to_response("create_zfs_pool.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
-      print cd
+      #print cd
       vdev_list = None
       if cd['pool_type'] in ['raid5', 'raid6']:
         vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], cd['num_raid_disks'])
@@ -462,10 +563,15 @@ def view_zfs_dataset(request):
     if err:
       raise Exception(err)
 
+    quotas, err = zfs.get_all_quotas(dataset_name)
+    if err:
+      raise Exception(err)
+
     if children:
       return_dict['children'] = children
     return_dict['name'] = dataset_name
     return_dict['properties'] = properties
+    return_dict['quotas'] = quotas
     return_dict['exposed_properties'] = ['compression', 'compressratio', 'dedup',  'type', 'usedbychildren', 'usedbydataset', 'creation']
     if 'result' in request.GET:
       return_dict['result'] = request.GET['result']

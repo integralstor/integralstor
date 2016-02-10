@@ -31,6 +31,24 @@ class SlogForm(forms.Form):
   ramdisk_size = forms.IntegerField()
   pool = forms.CharField(widget=forms.HiddenInput)
 
+class QuotaForm(forms.Form):
+  path = forms.CharField(widget=forms.HiddenInput)
+  ug_type = forms.CharField(widget=forms.HiddenInput)
+  size = forms.IntegerField()
+  ch = [('GB', 'G'), ('MB', 'M')]
+  unit = forms.ChoiceField(choices=ch)
+  
+  def __init__(self, *args, **kwargs):
+    if kwargs:
+      user_group_list = kwargs.pop('user_group_list')
+    super(QuotaForm, self).__init__(*args, **kwargs)
+    ch = []
+    if user_group_list:
+      for ug in user_group_list:
+        tup = ( ug, ug)
+        ch.append(tup)   
+    self.fields["ug_name"] = forms.ChoiceField(choices=ch)
+
 class CreatePoolForm(forms.Form):
   name = forms.CharField()
   num_disks = forms.IntegerField(widget=forms.HiddenInput, required=False)

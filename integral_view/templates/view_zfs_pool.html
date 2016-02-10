@@ -268,6 +268,64 @@ Rename this snapshot
 <a href="/create_zfs_snapshot?target={{pool.pool_name}}&pool={{pool.pool_name}}" role="button" class="btn btn-primary">Create a snapshot for this pool</a>
 {%endif%}
 {%endif%}
+<hr>
+<h4> Pool quotas </h4>
+{% if not quotas.users and not quotas.groups%}
+<p>No quotas appear to have been set for this pool. </p>
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<table  class="table table-bordered">
+<tr>
+<th >
+Name
+</th>
+<th >
+Type
+</th>
+<th >
+Quota
+</th>
+<th>
+Remove quota
+</th>
+</tr>
+{%for un, q in quotas.users.items %}
+<tr>
+  <td>
+    {{un}}
+  </td>
+  <td>
+    User
+  </td>
+  <td>
+    {{q}}
+  </td>
+  <td>
+    <a href="/remove_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_name={{un}}&ug_type=user" role="button" class="btn btn-danger"> Remove this quota</a>
+  </td>
+</tr>
+{%endfor%}
+{%for gn, q in quotas.groups.items %}
+<tr>
+  <td>
+    {{gn}}
+  </td>
+  <td>
+    Group
+  </td>
+  <td>
+    {{q}}
+  </td>
+  <td>
+    <a href="/remove_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_name={{gn}}&ug_type=group" role="button" class="btn btn-danger"> Remove this quota</a>
+  </td>
+</tr>
+{%endfor%}
+</table>
+</div>
+{%endif%}
+<a href="/set_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_type=user" role="button" class="btn btn-primary">Add user quota</a>
+<a href="/set_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_type=group" role="button" class="btn btn-primary">Add group quota</a>
 <br><br>
 <a href="/view_zfs_pools" role="button" class="btn btn-default">Back to pool list</a><br><br>
 </div>

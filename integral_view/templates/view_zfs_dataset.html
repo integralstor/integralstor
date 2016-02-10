@@ -34,6 +34,67 @@ No information for the specified dataset.
 {%endif%}
 {%endfor%}
 </table>
+<hr>
+<h4> Dataset quotas </h4>
+{% if not quotas.users and not quotas.groups%}
+<p>No quotas appear to have been set for this pool. </p>
+{%else %}
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<table  class="table table-bordered">
+<tr>
+<th >
+Name
+</th>
+<th >
+Type
+</th>
+<th >
+Quota
+</th>
+<th>
+Remove quota
+</th>
+</tr>
+{%for un, q in quotas.users.items %}
+<tr>
+  <td>
+    {{un}}
+  </td>
+  <td>
+    User
+  </td>
+  <td>
+    {{q}}
+  </td>
+  <td>
+    <a href="/remove_zfs_quota?path={{name}}&path_type=dataset&ug_name={{un}}&ug_type=user" role="button" class="btn btn-danger"> Remove this quota</a>
+  </td>
+</tr>
+{%endfor%}
+{%for gn, q in quotas.groups.items %}
+<tr>
+  <td>
+    {{gn}}
+  </td>
+  <td>
+    Group
+  </td>
+  <td>
+    {{q}}
+  </td>
+  <td>
+    <a href="/remove_zfs_quota?path={{name}}&path_type=dataset&ug_name={{gn}}&ug_type=group" role="button" class="btn btn-danger"> Remove this quota</a>
+  </td>
+</tr>
+{%endfor%}
+</table>
+</div>
+{%endif%}
+<a href="/set_zfs_quota?path={{name}}&path_type=dataset&ug_type=user" role="button" class="btn btn-primary">Add user quota</a>
+<a href="/set_zfs_quota?path={{name}}&path_type=dataset&ug_type=group" role="button" class="btn btn-primary">Add group quota</a>
+</div>
+<br><br>
+<p>
 
 <a href="/edit_zfs_dataset?name={{name}}" role="button" class="btn btn-primary"> Change dataset properties</a> &nbsp;&nbsp;<a href="/delete_zfs_dataset?name={{name}}&type=dataset" role="button" class="btn btn-danger"> Delete this dataset</a>&nbsp;&nbsp;<a href="/set_file_owner_and_permissions?path={{properties.mountpoint.value}}" role="button" class="btn btn-primary"> Change ownership and permissions</a><br><br>
 
@@ -43,8 +104,6 @@ No information for the specified dataset.
 <a href="/view_zfs_pool?name={{pool}}" role="button" class="btn btn-default">Back to pool details</a><br><br>
 </div>
 {%endif%}
-<!--
-<a href="/create_zfs_pool" role="button" class="btn btn-default"> Create a new ZFS pool</a>-->
 
 {%endblock%}
 {%block help_header%}

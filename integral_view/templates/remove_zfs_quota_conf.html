@@ -1,0 +1,37 @@
+{% extends 'storage_base.html' %}
+{%block tab_header %}
+Remove ZFS quota - confirmation
+{%endblock%}
+
+{%block inside_content %}
+<br><br>
+
+
+<p id="p-warning-text">Are you sure you want to delete the ZFS quota on "{{path}}" for {{ug_type}} "{{ug_name}}"? </p>
+<br>
+<form action="/remove_zfs_quota/" method="POST">
+<input type=hidden name="path" value="{{path}}">
+<input type=hidden name="ug_type" value="{{ug_type}}">
+<input type=hidden name="ug_name" value="{{ug_name}}">
+{%if path_type == 'dataset'%}
+<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_dataset?name={{path}}'"> &nbsp;&nbsp;
+{%else%}
+<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_pool?name={{path}}'"> &nbsp;&nbsp;
+{%endif%}
+<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and remove</button>
+</form>
+
+
+{%endblock%}
+{%block help_header%}
+Removing a ZFS quota
+{%endblock%}
+{%block help_body%}
+<p>Confirming this operation results in the quota for the specified user/group being removed from the system. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}
