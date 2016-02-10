@@ -51,6 +51,32 @@ Create a ZFS block device volume
             </tr>
             <tr>
               <td>
+                <label for="id_block_size">Block Size :</label>
+              </td>
+              <td>
+                <select id="id_block_size" name="block_size" class="form-control" >
+                {% for choice in form.block_size.field.choices %}
+                 <option value="{{choice.0}}" {%if choice.0 == form.initial.block_size %} selected{%endif%} >{{choice.0}}</option>
+                {%endfor%}
+                </select>
+              </td>
+              <td>
+            {{ form.size.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_thin_provisioned">Enable thin provisioning:</label>
+              </td>
+              <td>
+            {{ form.thin_provisioned }}
+              </td>
+              <td>
+            {{ form.thin_provisioned.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
             <label for="id_compression">Enable compression:</label>
               </td>
               <td>

@@ -33,6 +33,16 @@ No information for the specified block device volume.
 </tr>
 {%endif%}
 {%endfor%}
+<tr>
+  <td> Block size </td>
+  <td> {{properties.volblocksize.value}}</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td> Thin provisioning</td>
+  <td> {% if properties.refreservation.value == 'none' %} Enabled {%else%} Disabled {%endif%}</td>
+  <td>&nbsp;</td>
+</tr>
 </table>
 
 <p>

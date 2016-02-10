@@ -19,8 +19,11 @@ class CreateZvolForm(forms.Form):
   name = forms.CharField()
   compression = forms.BooleanField(required=False)
   dedup = forms.BooleanField(required=False)
+  thin_provisioned = forms.BooleanField(required=False)
   pool = forms.CharField()
   size = forms.DecimalField(decimal_places=1)
+  ch = [('8K', '8K'), ('16K', '16K'),('32K', '32K'),('64K', '64K')]
+  block_size = forms.ChoiceField(choices=ch)
   ch = [('GB', 'G'), ('MB', 'M')]
   unit = forms.ChoiceField(choices=ch)
 

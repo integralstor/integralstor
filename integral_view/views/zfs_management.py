@@ -783,6 +783,7 @@ def create_zfs_zvol(request):
         parent = request.GET['parent']
       initial = {}
       initial['pool'] = pool
+      initial['block_size'] = '64K'
       form = zfs_forms.CreateZvolForm(initial=initial)
       return_dict['form'] = form
       return django.shortcuts.render_to_response("create_zfs_zvol.html", return_dict, context_instance = django.template.context.RequestContext(request))
@@ -797,14 +798,21 @@ def create_zfs_zvol(request):
         properties['compression'] = 'on'
       if 'dedup' in cd and cd['dedup']:
         properties['dedup'] = 'on'
-      result, err = zfs.create_zvol(cd['pool'], cd['name'], properties, cd['size'], cd['unit'])
+      if 'thin_provisioned' in cd and cd['thin_provisioned']:
+        thin = True
+      else:
+        thin = False
+      result, err = zfs.create_zvol(cd['pool'], cd['name'], properties, cd['size'], cd['unit'], cd['block_size'], thin)
       if not result:
         if not err:
           raise Exception('Unknown error!')
         else:
           raise Exception(err)
  
-      audit_str = "Created a ZFS block device volume named %s/%s"%(cd['pool'], cd['name'])
+      if thin:
+        audit_str = "Created a thinly provisioned ZFS block device volume named %s/%s with size %s%s"%(cd['pool'], cd['name'], cd['size'],cd['unit'])
+      else:
+        audit_str = "Created a ZFS block device volume named %s/%s with size %s%s"%(cd['pool'], cd['name'], cd['size'],cd['unit'])
       audit.audit("create_zfs_zvol", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_zfs_pools?action=created_zvol')
   except Exception, e:
