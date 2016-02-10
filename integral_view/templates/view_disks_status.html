@@ -31,11 +31,11 @@ Hard drives status
 </div>
 <script>
 {%for sn, disk in disk_status.items %}
-{%if disk.status != 'PASSED' and disk.status != 'OK' and not disk.boot_device%}
+{%if disk.status != 'PASSED' and disk.status != 'OK' and not disk.os_device%}
   $('#disk_{{disk.scsi_info.2}}_serial').html("S No. : {{sn}}")
   $('#disk_{{disk.scsi_info.2}}_status').text("Status :{{disk.status}}")
   $('#disk_{{disk.scsi_info.2}}_colour').removeClass('bg-purple').addClass('bg-red')
-{%elif not disk.boot_device%}
+{%elif not disk.os_device%}
   $('#disk_{{disk.scsi_info.2}}_serial').html("S No. : {{sn}}")
   $('#disk_{{disk.scsi_info.2}}_status').text("Status :OK")
   $('#disk_{{disk.scsi_info.2}}_colour').removeClass('bg-purple').addClass('bg-green')
@@ -57,7 +57,7 @@ Disk replacement
 </th>
 </thead>
 {%for sn, disk in disk_status.items %}
-{%if disk.boot_device %}
+{%if disk.os_device %}
 <tr>
 <td>
 {{sn}}  (OS disk) 
@@ -77,7 +77,7 @@ Disk replacement
 {%endif%}
 {%endfor%}
 {%for sn, disk in disk_status.items %}
-{%if not disk.boot_device %}
+{%if not disk.os_device %}
 <tr>
 <td>
 {{sn}}  (Data disk) 
