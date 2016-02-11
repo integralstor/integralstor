@@ -52,6 +52,9 @@ class QuotaForm(forms.Form):
         ch.append(tup)   
     self.fields["ug_name"] = forms.ChoiceField(choices=ch)
 
+class ImportPoolForm(forms.Form):
+  name = forms.CharField()
+
 class CreatePoolForm(forms.Form):
   name = forms.CharField()
   num_disks = forms.IntegerField(widget=forms.HiddenInput, required=False)

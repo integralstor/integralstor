@@ -24,6 +24,10 @@ def view_zfs_pools(request):
         conf = "ZFS pool information successfully updated"
       elif request.GET["action"] == "expanded_pool":
         conf = "ZFS pool successfully expanded"
+      elif request.GET["action"] == "pool_exported":
+        conf = "ZFS pool successfully exported"
+      elif request.GET["action"] == "imported_pool":
+        conf = "ZFS pool successfully imported"
       elif request.GET["action"] == "set_quota":
         conf = "ZFS quota successfully set"
       elif request.GET["action"] == "removed_quota":
@@ -204,7 +208,37 @@ def remove_zfs_quota(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def import_zfs_pool_from_disks(request):
+def export_zfs_pool(request):
+  return_dict = {}
+  try:
+    if 'pool_name' not in request.REQUEST:
+      raise Exception("Malformed request. Please use the menus")
+    pool_name = request.REQUEST["pool_name"]
+
+    return_dict["pool_name"] = pool_name
+    if request.method == "GET":
+      #Return the conf page
+      return django.shortcuts.render_to_response("export_zfs_pool_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      result, err = zfs.export_pool(pool_name)
+      if not result:
+        if not err:
+          raise Exception('Unknown error!')
+        else:
+          raise Exception(err)
+ 
+      audit_str = 'Exported ZFS pool "%s"'%pool_name
+      audit.audit("export_pool", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pools?action=pool_exported')
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Export ZFS pool'
+    return_dict['tab'] = 'view_zfs_pools_tab'
+    return_dict["error"] = 'Error exporting ZFS pool'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def import_all_zfs_pools(request):
   return_dict = {}
   try:
     template = 'logged_in_error.html'
@@ -219,9 +253,36 @@ def import_zfs_pool_from_disks(request):
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
-    return_dict["page_title"] = 'ZFS pools'
+    return_dict["page_title"] = 'Import all ZFS pools'
     return_dict['tab'] = 'view_zfs_pools_tab'
-    return_dict["error"] = 'Error importing ZFS pool(s) from disks'
+    return_dict["error"] = 'Error importing all ZFS pool(s) from disks'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def import_zfs_pool(request):
+  return_dict = {}
+  try:
+    if request.method == 'GET':
+      form = zfs_forms.ImportPoolForm()
+      return_dict['form'] = form
+      return django.shortcuts.render_to_response("import_zfs_pool.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      form = zfs_forms.ImportPoolForm(request.POST)
+      return_dict['form'] = form
+      if not form.is_valid():
+        return django.shortcuts.render_to_response("import_zfs_pool.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      cd = form.cleaned_data
+      ret, err = zfs.import_pool(cd['name'])
+      if err:
+        raise Exception(err)
+      audit_str = 'Imported a ZFS pool named "%s" '%(cd['name'])
+      audit.audit("import_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pools?action=imported_pool')
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Import a ZFS pool'
+    return_dict['tab'] = 'view_zfs_pools_tab'
+    return_dict["error"] = 'Error importing a specific ZFS pool from disks'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
