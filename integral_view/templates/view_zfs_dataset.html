@@ -6,6 +6,13 @@ ZFS dataset details
 {% block inside_content %}
 <br><br>
 
+{% if conf %}
+<div style="margin:0 auto;border-radius: 10px;background: #A1A3A6; padding: 20px; width: 50%; position:relative;height: 50px;text-align:center;">
+<p style="color:white;align:center;"><b>{{conf}}</b></p>
+</div>
+<br>
+{%endif%}
+
 {% if result %}
 <p clas="text-green"><i>{{result}}</i></p>
 {%endif%}
@@ -67,7 +74,7 @@ Remove quota
     {{q}}
   </td>
   <td>
-    <a href="/remove_zfs_quota?path={{name}}&path_type=dataset&ug_name={{un}}&ug_type=user" role="button" class="btn btn-danger"> Remove this quota</a>
+    <a href="/remove_zfs_quota?path={{name}}&path_type=dataset&ug_name={{un}}&ug_type=user&pool_name={{pool}}" role="button" class="btn btn-danger"> Remove this quota</a>
   </td>
 </tr>
 {%endfor%}
@@ -83,20 +90,20 @@ Remove quota
     {{q}}
   </td>
   <td>
-    <a href="/remove_zfs_quota?path={{name}}&path_type=dataset&ug_name={{gn}}&ug_type=group" role="button" class="btn btn-danger"> Remove this quota</a>
+    <a href="/remove_zfs_quota?path={{name}}&path_type=dataset&ug_name={{gn}}&ug_type=group&pool_name={{pool}}" role="button" class="btn btn-danger"> Remove this quota</a>
   </td>
 </tr>
 {%endfor%}
 </table>
 </div>
 {%endif%}
-<a href="/set_zfs_quota?path={{name}}&path_type=dataset&ug_type=user" role="button" class="btn btn-primary">Add user quota</a>
-<a href="/set_zfs_quota?path={{name}}&path_type=dataset&ug_type=group" role="button" class="btn btn-primary">Add group quota</a>
+<a href="/set_zfs_quota?path={{name}}&path_type=dataset&ug_type=user&pool_name={{pool}}" role="button" class="btn btn-primary">Add user quota</a>
+<a href="/set_zfs_quota?path={{name}}&path_type=dataset&ug_type=group&pool_name={{pool}}" role="button" class="btn btn-primary">Add group quota</a>
 </div>
 <br><br>
 <p>
 
-<a href="/edit_zfs_dataset?name={{name}}" role="button" class="btn btn-primary"> Change dataset properties</a> &nbsp;&nbsp;<a href="/delete_zfs_dataset?name={{name}}&type=dataset" role="button" class="btn btn-danger"> Delete this dataset</a>&nbsp;&nbsp;<a href="/set_file_owner_and_permissions?path={{properties.mountpoint.value}}" role="button" class="btn btn-primary"> Change ownership and permissions</a><br><br>
+<a href="/edit_zfs_dataset?name={{name}}&pool_name={{pool}}" role="button" class="btn btn-primary"> Change dataset properties</a> &nbsp;&nbsp;<a href="/delete_zfs_dataset?name={{name}}&type=dataset&pool_name={{pool}}" role="button" class="btn btn-danger"> Delete this dataset</a>&nbsp;&nbsp;<a href="/set_file_owner_and_permissions?path={{properties.mountpoint.value}}" role="button" class="btn btn-primary"> Change ownership and permissions</a><br><br>
 
 
 

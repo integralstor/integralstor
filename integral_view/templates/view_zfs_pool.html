@@ -7,21 +7,26 @@ ZFS pool details
 <br><br>
 
 {% if conf %}
-<p class="text-green"><i>{{conf}}</i></p>
+<div style="margin:0 auto;border-radius: 10px;background: #A1A3A6; padding: 20px; width: 50%; position:relative;height: 50px;text-align:center;">
+<p style="color:white;align:center;"><b>{{conf}}</b></p>
+</div>
+<br>
 {%endif%}
 
 {% if not pool %}
 No information for the specified pool. Click <a href="/view_zfs_pools/"> here</a> to view all ZFS storage pools.
 {%else %}
 <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-<table class="table table-bordered table-responsive" style="width:800px">
+<table class="table table-bordered table-responsive" style="width:95%px">
 <tr>
 <td colspan=3><h3>Pool name - {{pool.pool_name}}</h3></td>
 </tr>
 <tr>
 <td><a href="/export_zfs_pool?pool_name={{pool.pool_name}}" role="button" class="btn btn-danger"> Export this pool</a></td>
-<td><a href="/delete_zfs_pool?name={{pool.pool_name}}" role="button" class="btn btn-danger"> Delete this pool</a></td>
-<td><a href="/set_file_owner_and_permissions?path={{pool.properties.mountpoint.value}}" role="button" class="btn btn-info"> Change ownership and permissions</a></td>
+<td colspan=2><a href="/delete_zfs_pool?name={{pool.pool_name}}" role="button" class="btn btn-danger"> Delete this pool</a></td>
+</tr>
+<tr>
+<td><a href="/set_file_owner_and_permissions?path={{pool.properties.mountpoint.value}}&pool_name={{pool.pool_name}}&from=pool" role="button" class="btn btn-info"> Change ownership and permissions</a></td>
 <td><a href="/scrub_zfs_pool?name={{pool.pool_name}}" role="button" class="btn btn-info">Initiate a scrub</a></td>
 {%if can_expand_pool %}
 <td><a href="/expand_zfs_pool?pool_name={{pool.pool_name}}" role="button" class="btn btn-info">Expand this pool</a></td>
@@ -197,7 +202,7 @@ No spare disks assigned. <br><br>
 <td>{{ds.name}}</td>
 <td>{{ds.used}}</td> 
 <td>{%if 'snapshots' in ds%} <ul> {%for sn in ds.snapshots%}<li>{{sn.snapshot_name}},{%endfor%}</ul>{%else%} &nbsp;{%endif%}</td>
-<td><a href="/view_zfs_zvol?name={{ds.name}}" role="button" class="btn btn-info"> Details</a></td> 
+<td><a href="/view_zfs_zvol?name={{ds.name}}&pool_name={{pool.pool_name}}" role="button" class="btn btn-info"> Details</a></td> 
 </tr>
 {%endif%}
 {%endfor%}
@@ -255,13 +260,13 @@ Rename this snapshot
 <td>{{d.used}}</td>
 <td>{{d.refer}}</td>
 <td>
-<a href="/delete_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-danger"> Delete</a>
+<a href="/delete_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}&pool_name={{pool.pool_name}}" role="button" class="btn btn-danger"> Delete</a>
 </td>
 <td>
-<a href="/rollback_zfs_snapshot?name={{d.name}}" role="button" class="btn btn-success"> Rollback</a>
+<a href="/rollback_zfs_snapshot?name={{d.name}}&pool_name={{pool.pool_name}}" role="button" class="btn btn-success"> Rollback</a>
 </td>
 <td>
-<a href="/rename_zfs_snapshot?snapshot_name={{d.snapshot_name}}&ds_name={{d.dataset}}" role="button" class="btn btn-primary"> Rename</a>
+<a href="/rename_zfs_snapshot?snapshot_name={{d.snapshot_name}}&ds_name={{d.dataset}}&pool_name={{pool.pool_name}}" role="button" class="btn btn-primary"> Rename</a>
 </td>
 </tr>
 {%endfor%}
@@ -302,7 +307,7 @@ Remove quota
     {{q}}
   </td>
   <td>
-    <a href="/remove_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_name={{un}}&ug_type=user" role="button" class="btn btn-danger"> Remove this quota</a>
+    <a href="/remove_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_name={{un}}&ug_type=user&pool_name={{pool.pool_name}}" role="button" class="btn btn-danger"> Remove this quota</a>
   </td>
 </tr>
 {%endfor%}
@@ -318,15 +323,15 @@ Remove quota
     {{q}}
   </td>
   <td>
-    <a href="/remove_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_name={{gn}}&ug_type=group" role="button" class="btn btn-danger"> Remove this quota</a>
+    <a href="/remove_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_name={{gn}}&ug_type=group&pool_name={{pool.pool_name}}" role="button" class="btn btn-danger"> Remove this quota</a>
   </td>
 </tr>
 {%endfor%}
 </table>
 </div>
 {%endif%}
-<a href="/set_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_type=user" role="button" class="btn btn-primary">Add user quota</a>
-<a href="/set_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_type=group" role="button" class="btn btn-primary">Add group quota</a>
+<a href="/set_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_type=user&pool_name={{pool.pool_name}}" role="button" class="btn btn-primary">Add user quota</a>
+<a href="/set_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_type=group&pool_name={{pool.pool_name}}" role="button" class="btn btn-primary">Add group quota</a>
 <br><br>
 <a href="/view_zfs_pools" role="button" class="btn btn-default">Back to pool list</a><br><br>
 </div>

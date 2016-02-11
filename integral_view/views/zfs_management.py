@@ -75,6 +75,38 @@ def view_zfs_pool(request):
     if 'name' not in request.REQUEST:
       raise Exception("No pool specified.")
     
+    if "action" in request.GET:
+      if request.GET["action"] == "saved":
+        conf = "ZFS pool information successfully updated"
+      elif request.GET["action"] == "expanded_pool":
+        conf = "ZFS pool successfully expanded"
+      elif request.GET["action"] == "set_quota":
+        conf = "ZFS quota successfully set"
+      elif request.GET["action"] == "removed_quota":
+        conf = "ZFS quota successfully removed"
+      elif request.GET["action"] == "set_permissions":
+        conf = "Directory ownership/permissions successfully set"
+      elif request.GET["action"] == "created_dataset":
+        conf = "ZFS dataset successfully created"
+      elif request.GET["action"] == "created_zvol":
+        conf = "ZFS block device volume successfully created"
+      elif request.GET["action"] == "pool_scrub_initiated":
+        conf = "ZFS pool scrub successfully initiated"
+      elif request.GET["action"] == "dataset_deleted":
+        conf = "ZFS dataset successfully destroyed"
+      elif request.GET["action"] == "zvol_deleted":
+        conf = "ZFS block device volume successfully destroyed"
+      elif request.GET["action"] == "slog_deleted":
+        conf = "ZFS write cache successfully removed"
+      elif request.GET["action"] == "changed_slog":
+        conf = "ZFS pool write cache successfully set"
+      elif request.GET["action"] == "added_spares":
+        conf = "Successfully added spare disks to the pool"
+      elif request.GET["action"] == "removed_spare":
+        conf = "Successfully removed a spare disk from the pool"
+      if conf:
+        return_dict["conf"] = conf
+
     pool_name = request.REQUEST['name']
     pool, err = zfs.get_pool(pool_name)
     #print pool.keys()
@@ -123,6 +155,7 @@ def set_zfs_quota(request):
     path_type = request.REQUEST["path_type"]
     path = request.REQUEST["path"]
     ug_type = request.REQUEST["ug_type"]
+    pool_name = request.REQUEST["pool_name"]
     if ug_type not in ['user', 'group']:
       raise Exception("Malformed request. Please use the menus")
     if ug_type == 'user':
@@ -138,6 +171,7 @@ def set_zfs_quota(request):
       else:
         ug_list.append(ug['grpname'])
     return_dict["path"] = path
+    return_dict["pool_name"] = pool_name
     return_dict["path_type"] = path_type
     return_dict["ug_type"] = ug_type
     if request.method == "GET":
@@ -159,7 +193,10 @@ def set_zfs_quota(request):
         raise Exception(err)
       audit_str = "Set ZFS quota for %s %s for %s to %s%s"%(cd['ug_type'], cd['ug_name'], cd['path'], cd['size'], cd['unit'])
       audit.audit("set_zfs_quota", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=set_quota')
+      if path_type == 'pool':
+        return django.http.HttpResponseRedirect('/view_zfs_pool?action=set_quota&name=%s'%pool_name)
+      else:
+        return django.http.HttpResponseRedirect('/view_zfs_dataset?action=set_quota&name=%s'%path)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Setting ZFS quota'
@@ -175,10 +212,12 @@ def remove_zfs_quota(request):
       raise Exception("Malformed request. Please use the menus")
     path = request.REQUEST["path"]
     path_type = request.REQUEST["path_type"]
+    pool_name = request.REQUEST["pool_name"]
     ug_name = request.REQUEST["ug_name"]
     ug_type = request.REQUEST["ug_type"]
 
     return_dict["path"] = path
+    return_dict["pool_name"] = pool_name
     return_dict["path_type"] = path_type
     return_dict["ug_name"] = ug_name
     return_dict["ug_type"] = ug_type
@@ -199,7 +238,10 @@ def remove_zfs_quota(request):
  
       audit_str = "Removed ZFS quota for %s %s for %s"%(ug_type, ug_name, path)
       audit.audit("remove_zfs_quota", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=removed_quota')
+      if path_type == 'pool':
+        return django.http.HttpResponseRedirect('/view_zfs_pool?action=removed_quota&name=%s'%pool_name)
+      else:
+        return django.http.HttpResponseRedirect('/view_zfs_dataset?action=removed_quota&name=%s'%path)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Removing ZFS quota'
@@ -374,7 +416,7 @@ def expand_zfs_pool(request):
         raise Exception(err)
       audit_str = "Expanded the ZFS pool named %s"%pool_name
       audit.audit("expand_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=expanded_pool')
+      return django.http.HttpResponseRedirect('/view_zfs_pool?action=expanded_pool&name=%s'%pool_name)
   
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
@@ -405,7 +447,7 @@ def scrub_zfs_pool(request):
  
       audit_str = "ZFS pool scrub initiated on pool %s"%name
       audit.audit("scrub_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=pool_scrub_initiated')
+      return django.http.HttpResponseRedirect('/view_zfs_pool?action=pool_scrub_initiated&name=%s'%name)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'ZFS pool scrub'
@@ -553,7 +595,7 @@ def set_zfs_slog(request):
               raise Exception(err)
             audit.audit("edit_zfs_slog", 'Changed the write log for pool %s to a RAM disk of size %dGB'%(cd['pool'], cd['ramdisk_size']), request.META["REMOTE_ADDR"])
                 
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=changed_slog')
+      return django.http.HttpResponseRedirect('/view_zfs_pool?action=changed_slog&name=%s'%pool_name)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Set ZFS pool write cache'
@@ -590,7 +632,7 @@ def remove_zfs_slog(request):
  
       audit_str = "Removed ZFS write cache RAM Disk for pool %s"%pool
       audit.audit("remove_zfs_slog", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=slog_deleted')
+      return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&action=slog_deleted'%pool)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Removing ZFS pool write cache'
@@ -603,8 +645,23 @@ def view_zfs_dataset(request):
   return_dict = {}
   try:
     template = 'logged_in_error.html'
-    if 'name' not in request.REQUEST:
-      raise Exception("No dataset specified.")
+
+    if 'name' not in request.REQUEST :
+      raise Exception("Malformed request. Please use the menus.")
+
+    if "action" in request.GET:
+      if request.GET["action"] == "set_quota":
+        conf = "ZFS quota successfully set"
+      elif request.GET["action"] == "removed_quota":
+        conf = "ZFS quota successfully removed"
+      elif request.GET["action"] == "set_permissions":
+        conf = "Directory ownership/permissions successfully set"
+      elif request.GET["action"] == "modified_dataset_properties":
+        conf = "ZFS dataset/volume configuration successfully modified"
+      elif request.GET["action"] == "created_dataset":
+        conf = "ZFS dataset successfully created"
+      if conf:
+        return_dict["conf"] = conf
     
     dataset_name = request.REQUEST['name']
     if '/' in dataset_name:
@@ -704,8 +761,8 @@ def edit_zfs_dataset(request):
       if success:
         audit.audit("edit_zfs_dataset", audit_str, request.META["REMOTE_ADDR"])
                 
- 
-      return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&result=%s'%(name, result_str))
+      #return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&result=%s'%(name, result_str))
+      return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&action=modified_dataset_properties'%name)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Modify ZFS dataset properties'
@@ -725,6 +782,7 @@ def delete_zfs_dataset(request):
     else:
       type = request.REQUEST['type']
     name = request.REQUEST["name"]
+    pool_name = request.REQUEST["pool_name"]
     nfs_shares, err = nfs.get_shares_on_subpath('%s/'%name)
     if err:
       raise Exception(err)
@@ -753,6 +811,7 @@ def delete_zfs_dataset(request):
         elements .append('ISCSI LUN(s) : %s'%' , '.join(shl))
       raise Exception('The dataset cannot be deleted as the following components exist on this pool : %s. Please delete them first before deleting the pool.'%' , '.join(elements))
     return_dict["name"] = name
+    return_dict["pool_name"] = pool_name
     return_dict["type"] = type
     if request.method == "GET":
       #Return the conf page
@@ -768,11 +827,11 @@ def delete_zfs_dataset(request):
       if type == 'dataset':
         audit_str = "Deleted ZFS dataset %s"%name
         audit.audit("delete_zfs_dataset", audit_str, request.META["REMOTE_ADDR"])
-        return django.http.HttpResponseRedirect('/view_zfs_pools?action=dataset_deleted')
+        return django.http.HttpResponseRedirect('/view_zfs_pool?action=dataset_deleted&name=%s'%pool_name)
       else:
         audit_str = "Deleted ZFS block device volume %s"%name
         audit.audit("delete_zfs_zvol", audit_str, request.META["REMOTE_ADDR"])
-        return django.http.HttpResponseRedirect('/view_zfs_pools?action=zvol_deleted')
+        return django.http.HttpResponseRedirect('/view_zfs_pool?action=zvol_deleted&name=%s'%pool_name)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Remove a ZFS dataset/volume'
@@ -821,7 +880,7 @@ def create_zfs_dataset(request):
  
       audit_str = "Created a ZFS dataset named %s/%s"%(cd['pool'], cd['name'])
       audit.audit("create_zfs_dataset", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=created_dataset')
+      return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&action=created_dataset'%pool)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Create a ZFS dataset'
@@ -875,7 +934,7 @@ def create_zfs_zvol(request):
       else:
         audit_str = "Created a ZFS block device volume named %s/%s with size %s%s"%(cd['pool'], cd['name'], cd['size'],cd['unit'])
       audit.audit("create_zfs_zvol", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=created_zvol')
+      return django.http.HttpResponseRedirect('/view_zfs_pool?action=created_zvol&name=%s'%pool)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Create a ZFS block device volume'
@@ -1155,7 +1214,7 @@ def add_zfs_spares(request):
         raise Exception(err)
       audit_str = "Added %s spare drive(s) to pool %s"%(num_spares, pool_name)
       audit.audit("add_zfs_spares", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=added_spares')
+      return django.http.HttpResponseRedirect('/view_zfs_pool?action=added_spares&name=%s'%pool_name)
       
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
@@ -1185,7 +1244,7 @@ def remove_zfs_spare(request):
         raise Exception(err)
       audit_str = "Removed a  spare drive from pool %s"%pool_name
       audit.audit("remove_zfs_spare", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=removed_spare')
+      return django.http.HttpResponseRedirect('/view_zfs_pool?action=removed_spare&name=%s'%pool_name)
       
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
