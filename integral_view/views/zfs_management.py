@@ -130,6 +130,11 @@ def view_zfs_pool(request):
     if err:
       raise Exception(err)
 
+    schedule, err = zfs.get_snapshot_schedule(pool_name)
+    if err:
+      raise Exception(err)
+
+    return_dict['snapshot_schedule'] = schedule
     return_dict['can_expand_pool'] = can_expand
     return_dict['num_free_disks_for_spares'] = num_free_disks_for_spares
     return_dict['snap_list'] = snap_list
@@ -685,6 +690,12 @@ def view_zfs_dataset(request):
     if err:
       raise Exception(err)
 
+    schedule, err = zfs.get_snapshot_schedule(dataset_name)
+    if err:
+      raise Exception(err)
+
+    return_dict['snapshot_schedule'] = schedule
+
     if children:
       return_dict['children'] = children
     return_dict['name'] = dataset_name
@@ -983,16 +994,25 @@ def view_zfs_zvol(request):
 def view_zfs_snapshots(request):
   return_dict = {}
   try:
-    template = 'logged_in_error.html'
+
+    datasets, err = zfs.get_all_datasets_and_pools()
+    if err:
+      raise Exception(err)
 
     #If the list of snapshots is for a particular dataset or pool, get the name of that ds or pool
     name = None
+    snap_list = None
+    initial = {}
     if 'name' in request.GET:
       name = request.GET['name']
-
-    snap_list, err = zfs.get_snapshots(name)
-    if err:
-      raise Exception(err)
+    else:
+      if datasets:
+        name = datasets[0]
+    if name:
+      initial['name'] = name
+      snap_list, err = zfs.get_snapshots(name)
+      if err:
+        raise Exception(err)
 
     if "action" in request.GET:
       conf = None
@@ -1000,12 +1020,17 @@ def view_zfs_snapshots(request):
         conf = "ZFS snapshot successfully created"
       elif request.GET["action"] == "deleted":
         conf = "ZFS snapshot successfully destroyed"
+      elif request.GET["action"] == "scheduled":
+        conf = "ZFS snapshot schedule successfully modified"
       elif request.GET["action"] == "renamed":
         conf = "ZFS snapshot successfully renamed"
       elif request.GET["action"] == "rolled_back":
         conf = "ZFS filesystem successfully rolled back to the snapshot"
       if conf:
         return_dict["conf"] = conf
+
+    form = zfs_forms.ViewSnapshotsForm(initial = initial, datasets = datasets)
+    return_dict['form'] = form
     return_dict["snap_list"] = snap_list
     template = "view_zfs_snapshots.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
@@ -1041,6 +1066,7 @@ def create_zfs_snapshot(request):
       if not form.is_valid():
         return django.shortcuts.render_to_response("create_zfs_snapshot.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
+      '''
       if request.POST.get("id_scheduler"):
         target = cd['target']
         result, err = zfs.get_create_snapshot_command(target)
@@ -1060,7 +1086,8 @@ def create_zfs_snapshot(request):
           else:
             return_dict["conf"] = "Snapshot Schedule Unsuccessful"
       else:
-        result, err = zfs.create_snapshot(cd['target'], cd['name'])
+      '''
+      result, err = zfs.create_snapshot(cd['target'], cd['name'])
       if not result:
         if not err:
           raise Exception('Unknown error!')
@@ -1181,6 +1208,65 @@ def rename_zfs_snapshot(request):
     return_dict["page_title"] = 'Rename a ZFS snapshot'
     return_dict['tab'] = 'view_zfs_snapshots_tab'
     return_dict["error"] = 'Error renaming a loading ZFS snapshot'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def schedule_zfs_snapshot(request):
+  return_dict = {}
+  try:
+    datasets, err = zfs.get_all_datasets_and_pools()
+    if err:
+      raise Exception(err)
+    if not datasets:
+      raise Exception("Could not get the list of existing datasets")
+
+    if request.method == "GET":
+      target = None
+      if 'target' in request.GET:
+        target = request.GET['target']
+      #Return the conf page
+      schedule = None
+      if not target:
+        target = datasets[0]
+      schedule, err = zfs.get_snapshot_schedule(target)
+      if err:
+        raise Exception(err)
+      initial = {}
+      if schedule:
+        initial['frequent'] = schedule['frequent']
+        initial['hourly'] = schedule['hourly']
+        initial['daily'] = schedule['daily']
+        initial['weekly'] = schedule['weekly']
+        initial['monthly'] = schedule['monthly']
+      if target:
+        initial['target'] = target
+      form = zfs_forms.ScheduleSnapshotForm(initial = initial, datasets = datasets)
+      return_dict['form'] = form
+      return django.shortcuts.render_to_response("schedule_zfs_snapshot.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      form = zfs_forms.ScheduleSnapshotForm(request.POST, datasets = datasets)
+      return_dict['form'] = form
+      if not form.is_valid():
+        return django.shortcuts.render_to_response("create_zfs_snapshot.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      cd = form.cleaned_data
+      target = cd['target']
+      frequent = cd['frequent']
+      hourly = cd['hourly']
+      daily = cd['daily']
+      weekly = cd['weekly']
+      monthly = cd['monthly']
+      result, err = zfs.schedule_snapshot(target, frequent, hourly, daily, weekly, monthly)
+      audit_str = "Enabled/Modified ZFS snapshot scheduling for target %s "%cd['target']
+      if err:
+        raise Exception(err)
+ 
+      audit.audit("schedule_zfs_snapshot", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_snapshots?action=scheduled')
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Schedule a ZFS snapshot'
+    return_dict['tab'] = 'view_zfs_snapshots_tab'
+    return_dict["error"] = 'Error scheduling ZFS snapshot'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 

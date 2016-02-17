@@ -13,17 +13,54 @@ ZFS pool/dataset snapshots
 <br>
 {%endif%}
 
+<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+
+<a href="/create_zfs_snapshot" role="button" class="btn btn-primary">Create a snapshot </a>
+<a href="/schedule_zfs_snapshot" role="button" class="btn btn-primary">View/Modify snapshot schedules</a>
+<hr>
+{%if form%}
+<form id="view_form" name="view_form" action="/view_zfs_snapshots/" method="post">
+  <table class="table" style="width:800px">
+  <tr>
+    <td>
+      <label for="id_target">Select target :</label>
+    </td>
+    <td>
+        <select name="name" id="name_select" class="form-control">
+        {% for choice in form.name.field.choices %}
+          <option value="{{choice.0}}" {%if choice.0 == form.initial.name %} selected="selected"{%endif%}>{{choice.1}}</option>
+        {%endfor%}
+        </select>
+      <script>
+          $(function(){
+            // bind change event to select
+            $('#name_select').on('change', function () {
+                var url = "/view_zfs_snapshots?name="+$(this).val(); // get selected value
+                if (url) { // require a URL
+                    window.location = url; // redirect
+                }
+                return false;
+            });
+          });
+      </script>
+    </td>
+    <td>
+    {{ form.name.errors }}
+    </td>
+  </tr>
+</table>
+</form>
+{%endif%}
 {% if not snap_list %}
 No ZFS snapshots appear to have been created.<br /> <br /> 
 {%else %}
-<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
 <table  class="table table-bordered">
 <tr>
-<th >
-Snapshot name
-</th>
 <th>
 Target name
+</th>
+<th >
+Snapshot name
 </th>
 <th>
 Target type
@@ -49,10 +86,8 @@ Rename this snapshot
 </tr>
 {%for d in snap_list %}
 <tr>
-<td>
-{{d.snapshot_name}}
-</td>
 <td>{{d.dataset}}</td>
+<td> {{d.snapshot_name}} </td>
 <td>{% if '/' in d.dataset%} Dataset {%else%} Pool{%endif%}</td>
 <td>{{d.properties.creation.value}}</td>
 <td>{{d.used}}</td>
@@ -70,7 +105,7 @@ Rename this snapshot
 {%endfor%}
 </table>
 {%endif%}
-<a href="/create_zfs_snapshot" role="button" class="btn btn-primary">Create a snapshot </a>
+
 </div>
 <p>
 <!--

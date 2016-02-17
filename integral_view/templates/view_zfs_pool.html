@@ -164,7 +164,7 @@ No spare disks assigned. <br><br>
 <tr>
 <th> Name</th>
 <th> Space used</th>
-<th> Snapshots</th>
+<!--<th> Snapshots</th>-->
 <th> &nbsp;</th>
 </tr>
 {%for ds in pool.datasets%}
@@ -172,7 +172,7 @@ No spare disks assigned. <br><br>
 <tr>
 <td>{{ds.name}}</td>
 <td>{{ds.used}}</td> 
-<td>{%if 'snapshots' in ds%} <ul> {%for sn in ds.snapshots%}<li>{{sn.snapshot_name}},{%endfor%}</ul>{%else%} &nbsp;{%endif%}</td>
+<!--<td>{%if 'snapshots' in ds%} <ul> {%for sn in ds.snapshots%}<li>{{sn.snapshot_name}},{%endfor%}</ul>{%else%} &nbsp;{%endif%}</td>-->
 <td><a href="/view_zfs_dataset?name={{ds.name}}" role="button" class="btn btn-info"> Details</a></td> 
 </tr>
 {%endif%}
@@ -193,7 +193,7 @@ No spare disks assigned. <br><br>
 <tr>
 <th> Name</th>
 <th> Space used</th>
-<th> Snapshots</th>
+<!--<th> Snapshots</th>-->
 <th> &nbsp;</th>
 </tr>
 {%for ds in pool.datasets%}
@@ -201,7 +201,7 @@ No spare disks assigned. <br><br>
 <tr>
 <td>{{ds.name}}</td>
 <td>{{ds.used}}</td> 
-<td>{%if 'snapshots' in ds%} <ul> {%for sn in ds.snapshots%}<li>{{sn.snapshot_name}},{%endfor%}</ul>{%else%} &nbsp;{%endif%}</td>
+<!--<td>{%if 'snapshots' in ds%} <ul> {%for sn in ds.snapshots%}<li>{{sn.snapshot_name}},{%endfor%}</ul>{%else%} &nbsp;{%endif%}</td>-->
 <td><a href="/view_zfs_zvol?name={{ds.name}}&pool_name={{pool.pool_name}}" role="button" class="btn btn-info"> Details</a></td> 
 </tr>
 {%endif%}
@@ -274,6 +274,7 @@ Rename this snapshot
 <a href="/create_zfs_snapshot?target={{pool.pool_name}}&pool={{pool.pool_name}}" role="button" class="btn btn-primary">Create a snapshot for this pool</a>
 {%endif%}
 {%endif%}
+<a href="/schedule_zfs_snapshot?target={{pool.pool_name}}" role="button" class="btn btn-primary">Schedule/modify pool snapshots </a>
 <hr>
 <h4> Pool quotas </h4>
 {% if not quotas.users and not quotas.groups%}

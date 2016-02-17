@@ -126,6 +126,40 @@ class CreateSnapshotForm(forms.Form):
         ch.append(tup)
     self.fields['target'] = forms.ChoiceField(choices=ch)
 
+class ViewSnapshotsForm(forms.Form):
+
+  def __init__(self, *args, **kwargs):
+    vl = None
+    if kwargs:
+      dsl = kwargs.pop('datasets')
+    super(ViewSnapshotsForm, self).__init__(*args, **kwargs)
+    ch = []
+    if dsl:
+      for i in dsl:
+        tup = (i,i)
+        ch.append(tup)
+    self.fields['name'] = forms.ChoiceField(choices=ch)
+
+class ScheduleSnapshotForm(forms.Form):
+  frequent = forms.BooleanField(required=False)
+  hourly = forms.BooleanField(required=False)
+  daily = forms.BooleanField(required=False)
+  weekly = forms.BooleanField(required=False)
+  monthly = forms.BooleanField(required=False)
+
+  def __init__(self, *args, **kwargs):
+    vl = None
+    if kwargs:
+      dsl = kwargs.pop('datasets')
+    super(ScheduleSnapshotForm, self).__init__(*args, **kwargs)
+    ch = []
+    if dsl:
+      for i in dsl:
+        tup = (i,i)
+        ch.append(tup)
+    self.fields['target'] = forms.ChoiceField(choices=ch)
+  
+
 class RenameSnapshotForm(forms.Form):
   ds_name = forms.CharField(widget=forms.HiddenInput)
   snapshot_name = forms.CharField(widget=forms.HiddenInput)
