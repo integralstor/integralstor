@@ -5,6 +5,21 @@ Modify a ZFS pool's write cache
 
 {%block inside_content %}
 <br><br>
+<script>
+function select_field(field) {
+  e = document.getElementById(field);
+  val = e.options[e.selectedIndex].value;
+
+  if (val == 'ramdisk') {
+     $('#ramdisk_size_row').show();
+     $('#disk_selector_row').hide();
+  }
+  else {
+     $('#disk_selector_row').show();
+     $('#ramdisk_size_row').hide();
+  }
+}
+</script>
 
 {%if request.GET.result %}
 {{request.GET.result}}
@@ -31,7 +46,7 @@ Modify a ZFS pool's write cache
             <label for="id_slog">Write Cache Device :</label>
               </td>
               <td>
-                  <select name="slog" class="form-control">
+                  <select name="slog" class="form-control" id="slog" onchange="select_field('slog');">
                   {% for choice in form.slog.field.choices %}
                     <option value="{{choice.0}}" {%if choice.0 == form.initial.slog %} selected="selected"{%endif%}>{{choice.1}}</option>
                   {%endfor%}
@@ -41,7 +56,22 @@ Modify a ZFS pool's write cache
             {{ form.slog.errors }}
               </td>
             </tr>
-            <tr>
+            <tr id="disk_selector_row" style="display:none">
+              <td>
+                <label for="id_disk">Select flash drive :</label>
+              </td>
+              <td>
+                  <select name="disk" class="form-control">
+                  {% for choice in form.disk.field.choices %}
+                    <option value="{{choice.0}}" {%if choice.0 == form.initial.disk %} selected="selected"{%endif%}>{{choice.1}}</option>
+                  {%endfor%}
+                  </select>
+              </td>
+              <td>
+            {{ form.disk.errors }}
+              </td>
+            </tr>
+            <tr id="ramdisk_size_row" style="display:none">
               <td>
             <label for="id_ramdisk_size">Ramdisk size (in GB) :</label>
               </td>
@@ -58,6 +88,9 @@ Modify a ZFS pool's write cache
         <button type="submit" class="btn btn-primary cover-page">Save</button>
 </form>
 
+<script>
+window.onload = select_field("slog");
+</script>
 {%endblock%}
 {%block help_header%}
 Edit ZFS pool write cache

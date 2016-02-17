@@ -24,6 +24,21 @@ Create a ZFS pool
             </tr>
             <tr>
               <td>
+                <label for="id_disk_type">Underlying storage type :</label>
+              </td>
+              <td>
+                  <select name="disk_type" class="form-control" id="id_diskpool_type">
+                  {% for choice in form.disk_type.field.choices %}
+                    <option value="{{choice.0}}" {%if choice.0 == form.initial.disk_type %} selected="selected"{%endif%}>{{choice.1}}</option>
+                  {%endfor%}
+                  </select>
+              </td>
+              <td>
+            {{ form.disk_type.errors }}
+              </td>
+            </tr>
+            <tr>
+              <td>
             <label for="id_pool_type">Data protection schema :</label>
               </td>
               <td>

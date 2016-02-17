@@ -29,10 +29,49 @@ class CreateZvolForm(forms.Form):
 
 
 class SlogForm(forms.Form):
-  ch = [('ramdisk', 'RAM disk')]
-  slog = forms.ChoiceField(choices=ch)
-  ramdisk_size = forms.IntegerField()
+  ramdisk_size = forms.IntegerField(required = False)
   pool = forms.CharField(widget=forms.HiddenInput)
+
+  def __init__(self, *args, **kwargs):
+    free_disks = None
+    if kwargs and 'free_disks' in kwargs:
+      free_disks = kwargs.pop('free_disks')
+    super(SlogForm, self).__init__(*args, **kwargs)
+    if free_disks:
+      ch = [('ramdisk', 'RAM disk'), ('flash', 'Flash drive')]
+      ch1 = []
+      i = 1
+      for disk in free_disks:
+        ch1.append((disk['id'], 'Disk %d - %s flash drive'%(i, disk['capacity'])))
+        i += 1
+      self.fields['disk'] = forms.ChoiceField(choices=ch1)
+    else:
+      ch = [('ramdisk', 'RAM disk')]
+    self.fields['slog'] = forms.ChoiceField(choices=ch)
+
+  def clean(self):
+    cd = super(SlogForm, self).clean()
+    if cd['slog'] == 'ramdisk':
+      if 'ramdisk_size' not in cd or not cd['ramdisk_size']:
+        self._errors["ramdisk_size"] = self.error_class(["Please enter a RAMDISK size for a RAMDISK write cache"])
+    return cd
+
+class L2arcForm(forms.Form):
+  pool = forms.CharField(widget=forms.HiddenInput)
+
+  def __init__(self, *args, **kwargs):
+    free_disks = None
+    if kwargs and 'free_disks' in kwargs:
+      free_disks = kwargs.pop('free_disks')
+    super(L2arcForm, self).__init__(*args, **kwargs)
+    if free_disks:
+      ch1 = []
+      i = 1
+      for disk in free_disks:
+        ch1.append((disk['id'], 'Disk %d - %s flash drive'%(i, disk['capacity'])))
+        i += 1
+      self.fields['disk'] = forms.ChoiceField(choices=ch1)
+
 
 class QuotaForm(forms.Form):
   path = forms.CharField(widget=forms.HiddenInput)
@@ -58,6 +97,8 @@ class ImportPoolForm(forms.Form):
 class CreatePoolForm(forms.Form):
   name = forms.CharField()
   num_disks = forms.IntegerField(widget=forms.HiddenInput, required=False)
+  ch = [ ('rotational', 'All rotating drives'), ('flash', 'All flash drives') ]
+  disk_type = forms.ChoiceField(choices=ch)
   
   def __init__(self, *args, **kwargs):
     pol = None

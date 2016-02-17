@@ -342,7 +342,7 @@ def dashboard(request,page):
         return_dict['hardware'] = platform
       return_dict['node'] = si[info]
       return_dict["disk_status"] = si[info]['disks']
-      print si[info]['disks']
+      #print si[info]['disks']
       return_dict["disk_pos"] = sorted_disks
       return_dict['node_name'] = info
       template = "view_disks_status.html"
@@ -523,7 +523,7 @@ def refresh_alerts(request, random=None):
       raise Exception(err)
     if new_alerts_present:
       import json
-      alerts_list, err = alerts.load_alerts()
+      alerts_list, err = alerts.load_alerts(last_n = 5)
       if err:
         raise Exception(err)
       if not alerts_list:

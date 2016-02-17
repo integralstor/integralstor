@@ -1,18 +1,17 @@
 {% extends 'storage_base.html' %}
 {%block tab_header %}
-Remove ZFS pool's write cache - confirmation
+Remove ZFS pool's read cache - confirmation
 {%endblock%}
 
 {%block inside_content %}
 <br><br>
 
 
-<p id="p-warning-text">Are you sure you want to delete the ZFS write cache with name  "{{device}}" for pool "{{pool}}"? </p>
+<p id="p-warning-text">Are you sure you want to delete the ZFS read cache with name  "{{device}}" for pool "{{pool}}"? </p>
 <br>
-<form action="/remove_zfs_slog/" method="POST">
+<form action="/remove_zfs_l2arc/" method="POST">
 <input type=hidden name="pool" value="{{pool}}">
 <input type=hidden name="device" value="{{device}}">
-<input type=hidden name="type" value="{{type}}">
 <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_pools'"> &nbsp;&nbsp;
 <button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete</button>
 </form>
@@ -20,10 +19,10 @@ Remove ZFS pool's write cache - confirmation
 
 {%endblock%}
 {%block help_header%}
-Removing a ZFS write cache device
+Removing a ZFS read cache device
 {%endblock%}
 {%block help_body%}
-<p>Confirming this operation results in the write cache for the specified ZFS pool being removed from the system. Please ensure that this is actually intended before continuing.</p>
+<p>Confirming this operation results in the read cache for the specified ZFS pool being removed from the system. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}
 
 {% block tab_active %}

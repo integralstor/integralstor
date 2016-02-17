@@ -98,8 +98,12 @@ def view_zfs_pool(request):
         conf = "ZFS block device volume successfully destroyed"
       elif request.GET["action"] == "slog_deleted":
         conf = "ZFS write cache successfully removed"
+      elif request.GET["action"] == "l2arc_deleted":
+        conf = "ZFS read cache successfully removed"
       elif request.GET["action"] == "changed_slog":
         conf = "ZFS pool write cache successfully set"
+      elif request.GET["action"] == "changed_l2arc":
+        conf = "ZFS pool read cache successfully set"
       elif request.GET["action"] == "added_spares":
         conf = "Successfully added spare disks to the pool"
       elif request.GET["action"] == "removed_spare":
@@ -275,7 +279,7 @@ def export_zfs_pool(request):
           raise Exception(err)
  
       audit_str = 'Exported ZFS pool "%s"'%pool_name
-      audit.audit("export_pool", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("export_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_zfs_pools?action=pool_exported')
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
@@ -372,13 +376,13 @@ def create_zfs_pool(request):
       #print cd
       vdev_list = None
       if cd['pool_type'] in ['raid5', 'raid6']:
-        vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], cd['num_raid_disks'])
+        vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], disk_type = cd['disk_type'], num_raid_disks = cd['num_raid_disks'])
       elif cd['pool_type'] == 'raid10':
-        vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], stripe_width = cd['stripe_width'])
+        vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], disk_type = cd['disk_type'], stripe_width = cd['stripe_width'])
       elif cd['pool_type'] in ['raid50', 'raid60']:
-        vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], cd['num_raid_disks'], stripe_width = cd['stripe_width'])
+        vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], disk_type = cd['disk_type'], num_raid_disks = cd['num_raid_disks'], stripe_width = cd['stripe_width'])
       else:
-        vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'])
+        vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], disk_type = cd['disk_type'])
       if err:
         raise Exception(err)
       #print 'vdevlist', vdev_list
@@ -555,8 +559,11 @@ def set_zfs_slog(request):
         ramdisk_size = rdisk['size']/1024
       else:
         #For now pass but we need to code this to read the component disk ID!!!!!!!!!!!!1
-        slog = 'ssd'
-        pass
+        slog = 'flash'
+    free_disks, err = zfs.get_free_disks(disk_type = 'flash')
+    print free_disks
+    if err:
+      raise Exception(err)
 
     if request.method == "GET":
       #Return the conf page
@@ -567,11 +574,11 @@ def set_zfs_slog(request):
       if slog == 'ramdisk':
         initial['ramdisk_size'] = ramdisk_size
 
-      form = zfs_forms.SlogForm(initial=initial)
+      form = zfs_forms.SlogForm(initial=initial, free_disks = free_disks)
       return_dict['form'] = form
       return django.shortcuts.render_to_response("edit_zfs_slog.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
-      form = zfs_forms.SlogForm(request.POST)
+      form = zfs_forms.SlogForm(request.POST, free_disks = free_disks)
       return_dict['form'] = form
       if not form.is_valid():
         return django.shortcuts.render_to_response("edit_zfs_slog.html", return_dict, context_instance = django.template.context.RequestContext(request))
@@ -599,7 +606,12 @@ def set_zfs_slog(request):
               ramdisk.destroy_ramdisk('/mnt/ramdisk_%s'%cd['pool'], cd['pool'])
               raise Exception(err)
             audit.audit("edit_zfs_slog", 'Changed the write log for pool %s to a RAM disk of size %dGB'%(cd['pool'], cd['ramdisk_size']), request.META["REMOTE_ADDR"])
-                
+      else:
+        #Flash drive          
+        result, err = zfs.set_pool_log_vdev(cd['pool'], cd['disk'])
+        if err:
+          raise Exception(err)
+        audit.audit("edit_zfs_slog", 'Changed the write log for pool %s to a flash drive'%(cd['pool']), request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_zfs_pool?action=changed_slog&name=%s'%pool_name)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
@@ -620,7 +632,9 @@ def remove_zfs_slog(request):
     pool = request.REQUEST["pool"]
     return_dict["pool"] = pool
     device = request.REQUEST["device"]
+    type = request.REQUEST["type"]
     return_dict["device"] = device
+    return_dict["type"] = type
     if request.method == "GET":
       #Return the conf page
       return django.shortcuts.render_to_response("remove_zfs_slog_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
@@ -631,11 +645,12 @@ def remove_zfs_slog(request):
           raise Exception('Unknown error!')
         else:
           raise Exception(err)
-      result, err = ramdisk.destroy_ramdisk('/mnt/ramdisk_%s'%pool, pool)
-      if err:
-        raise Exception(err)
+      if type == 'ramdisk':
+        result, err = ramdisk.destroy_ramdisk('/mnt/ramdisk_%s'%pool, pool)
+        if err:
+          raise Exception(err)
  
-      audit_str = "Removed ZFS write cache RAM Disk for pool %s"%pool
+      audit_str = "Removed ZFS write cache for pool %s"%pool
       audit.audit("remove_zfs_slog", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&action=slog_deleted'%pool)
   except Exception, e:
@@ -643,6 +658,98 @@ def remove_zfs_slog(request):
     return_dict["page_title"] = 'Removing ZFS pool write cache'
     return_dict['tab'] = 'view_zfs_pools_tab'
     return_dict["error"] = 'Error removing ZFS pool write cache'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def set_zfs_l2arc(request):
+  return_dict = {}
+  try:
+    
+
+    if 'pool' not in request.REQUEST:
+      raise Exception("No pool specified.")
+
+    pool_name = request.REQUEST["pool"]
+
+    pool, err = zfs.get_pool(pool_name)
+
+    if err:
+      raise Exception(err)
+    elif not pool:
+      raise Exception("Error loading ZFS storage information : Specified pool not found")
+
+    free_disks, err = zfs.get_free_disks(disk_type = 'flash')
+    if err:
+      raise Exception(err)
+    #print free_disks
+    if not free_disks:
+      raise Exception('There are no unused flash drives to use as a read cache')
+
+    if request.method == "GET":
+      #Return the conf page
+
+      initial = {}
+      initial['pool'] = pool_name
+
+      form = zfs_forms.L2arcForm(initial=initial, free_disks = free_disks)
+      return_dict['form'] = form
+      return django.shortcuts.render_to_response("edit_zfs_l2arc.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      form = zfs_forms.L2arcForm(request.POST, free_disks = free_disks)
+      return_dict['form'] = form
+      if not form.is_valid():
+        return django.shortcuts.render_to_response("edit_zfs_l2arc.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      cd = form.cleaned_data
+      #print cd
+      result, err = zfs.set_pool_cache_vdev(cd['pool'], cd['disk'])
+      if err:
+        raise Exception(err)
+      ret, err = audit.audit("edit_zfs_l2arc", 'Changed the read cache for pool %s to a flash drive'%(cd['pool']), request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pool?action=changed_l2arc&name=%s'%pool_name)
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Set ZFS pool read cache'
+    return_dict['tab'] = 'view_zfs_pools_tab'
+    return_dict["error"] = 'Error setting ZFS pool read cache'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def remove_zfs_l2arc(request):
+
+  return_dict = {}
+  try:
+
+    if 'pool' not in request.REQUEST:
+      raise Exception("No pool specified. Please use the menus")
+
+    if 'device' not in request.REQUEST:
+      raise Exception("No device specified. Please use the menus")
+
+    pool = request.REQUEST["pool"]
+    return_dict["pool"] = pool
+
+    device = request.REQUEST["device"]
+    return_dict["device"] = device
+
+    if request.method == "GET":
+      #Return the conf page
+      return django.shortcuts.render_to_response("remove_zfs_l2arc_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      result, err = zfs.remove_pool_vdev(pool, device)
+      if not result:
+        if not err:
+          raise Exception('Unknown error!')
+        else:
+          raise Exception(err)
+ 
+      audit_str = "Removed ZFS read cache for pool %s"%pool
+      ret, err = audit.audit("remove_zfs_l2arc", audit_str, request.META["REMOTE_ADDR"])
+      return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&action=l2arc_deleted'%pool)
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Removing ZFS pool read cache'
+    return_dict['tab'] = 'view_zfs_pools_tab'
+    return_dict["error"] = 'Error removing ZFS pool read cache'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 

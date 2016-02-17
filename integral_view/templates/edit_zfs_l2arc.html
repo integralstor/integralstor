@@ -1,0 +1,62 @@
+{% extends 'storage_base.html' %}
+{%block tab_header %}
+Modify a ZFS pool's read cache
+{%endblock%}
+
+{%block inside_content %}
+<br><br>
+
+{%if request.GET.result %}
+{{request.GET.result}}
+{%endif%}
+
+
+<form id="edit_form" name="edit_form" action="" method="post">
+<input name="pool" type="hidden" value="{{ form.pool.value }}">
+{{ form.pool}}
+            <table class="table" style="width:800px">
+            <tr>
+              <td>
+            <label for="id_name">Pool name :</label>
+              </td>
+              <td>
+            {{ form.pool.value }}
+              </td>
+              <td>
+              &nbsp
+              </td>
+            </tr>
+            <tr id="disk_selector_row" >
+              <td>
+                <label for="id_disk">Select flash drive :</label>
+              </td>
+              <td>
+                  <select name="disk" class="form-control">
+                  {% for choice in form.disk.field.choices %}
+                    <option value="{{choice.0}}" {%if choice.0 == form.initial.disk %} selected="selected"{%endif%}>{{choice.1}}</option>
+                  {%endfor%}
+                  </select>
+              </td>
+              <td>
+            {{ form.disk.errors }}
+              </td>
+            </tr>
+            </table>
+
+        <a href="/view_zfs_pool/?name={{form.pool.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary cover-page">Save</button>
+</form>
+
+{%endblock%}
+{%block help_header%}
+Edit ZFS pool read cache
+{%endblock%}
+{%block help_body%}
+<p>Use this screen to change the device that is used as the read cache for the ZFS pool. Only flash drives may be used as the read cache device. The settings will take effect upon saving this information.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}

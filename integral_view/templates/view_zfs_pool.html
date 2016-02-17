@@ -118,10 +118,12 @@ No spare disks assigned. <br><br>
     {%endfor%}
   </ul>
   {% if pool.config.logs.root.children.0.type == 'RAMDisk' %}
-  <a href="/remove_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}" role="button" class="btn btn-danger"> Remove the write cache RAM Disk device</a>
+  <a href="/remove_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}&type=ramdisk" role="button" class="btn btn-danger"> Remove the write cache RAMDisk device</a>
+  {%else%}
+  <a href="/remove_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}&type=flash" role="button" class="btn btn-danger"> Remove the write cache flash device</a>
   {%endif%}
 {%else%}
-<b>Write cache in use : </b> Disk<br>
+<b>Write cache in use : </b> Disk<br><br>
 <a href="/set_zfs_slog?pool={{pool.pool_name}}" role="button" class="btn btn-primary"> Change the write cache device</a>
 {%endif%}
 
@@ -149,8 +151,10 @@ No spare disks assigned. <br><br>
       {%endif%}
     {%endfor%}
   </ul>
+  <a href="/remove_zfs_l2arc?pool={{pool.pool_name}}&device={{pool.config.cache.root.children.0.name}}" role="button" class="btn btn-danger"> Remove the read cache device</a>
 {%else%}
-<b>Read cache in use : </b> RAM<br>
+<b>Read cache in use : </b> RAM<br><br>
+<a href="/set_zfs_l2arc?pool={{pool.pool_name}}" role="button" class="btn btn-primary"> Change the read cache device</a>
 {%endif%}
 
 <hr>
