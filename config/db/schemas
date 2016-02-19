@@ -20,6 +20,16 @@ CREATE TABLE "scheduler_tasks" (
     "task_name" varchar(200) NOT NULL,
     "create_time" datetime NOT NULL,
     "initiate_time" datetime NOT NULL,
-    "status" varchar(50) NOT NULL
+    "status" varchar(50) NOT NULL,
+    "node" varchar(200),
+    "deleteble" boolean NOT NULL DEFAULT 'no',
+    "execute_after" integer
 );
 
+
+CREATE TABLE "pool_repl" (
+	"pool" varchar(100) NOT NULL,
+	"ip" varchar(100) NOT NULL,
+	"user" varchar(100) NOT NULL,
+	"dest" varchar(100) NOT NULL
+);

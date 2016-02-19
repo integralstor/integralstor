@@ -31,6 +31,7 @@ No information for the specified pool. Click <a href="/view_zfs_pools/"> here</a
 {%if can_expand_pool %}
 <td><a href="/expand_zfs_pool?pool_name={{pool.pool_name}}" role="button" class="btn btn-info">Expand this pool</a></td>
 {%endif%}
+<td><a href="/replicate_zfs_pool?pool_name={{pool.pool_name}}" role="button" class="btn btn-info">Replicate this pool</a></td>
 </tr>
 </table>
 <h4> Pool information </h4>

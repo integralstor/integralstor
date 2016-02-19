@@ -863,7 +863,7 @@ def view_background_tasks(request):
   return_dict = {}
   db_path = settings.DATABASES["default"]["NAME"]
   try:
-    return_dict["back_jobs"] = scheduler_utils.get_background_jobs(db_path)
+    return_dict["back_jobs"] = scheduler_utils.get_background_jobs(db_path)[0]
     return django.shortcuts.render_to_response("view_background_tasks.html", return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "scheduler_base.html"
@@ -877,8 +877,10 @@ def view_task_details(request,task_id):
   return_dict = {}
   db_path = settings.DATABASES["default"]["NAME"]
   try:
-    return_dict["task_name"] = scheduler_utils.get_background_job(db_path,int(task_id))["task_name"]
-    return_dict["tasks"] = scheduler_utils.get_task_details(db_path,int(task_id))
+    task_name,err = scheduler_utils.get_background_job(db_path,int(task_id))
+    details,err = scheduler_utils.get_task_details(db_path,int(task_id))
+    return_dict["task_name"] = task_name[0]["task_name"]
+    return_dict["tasks"] = details
     return django.shortcuts.render_to_response("view_task_details.html", return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "scheduler_base.html"

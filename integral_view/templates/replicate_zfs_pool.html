@@ -1,0 +1,62 @@
+{% extends 'storage_base.html' %}
+{%block tab_header %}
+ZFS Pool Replication
+{%endblock%}
+
+{% block inside_content %}
+{% if not pool_list %}
+<p>No ZFS storage pools appear to have been created. </p>
+{%else %}
+  
+<form class="form-horizontal" role="form"name="schedule_replication" action="" method="post">
+            <table  class="table " style="width:800px">
+            <tr>
+              <td>
+            <label for="id_dest_pool">Destination Pool Name</label>
+              </td>
+              <td>
+                <input type="text"  name="dest_pool" class="form-control" id="id_dest_pool" placeholder="Destination Pool Name"> 
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_dest_pool">Destination IP</label>
+              </td>
+              <td>
+                <input type="text"  name="ip" class="form-control" id="id_dest_ip" placeholder="Destination IP"> 
+              </td>
+            </tr>
+            <tr>
+              <td>
+            <label for="id_readonly">Select Pool</label>
+              </td>
+              <td>
+              <select id="id_mode" name="pool" class="form-control" >
+                {% for pool in pool_list %} 
+                <option value="{{pool}}">{{pool}}</option>
+                {%endfor%}
+              </select>
+              </td>
+              <td>
+            {{ form.mode.errors }}
+              </td>
+            </tr>
+	</table>
+	<button type="submit" class="btn btn-primary">Start Replication</button>
+</form>
+
+{% endif %}
+{%endblock%}
+{%block help_header%}
+View all ZFS pools
+{%endblock%}
+{%block help_body%}
+  <p> This screen provides the list of all the ZFS pools that have been created on this IntegralStor system. To view details about a particular ZFS pool, please select the the desired pool from the list.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}
+
