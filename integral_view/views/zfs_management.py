@@ -2,7 +2,7 @@ import django, django.template
 
 import integralstor_common
 import integralstor_unicell
-from integralstor_common import zfs, audit, ramdisk,file_processing, common, command
+from integralstor_common import zfs, audit, ramdisk,file_processing, common, command,db
 from integralstor_common import scheduler_utils, manifest_status
 from integralstor_common import cifs as common_cifs
 from integralstor_unicell import nfs,local_users, iscsi_stgt, system_info
@@ -56,6 +56,10 @@ def view_zfs_pools(request):
         conf = "Successfully added spare disks to the pool"
       elif request.GET["action"] == "removed_spare":
         conf = "Successfully removed a spare disk from the pool"
+      elif request.GET["action"] == "replication_success":
+        conf = "Replication Successful"
+      elif request.GET["action"] == "replication_error":
+        conf = "Replication Failed"
       if conf:
         return_dict["conf"] = conf
     return_dict["pool_list"] = pool_list
@@ -155,6 +159,39 @@ def view_zfs_pool(request):
     return_dict["error"] = 'Error loading ZFS pool details'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def replicate_zfs_pool(request):
+  return_dict = {}
+  if request.method == "GET":
+    pool = request.GET.get('pool_name')
+    pool_list, err = zfs.get_all_pools()
+    return_dict['pool_list'] = pool_list
+    return django.shortcuts.render_to_response('replicate_zfs_pool.html',return_dict,context_instance=django.template.context.RequestContext(request))
+  elif request.method == "POST":
+    try:
+      pool = request.POST.get('pool')
+      host_ip = request.POST.get('ip')
+      username = "root"
+      dest_pool = request.POST.get('dest_pool')
+      if pool and host_ip and username and dest_pool:
+        print pool,host_ip,username,dest_pool
+        cmd = "insert into pool_repl (pool,ip,user,dest) values ('%s','%s','%s','%s')"%(pool,host_ip,username,dest_pool)
+        db_path,err = common.get_db_path()
+        status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
+        print status,err
+        if not err:
+          return django.http.HttpResponseRedirect('/view_zfs_pools?action=replication_success')
+        else:
+          return django.http.HttpResponseRedirect('/view_zfs_pools?action=replication_error')
+      else:
+        return HttpResponse("Data incomplete. Please fill back again")
+    except Exception as e:
+      return_dict['base_template'] = "storage_base.html"
+      return_dict["page_title"] = 'Setting ZFS quota'
+      return_dict['tab'] = 'view_zfs_pools_tab'
+      return_dict["error"] = 'Error setting ZFS quota'
+      return_dict["error_details"] = str(e)
+      return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def set_zfs_quota(request):
   return_dict = {}
