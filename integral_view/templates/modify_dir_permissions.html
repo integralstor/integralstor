@@ -99,9 +99,11 @@
         var i, j, r = [];
         r = data.instance.get_node(data.selected[0]).text;
         rfp = data.instance.get_node(data.selected[0]).data["dir"];
-        $("#id_display_path").val(rfp);
-        $("#id_path").val(rfp);
-        $("#id_path_value").text(rfp);
+        location.href = location.pathname+"?path=/"+rfp
+        //$("#id_display_path").val(rfp);
+        //$("#id_path").val(rfp);
+        //$("#id_path_value").text(rfp);
+        
         document.getElementById("pathdiv").style.display = "none";
       })
       .jstree();

@@ -3,7 +3,7 @@ import django, django.template,os
 import subprocess 
 import integralstor_common
 import integralstor_unicell
-from integralstor_common import networking, audit, command,zfs,common,scheduler_utils
+from integralstor_common import networking, audit, command,zfs,common,scheduler_utils,ssh
 from integralstor_unicell import local_users
 
   
@@ -92,20 +92,17 @@ def change_service_status(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def add_ssh_key(request):
+def upload_ssh_key(request):
   return_dict = {}
   if request.method == 'POST':
-    authorized_key = request.POST.get('authorized_key')
-    status,err = ssh.add_ssh_key(authorized_key)
-    if not err:
-      return django.http.HttpResponseRedirect('/view_ssh_key/')
-    else:
-      return_dict['err'] = err
-      return_dict['authorized_key'] = authorized_key
-      return django.shortcuts.render_to_response("add_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
-  else:
+    authorized_key = request.FILES.get('pub_key')
+    with open('/root/.ssh/authorized_keys', 'wb+') as destination:
+        for chunk in authorized_key.chunks():
+            destination.write(chunk)
+    perm,err = ssh.ssh_dir_permissions()
     return django.shortcuts.render_to_response("add_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
-    
+  elif request.method == 'GET':
+    return django.shortcuts.render_to_response("add_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def edit_ssh_key(request):
   pass
@@ -119,7 +116,10 @@ def delete_ssh_keys(request):
 def get_my_ssh_key(request):
   return_dict = {}
   key = ssh.get_ssh_key() 
-  return_dict['my_ssh_key'] = key
+  if key:
+    ssh.generate_ssh_key()
+  key = ssh.get_ssh_key()
+  return_dict['key'] = key
   return django.shortcuts.render_to_response("show_my_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def regenerate_ssh_key(request):

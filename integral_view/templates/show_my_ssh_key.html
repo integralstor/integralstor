@@ -1,0 +1,10 @@
+{% extends  'key_management_base.html' %}
+
+{% block tab_header %}
+Download Public Key <br /><br /><br />
+{% endblock  %}
+{% block inside_content %}
+
+<a href="/static/{{key}}" class="btn btn-info">Download Public Key</a>
+
+{% endblock %}
