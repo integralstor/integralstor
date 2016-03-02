@@ -5,60 +5,42 @@ ZFS pools status
 {% block inside_content %}
 <br><br>
 {%if not pools %}
-No storage pools created
+  No storage pools created
 {%else%}
 <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-<div class="box-group" id="accordion">
-   {%for pool in pools %}
-                    <!-- we are adding the .panel class so bootstrap.js collapse plugin detects it -->
-                    <div class="panel box {%if pool.config.pool.root.status.state == 'ONLINE' %} box-success {%else%} box-danger{%endif%}">
-                      <div class="box-header with-border">
-                        <h4 class="box-title">
-                          <a class="" aria-expanded="true" data-toggle="collapse" data-parent="#accordion" href="#pool_{{forloop.counter}}">
-                            Pool : {{pool.pool_name}}, State : {{pool.config.pool.root.status.state}} (Click for more details..)
-                          </a> 
-                        </h4>
-                      </div>
-                      <div style="" aria-expanded="true" id="pool_{{forloop.counter}}" class="panel-collapse collapse">
-                        <div class="box-body">
 
+  {%for pool in pools %}
 
-      <table class="table table-bordered table-hover table-responsive" style="width:800px">
-      <thead>
-        <th >
-        Pool name
-        </th>
-        <th >
-        Pool type
-        </th>
-        <th>
-          Status details
-        </th>
-        <th>
-          Errors
-        </th>
-        <th>
-          Scan status
-        </th>
-      </thead>
-      <tr>
-        <td>
-          {{pool.pool_name}}
-        </td>
-        <td>
-          {{pool.config.pool.type.upper}}
-        </td>
-        <td>
-          {{pool.config.pool.root.status.read}} read errors, <br>{{pool.config.pool.root.status.write}} write errors, <br>{{pool.config.pool.root.status.read}} checksum errors 
-        </td>
-        <td>
-          {{pool.errors}}
-        </td>
-        <td>
-          {{pool.scan}}
-        </td>
-      </tr>
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingOne">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{pool.pool_name}}" aria-expanded="true" aria-controls="collapse{{pool.pool_name}}">
+          Pool : {{pool.pool_name}}. <span class="label {%if pool.config.pool.root.status.state == 'ONLINE' %} label-default {%elif pool.config.pool.root.status.state == 'DEGRADED'%} label-warning {%else %} label-danger {%endif%}"> Status : {{pool.config.pool.root.status.state}}</span>&nbsp; <span class="caret">&nbsp;</span>
+        </a>
+      </h4>
+    </div>
+    <div id="collapse{{pool.pool_name}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{pool.pool_name}}">
+      <div class="panel-body">
+
+        <table class="table table-bordered table-hover table-responsive" style="width:800px">
+          <thead>
+            <th > Pool name </th>
+            <th > Pool type </th>
+            <th> Status details </th>
+            <th> Errors </th>
+            <th> Scan status </th>
+          </thead>
+        <tr>
+          <td> {{pool.pool_name}} </td>
+          <td> {{pool.config.pool.type.upper}} </td>
+          <td>
+            {{pool.config.pool.root.status.read}} read errors, <br>{{pool.config.pool.root.status.write}} write errors, <br>{{pool.config.pool.root.status.read}} checksum errors 
+          </td>
+          <td> {{pool.errors}} </td>
+          <td> {{pool.scan}} </td>
+        </tr>
       </table>
+
       <h4>Storage pool status</h4>
       <ul>
         <li> {{pool.pool_name}} (Pool)- State ({{pool.config.pool.root.status.state}}), Read ({{pool.config.pool.root.status.read}}), Write ({{pool.config.pool.root.status.write}}), Checksum ({{pool.config.pool.root.status.chksum}})
@@ -178,11 +160,23 @@ No storage pools created
         {%endif%}
       </ul>
       {%endif%}
-                        </div>
-                      </div>
-                    </div>
-    {%endfor%}
+
+      </div>
+    </div>
   </div>
+  {%endfor%}
+</div>
+
+
+
+
+
+
+
+
+
+
+
 
 
 {%endif%}

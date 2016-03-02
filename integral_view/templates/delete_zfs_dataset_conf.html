@@ -1,6 +1,10 @@
 {% extends 'storage_base.html' %}
 {%block tab_header %}
-Delete a ZFS dataset - confirmation
+  {%if type == 'volume' %}
+    Delete a ZFS block device volume - confirmation
+  {%else%}
+    Delete a ZFS dataset - confirmation
+  {%endif%}
 {%endblock%}
 
 
@@ -8,7 +12,7 @@ Delete a ZFS dataset - confirmation
 <br><br>
 
 
-{%if type == 'zvol' %}
+{%if type == 'volume' %}
 <p id="p-warning-text">Are you sure you want to delete the ZFS block device volume with name  "{{name}}"? </p>
 {%else %}
 <p id="p-warning-text">Are you sure you want to delete the ZFS dataset with name  "{{name}}"? </p>
@@ -29,14 +33,14 @@ Delete a ZFS dataset - confirmation
 
 {%endblock%}
 {%block help_header%}
-{%if type == 'zvol' %}
+{%if type == 'volume' %}
 Deleting a ZFS block device volume
 {%else%}
 Deleting a ZFS dataset
 {%endif%}
 {%endblock%}
 {%block help_body%}
-{%if type == 'zvol' %}
+{%if type == 'volume' %}
 <p>Confirming this operation results in the specified ZFS block device volume being deleted from the system. Please ensure that this is actually intended before continuing.</p>
 {%else%}
 <p>Confirming this operation results in the specified ZFS dataset being deleted from the system. Please ensure that this is actually intended before continuing.</p>

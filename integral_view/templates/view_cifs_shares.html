@@ -11,7 +11,7 @@ CIFS shares
 {%endif%}
 
 {% if not shares_list %}
-No shares appear to have been created. Click <a href="/create_cifs_share/"> here</a> to create a new share.
+No shares appear to have been created. <br><br>
 {%else %}
 <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
 <table class="table table-striped">
@@ -50,7 +50,7 @@ Description
 </div>
 {%endif%}
 <p>
-  <a href="/create_cifs_share/" class="btn btn-primary"> Create CIFS Share </a>
+  <a href="/create_cifs_share/" class="btn btn-primary btn-sm"> Create a CIFS Share </a>
 </p>
 
 {%endblock%}

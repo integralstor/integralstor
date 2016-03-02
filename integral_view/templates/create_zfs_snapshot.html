@@ -30,7 +30,7 @@ Create a ZFS pool/dataset snapshot
             <label for="id_name">Snapshot name:</label>
               </td>
               <td>
-                <input type="text"  name="name" class="form-control" id="id_clients" placeholder="Enter a name of this snapshot" value="Snapshot"/>
+                <input type="text"  name="name" class="form-control" id="id_clients" placeholder="Enter a name of this snapshot" value="{{form.name.value|default_if_none:""}}"/>
               </td>
               <td>
             {{ form.name.errors }}

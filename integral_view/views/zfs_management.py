@@ -128,9 +128,13 @@ def view_zfs_pool(request):
     if err:
       raise Exception(err)
 
-    snap_list, err = zfs.get_snapshots(pool_name)
+    num_free_disks_for_cache, err = zfs.get_free_disks(disk_type = 'flash')
     if err:
       raise Exception(err)
+
+    #snap_list, err = zfs.get_snapshots(pool_name)
+    #if err:
+    #  raise Exception(err)
 
     (can_expand, new_pool_type), err = zfs.can_expand_pool(pool_name)
 
@@ -138,14 +142,15 @@ def view_zfs_pool(request):
     if err:
       raise Exception(err)
 
-    schedule, err = zfs.get_snapshot_schedule(pool_name)
-    if err:
-      raise Exception(err)
+    #schedule, err = zfs.get_snapshot_schedule(pool_name)
+    #if err:
+    #  raise Exception(err)
 
-    return_dict['snapshot_schedule'] = schedule
+    #return_dict['snapshot_schedule'] = schedule
     return_dict['can_expand_pool'] = can_expand
     return_dict['num_free_disks_for_spares'] = num_free_disks_for_spares
-    return_dict['snap_list'] = snap_list
+    return_dict['num_free_disks_for_cache'] = num_free_disks_for_cache
+    #return_dict['snap_list'] = snap_list
     return_dict['pool'] = pool
     return_dict['pool_name'] = pool_name
     return_dict['quotas'] = quotas
@@ -830,9 +835,11 @@ def view_zfs_dataset(request):
     if err:
       raise Exception(err)
 
-    quotas, err = zfs.get_all_quotas(dataset_name)
-    if err:
-      raise Exception(err)
+    if properties['type']['value'] == 'filesystem':
+      quotas, err = zfs.get_all_quotas(dataset_name)
+      if err:
+        raise Exception(err)
+      return_dict['quotas'] = quotas
 
     schedule, err = zfs.get_snapshot_schedule(dataset_name)
     if err:
@@ -844,7 +851,6 @@ def view_zfs_dataset(request):
       return_dict['children'] = children
     return_dict['name'] = dataset_name
     return_dict['properties'] = properties
-    return_dict['quotas'] = quotas
     return_dict['exposed_properties'] = ['compression', 'compressratio', 'dedup',  'type', 'usedbychildren', 'usedbydataset', 'creation']
     if 'result' in request.GET:
       return_dict['result'] = request.GET['result']
@@ -881,6 +887,7 @@ def edit_zfs_dataset(request):
         else:
           initial[p] = True
 
+      return_dict['type'] = properties['type']
       form = zfs_forms.DatasetForm(initial=initial)
       return_dict['form'] = form
       return django.shortcuts.render_to_response("edit_zfs_dataset.html", return_dict, context_instance = django.template.context.RequestContext(request))
@@ -933,7 +940,7 @@ def delete_zfs_dataset(request):
     if 'name' not in request.REQUEST:
       raise Exception("Error deleting ZFS dataset- No dataset specified. Please use the menus")
     if 'type' not in request.REQUEST:
-      type = 'dataset'
+      type = 'filesystem'
     else:
       type = request.REQUEST['type']
     name = request.REQUEST["name"]
@@ -1409,7 +1416,7 @@ def schedule_zfs_snapshot(request):
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Schedule a ZFS snapshot'
-    return_dict['tab'] = 'view_zfs_snapshots_tab'
+    return_dict['tab'] = 'scheduled_snapshots_tab'
     return_dict["error"] = 'Error scheduling ZFS snapshot'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))

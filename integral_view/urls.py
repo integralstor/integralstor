@@ -2,6 +2,8 @@ from django.conf.urls import patterns, include, url
 
 from integral_view.views.admin_auth  import login, logout, change_admin_password, configure_email_settings 
 
+from integral_view.views.pki_management  import view_certificates, delete_certificate, create_self_signed_cert, upload_cert
+
 from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node, set_file_owner_and_permissions,dir_contents,dashboard,reload_manifest,list_cron_jobs,download_cron_log,remove_cron_job,view_background_tasks,view_task_details
 
 from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level,download_sys_info,upload_sys_info
@@ -53,6 +55,10 @@ urlpatterns = patterns('',
     url(r'^configure_ntp_settings/', login_required(configure_ntp_settings)),
     url(r'^view_cifs_shares/', login_required(view_cifs_shares)),
     url(r'^view_services/', login_required(view_services)),
+    url(r'^view_certificates/', login_required(view_certificates)),
+    url(r'^upload_cert/', login_required(upload_cert)),
+    url(r'^create_self_signed_cert/', login_required(create_self_signed_cert)),
+    url(r'^delete_certificate/', login_required(delete_certificate)),
     url(r'^change_service_status/', login_required(change_service_status)),
     url(r'^view_interfaces/', login_required(view_interfaces)),
     url(r'^set_interface_state/', login_required(set_interface_state)),
@@ -158,6 +164,6 @@ urlpatterns = patterns('',
     url(r'^reboot',login_required(reboot)), 
     url(r'^show_my_ssh_key',login_required(get_my_ssh_key)),
     url(r'^upload_ssh_key',login_required(upload_ssh_key)),
-
+    url(r'^reboot',login_required(reboot))  
 )
 

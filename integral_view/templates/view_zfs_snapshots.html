@@ -7,20 +7,22 @@ ZFS pool/dataset snapshots
 <br><br>
 
 {% if conf %}
-<div style="margin:0 auto;border-radius: 10px;background: #A1A3A6; padding: 20px; width: 50%; position:relative;height: 50px;text-align:center;">
+<div style="margin:0 auto;border-radius: 10px;background: #A1A3A6; width: 50%; position:relative;height: 30px;line-height:30px;text-align:center;">
 <p style="color:white;align:center;"><b>{{conf}}</b></p>
 </div>
 <br>
 {%endif%}
 
-<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+<div style="width:850px;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
 
-<a href="/create_zfs_snapshot" role="button" class="btn btn-primary">Create a snapshot </a>
-<a href="/schedule_zfs_snapshot" role="button" class="btn btn-primary">View/Modify snapshot schedules</a>
+  <a href="/create_zfs_snapshot" role="button" class="btn btn-primary btn-sm pull-right">Create snapshot </a>
+<br>
 <hr>
+<br>
+
 {%if form%}
 <form id="view_form" name="view_form" action="/view_zfs_snapshots/" method="post">
-  <table class="table" style="width:800px">
+  <table class="table table-responsive" style="width:800px">
   <tr>
     <td>
       <label for="id_target">Select target :</label>
@@ -52,64 +54,41 @@ ZFS pool/dataset snapshots
 </form>
 {%endif%}
 {% if not snap_list %}
-No ZFS snapshots appear to have been created.<br /> <br /> 
+  No ZFS snapshots appear to have been created.<br /> <br /> 
 {%else %}
-<table  class="table table-bordered">
-<tr>
-<th>
-Target name
-</th>
-<th >
-Snapshot name
-</th>
-<th>
-Target type
-</th>
-<th>
-Created on 
-</th>
-<th >
-Space consumed by snapshot
-</th>
-<th >
-Space consumed by target
-</th>
-<th>
-Delete Snapshot
-</th>
-<th>
-Rollback to snapshot
-</th>
-<th>
-Rename this snapshot
-</th>
-</tr>
-{%for d in snap_list %}
-<tr>
-<td>{{d.dataset}}</td>
-<td> {{d.snapshot_name}} </td>
-<td>{% if '/' in d.dataset%} Dataset {%else%} Pool{%endif%}</td>
-<td>{{d.properties.creation.value}}</td>
-<td>{{d.used}}</td>
-<td>{{d.refer}}</td>
-<td>
-<a href="/delete_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-danger"> Delete</a>
-</td>
-<td>
-<a href="/rollback_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-success"> Rollback</a>
-</td>
-<td>
-<a href="/rename_zfs_snapshot?snapshot_name={{d.snapshot_name}}&ds_name={{d.dataset}}" role="button" class="btn btn-primary"> Rename</a>
-</td>
-</tr>
-{%endfor%}
-</table>
+  <table  class="table table-striped table-responsive">
+    <tr>
+      <th> Target name </th>
+      <th > Snapshot name </th>
+      <th> Target type </th>
+      <th> Created on </th>
+      <th > Space consumed by snapshot </th>
+      <th > Space consumed by target </th>
+      <th colspan=3> Actions </th>
+    </tr>
+    {%for d in snap_list %}
+      <tr>
+        <td>{{d.dataset}}</td>
+        <td> {{d.snapshot_name}} </td>
+        <td>{% if '/' in d.dataset%} Dataset {%else%} Pool{%endif%}</td>
+        <td>{{d.properties.creation.value}}</td>
+        <td>{{d.used}}</td>
+        <td>{{d.refer}}</td>
+        <td>
+          <a href="/delete_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-danger btn-xs"> Delete</a>
+        </td>
+        <td>
+          <a href="/rollback_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-success btn-xs"> Rollback</a>
+        </td>
+        <td>
+          <a href="/rename_zfs_snapshot?snapshot_name={{d.snapshot_name}}&ds_name={{d.dataset}}" role="button" class="btn btn-primary btn-xs"> Rename</a>
+        </td>
+      </tr>
+    {%endfor%}
+  </table>
 {%endif%}
 
 </div>
-<p>
-<!--
-<a href="/create_zfs_pool" role="button" class="btn btn-default"> Create a new ZFS pool</a>-->
 
 {%endblock%}
 {%block help_header%}

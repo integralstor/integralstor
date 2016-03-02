@@ -1,6 +1,10 @@
 {% extends 'storage_base.html' %}
 {%block tab_header %}
-Modify a ZFS dataset configuration
+  {%if type.value == 'filesystem' %}
+    Modify a ZFS dataset configuration
+  {%elif type.value == 'volume' %}
+    Modify a ZFS block device volume configuration
+  {%endif%}
 {%endblock%}
 
 {% block inside_content %}
@@ -12,66 +16,57 @@ Modify a ZFS dataset configuration
 
 
 <form id="edit_form" name="edit_form" action="" method="post">
-<input name="name" type="hidden" value="{{ form.name.value }}">
-            <table class="table" style="width:800px">
-            <tr>
-              <td>
-            <label for="id_name">Dataset name :</label>
-              </td>
-              <td>
-            {{ form.name.value }}
-              </td>
-              <td>
-              &nbsp
-              </td>
-            </tr>
-            <!--
-            <tr>
-              <td>
-            <label for="id_readonly">Readonly:</label>
-              </td>
-              <td>
-            {{ form.readonly }}
-              </td>
-              <td>
-            {{ form.readonly.errors }}
-              </td>
-            </tr>
-            -->
-            <tr>
-              <td>
-            <label for="id_compression">Enable compression:</label>
-              </td>
-              <td>
-            {{ form.compression }}
-              </td>
-              <td>
-            {{ form.compression.errors }}
-              </td>
-            </tr>
-            <tr>
-              <td>
-            <label for="id_dedup">Enable deduplication :</label>
-              </td>
-              <td>
-            {{ form.dedup }}
-              </td>
-              <td>
-            {{ form.dedup.errors }}
-              </td>
-            </tr>
-            </table>
+  <input name="name" type="hidden" value="{{ form.name.value }}">
+  <table class="table" style="width:800px">
+    <tr>
+      <td>
+        {%if type.value == 'filesystem' %}
+          <label for="id_name">Dataset name :</label>
+        {%elif type.value == 'volume' %}
+          <label for="id_name">Block device volume name :</label>
+        {%endif%}
+      </td>
+      <td>
+        {{ form.name.value }}
+      </td>
+      <td>
+      &nbsp
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label for="id_compression">Enable compression:</label>
+      </td>
+      <td>
+        {{ form.compression }}
+      </td>
+      <td>
+       {{ form.compression.errors }}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label for="id_dedup">Enable deduplication :</label>
+      </td>
+      <td>
+        {{ form.dedup }}
+      </td>
+      <td>
+        {{ form.dedup.errors }}
+      </td>
+    </tr>
+  </table>
 
-        <a href="/view_zfs_dataset/?name={{form.name.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary">Save</button>
+  <a href="/view_zfs_dataset/?name={{form.name.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+  <button type="submit" class="btn btn-primary">Save</button>
 </form>
 
 {%endblock%}
 {%block help_header%}
-Edit ZFS dataset properties
+Edit ZFS {%if type.value == 'filesystem' %} dataset {%elif type.value == 'volume' %} block device volume {%endif%}properties
 {%endblock%}
 {%block help_body%}
-<p>Use this screen to change the properties for a particular ZFS dataset. The settings will take effect upon saving this information.</p>
+<p>Use this screen to change the properties for a particular ZFS {%if type.value == 'filesystem' %} dataset {%elif type.value == 'volume' %} block device volume {%endif%}. The settings will take effect upon saving this information.</p>
 {%endblock%}
 {% block tab_active %}
   <script>

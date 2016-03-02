@@ -3,14 +3,14 @@ import django
 import django.template
 from django.contrib import auth
 from django.contrib.sessions.models import Session
-import json
+import json, os, shutil, re
 
 import integral_view
 from integral_view.forms import admin_forms
 from integral_view.utils import iv_logging
 
 import integralstor_common
-from integralstor_common import audit, mail 
+from integralstor_common import audit, mail, common
 
 
 def login(request):
@@ -212,7 +212,78 @@ def configure_email_settings(request):
     return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
 
 
+def _get_nginx_access_mode():
+  mode = {}
+  try:
+    with open('/etc/nginx/sites-enabled/integral_view_nginx.conf', 'r') as f:
+      lines = f.readlines()
+      for line in lines:
+        #print line
+        ret = re.search('[\s]*[lL]isten[\s]*([0-9]+)', line.lower())
+        if ret:
+          grps = ret.groups()
+          if grps:
+            mode['port'] = int(grps[0])
+        ret = re.search('[\s]*ssl_certificate[\s]+([\S]*)', line)
+        if ret:
+          grps = ret.groups()
+          if grps:
+            mode['certificate'] = grps[0]
+        ret = re.search('[\s]*ssl_certificate_key[\s]*([\S]*)', line)
+        if ret:
+          grps = ret.groups()
+          if grps:
+            mode['key'] = grps[0]
+  except Exception, e:
+    return None, 'Error getting web server access mode : %s'%str(e)
+  else:
+    return mode, None
 
+def _generate_nginx_conf(ssl=False, ssl_cert_file = None, ssl_key_file = None):
+  try:
+    platform_root, err = common.get_platform_root()
+    if err:
+      raise Exception(err)
+    shutil.copyfile('/etc/nginx/sites-enabled/integral_view_nginx.conf', '/tmp/integral_view_nginx.conf')
+    with open('/etc/nginx/sites-enabled/integral_view_nginx.conf', 'w') as f:
+      f.write('upstream django {\n')
+      f.write(' server unix:////opt/integralstor/integralstor_unicell/integral_view/integral_view.sock;\n')
+      f.write('}\n')
+      f.write('\n')
+      f.write('server {\n')
+      if ssl:
+        f.write('  listen      443 ssl;\n')
+        f.write('  ssl_certificate %s;\n'%ssl_cert_file)
+        f.write('  ssl_certificate_key %s;\n'%ssl_key_file)
+      else:
+        f.write('  listen      80;\n')
+
+      f.write('  charset     utf-8;\n')
+      f.write('  client_max_body_size 75M;\n')
+      f.write('  location /static {\n')
+      f.write('    alias %s/integral_view/static;\n'%platform_root)
+      f.write('  }\n')
+      f.write('\n')
+      f.write('  location / {\n')
+      f.write('    uwsgi_pass  django;\n')
+      f.write('    include     %s/integral_view/uwsgi_params;\n'%platform_root)
+      f.write('  }\n')
+      f.write('}\n')
+  except Exception, e:
+    if os.path.exists('/tmp/integral_view_nginx.conf'):
+      shutil.copyfile('/tmp/integral_view_nginx.conf', '/etc/nginx/sites-enabled/integral_view_nginx.conf')
+    return False, 'Error generating HTTPS configuration : %s'%str(e)
+  else:
+    return True, None
+
+def main():
+  #print _generate_nginx_conf(False)
+  #print _get_nginx_access_mode()
+  #print _generate_nginx_conf(True, '/opt/integralstor/pki/blah/blah.cert', '/opt/integralstor/pki/blah/blah.cert')
+  print _get_nginx_access_mode()
+
+if __name__ == '__main__':
+  main()
 '''
 
 def remove_email_settings(request):
