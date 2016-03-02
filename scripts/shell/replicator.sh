@@ -1,0 +1,66 @@
+source_pool=$1
+source_dataset=$2
+destination=$3
+user=$4
+ip=$5
+source=$source_pool/$source_dataset
+#echo $source $destination
+
+# The first and the last snapshot on the source server
+# Sort by creation date so that you always get the latest snapshot by date and not name
+primary_initial=""
+primary_initial_shapshot=""
+primary_last=""
+primary_last_snapshot=""
+secondary_last=""
+secondary_last_snapshot=""
+
+primary_snapshot () {
+	primary_last=$(zfs list -t snapshot -o name -s creation | grep $source | tail -1)
+	primary_initial=$(zfs list -t snapshot -o name -s creation | grep $source | head -1)
+
+	#Get the snapshot names. The Hack. Needs a better code.
+	IFS=’@’ read -a primary_initial_snapshot <<< "${primary_initial}"
+	#echo "Initaial Primary Snapshot: $source@${primary_initial_snapshot[1]}"
+	IFS=’@’ read -a primary_last_snapshot <<< "${primary_last}"
+	#echo "Primary Latest Snapshot: $source@${primary_last_snapshot[1]}"
+
+	} 
+secondary_snapshot () {
+	#Last successful snapshot from destination server
+	# Sort by creation date so that you always get the latest snapshot by date and not name
+	secondary_last=$(ssh $user@$ip "zfs list -t snapshot -o name -s creation | grep $destination/$source_dataset | tail -1")
+
+	IFS=’@’ read -a secondary_last_snapshot <<< "${secondary_last}"
+	#echo "Secondary latest snapshot: $source@${secondary_last_snapshot[1]}"
+	}
+
+primary_snapshot
+secondary_snapshot
+
+if [[ -z "${secondary_last_snapshot[1]}" ]]; then
+
+	# Sync the initial snapshot
+	initial_sync=$(zfs send -v $source@${primary_initial_snapshot[1]} | ssh $user@$ip "zfs receive -Fdv rr")
+	#echo "${initial}"
+
+        # Incase the first and last snapshot are not the same, then also do a recursive replication till the present snapshot
+	secondary_snapshot
+        if [ "${primary_initial_snapshot[1]}" != "${primary_last_snapshot[1]}" ]; then
+		recursive_sync=$(zfs send -vI $source@${secondary_last_snapshot[1]} $source@${primary_last_snapshot[1]} | ssh $user@$ip "zfs receive -Fdv $destination")
+		#echo $recursive_sync
+	fi
+
+else
+	#If secondary is not none
+
+	#If the destination and the source last snapshots are the not the same, then incremental sync of snapshots
+     	if [ "${secondary_last_snapshot[1]}" != "${primary_last_snapshot[1]}" ]; then
+		#echo "${secondary_last_snapshot} ${primary_last_snapshot}"
+		snapshot_sync=$(zfs send -vI $source@${secondary_last_snapshot[1]} $source@${primary_last_snapshot[1]}  | ssh $user@$ip "zfs receive -Fdv $destination")
+	        #echo "${snapshot_sync}"
+	else
+		echo "Both datasets are in sync. No replication required"
+	fi
+
+fi

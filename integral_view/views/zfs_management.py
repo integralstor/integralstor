@@ -164,8 +164,8 @@ def replicate_zfs_pool(request):
   return_dict = {}
   if request.method == "GET":
     pool = request.GET.get('pool_name')
-    pool_list, err = zfs.get_all_pools()
-    return_dict['pool_list'] = pool_list
+    #pool_list, err = zfs.get_all_datasets_and_pools()
+    return_dict['pool'] = pool
     return django.shortcuts.render_to_response('replicate_zfs_pool.html',return_dict,context_instance=django.template.context.RequestContext(request))
   elif request.method == "POST":
     try:

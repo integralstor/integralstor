@@ -4,7 +4,7 @@ ZFS Pool Replication
 {%endblock%}
 
 {% block inside_content %}
-{% if not pool_list %}
+{% if not pool %}
 <p>No ZFS storage pools appear to have been created. </p>
 {%else %}
   
@@ -12,7 +12,7 @@ ZFS Pool Replication
             <table  class="table " style="width:800px">
             <tr>
               <td>
-            <label for="id_dest_pool">Destination Pool Name</label>
+            <label for="id_dest_pool">Destination Pool/Dataset Name</label>
               </td>
               <td>
                 <input type="text"  name="dest_pool" class="form-control" id="id_dest_pool" placeholder="Destination Pool Name"> 
@@ -28,17 +28,10 @@ ZFS Pool Replication
             </tr>
             <tr>
               <td>
-            <label for="id_readonly">Select Pool</label>
+            <label for="id_pool">Selected Dataset</label>
               </td>
               <td>
-              <select id="id_mode" name="pool" class="form-control" >
-                {% for pool in pool_list %} 
-                <option value="{{pool}}">{{pool}}</option>
-                {%endfor%}
-              </select>
-              </td>
-              <td>
-            {{ form.mode.errors }}
+                <input type="text"  name="pool" class="form-control" id="id_pool" placeholder="{{pool}}" value="{{pool}}" readonly > 
               </td>
             </tr>
 	</table>
