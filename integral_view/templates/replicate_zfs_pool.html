@@ -7,15 +7,22 @@ ZFS Pool Replication
 {% if not pool %}
 <p>No ZFS storage pools appear to have been created. </p>
 {%else %}
-  
-<form class="form-horizontal" role="form"name="schedule_replication" action="" method="post">
+<form class="form-horizontal" role="form" name="schedule_replication" action="" method="post">
             <table  class="table " style="width:800px">
+            <tr>
+              <td>
+            <label for="id_replication_status">Replication Status</label>
+              </td>
+              <td> <strong>{{replication_status|title}}  </strong>
+                <input type="text"  name="replication_status" class="form-control" id="id_replication_status" placeholder="Replication Status" value="{{replication_status}}" style="display:none;"> 
+              </td>
+            </tr>
             <tr>
               <td>
             <label for="id_dest_pool">Destination Pool/Dataset Name</label>
               </td>
               <td>
-                <input type="text"  name="dest_pool" class="form-control" id="id_dest_pool" placeholder="Destination Pool Name"> 
+                <input type="text"  name="dest_pool" class="form-control" id="id_dest_pool" placeholder="Destination Pool Name" value="{{dest}}" required> 
               </td>
             </tr>
             <tr>
@@ -23,7 +30,7 @@ ZFS Pool Replication
             <label for="id_dest_pool">Destination IP</label>
               </td>
               <td>
-                <input type="text"  name="ip" class="form-control" id="id_dest_ip" placeholder="Destination IP"> 
+                <input type="text"  name="ip" class="form-control" id="id_dest_ip" placeholder="Destination IP" value="{{ip}}" required> 
               </td>
             </tr>
             <tr>
@@ -34,8 +41,14 @@ ZFS Pool Replication
                 <input type="text"  name="pool" class="form-control" id="id_pool" placeholder="{{pool}}" value="{{pool}}" readonly > 
               </td>
             </tr>
+                <input type="text"  name="action" class="form-control" id="id_action" readonly style="display:none;"> 
 	</table>
-	<button type="submit" class="btn btn-primary">Start Replication</button>
+        {% if "disabled" in replication_status %}
+   	   <button type="submit" class="btn btn-primary" id="start">Start Replication</button>
+        {% else %}
+   	   <button type="submit" class="btn btn-info" id="update">Update Replication</button>
+   	   <button type="submit" class="btn btn-danger" id="stop">Stop Replication</button>
+	{% endif %}
 </form>
 
 {% endif %}
@@ -50,6 +63,9 @@ View all ZFS pools
 {% block tab_active %}
   <script>
    make_tab_active("view_zfs_pools_tab")
+   $(".btn").click(function(){
+	  $("#id_action").val(this.id)
+	})
   </script>
 {% endblock %}
 

@@ -104,6 +104,24 @@ def upload_ssh_key(request):
   elif request.method == 'GET':
     return django.shortcuts.render_to_response("add_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+def upload_host_key(request):
+  return_dict = {}
+  hosts_file = "/root/.ssh/known_hosts"
+  if request.method == 'POST':
+    authorized_key = request.FILES.get('pub_key')
+    ip = request.POST.get('ip')
+    with open(hosts_file, 'wb+') as destination:
+        for chunk in authorized_key.chunks():
+            destination.write(chunk)
+    #perm,err = ssh.ssh_dir_permissions()
+    with open(hosts_file,'r') as key:
+      data = key.read()
+    with open(hosts_file,'wb+') as key:
+      key.write(ip+" "+data)
+    return django.shortcuts.render_to_response("add_host_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
+  elif request.method == 'GET':
+    return django.shortcuts.render_to_response("add_host_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 def edit_ssh_key(request):
   pass
 
@@ -113,13 +131,15 @@ def list_ssh_keys(request):
 def delete_ssh_keys(request):
   pass
 
-def get_my_ssh_key(request):
+def get_my_keys(request):
   return_dict = {}
   key = ssh.get_ssh_key() 
   if key:
     ssh.generate_ssh_key()
-  key = ssh.get_ssh_key()
-  return_dict['key'] = key
+  ssh_key = ssh.get_ssh_key()
+  return_dict['ssh_key'] = ssh_key
+  host_key = ssh.get_host_identity_key()
+  return_dict['host_key'] = host_key
   return django.shortcuts.render_to_response("show_my_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def regenerate_ssh_key(request):

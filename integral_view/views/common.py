@@ -879,13 +879,13 @@ def view_task_details(request,task_id):
   try:
     task_name,err = scheduler_utils.get_background_job(db_path,int(task_id))
     details,err = scheduler_utils.get_task_details(db_path,int(task_id))
+    status = ""
     if details[0]['retries'] == -2:
-      status = ""
       # This code always updates the 0th element of the command list. This is assuming that we will only have one long running command.
       if os.path.isfile("/tmp/%d.log"%int(task_id)):
         with open('/tmp/%d.log'%int(task_id)) as output:
           status = status + ''.join(output.readlines())
-      details[0]['output'] = status
+    details[0]['output'] = status
     return_dict["task_name"] = task_name[0]["task_name"]
     return_dict["tasks"] = details
     return django.shortcuts.render_to_response("view_task_details.html", return_dict, context_instance=django.template.context.RequestContext(request))

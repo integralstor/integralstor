@@ -3,7 +3,7 @@ import django, django.template
 import integralstor_common
 import integralstor_unicell
 from integralstor_common import zfs, audit, ramdisk,file_processing, common, command,db
-from integralstor_common import scheduler_utils, manifest_status
+from integralstor_common import scheduler_utils, manifest_status,ssh
 from integralstor_common import cifs as common_cifs
 from integralstor_unicell import nfs,local_users, iscsi_stgt, system_info
 

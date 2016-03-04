@@ -5,6 +5,7 @@ Download Public Key <br /><br /><br />
 {% endblock  %}
 {% block inside_content %}
 
-<a href="/static/{{key}}" class="btn btn-success">Download Public Key</a>
+<a href="/static/{{ssh_key}}" class="btn btn-success">Download Public Key to upload in secondary server</a>
+<a href="/static/{{host_key}}" class="btn btn-success">Download Host key to upload in primary server </a>
 
 {% endblock %}

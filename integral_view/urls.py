@@ -20,7 +20,7 @@ from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, vi
 
 from integral_view.views.networking_management import view_interfaces, view_nic, view_bond, set_interface_state, edit_interface_address, create_bond, remove_bond, view_hostname, edit_hostname, view_dns_nameservers, edit_dns_nameservers,view_route, create_route,edit_route,delete_route, remove_vlan, create_vlan
 
-from integral_view.views.services_management import view_services, change_service_status, start_ftp_service,reboot,get_my_ssh_key,upload_ssh_key
+from integral_view.views.services_management import view_services, change_service_status, start_ftp_service,reboot,get_my_keys,upload_ssh_key,upload_host_key
 
 from integral_view.views.stgt_iscsi_management import view_targets, view_target, create_iscsi_target, delete_iscsi_target, add_iscsi_user_authentication, remove_iscsi_user_authentication, create_iscsi_lun, delete_iscsi_lun, add_iscsi_acl, remove_iscsi_acl
 
