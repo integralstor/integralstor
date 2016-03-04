@@ -162,8 +162,9 @@ urlpatterns = patterns('',
     url(r'^delete_route', login_required(delete_route)),
     url(r'^start_ftp_service', login_required(start_ftp_service)),
     url(r'^reboot',login_required(reboot)), 
-    url(r'^show_my_ssh_key',login_required(get_my_ssh_key)),
+    url(r'^show_my_ssh_key',login_required(get_my_keys)),
     url(r'^upload_ssh_key',login_required(upload_ssh_key)),
-    url(r'^reboot',login_required(reboot))  
+    url(r'^upload_host_key',login_required(upload_host_key)),
+
 )
 
