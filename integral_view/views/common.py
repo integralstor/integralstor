@@ -883,8 +883,20 @@ def view_task_details(request,task_id):
     if details[0]['retries'] == -2:
       # This code always updates the 0th element of the command list. This is assuming that we will only have one long running command.
       if os.path.isfile("/tmp/%d.log"%int(task_id)):
-        with open('/tmp/%d.log'%int(task_id)) as output:
-          status = status + ''.join(output.readlines())
+        lines,err = command.get_command_output("wc -l /tmp/%d.log"%int(task_id))
+        no_of_lines = lines[0].split()[0]
+        print no_of_lines
+        if int(no_of_lines) <= 41:
+          # This code always updates the 0th element of the command list. This is assuming that we will only have one long running command.
+          with open('/tmp/%d.log'%int(task_id)) as output:
+            status = status + ''.join(output.readlines())
+        else:
+          first,err = command.get_command_output("head -n 5 /tmp/%d.log"%int(task_id))
+          last,err = command.get_command_output("tail -n 20 /tmp/%d.log"%int(task_id))
+          status = status + '\n'.join(first)
+          status = status + "\n.... \n ....\n"
+          status = status + '\n'.join(last)
+        
     details[0]['output'] = status
     return_dict["task_name"] = task_name[0]["task_name"]
     return_dict["tasks"] = details

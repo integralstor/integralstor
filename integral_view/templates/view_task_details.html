@@ -11,11 +11,11 @@
   <div class="box-header with-border">
     <h4 class="box-title">
       <a class="" aria-expanded="true" data-toggle="collapse" data-parent="#accordion" href="#pool_{{forloop.counter}}">
-        {{task.command}}
+        {{task.name}}
       </a> 
     </h4>
   </div>
-  <div style="" aria-expanded="true" id="pool_{{forloop.counter}}" class="panel-collapse collapse">
+  <div style="" aria-expanded="true" id="pool_{{forloop.counter}}" class="panel-collapse collapse in">
     <div class="box-body">
       <table>
       <tbody>
@@ -25,19 +25,27 @@
         </tr>
         <tr>
           <td colspan=1> Status </td>
-          <td> {{task.status}} </td>
-        </tr>
-        <tr>
-          <td colspan=1> Output </td>
-          <td> {{task.output}} </td>
-        </tr>
-        <tr>
-          <td colspan=1> Error </td>
-          <td> {{task.errors}} </td>
+		{% if task.output != "None" %}
+	          <td> {{task.status}} </td>
+		{% else %}
+		  <td> Not Started </td>
+		{% endif %}
         </tr>
         <tr>
           <td colspan=1> Retries </td>
           <td> {{task.retries}} </td>
+        </tr>
+        <tr>
+          <td colspan=1> Output </td>
+          <td> 
+		{% if task.output != "None" %}
+			{{task.output|linebreaksbr}} 
+			<br />
+		{% endif %}
+		{% if task.errors != "None" %}
+          		{{task.errors|linebreaksbr}} 
+		{% endif %}
+	  </td>
         </tr>
       </tbody>
       </table>

@@ -86,8 +86,19 @@ No information for the specified dataset.
   </div>
   <br>
   <hr>
-  <br>
   {%endif%}
+
+  <h4> Replication Status </h4>
+  Status : {{replication_status|title}}
+  <br>
+ 
+        {% if "disabled" in replication_status %}
+	  <a href="/replicate_zfs_pool?pool_name={{name}}" role="button" class="btn btn-info btn-sm">Enable Replication on this dataset</a>
+        {% else %}
+	  <a href="/replicate_zfs_pool?pool_name={{name}}" role="button" class="btn btn-info btn-sm">Modify/Disable Replicate on this dataset</a>
+	{% endif %}
+  <br>
+  <br>
 
 <div class="btn-group btn-group-sm" role="group" aria-label="...">
   <a href="/view_zfs_pool?name={{pool}}" role="button" class="btn btn-default">Back to pool details</a>

@@ -170,26 +170,43 @@ def replicate_zfs_pool(request):
   if request.method == "GET":
     pool = request.GET.get('pool_name')
     #pool_list, err = zfs.get_all_datasets_and_pools()
+    cmd = "select * from pool_repl where pool='%s'"%str(pool)
+    db_path,err = common.get_db_path()
+    status,err = db.read_single_row(db_path,cmd)
+    if not err:
+      if not status:
+        return_dict["replication_status"] = "disabled"
+      else:
+        return_dict["replication_status"] = "enabled"
+        return_dict["ip"] = status["ip"]
+        return_dict["dest"] = status["dest"]
     return_dict['pool'] = pool
     return django.shortcuts.render_to_response('replicate_zfs_pool.html',return_dict,context_instance=django.template.context.RequestContext(request))
   elif request.method == "POST":
     try:
       pool = request.POST.get('pool')
       host_ip = request.POST.get('ip')
-      username = "root"
       dest_pool = request.POST.get('dest_pool')
-      if pool and host_ip and username and dest_pool:
-        print pool,host_ip,username,dest_pool
+      username = "root"
+      replication_status = request.POST.get('replication_status')
+      action = request.POST.get('action')
+      if (not host_ip) and (not dest_pool):
+        raise Exception("Data Incomplete.")
+      if action == "update":
+        cmd = "update pool_repl set pool='%s',ip='%s',user='%s',dest='%s' where pool='%s'"%(pool,host_ip,username,dest_pool,pool)
+        db_path,err = common.get_db_path()
+        status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
+      elif action == "start": 
         cmd = "insert into pool_repl (pool,ip,user,dest) values ('%s','%s','%s','%s')"%(pool,host_ip,username,dest_pool)
         db_path,err = common.get_db_path()
         status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
-        print status,err
-        if not err:
-          return django.http.HttpResponseRedirect('/view_zfs_pools?action=replication_success')
-        else:
-          return django.http.HttpResponseRedirect('/view_zfs_pools?action=replication_error')
+      elif action == "stop":
+        cmd = "delete from pool_repl where pool='%s'"%pool
+        db_path,err = common.get_db_path()
+        status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
       else:
-        return HttpResponse("Data incomplete. Please fill back again")
+        raise Exception("Malformed request. Please use the menus")
+      return django.http.HttpResponseRedirect('replicate_zfs_pool/?pool_name='+pool)
     except Exception as e:
       return_dict['base_template'] = "storage_base.html"
       return_dict["page_title"] = 'Setting ZFS quota'
@@ -854,6 +871,14 @@ def view_zfs_dataset(request):
     return_dict['exposed_properties'] = ['compression', 'compressratio', 'dedup',  'type', 'usedbychildren', 'usedbydataset', 'creation']
     if 'result' in request.GET:
       return_dict['result'] = request.GET['result']
+    cmd = "select * from pool_repl where pool='%s'"%str(dataset_name)
+    db_path,err = common.get_db_path()
+    status,err = db.read_single_row(db_path,cmd)
+    if not err:
+      if not status:
+        return_dict["replication_status"] = "disabled"
+      else:
+        return_dict["replication_status"] = "enabled"
 
     template = "view_zfs_dataset.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
