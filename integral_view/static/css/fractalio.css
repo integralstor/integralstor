@@ -6,7 +6,7 @@
 /*  width: 98%;*/
   width: ;
   background: #ffffff;
-  font-size:small;
+  font-size:x-small;
 /*  font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;*/
   font-family: Avant Garde, Arial, Sans-Serif;
 /*  font-family: Avant Garde, Arial, Sans-Serif;font-size: 0.8rem; font-weight: 200; line-height: 1.0;*/
@@ -26,7 +26,7 @@
   float:left;
   width:210px;
   background: #fffffff;
-  font-size:small;
+  font-size:x-small;
 /*  font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;*/
   font-family: Avant Garde, Arial, Sans-Serif;
 /*  font:family: Tahoma, Arial, "Trebuchet MS", Helvetica, sans-serif;*/
@@ -48,7 +48,7 @@ background: lightgray;
   margin: auto;
   background: #ffffff;
   width:100%;
-  font-size:small;
+  font-size:x-small;
 /*  font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;*/
   font-family: Avant Garde, Arial, Sans-Serif;
 /*  font:family: Tahoma, Arial, "Trebuchet MS", Helvetica, sans-serif;*/
@@ -63,6 +63,10 @@ border: 0px solid blue;
   border-top-left-radius: 4px;*/
 
 }
+
+body {
+  font-size:small;
+}
 #footer {
 
   margin: auto;
@@ -71,7 +75,7 @@ border: 0px solid blue;
   clear:both;
 /*  float: left;*/
   background: #ffffff;
-  font-size:small;
+  font-size:x-small;
 /*  font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;*/
   font-family: Avant Garde, Arial, Sans-Serif;
 /*  font:family: Tahoma, Arial, "Trebuchet MS", Helvetica, sans-serif;*/
@@ -82,7 +86,7 @@ border: 0px solid blue;
 }
 .commandOutput {
   background: #ffffff;
-  font-size:small;
+  font-size:x-small;
   font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;
 /*  font:family: Tahoma, Arial, "Trebuchet MS", Helvetica, sans-serif;*/
   text-align: left;
@@ -169,7 +173,7 @@ table#header_table {
 
 td {
   padding: 5px;
-  font-size:small;
+  font-size:x-small;
 /*  font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;*/
   font-family: Avant Garde, Arial, Sans-Serif;
 /*  font:family: Tahoma, Arial, "Trebuchet MS", Helvetica, sans-serif;*/
