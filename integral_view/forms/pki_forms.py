@@ -20,3 +20,15 @@ class UploadCertForm(forms.Form):
   name = forms.CharField()
   certificate = forms.CharField(widget=forms.Textarea)
   private_key = forms.CharField(widget=forms.Textarea)
+
+class SetHttpsModeForm(forms.Form):
+  def __init__(self, *args, **kwargs):
+    cert_list = None
+    if kwargs and 'cert_list' in kwargs:
+      cert_list = kwargs.pop('cert_list')
+    super(SetHttpsModeForm, self).__init__(*args, **kwargs)
+    if cert_list:
+      ch = []
+      for cert in cert_list:
+        ch.append((cert['name'], cert['name']))
+      self.fields['cert_name'] = forms.ChoiceField(choices=ch)

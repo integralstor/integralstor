@@ -1,0 +1,60 @@
+{% extends 'services_base.html'%}
+{% block tab_header %}View FTP service configuration{% endblock %}
+
+{% block inside_content %}
+<br><br>
+{% if conf %}
+<div style="margin:0 auto;border-radius: 10px;background: #A1A3A6; width: 50%; position:relative;height: 30px;line-height:30px;text-align:center;">
+<p style="color:white;align:center;"><b>{{conf}}</b></p>
+</div>
+<br>
+{%endif%}
+  {%if not config %}
+    There seems to be a problem in retrieving the FTP service configuration<br><br>
+  {%else%}
+    <table class="table" >
+      <tr>
+        <th>
+          Base dataset for FTP data
+        </th>
+        <td>
+          {{config.dataset}}
+        </td>
+      </tr>
+      <tr>
+        <th>
+          SSL(TLS) enabled?
+        </th>
+        <td>
+          {%if config.ssl_enabled %}
+            Yes
+          {%else%}
+            No
+          {%endif%}
+        </td>
+      </tr>
+      {%if config.ssl_enabled%}
+        <tr>
+          <th>
+            Certificate in use
+          </th>
+          <td>
+            {{config.cert_name}}
+          </td>
+        </tr>
+      {%endif%}
+    </table>
+  {%endif%}
+  <div class="btn-group btn-group-sm" role="group" aria-label="...">
+    <a href="/configure_ftp" role="button" class="btn btn-primary btn-sm">Modify configuration</a>
+    <a href="/create_ftp_user_dirs" role="button" class="btn btn-primary btn-sm  cover-page">Create FTP user directories</a>
+  </div>
+	
+{% endblock %}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("ftp_service_settings")
+  </script>
+{% endblock %}
+

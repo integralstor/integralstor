@@ -55,14 +55,14 @@ Validity
     {{d.certificate.expiry_start}} to <br>{{d.certificate.expiry_end}}
   </td>
   <td  style="word-wrap: break-word">
-    <a href="/delete_certificate?name={{d.name}}" role="button" class="btn btn-info"> Delete..</a>
+    <a href="/delete_certificate?name={{d.name}}" role="button" class="btn btn-info btn-xs"> Delete..</a>
   </td>
 </tr>
 {%endfor%}
 </table>
 <br>
 <div class="btn-group btn-group-sm" role="group" aria-label="...">
-  <a href="/create_self_signed_cert" role="button" class="btn btn-primary"> Create a new self signed certificate</a>
+  <a href="/create_self_signed_cert" role="button" class="btn btn-primary "> Create a new self signed certificate</a>
   <a href="/upload_cert" role="button" class="btn btn-primary"> Upload a new certificate</a>
 </div>
 {%endif%}

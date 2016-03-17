@@ -3,14 +3,13 @@ import django
 import django.template
 from django.contrib import auth
 from django.contrib.sessions.models import Session
-import json, os, shutil, re
+import json, os, shutil, re, subprocess
 
 import integral_view
-from integral_view.forms import admin_forms
+from integral_view.forms import admin_forms, pki_forms
 from integral_view.utils import iv_logging
 
-import integralstor_common
-from integralstor_common import audit, mail, common
+from integralstor_common import audit, mail, common, certificates, services_management, command, nginx
 
 
 def login(request):
@@ -211,79 +210,93 @@ def configure_email_settings(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
 
-
-def _get_nginx_access_mode():
+def view_https_mode(request):
   mode = {}
   try:
-    with open('/etc/nginx/sites-enabled/integral_view_nginx.conf', 'r') as f:
-      lines = f.readlines()
-      for line in lines:
-        #print line
-        ret = re.search('[\s]*[lL]isten[\s]*([0-9]+)', line.lower())
-        if ret:
-          grps = ret.groups()
-          if grps:
-            mode['port'] = int(grps[0])
-        ret = re.search('[\s]*ssl_certificate[\s]+([\S]*)', line)
-        if ret:
-          grps = ret.groups()
-          if grps:
-            mode['certificate'] = grps[0]
-        ret = re.search('[\s]*ssl_certificate_key[\s]*([\S]*)', line)
-        if ret:
-          grps = ret.groups()
-          if grps:
-            mode['key'] = grps[0]
-  except Exception, e:
-    return None, 'Error getting web server access mode : %s'%str(e)
-  else:
-    return mode, None
-
-def _generate_nginx_conf(ssl=False, ssl_cert_file = None, ssl_key_file = None):
-  try:
-    platform_root, err = common.get_platform_root()
+    return_dict = {}
+    mode, err = nginx.get_nginx_access_mode()
     if err:
       raise Exception(err)
-    shutil.copyfile('/etc/nginx/sites-enabled/integral_view_nginx.conf', '/tmp/integral_view_nginx.conf')
-    with open('/etc/nginx/sites-enabled/integral_view_nginx.conf', 'w') as f:
-      f.write('upstream django {\n')
-      f.write(' server unix:////opt/integralstor/integralstor_unicell/integral_view/integral_view.sock;\n')
-      f.write('}\n')
-      f.write('\n')
-      f.write('server {\n')
-      if ssl:
-        f.write('  listen      443 ssl;\n')
-        f.write('  ssl_certificate %s;\n'%ssl_cert_file)
-        f.write('  ssl_certificate_key %s;\n'%ssl_key_file)
-      else:
-        f.write('  listen      80;\n')
-
-      f.write('  charset     utf-8;\n')
-      f.write('  client_max_body_size 75M;\n')
-      f.write('  location /static {\n')
-      f.write('    alias %s/integral_view/static;\n'%platform_root)
-      f.write('  }\n')
-      f.write('\n')
-      f.write('  location / {\n')
-      f.write('    uwsgi_pass  django;\n')
-      f.write('    include     %s/integral_view/uwsgi_params;\n'%platform_root)
-      f.write('  }\n')
-      f.write('}\n')
+  
+    conf = None
+    if "action" in request.GET:
+      if request.GET["action"] == "set_to_secure":
+        conf = "The IntegralView access mode has been successfully set to secure(HTTPS). The server has been scheduled to restart. Please change your browser to access IntegralView using https://<integralview_ip_address>"
+      elif request.GET["action"] == "set_to_nonsecure":
+        conf = "The IntegralView access mode has been successfully set to non-secure(HTTP). The server has been scheduled to restart. Please change your browser to access IntegralView using http://<integralview_ip_address>"
+      if conf:
+        return_dict["conf"] = conf
+    return_dict['port'] = mode['port']
+    return django.shortcuts.render_to_response('view_https_mode.html', return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    if os.path.exists('/tmp/integral_view_nginx.conf'):
-      shutil.copyfile('/tmp/integral_view_nginx.conf', '/etc/nginx/sites-enabled/integral_view_nginx.conf')
-    return False, 'Error generating HTTPS configuration : %s'%str(e)
-  else:
-    return True, None
+    return_dict['base_template'] = "system_base.html"
+    return_dict["page_title"] = 'Integralview access mode'
+    return_dict['tab'] = 'https_tab'
+    return_dict["error"] = 'Error loading IntegralView access mode'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def main():
-  #print _generate_nginx_conf(False)
-  #print _get_nginx_access_mode()
-  #print _generate_nginx_conf(True, '/opt/integralstor/pki/blah/blah.cert', '/opt/integralstor/pki/blah/blah.cert')
-  print _get_nginx_access_mode()
+def edit_https_mode(request):
 
-if __name__ == '__main__':
-  main()
+  return_dict = {}
+  try:
+    if 'change_to' not in request.REQUEST:
+      raise Exception("Invalid request. Please use the menus")
+    change_to = request.REQUEST['change_to']
+    return_dict['change_to'] = change_to
+
+    cert_list, err = certificates.get_certificates()
+    if err:
+      raise Exception(err)
+    if not cert_list:
+      raise Exception('No certificates have been created. Please create a certificate/key pair before you change the access method')
+
+    if request.method == "GET":
+      #Return the conf page
+      if change_to == 'secure':
+        form = pki_forms.SetHttpsModeForm(cert_list = cert_list)
+        return_dict['form'] = form
+        return django.shortcuts.render_to_response("edit_https_mode.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      else:
+        return_dict['conf_message'] = 'Are you sure you want to disable the secure access mode for IntegralView?'
+        return django.shortcuts.render_to_response("set_http_mode_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    else:
+      if change_to == 'secure':
+        form = pki_forms.SetHttpsModeForm(request.POST, cert_list = cert_list)
+        return_dict['form'] = form
+        if not form.is_valid():
+          return django.shortcuts.render_to_response("edit_https_mode.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        cd = form.cleaned_data
+      if change_to == 'secure':
+        pki_dir, err = common.get_pki_dir()
+        if err:
+          raise Exception(err)
+        cert_loc = '%s/%s/%s.cert'%(pki_dir, cd['cert_name'], cd['cert_name'])
+        if not os.path.exists(cert_loc):
+          raise Exception('Error locating certificate')
+        ret, err = nginx.generate_nginx_conf(True, cert_loc, cert_loc)
+        if err:
+          raise Exception(err)
+      else:
+        ret, err = nginx.generate_nginx_conf(False)
+        if err:
+          raise Exception(err)
+      audit_str = "Changed the IntegralView access mode to '%s'"%change_to
+      audit.audit("set_https_mode", audit_str, request.META["REMOTE_ADDR"])
+
+      os.system('echo service nginx restart | at now + 1 minute')
+ 
+      return django.http.HttpResponseRedirect('/view_https_mode?action=set_to_%s'%change_to)
+  except Exception, e:
+    return_dict['base_template'] = "system_base.html"
+    return_dict["page_title"] = 'Set Integralview access mode'
+    return_dict['tab'] = 'https_tab'
+    return_dict["error"] = 'Error setting IntegralView access mode'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+
 '''
 
 def remove_email_settings(request):
