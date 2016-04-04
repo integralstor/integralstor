@@ -1,68 +1,88 @@
 {% extends 'storage_base.html' %}
+
 {%block tab_header %}
-ZFS block device volume details
+  ZFS block device volume details
 {%endblock%}
 
 {%block inside_content %}
-<br><br>
 
-{% if result %}
-<p><i>{{result}}</i></p>
-{%endif%}
+  {% if not properties %}
+    No information for the specified block device volume. 
+  {%else %}
 
-{% if not properties %}
-No information for the specified block device volume. 
-{%else %}
-<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
 
-<h3>Block device volume name - {{name}}</h3>
+      <h5>Block device volume name - {{name}}</h5>
 
-<table  class="table table-bordered">
-<tr>
-<th> Property name </th>
-<th> Property value </th>
-<th> Property information </th>
-</tr>
-{%for pname, p in properties.items %}
-{%if pname in exposed_properties %}
-<tr>
+      <table  class="table table-bordered">
+        <tr>
+          <th> Property name </th>
+          <th> Property value </th>
+          <th> Property information </th>
+        </tr>
+        {%for pname, p in properties.items %}
+          {%if pname in exposed_properties %}
+            <tr>
+              <td> 
+                {%if pname == 'creation'%} 
+                  Created on {%elif pname == 'usedbychildren'%} Space used by children {%elif pname == 'usedbydataset'%} Space used by this dataset 
+                {%else%}
+                  {{pname|title}}
+                {%endif%}
+              </td>
+              <td> {{p.value}}</td>
+              <td> 
+                {%if p.source == 'local' %} 
+                  Explicitly set 
+                {%elif p.source == '-'%} 
+                  Informational only 
+                {%else%}
+                  {{p.source|title}}
+                {%endif%}
+              </td>
+            </tr>
+          {%endif%}
+        {%endfor%}
+        <tr>
+          <td> Block size </td>
+          <td> {{properties.volblocksize.value}}</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td> Thin provisioning</td>
+          <td> 
+            {% if properties.refreservation.value == 'none' %} 
+              Enabled 
+            {%else%} 
+              Disabled 
+            {%endif%}
+          </td>
+          <td>&nbsp;</td>
+        </tr>
+      </table>
 
-<td> {%if pname == 'creation'%} Created on {%elif pname == 'usedbychildren'%} Space used by children {%elif pname == 'usedbydataset'%} Space used by this dataset {%else%}{{pname|title}}{%endif%}</td>
-<td> {{p.value}}</td>
-<td> {%if p.source == 'local' %} Explicitly set {%elif p.source == '-'%} Informational only {%else%}{{p.source|title}}{%endif%}</td>
-</tr>
-{%endif%}
-{%endfor%}
-<tr>
-  <td> Block size </td>
-  <td> {{properties.volblocksize.value}}</td>
-  <td>&nbsp;</td>
-</tr>
-<tr>
-  <td> Thin provisioning</td>
-  <td> {% if properties.refreservation.value == 'none' %} Enabled {%else%} Disabled {%endif%}</td>
-  <td>&nbsp;</td>
-</tr>
-</table>
+      <p>
+      <div class="btn-group btn-group-sm" role="group" aria-label="...">
+        <a href="/view_zfs_pool?name={{pool}}" role="button" class="btn btn-default cover-page">Back to pool details</a>
+        <a href="/delete_zfs_dataset?name={{name}}&type=zvol&pool_name={{pool}}" role="button" class="btn btn-danger btn-sm"> Delete this block device volume</a>
+      </div>
+      </p>
 
-<p>
-<a href="/delete_zfs_dataset?name={{name}}&type=zvol&pool_name={{pool}}" role="button" class="btn btn-danger"> Delete this block device volume</a>
-</p>
-
-</div>
-{%endif%}
+    </div>
+  {%endif%}
 
 {%endblock%}
+
 {%block help_header%}
-View ZFS block device volume details
+  View ZFS block device volume details
 {%endblock%}
+
 {%block help_body%}
   <p> This screen list ZFS block device volume details and allows you to delete this volume.  </p>
 {%endblock%}
 
 {% block tab_active %}
   <script>
-   make_tab_active("view_zfs_pools_tab")
+    make_tab_active("view_zfs_pools_tab")
   </script>
 {% endblock %}
-

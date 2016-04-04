@@ -1,0 +1,64 @@
+{% extends 'key_management_base.html' %}
+
+{%block tab_header %}
+  SSL certificates
+{%endblock%}
+
+{% block inside_content %}
+
+  {% if not cert_list %}
+    No certificates appear to have been created or saved. 
+  {%else %}
+    <table class="table table-bordered table-responsive" >
+      <thead>
+        <tr>
+          <th > Name </th>
+          <th > Issuer's name </th>
+          <th > Distinguished Name </th>
+          <th > Validity </th>
+          <th > &nbsp; </th>
+        </tr>
+      </thead>
+      {%for d in cert_list %}
+        <tr>
+          <td> {{d.name}} </td>
+          <td  style="max-width:200px;word-wrap: break-word">
+            <p style="width:60%;">
+            {{d.certificate.issuer}}
+            </p>
+          </td>
+          <td  style="max-width:200px;word-wrap: break-word">
+            <p style="width:60%;">
+            {{d.certificate.dn}}
+            </p>
+          </td>
+          <td style="max-width:200px;">
+            {{d.certificate.expiry_start}} to <br>{{d.certificate.expiry_end}}
+          </td>
+          <td  style="word-wrap: break-word">
+            <a href="/delete_ssl_certificate?name={{d.name}}" role="button" class="btn btn-info btn-xs"> Delete..</a>
+          </td>
+        </tr>
+      {%endfor%}
+    </table>
+    <br>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/create_self_signed_ssl_certificate" role="button" class="btn btn-primary "> Create a new self signed certificate</a>
+      <a href="/upload_ssl_certificate" role="button" class="btn btn-primary"> Upload a new certificate</a>
+    </div>
+  {%endif%}
+
+{%endblock inside_content%}
+
+{%block help_header%}
+  SSL certificates
+{%endblock%}
+
+{%block help_body%}
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("ssl_certs_tab")
+  </script>
+{% endblock %}

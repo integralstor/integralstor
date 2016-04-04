@@ -1,41 +1,37 @@
 {% extends 'users-groups_base.html' %}
+
 {%block tab_header %}
-Local user group details
+  Local user group details
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
-{{conf}}
+  <table class="table">
+    <tr>
+      <th> Group name: </th>
+      <td> {{ group.grpname }} </td>
+    </tr>
+    <tr>
+      <th> Members : </th>
+      <td>
+        {%for m in  group.members %}
+          {{m}},
+        {%endfor%}
+      </td>
+    </tr>
+  </table>
 
-            <table class="table table-bordered">
-            <tr>
-              <th>
-            Group name:
-              </th>
-              <td>
-            {{ group.grpname }}
-              </td>
-            </tr>
-            <tr>
-              <th>
-            Members :
-              </th>
-              <td>
-                {%for m in  group.members %}
-                {{m}},
-                {%endfor%}
-              </td>
-            </tr>
-            </table>
-
- <a href="/view_local_groups" role="button" class="btn btn-default"> Back to group list</a>
- <a href="/delete_local_group?grpname={{group.grpname}}" role="button" class="btn btn-danger"> Delete this group</a>
+  <div class="btn-group btn-group-sm" role="group" aria-label="...">
+    <a href="/view_local_groups" role="button" class="btn btn-default"> Back to group list</a>
+    <a href="/delete_local_group?grpname={{group.grpname}}" role="button" class="btn btn-danger"> Delete this group</a>
+  </div>
 
 {%endblock%}
+
 {%block help_header%}
-Local group details
+  Local group details
 {%endblock%}
+
 {%block help_body%}
 <p>Use this screen to view details about a particular group that has been created. </p>
 {%endblock%}

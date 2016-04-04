@@ -1,5 +1,4 @@
 from django import forms
-import integralstor_common
 
 class DatasetForm(forms.Form):
 
@@ -22,8 +21,10 @@ class CreateZvolForm(forms.Form):
   thin_provisioned = forms.BooleanField(required=False)
   pool = forms.CharField()
   size = forms.DecimalField(decimal_places=1)
+
   ch = [('8K', '8K'), ('16K', '16K'),('32K', '32K'),('64K', '64K')]
   block_size = forms.ChoiceField(choices=ch)
+
   ch = [('GB', 'G'), ('MB', 'M')]
   unit = forms.ChoiceField(choices=ch)
 
@@ -97,18 +98,18 @@ class ImportPoolForm(forms.Form):
 class CreatePoolForm(forms.Form):
   name = forms.CharField()
   num_disks = forms.IntegerField(widget=forms.HiddenInput, required=False)
+
   ch = [ ('rotational', 'All rotating drives'), ('flash', 'All flash drives') ]
   disk_type = forms.ChoiceField(choices=ch)
   
   def __init__(self, *args, **kwargs):
     pol = None
     if kwargs:
-      pol = kwargs.pop('pool_types')
+      pool_types_list = kwargs.pop('pool_types')
       num_free_disks = kwargs.pop('num_free_disks')
     super(CreatePoolForm, self).__init__(*args, **kwargs)
-    ch = []
-    if pol:
-      for t in pol:
+    if pool_types_list:
+      for t in pool_types_list:
         if t[0] in ['raid5', 'raid6', 'raid10', 'raid50', 'raid60']:
           self.fields['num_raid_disks'] = forms.IntegerField(required=False)
         if t[0] in ['raid10', 'raid50', 'raid60']:
@@ -119,7 +120,7 @@ class CreatePoolForm(forms.Form):
             stripes.append(('%d'%i, '%d'%i))
             i += 1
           self.fields['stripe_width'] = forms.ChoiceField(choices=stripes,required=False)
-      self.fields['pool_type'] = forms.ChoiceField(choices=pol)
+      self.fields['pool_type'] = forms.ChoiceField(choices=pool_types_list)
 
   def clean(self):
     cd = super(CreatePoolForm, self).clean()
@@ -176,6 +177,7 @@ class ViewSnapshotsForm(forms.Form):
     super(ViewSnapshotsForm, self).__init__(*args, **kwargs)
     ch = []
     if dsl:
+      ch.append((None, '--All targets--'))
       for i in dsl:
         tup = (i,i)
         ch.append(tup)

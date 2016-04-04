@@ -1,36 +1,26 @@
 {% extends 'storage_base.html' %}
+
 {%block tab_header %}
-Replacing a hard drive - result
+  Replacing a hard drive - result
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
-<!-- Modal -->
-<div class="modal fade" id="processing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-body" id="myModalBody">
-        <br><br><br>
-        <i class="fa fa-spinner fa-spin fa-4 blue"></i>
-        <br><br><br>
-        <p id="p-node-text">Processing.. Please wait.
-        <br><br><br>
-      </div>
-    </div>
-  </div>
-</div>
-
-
 
   <p > The system has successfully scheduled a task for replacing the disk with serial number {{old_serial_number}} with a new disk with serial number {{new_serial_number}} on {{node}}. This process may take a short while to be initiated and complete.</p><br>
-<a href='/view_background_tasks'> Click here to view the status of the scheduled tasks.</a>
-
-
+  <a href='/view_background_tasks'> Click here to view the status of the scheduled tasks.</a>
 
 {%endblock%}
+
 {%block help_header%}
-Replace a disk - results
+  Replace a disk - results
 {%endblock%}
+
 {%block help_body%}
-<p>A background process to replace the old disk has been successfully initiated. The internal RAID process (if applicable) will repopulate the appropriate data onto the new disk.</p>
+  <p>A background process to replace the old disk has been successfully initiated. The internal RAID process (if applicable) will repopulate the appropriate data onto the new disk.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}

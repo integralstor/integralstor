@@ -1,50 +1,52 @@
 {% extends 'logging_base.html' %}
+
 {%block tab_header %}
-Download system logs
+  Download system logs
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
-<p id="p-instruction-text"> The requested log will be fetched as a zip file which you can save on your computer.</p>
-<form name="myform"  method="post">
-<div  style=" position:relative;border:0px solid #DDDDDD;width:500px; padding:15px 15px 15px;margin:0px 15px;border-radius:4px 4px 0px 0px">
-  <div class="form-group" >
-    <label for="id_hostname" >Hostname :</label>
-    <select name="hostname" class="form-control">
-    {% for choice in form.hostname.field.choices %} 
-      <option value="{{choice.0}}">{{choice.1}}</option>
-    {%endfor%}
-    </select>
-    {{ form.hostname.errors }}
-  </div>
-  <div class="form-group" >
-    <label for="id_sys_log_type" >System log type :</label>
-    <select name="sys_log_type" class="form-control">
-    {% for choice in form.sys_log_type.field.choices %} 
-      <option value="{{choice.0}}">{{choice.1}}</option>
-    {%endfor%}
-    </select>
-    {{ form.sys_log_type.errors }}
-  </div>
-  <button type="submit" id="download_logs"  class="btn btn-primary cover-page">Download</button>
-</div>
-</form>
-<script>
-  $("#download_logs").on('click',function(){
-    $(this).text("Processing");
-    setInterval(function(){
-      $("#download_logs").text("Download");
-      $('.lightbox').hide();
-    },10000);
-  });
-</script>
+  <form name="myform"  method="post">
+    {{form.hostname}}
+    <table class="table" >
+      <tr>
+        <th> System log type : </th>
+        <td >
+          <select name="sys_log_type" class="form-control">
+            {% for choice in form.sys_log_type.field.choices %} 
+              <option value="{{choice.0}}">{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td>  
+          {{ form.sys_log_type.errors }}
+        </td>
+      </tr>
+    </table>
+    <button type="submit" id="download_logs"  class="btn btn-success cover-page btn-sm">Download</button>
+  </form>
+  <br><br>
+  <p id="p-instruction-text"> The requested log will be fetched as a zip file which you can open or save on your computer.</p>
+
+
+  <script>
+    $("#download_logs").on('click',function(){
+      $(this).text("Processing");
+      setInterval(function(){
+        $("#download_logs").text("Download");
+        $('.lightbox').hide();
+      },10000);
+    });
+  </script>
+
 {%endblock%}
+
 {%block help_header%}
-Download system logs
+  Download system logs
 {%endblock%}
+
 {%block help_body%}
-<p>System logs help in tracking down potential issues in each GRIDCell. These logs are specific to the GRIDCell so you need to select the particular GRIDCell and log type before downloading it. The logs will be downloaded onto your system in the form of a compressed ZIP file.</p>
+<p>System logs help in tracking down potential issues in the system. Please specify the log type before downloading it. The logs will be downloaded onto your system in the form of a compressed ZIP file.</p>
 {%endblock%}
 
 {% block tab_active %}

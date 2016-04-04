@@ -22,22 +22,21 @@ def view_interfaces(request):
     if err:
       raise Exception(err)
   
-    if "action" in request.GET:
-      if request.GET["action"] == "saved":
-        conf = "Network interface information successfully updated"
-      if request.GET["action"] == "removed_bond":
-        conf = "Network bond successfully removed"
-      if request.GET["action"] == "removed_vlan":
-        conf = "VLAN successfully removed"
-      if request.GET["action"] == "created_vlan":
-        conf = "VLAN successfully created"
-      if request.GET["action"] == "state_down":
-        conf = "Network interface successfully disabled. The state change may take a couple of seconds to reflect on this page so please refresh it to check the updated status."
-      if request.GET["action"] == "state_up":
-        conf = "Network interface successfully enabled. The state change may take a couple of seconds to reflect on this page so please refresh it to check the updated status."
-      if request.GET["action"] == "created_bond":
-        conf = "Network bond successfully created. Please edit the address information for the bond in order to use it."
-      return_dict["conf"] = conf
+    if "ack" in request.GET:
+      if request.GET["ack"] == "saved":
+        return_dict['ack_message'] = "Network interface information successfully updated"
+      if request.GET["ack"] == "removed_bond":
+        return_dict['ack_message'] = "Network bond successfully removed"
+      if request.GET["ack"] == "removed_vlan":
+        return_dict['ack_message'] = "VLAN successfully removed"
+      if request.GET["ack"] == "created_vlan":
+        return_dict['ack_message'] = "VLAN successfully created"
+      if request.GET["ack"] == "state_down":
+        return_dict['ack_message'] = "Network interface successfully disabled. The state change may take a couple of seconds to reflect on this page so please refresh it to check the updated status."
+      if request.GET["ack"] == "state_up":
+        return_dict['ack_message'] = "Network interface successfully enabled. The state change may take a couple of seconds to reflect on this page so please refresh it to check the updated status."
+      if request.GET["ack"] == "created_bond":
+        return_dict['ack_message'] = "Network bond successfully created. Please edit the address information for the bond in order to use it."
     return_dict["nics"] = nics
     return_dict["bonds"] = bonds
     template = "view_interfaces.html"
@@ -119,7 +118,7 @@ def set_interface_state(request):
  
       audit_str = "Set the state of network interface %s to %s"%(name, state)
       audit.audit("set_interface_state", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_interfaces?action=state_%s'%state)
+      return django.http.HttpResponseRedirect('/view_interfaces?ack=state_%s'%state)
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
     return_dict["page_title"] = 'Set interface state'
@@ -276,7 +275,7 @@ def create_vlan(request):
  
       audit_str = "Created a network VLAN with id  %d on the base interface %s"%(cd['vlan_id'], cd['base_interface'])
       audit.audit("create_vlan", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_interfaces?action=created_vlan')
+      return django.http.HttpResponseRedirect('/view_interfaces?ack=created_vlan')
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
     return_dict["page_title"] = 'Create a network VLAN'
@@ -311,7 +310,7 @@ def remove_vlan(request):
  
       audit_str = "Removed VLAN %s"%(name)
       audit.audit("remove_vlan", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_interfaces?action=removed_vlan')
+      return django.http.HttpResponseRedirect('/view_interfaces?ack=removed_vlan')
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
     return_dict["page_title"] = 'Remove a VLAN'
@@ -366,7 +365,7 @@ def create_bond(request):
  
       audit_str = "Created a network bond named %s with slaves %s"%(cd['name'], ','.join(cd['slaves']))
       audit.audit("create_bond", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_interfaces?action=created_bond')
+      return django.http.HttpResponseRedirect('/view_interfaces?ack=created_bond')
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
     return_dict["page_title"] = 'Create a network interface bond'
@@ -398,7 +397,7 @@ def remove_bond(request):
  
       audit_str = "Removed network bond %s"%(name)
       audit.audit("remove_bond", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_interfaces?action=removed_bond')
+      return django.http.HttpResponseRedirect('/view_interfaces?ack=removed_bond')
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
     return_dict["page_title"] = 'Remove a network interface bond'
@@ -419,10 +418,9 @@ def view_hostname(request):
       raise Exception(err)
   
     if not "error" in return_dict:
-      if "action" in request.GET:
-        if request.GET["action"] == "saved":
-          conf = "Hostname information successfully updated"
-        return_dict["conf"] = conf
+      if "ack" in request.GET:
+        if request.GET["ack"] == "saved":
+          return_dict['ack_message'] = "Hostname information successfully updated"
       return_dict['domain_name'] = domain_name
       return_dict['hostname'] = hostname
       template = "view_hostname.html"
@@ -518,10 +516,9 @@ def view_dns_nameservers(request):
     if err:
       raise Exception(err)
   
-    if "action" in request.GET:
-      if request.GET["action"] == "saved":
-        conf = "Name servers successfully updated"
-      return_dict["conf"] = conf
+    if "ack" in request.GET:
+      if request.GET["ack"] == "saved":
+        return_dict['ack_message'] = "Name servers successfully updated"
     return_dict['name_servers'] = ns_list
     template = "view_dns_nameservers.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
@@ -565,7 +562,7 @@ def edit_dns_nameservers(request):
             raise Exception('Error updating nameservers')
         audit_str = "Updated the DNS nameserver list to %s"%nameservers
         audit.audit("set_dns_nameservers", audit_str, request.META["REMOTE_ADDR"])
-        return django.http.HttpResponseRedirect('/view_dns_nameservers?action=saved')
+        return django.http.HttpResponseRedirect('/view_dns_nameservers?ack=saved')
       else:
         #invalid form
         url = "edit_dns_nameservers.html"

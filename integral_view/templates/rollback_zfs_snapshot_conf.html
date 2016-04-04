@@ -1,28 +1,31 @@
 {% extends 'storage_base.html' %}
+
 {%block tab_header %}
-Rollback a ZFS pool/dataset snapshot - confirmation
+  Rollback a ZFS pool/dataset snapshot - confirmation
 {%endblock%}
 
 {%block inside_content %}
-<br><br>
 
+  <p id="p-warning-text">Rolling back to a snapshot will result in your current data being compromised. Are you sure you want to rollback to the ZFS snapshot with name  "{{display_name}}"? </p>
+  <br>
+  <form action="/rollback_zfs_snapshot/" method="POST">
+    <input type=hidden name="name" value="{{name}}">
+    <input type=hidden name="display_name" value="{{display_name}}">
 
-<p id="p-warning-text">Rolling back to a snapshot will result in your current data being compromised. Are you sure you want to rollback to the ZFS snapshot with name  "{{display_name}}"? </p>
-<br>
-<form action="/rollback_zfs_snapshot/" method="POST">
-<input type=hidden name="name" value="{{name}}">
-<input type=hidden name="display_name" value="{{display_name}}">
-<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_snapshots'"> &nbsp;&nbsp;
-<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and rollback</button>
-</form>
-
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_snapshots'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and rollback</button>
+    </div>
+  </form>
 
 {%endblock%}
+
 {%block help_header%}
-Rolling back to a ZFS snapshot
+  Rolling back to a ZFS snapshot
 {%endblock%}
+
 {%block help_body%}
-<p>Confirming this operation results in the specified ZFS dataset/pool being rolled back to the specified snapshot. This will result in the loss of all the data changes made after the snapshot was taken. Please ensure that this is actually intended before continuing.</p>
+  <p>Confirming this operation results in the specified ZFS dataset/pool being rolled back to the specified snapshot. This will result in the loss of all the data changes made after the snapshot was taken. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}
 
 {% block tab_active %}

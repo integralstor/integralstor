@@ -21,14 +21,13 @@ def view_cifs_shares(request):
       raise Exception(err)
   
     if not "error" in return_dict:
-      if "action" in request.GET:
-        if request.GET["action"] == "saved":
-          conf = "Share information successfully updated"
-        elif request.GET["action"] == "created":
-          conf = "Share successfully created"
-        elif request.GET["action"] == "deleted":
-          conf = "Share successfully deleted"
-        return_dict["conf"] = conf
+      if "ack" in request.GET:
+        if request.GET["ack"] == "saved":
+          return_dict['ack_message'] = "Share information successfully updated"
+        elif request.GET["ack"] == "created":
+          return_dict['ack_message'] = "Share successfully created"
+        elif request.GET["ack"] == "deleted":
+          return_dict['ack_message'] = "Share successfully deleted"
       return_dict["shares_list"] = shares_list
       template = "view_cifs_shares.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
@@ -57,8 +56,8 @@ def view_cifs_share(request):
     access_mode = request.GET["access_mode"]
     index = request.GET["index"]
   
-    if "action" in request.GET and request.GET["action"] == "saved":
-      return_dict["conf_message"] = "Information updated successfully"
+    if "ack" in request.GET and request.GET["ack"] == "saved":
+      return_dict["ack_message"] = "Information updated successfully"
   
     valid_users_list = None
     share, err = cifs_common.load_share_info(access_mode, index)
@@ -192,7 +191,7 @@ def edit_cifs_share(request):
         audit_str = "Modified share %s"%cd["name"]
         audit.audit("modify_cifs_share", audit_str, request.META["REMOTE_ADDR"])
   
-        return django.http.HttpResponseRedirect('/view_cifs_share?access_mode=by_id&index=%s&action=saved'%cd["share_id"])
+        return django.http.HttpResponseRedirect('/view_cifs_share?access_mode=by_id&index=%s&ack=saved'%cd["share_id"])
   
       else:
         #Invalid form
@@ -231,7 +230,7 @@ def delete_cifs_share(request):
   
       audit_str = "Deleted CIFS share %s"%name
       audit.audit("delete_cifs_share", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_cifs_shares?action=deleted')
+      return django.http.HttpResponseRedirect('/view_cifs_shares?ack=deleted')
   except Exception, e:
     return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'Delete a CIFS share'
@@ -324,7 +323,7 @@ def create_cifs_share(request):
   
         audit_str = "Created Samba share %s"%name
         audit.audit("create_cifs_share", audit_str, request.META["REMOTE_ADDR"])
-        return django.http.HttpResponseRedirect('/view_cifs_shares?action=created')
+        return django.http.HttpResponseRedirect('/view_cifs_shares?ack=created')
       else:
         return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
@@ -365,8 +364,8 @@ def samba_server_settings(request):
     return_dict["samba_global_dict"] = d
     #print 'a2'
   
-    if "action" in request.REQUEST and request.REQUEST["action"] == "saved":
-      return_dict["conf"] = "Information updated successfully"
+    if "ack" in request.REQUEST and request.REQUEST["ack"] == "saved":
+      return_dict["ack_message"] = "Information updated successfully"
     return django.shortcuts.render_to_response('view_samba_server_settings.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "services_base.html"
@@ -404,7 +403,7 @@ def edit_auth_method(request):
       if err:
         raise Exception(err)
   
-    return django.http.HttpResponseRedirect('/auth_server_settings?action=edit')
+    return django.http.HttpResponseRedirect('/auth_server_settings?ack=edit')
   except Exception, e:
     return_dict['base_template'] = "services_base.html"
     return_dict["page_title"] = 'Modify CIFS authentication method'
@@ -433,7 +432,7 @@ def save_samba_server_settings(request):
       raise Exception("Invalid security specification. Please try again using the menus")
   
     return_dict["form"] = form
-    return_dict["action"] = "edit"
+    return_dict["ack"] = "edit"
   
     if form.is_valid():
       cd = form.cleaned_data
@@ -471,9 +470,9 @@ def save_samba_server_settings(request):
     audit_str = "Modified share authentication settings"
     audit.audit("modify_samba_settings", audit_str, request.META["REMOTE_ADDR"])
     return_dict["form"] = form
-    return_dict["conf_message"] = "Information successfully updated"
+    return_dict["ack_message"] = "Information successfully updated"
     #print '8'
-    return django.http.HttpResponseRedirect('/auth_server_settings?action=saved')
+    return django.http.HttpResponseRedirect('/auth_server_settings?ack=saved')
     #return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "services_base.html"

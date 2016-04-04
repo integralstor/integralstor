@@ -1,18 +1,19 @@
 {% extends base_template %}
+
 {%block tab_header %}
-{{page_title}}
+  {{page_title}}
 {%endblock%}
 
 {%block inside_content %}
-
-<br>
-<hr>
-<span id="error-heading"> {{error}}<span><br><br>
-Error Details : {{error_details}}
-<br><br>
-<hr>
+  <br>
+  <hr>
+  <span id="error-heading"> {{error}}<span><br><br>
+  Error Details : {{error_details}}
+  <br><br>
+  <hr>
 
 {%endblock%}
+
 {% block tab_active %}
   <script>
     make_tab_active("{{tab}}")

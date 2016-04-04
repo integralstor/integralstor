@@ -1,101 +1,71 @@
 {% extends 'system_base.html' %}
+
 {%block tab_header %}
-Reload system configuration - Results and confirmation
+  Reload system configuration - Results and confirmation
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
-The scanned hardware configuration is displayed below. Would you like to accept this configuration?<br><br>
-<form action="." method="POST">
-  <input type="text" value="yes" class="form-control" name="action" style="display:none">
-  <button class="btn btn-primary cover-page">Yes</button>
-  <a class="btn btn-default" href="/show/node_info/">No</a>
-</form><br>
-<table class="table table-bordered table-striped table-hover" style="width:60%">
+  The scanned hardware configuration is displayed below. Would you like to accept this configuration?<br><br>
+  <form action="." method="POST">
+    <input type="text" value="yes" class="form-control" name="action" style="display:none">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <button class="btn btn-primary cover-page">Yes</button>
+      <a class="btn btn-default" href="/view_system_info/">No</a>
+    </div>
+  </form>
+  <br>
 
-  <th>
-    CPU
-  </th>
-  <td>
-    {{mi.cpu_model}}
-  </td>
-</tr>
-<tr>
-  <th>
-    Memory
-  </th>
-  <td>
-    {{ mi.memory.mem_total.value}} {{mi.memory.mem_total.unit}}
-  </td>
-</tr>
-<tr>
-  <th>
-    Hostname
-  </th>
-  <td>
-    {{ mi.fqdn}}
-  </td>
-</tr>
-</table>
+  <table class="table table-bordered table-striped table-hover" style="width:60%">
+    <tr>
+      <th> CPU </th>
+      <td> {{mi.cpu_model}} </td>
+    </tr>
+    <tr>
+      <th> Memory </th>
+      <td>
+        {{ mi.memory.mem_total.value}} {{mi.memory.mem_total.unit}}
+      </td>
+    </tr>
+    <tr>
+      <th> Hostname </th>
+      <td> {{ mi.fqdn}} </td>
+    </tr>
+  </table>
 
-<table class="table table-bordered table-striped table-hover" style="width:60%">
-<tr>
-  <th colspan=3>
-    Disks
-  </th>
-</tr>
-<tr>
-  <th >
-    Name
-  </th>
-  <th >
-    Serial number
-  </th>
-  <th >
-    Capacity
-  </th>
-</tr>
-{% for serial_number, d in  mi.disks.items%}
-<tr>
-  <td>
-  {{d.name}}
-  </td>
-  <td>
-  {{serial_number}}
-  </td>
-  <td>
-  {{d.capacity}}
-  </td>
-</tr>
-{%endfor%}
-</table>
+  <table class="table table-bordered table-striped table-hover" style="width:60%">
+    <tr>
+      <th colspan=3> Disks </th>
+    </tr>
+    <tr>
+      <th > Name </th>
+      <th > Serial number </th>
+      <th > Capacity </th>
+    </tr>
+    {% for serial_number, d in  mi.disks.items%}
+      <tr>
+        <td> {{d.name}} </td>
+        <td> {{serial_number}} </td>
+        <td> {{d.capacity}} </td>
+      </tr>
+    {%endfor%}
+  </table>
 
-<table class="table table-bordered table-striped table-hover" style="width:60%">
-<tr>
-  <th colspan=3>
-    Network interfaces
-  </th>
-</tr>
-<tr>
-  <th >
-    Name
-  </th>
-  <th >
-    MAC Address
-  </th>
-</tr>
-{% for if_name, inter in  mi.interfaces.items%}
-<tr>
-  <td>
-  {{if_name}}
-  </td>
-  <td>
-  {{inter.hwaddr}}
-  </td>
-</tr>
-{%endfor%}
-</table>
+  <table class="table table-bordered table-striped table-hover" style="width:60%">
+    <tr>
+      <th colspan=2> Network interfaces </th>
+    </tr>
+    <tr>
+      <th > Name </th>
+      <th > MAC Address </th>
+    </tr>
+    {% for if_name, inter in  mi.interfaces.items%}
+      <tr>
+        <td> {{if_name}} </td>
+        <td> {{inter.hwaddr}} </td>
+      </tr>
+    {%endfor%}
+  </table>
 
 {% endblock %}
 
@@ -104,6 +74,3 @@ The scanned hardware configuration is displayed below. Would you like to accept 
     make_tab_active("node_info_tab")
   </script>
 {% endblock %}
-
-
-

@@ -1,147 +1,119 @@
 {% extends 'networking_base.html' %}
+
 {%block tab_header %}
-NICs and bonds
+  NICs and bonds
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
-{% if conf %}
-<p class="text-green"><i>{{conf}}</i></p>
-{%endif%}
+  <h5> Network interfaces </h5>
 
-<h4> Network interfaces </h4>
-{% if not nics %}
-<p>No network interfaces appear to be present. </p>
-{%else %}
-<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-<table  class="table table-bordered">
-<tr>
-<th >
-Interface name
-</th>
-<th>
-Cable connected
-</th>
-<th>
-Interface up?
-</th>
-<th>
-Bonding status
-</th>
-<th>
-IP configured?
-</th>
-<th>
-VLAN IDs
-</th>
-</tr>
-{%for name, d in nics.items %}
-{%if not d.bonding_master and name != 'lo' and not d.vlan%}
-<tr>
-<td>
-{{name}}
-</td>
-<td>
-{{d.carrier_status}}
-</td>
-<td>
-{{d.up_status}}
-</td>
-<td>
-{%if d.slave_to %}
-Slave to {{d.slave_to}}
-{%else%}
-Not bonded
-{%endif%}
-</td>
-<td>
-{% if 'AF_INET' in d.addresses  or d.bootproto == 'dhcp'%}
-Yes
-{%else%}
-No
-{%endif%}
-</td>
-<td>
-{%if d.vlan_ids %}
-{{d.vlan_ids|join:", "}}
-{%else%}
-None
-{%endif%}
-</td>
-<td>
-<a href="/view_nic?name={{name}}" role="button" class="btn btn-info"> View interface details</a>
-</td>
-</tr>
-{%endif%}
-{%endfor%}
-</table>
-{%endif%}
-</div>
-<p>
-<h4> Network bonds </h4>
-{% if not bonds %}
-<p>No network bonds appear to be present. </p>
-{%else %}
-<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-<table  class="table table-bordered">
-<tr>
-<th >
-Bond name
-</th>
-<th>
-Mii status
-</th>
-<th>
-Bonding mode
-</th>
-<th>
-Slaves
-</th>
-<th>
-IP configured?
-</th>
-</tr>
-{%for name, d in bonds.by_master.items %}
-<tr>
-<td>
-{{name}}
-</td>
-<td>
-{{d.mii_status}}
-</td>
-<td>
-{{d.mode_str}} (Mode {{d.mode_num}})
-</td>
-<td>
-{%for slave in d.slaves %}
-{{slave}},
-{%endfor%}
-</td>
-<td>
-{% for ifname, iface in nics.items %}
-{% if ifname == name %}
-{%if 'AF_INET' in iface.addresses %}
-Yes
-{%else%}
-No
-{%endif%}
-{%endif%}
-{%endfor%}
-</td>
-<td>
-<a href="/view_bond?name={{name}}" role="button" class="btn btn-info"> View bond details</a>
-</td>
-</tr>
-{%endfor%}
-</table>
-{%endif%}
-<a href="/create_bond" role="button" class="btn btn-primary"> Create a new bond</a>
+  {% if not nics %}
+    <p>No network interfaces appear to be present. </p>
+  {%else %}
+    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+      <table  class="table table-bordered">
+        <tr>
+          <th > Interface name </th>
+          <th> Cable connected </th>
+          <th> Interface up?  </th>
+          <th> Bonding status </th>
+          <th> IP configured?  </th>
+          <th> VLAN IDs </th>
+        </tr>
+        {%for name, d in nics.items %}
+          {%if not d.bonding_master and name != 'lo' and not d.vlan%}
+            <tr>
+              <td> {{name}} </td>
+              <td> {{d.carrier_status}} </td>
+              <td> {{d.up_status}} </td>
+              <td>
+                {%if d.slave_to %}
+                  Slave to {{d.slave_to}}
+                {%else%}
+                  Not bonded
+                {%endif%}
+              </td>
+              <td>
+                {% if 'AF_INET' in d.addresses  or d.bootproto == 'dhcp'%}
+                  Yes
+                {%else%}
+                  No
+                {%endif%}
+              </td>
+              <td>
+                {%if d.vlan_ids %}
+                  {{d.vlan_ids|join:", "}}
+                {%else%}
+                  None
+                {%endif%}
+              </td>
+              <td>
+                <a href="/view_nic?name={{name}}" role="button" class="btn btn-info btn-xs"> Details</a>
+              </td>
+            </tr>
+          {%endif%}
+        {%endfor%}
+      </table>
+    </div>
+  {%endif%}
+
+  <p>
+  <h5> Network bonds </h5>
+  {% if not bonds %}
+    <p>No network bonds appear to be present. </p>
+  {%else %}
+    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+      <table  class="table table-bordered">
+        <tr>
+          <th > Bond name </th>
+          <th> Mii status </th>
+          <th> Bonding mode </th>
+          <th> Slaves </th>
+          <th> IP configured?  </th>
+        </tr>
+        {%for name, d in bonds.by_master.items %}
+          <tr>
+            <td> {{name}} </td>
+            <td> {{d.mii_status}} </td>
+            <td> {{d.mode_str}} (Mode {{d.mode_num}}) </td>
+            <td>
+              {%for slave in d.slaves %}
+                {{slave}},
+              {%endfor%}
+            </td>
+            <td>
+              {% for ifname, iface in nics.items %}
+                {% if ifname == name %}
+                  {%if 'AF_INET' in iface.addresses %}
+                    Yes
+                  {%else%}
+                    No
+                  {%endif%}
+                {%endif%}
+              {%endfor%}
+            </td>
+            <td>
+              <a href="/view_bond?name={{name}}" role="button" class="btn btn-info btn-xs"> Details</a>
+            </td>
+          </tr>
+        {%endfor%}
+      </table>
+    {%endif%}
+    <a href="/create_bond" role="button" class="btn btn-primary btn-sm"> Create a new bond</a>
 
 {%endblock%}
+
 {%block help_header%}
-View all network interfaces
+  View all network interfaces
 {%endblock%}
+
 {%block help_body%}
   <p> This screen provides the list of all the network interfaces that have been created on this IntegralStor system. To view details about a particular network interface, please select the the desired interface from the list.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_interfaces_tab")
+  </script>
+{% endblock %}

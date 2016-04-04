@@ -1,4 +1,5 @@
 {% extends 'storage_base.html' %}
+
 {%block tab_header %}
   {%if properties.type.value == 'filesystem'%}
     ZFS dataset details
@@ -8,122 +9,120 @@
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
-{% if conf %}
-<div style="margin:0 auto;border-radius: 10px;background: #A1A3A6; width: 50%; position:relative;height: 30px;line-height:30px;text-align:center;">
-  <p style="color:white;align:center;"><b>{{conf}}</b></p>
-</div>
-<br>
-{%endif%}
-
-{% if result %}
-<p clas="text-green"><i>{{result}}</i></p>
-{%endif%}
-
-{% if not properties %}
-No information for the specified dataset. 
-{%else %}
-<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-
-  {%if properties.type.value == 'filesystem'%}
-    <h4>Dataset name - {{name}}</h3>
-  {%elif properties.type.value == 'volume'%}
-    <h4>Block device volume name - {{name}}</h3>
-  {%endif%}
-  <table  class="table table-bordered">
-    <tr>
-      <th> Property name </th>
-      <th> Property value </th>
-      <th> Property information </th>
-    </tr>
-    {%for pname, p in properties.items %}
-      {%if pname in exposed_properties %}
-        <tr>
-          <td> {%if pname == 'creation'%} Created on {%elif pname == 'usedbychildren'%} Space used by children {%elif pname == 'usedbydataset'%} Space used by this dataset {%else%}{{pname|title}}{%endif%}</td>
-          <td> {{p.value}}</td>
-          <td> {%if p.source == 'local' %} Explicitly set {%elif p.source == '-'%} Informational only {%else%}{{p.source|title}}{%endif%}</td>
-        </tr>
-      {%endif%}
-    {%endfor%}
-  </table>
-  {%if quotas %}
-  <hr>
-  <h4> Dataset quotas </h4>
-  {% if not quotas.users and not quotas.groups%}
-    <p>No quotas appear to have been set for this pool. </p>
+  {% if not properties %}
+    No information for the specified dataset. 
   {%else %}
-    <table  class="table table-bordered">
-      <tr>
-        <th > Name </th>
-        <th > Type </th>
-        <th > Quota </th>
-        <th> Remove quota </th>
-      </tr>
-      {%for un, q in quotas.users.items %}
+
+    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+
+      {%if properties.type.value == 'filesystem'%}
+        <h5>Dataset name - {{name}}</h5>
+      {%elif properties.type.value == 'volume'%}
+        <h5>Block device volume name - {{name}}</h5>
+      {%endif%}
+
+      <table  class="table table-bordered">
         <tr>
-          <td> {{un}} </td>
-          <td> User </td>
-          <td> {{q}} </td>
-          <td> <a href="/remove_zfs_quota?path={{name}}&path_type=dataset&ug_name={{un}}&ug_type=user&pool_name={{pool}}" role="button" class="btn btn-danger"> Remove this quota</a> </td>
+          <th> Property name </th>
+          <th> Property value </th>
+          <th> Property information </th>
         </tr>
-      {%endfor%}
-      {%for gn, q in quotas.groups.items %}
-        <tr>
-          <td> {{gn}} </td>
-          <td> Group </td>
-          <td> {{q}} </td>
-          <td> <a href="/remove_zfs_quota?path={{name}}&path_type=dataset&ug_name={{gn}}&ug_type=group&pool_name={{pool}}" role="button" class="btn btn-danger"> Remove this quota</a> </td>
-        </tr>
-      {%endfor%}
-    </table>
-  {%endif%}
-  {%endif%}
-  {%if properties.type.value == 'filesystem'%}
-  <div class="btn-group btn-group-sm" role="group" aria-label="...">
-    <a href="/set_zfs_quota?path={{name}}&path_type=dataset&ug_type=user&pool_name={{pool}}" role="button" class="btn btn-primary">Add user quota</a>
-    <a href="/set_zfs_quota?path={{name}}&path_type=dataset&ug_type=group&pool_name={{pool}}" role="button" class="btn btn-primary">Add group quota</a>
-  </div>
-  <br>
-  <hr>
-  {%endif%}
+        {%for pname, p in properties.items %}
+          {%if pname in exposed_properties %}
+            <tr>
+              <td> 
+                {%if pname == 'creation'%} Created on {%elif pname == 'usedbychildren'%} Space used by children {%elif pname == 'usedbydataset'%} Space used by this dataset {%else%}{{pname|title}}{%endif%}
+              </td>
+              <td> {{p.value}}</td>
+              <td> 
+                {%if p.source == 'local' %} Explicitly set {%elif p.source == '-'%} Informational only {%else%}{{p.source|title}}{%endif%}
+              </td>
+            </tr>
+          {%endif%}
+        {%endfor%}
+      </table>
 
-  <h4> Replication Status </h4>
-  Status : {{replication_status|title}}
-  <br>
- 
-        {% if "disabled" in replication_status %}
-	  <a href="/replicate_zfs_pool?pool_name={{name}}" role="button" class="btn btn-info btn-sm">Enable Replication on this dataset</a>
-        {% else %}
-	  <a href="/replicate_zfs_pool?pool_name={{name}}" role="button" class="btn btn-info btn-sm">Modify/Disable Replicate on this dataset</a>
-	{% endif %}
-  <br>
-  <br>
+      {%if quotas %}
+        <hr>
+        <h5> Dataset quotas </h5>
+        {% if not quotas.users and not quotas.groups%}
+          <p>No quotas appear to have been set for this pool. </p>
+        {%else %}
+          <table  class="table table-bordered">
+            <tr>
+              <th > Name </th>
+              <th > Type </th>
+              <th > Quota </th>
+              <th> Remove quota </th>
+            </tr>
+            {%for un, q in quotas.users.items %}
+              <tr>
+                <td> {{un}} </td>
+                <td> User </td>
+                <td> {{q}} </td>
+                <td> 
+                  <a href="/remove_zfs_quota?path={{name}}&path_type=dataset&ug_name={{un}}&ug_type=user&pool_name={{pool}}" role="button" class="btn btn-danger btn-xs"> Remove this quota</a> 
+                </td>
+              </tr>
+            {%endfor%}
+            {%for gn, q in quotas.groups.items %}
+              <tr>
+                <td> {{gn}} </td>
+                <td> Group </td>
+                <td> {{q}} </td>
+                <td> 
+                  <a href="/remove_zfs_quota?path={{name}}&path_type=dataset&ug_name={{gn}}&ug_type=group&pool_name={{pool}}" role="button" class="btn btn-danger btn-xs"> Remove this quota</a> 
+                </td>
+              </tr>
+            {%endfor%}
+          </table>
+        {%endif%}
 
-<div class="btn-group btn-group-sm" role="group" aria-label="...">
-  <a href="/view_zfs_pool?name={{pool}}" role="button" class="btn btn-default">Back to pool details</a>
-  <a href="/edit_zfs_dataset?name={{name}}&pool_name={{pool}}" role="button" class="btn btn-primary"> Change {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} properties</a> 
-  {%if properties.type.value == 'filesystem'%}
-    <a href="/set_file_owner_and_permissions?path={{properties.mountpoint.value}}" role="button" class="btn btn-primary"> Change ownership and permissions</a>
+      {%endif%}
+      <hr>
+
+      <h5> Replication Status </h5>
+      Status : {{replication_status|title}}
+      <br><br>
+      {% if "disabled" in replication_status %}
+    	  <a href="/replicate_zfs_pool?dataset_name={{name}}" role="button" class="btn btn-info btn-sm">Enable replication on this dataset</a>
+      {% else %}
+    	  <a href="/replicate_zfs_pool?dataset_name={{name}}" role="button" class="btn btn-info btn-sm">Modify/Disable replicate on this dataset</a>
+    	{% endif %}
+      <br>
+      <hr>
+      <br>
+
+      <div class="btn-group btn-group-sm" role="group" aria-label="...">
+        {%if properties.type.value == 'filesystem'%}
+          <a href="/set_zfs_quota?path={{name}}&path_type=dataset&ug_type=user&pool_name={{pool}}" role="button" class="btn btn-primary">Add user quota</a>
+          <a href="/set_zfs_quota?path={{name}}&path_type=dataset&ug_type=group&pool_name={{pool}}" role="button" class="btn btn-primary">Add group quota</a>
+          <a href="/modify_dir_permissions?path={{properties.mountpoint.value}}&dataset={{name}}" role="button" class="btn btn-primary"> Change ownership and permissions</a>
+        {%endif%}
+        <a href="/edit_zfs_dataset?name={{name}}&pool_name={{pool}}" role="button" class="btn btn-primary"> Change {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} properties</a> 
+      </div>
+      <br/><br/>
+      <a href="/delete_zfs_dataset?name={{name}}&type={{properties.type.value}}&pool_name={{pool}}" role="button" class="btn btn-danger"> Delete this {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} </a>
+      <br/><br/>
+      <a href="/view_zfs_pool?name={{pool}}" role="button" class="btn btn-default cover-page">Back to pool details</a>
+
+    </div>
   {%endif%}
-  <a href="/delete_zfs_dataset?name={{name}}&type={{properties.type.value}}&pool_name={{pool}}" role="button" class="btn btn-danger"> Delete this {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} </a>
-</div>
-<br>
-<br>
-
-{%endif%}
 
 {%endblock%}
+
 {%block help_header%}
-View ZFS {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} properties
+  View ZFS {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} properties
 {%endblock%}
+
 {%block help_body%}
   <p> This screen displays the properties of the ZFS  {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%}.</p>
 {%endblock%}
 
 {% block tab_active %}
   <script>
-   make_tab_active("view_zfs_pools_tab")
+    make_tab_active("view_zfs_pools_tab")
   </script>
 {% endblock %}
 

@@ -1,53 +1,62 @@
 {% extends 'logging_base.html' %}
+
 {%block tab_header %}
-{%if historical %}
-Older system alerts
-{%else%}
-System alerts
-{%endif%}
+  {%if historical %}
+    Rotated system alerts
+  {%else%}
+    System alerts
+  {%endif%}
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
-{% if alerts_list %}
-<table class="table table-bordered table-hover">
-{% for a in alerts_list %}
-<tr>
-  <td style="width:200px">
-  {{a.time}}
-  </td>
-  <td>
-  {{a.message|safe}}
-  </td>
-</tr>
-{%endfor%}
-</table>
-{%if alerts_list and not historical%}
-<a href="/rotate_log/alerts" class="btn btn-primary">Rotate Alert Logs </a>
-{%endif%}
-<br>
-{% if historical %}
-<a href="/view_rotated_log_list/alerts/" role="button" class="btn btn-default">Back to log list</a>
-{%endif%}
-{%else %}
-No alerts to display
-{%endif%}
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <th> Time </th>
+        <th> Alert </th>
+      </tr>
+    </thead>
+    {% if alerts_list %}
+      {% for a in alerts_list %}
+        <tr>
+          <td style="width:200px">
+            {{a.time}}
+          </td>
+          <td>
+            {{a.message|safe}}
+          </td>
+        </tr>
+      {%endfor%}
+    {%endif%}
+  </table>
+
+  <div class="btn-group btn-group-sm" role="group" aria-label="...">
+    {%if alerts_list and not historical%}
+      <a href="/rotate_log/alerts" class="btn btn-primary btn-sm">Rotate alert logs </a>
+    {%endif%}
+    <br>
+    {% if historical %}
+      <a href="/view_rotated_log_list/alerts/" role="button" class="btn btn-default">Back to log list</a>
+    {%endif%}
+  </div>
 
 {%endblock%}
+
 {%block help_header%}
 View alerts 
 {%endblock%}
+
 {%block help_body%}
 <p>The IntegralStor system constantly monitors the health of all GRIDCells. If any problems are found in any components of the GRIDCells, then an alert is generated. This page lists all the alerts that have been raised. If an email server setting has been configured in IntegralView then the alerts will also be emailed to the specified addresses.</p>
 {%endblock%}
 
 {% block tab_active %}
-<script>
-{%if historical %}
- make_tab_active("view_rotated_alert_log_list_tab")
-{%else%}
- make_tab_active("view_current_alerts_tab")
-{%endif%}
-</script>
+  <script>
+    {%if historical %}
+      make_tab_active("view_rotated_alert_log_list_tab")
+    {%else%}
+      make_tab_active("view_current_alerts_tab")
+    {%endif%}
+  </script>
 {% endblock %}

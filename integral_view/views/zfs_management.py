@@ -11,6 +11,31 @@ import json, time, os, shutil, tempfile, os.path, re, subprocess, sys, shutil, p
 
 from integral_view.forms import zfs_forms,common_forms
   
+def view_disks(request):
+  return_dict = {}
+  try:
+    si, err = system_info.load_system_config()
+    if err:
+      raise Exception(err)
+    if not si:
+      raise Exception('Error loading system configuration')
+    return_dict['node'] = si[si.keys()[0]]
+    return_dict['system_info'] = si
+    platform,err = common.get_hardware_platform()
+    if not err:
+      return_dict['hardware'] = platform
+    return_dict["disk_status"] = si[si.keys()[0]]['disks']
+    return_dict['node_name'] = si.keys()[0]
+    template = "view_disks_status.html"
+    return django.shortcuts.render_to_response('view_disks.html', return_dict, context_instance = django.template.context.RequestContext(request))
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Disks'
+    return_dict['tab'] = 'view_disks_tab'
+    return_dict["error"] = 'Error loading disk information'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 def view_zfs_pools(request):
   return_dict = {}
   try:
@@ -19,49 +44,47 @@ def view_zfs_pools(request):
     if err:
       raise Exception(err)
   
-    if "action" in request.GET:
-      if request.GET["action"] == "saved":
-        conf = "ZFS pool information successfully updated"
-      elif request.GET["action"] == "expanded_pool":
-        conf = "ZFS pool successfully expanded"
-      elif request.GET["action"] == "pool_exported":
-        conf = "ZFS pool successfully exported"
-      elif request.GET["action"] == "imported_pool":
-        conf = "ZFS pool successfully imported"
-      elif request.GET["action"] == "set_quota":
-        conf = "ZFS quota successfully set"
-      elif request.GET["action"] == "removed_quota":
-        conf = "ZFS quota successfully removed"
-      elif request.GET["action"] == "created_pool":
-        conf = "ZFS pool successfully created"
-      elif request.GET["action"] == "set_permissions":
-        conf = "Directory ownership/permissions successfully set"
-      elif request.GET["action"] == "created_dataset":
-        conf = "ZFS dataset successfully created"
-      elif request.GET["action"] == "created_zvol":
-        conf = "ZFS block device volume successfully created"
-      elif request.GET["action"] == "pool_deleted":
-        conf = "ZFS pool successfully destroyed"
-      elif request.GET["action"] == "pool_scrub_initiated":
-        conf = "ZFS pool scrub successfully initiated"
-      elif request.GET["action"] == "dataset_deleted":
-        conf = "ZFS dataset successfully destroyed"
-      elif request.GET["action"] == "zvol_deleted":
-        conf = "ZFS block device volume successfully destroyed"
-      elif request.GET["action"] == "slog_deleted":
-        conf = "ZFS write cache successfully removed"
-      elif request.GET["action"] == "changed_slog":
-        conf = "ZFS pool write cache successfully set"
-      elif request.GET["action"] == "added_spares":
-        conf = "Successfully added spare disks to the pool"
-      elif request.GET["action"] == "removed_spare":
-        conf = "Successfully removed a spare disk from the pool"
-      elif request.GET["action"] == "replication_success":
-        conf = "Replication Successful"
-      elif request.GET["action"] == "replication_error":
-        conf = "Replication Failed"
-      if conf:
-        return_dict["conf"] = conf
+    if "ack" in request.GET:
+      if request.GET["ack"] == "saved":
+        return_dict['ack_message'] = "ZFS pool information successfully updated"
+      elif request.GET["ack"] == "expanded_pool":
+        return_dict['ack_message'] = "ZFS pool successfully expanded"
+      elif request.GET["ack"] == "pool_exported":
+        return_dict['ack_message'] = "ZFS pool successfully exported"
+      elif request.GET["ack"] == "imported_pool":
+        return_dict['ack_message'] = "ZFS pool successfully imported"
+      elif request.GET["ack"] == "set_quota":
+        return_dict['ack_message'] = "ZFS quota successfully set"
+      elif request.GET["ack"] == "removed_quota":
+        return_dict['ack_message'] = "ZFS quota successfully removed"
+      elif request.GET["ack"] == "created_pool":
+        return_dict['ack_message'] = "ZFS pool successfully created"
+      elif request.GET["ack"] == "set_permissions":
+        return_dict['ack_message'] = "Directory ownership/permissions successfully set"
+      elif request.GET["ack"] == "created_dataset":
+        return_dict['ack_message'] = "ZFS dataset successfully created"
+      elif request.GET["ack"] == "created_zvol":
+        return_dict['ack_message'] = "ZFS block device volume successfully created"
+      elif request.GET["ack"] == "pool_deleted":
+        return_dict['ack_message'] = "ZFS pool successfully destroyed"
+      elif request.GET["ack"] == "pool_scrub_initiated":
+        return_dict['ack_message'] = "ZFS pool scrub successfully initiated"
+      elif request.GET["ack"] == "dataset_deleted":
+        return_dict['ack_message'] = "ZFS dataset successfully destroyed"
+      elif request.GET["ack"] == "zvol_deleted":
+        return_dict['ack_message'] = "ZFS block device volume successfully destroyed"
+      elif request.GET["ack"] == "slog_deleted":
+        return_dict['ack_message'] = "ZFS write cache successfully removed"
+      elif request.GET["ack"] == "changed_slog":
+        return_dict['ack_message'] = "ZFS pool write cache successfully set"
+      elif request.GET["ack"] == "added_spares":
+        return_dict['ack_message'] = "Successfully added spare disks to the pool"
+      elif request.GET["ack"] == "removed_spare":
+        return_dict['ack_message'] = "Successfully removed a spare disk from the pool"
+      elif request.GET["ack"] == "replication_success":
+        return_dict['ack_message'] = "Replication Successful"
+      elif request.GET["ack"] == "replication_error":
+        return_dict['ack_message'] = "Replication Failed"
     return_dict["pool_list"] = pool_list
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
@@ -79,41 +102,39 @@ def view_zfs_pool(request):
     if 'name' not in request.REQUEST:
       raise Exception("No pool specified.")
     
-    if "action" in request.GET:
-      if request.GET["action"] == "saved":
-        conf = "ZFS pool information successfully updated"
-      elif request.GET["action"] == "expanded_pool":
-        conf = "ZFS pool successfully expanded"
-      elif request.GET["action"] == "set_quota":
-        conf = "ZFS quota successfully set"
-      elif request.GET["action"] == "removed_quota":
-        conf = "ZFS quota successfully removed"
-      elif request.GET["action"] == "set_permissions":
-        conf = "Directory ownership/permissions successfully set"
-      elif request.GET["action"] == "created_dataset":
-        conf = "ZFS dataset successfully created"
-      elif request.GET["action"] == "created_zvol":
-        conf = "ZFS block device volume successfully created"
-      elif request.GET["action"] == "pool_scrub_initiated":
-        conf = "ZFS pool scrub successfully initiated"
-      elif request.GET["action"] == "dataset_deleted":
-        conf = "ZFS dataset successfully destroyed"
-      elif request.GET["action"] == "zvol_deleted":
-        conf = "ZFS block device volume successfully destroyed"
-      elif request.GET["action"] == "slog_deleted":
-        conf = "ZFS write cache successfully removed"
-      elif request.GET["action"] == "l2arc_deleted":
-        conf = "ZFS read cache successfully removed"
-      elif request.GET["action"] == "changed_slog":
-        conf = "ZFS pool write cache successfully set"
-      elif request.GET["action"] == "changed_l2arc":
-        conf = "ZFS pool read cache successfully set"
-      elif request.GET["action"] == "added_spares":
-        conf = "Successfully added spare disks to the pool"
-      elif request.GET["action"] == "removed_spare":
-        conf = "Successfully removed a spare disk from the pool"
-      if conf:
-        return_dict["conf"] = conf
+    if "ack" in request.GET:
+      if request.GET["ack"] == "saved":
+        return_dict['ack_message'] = "ZFS pool information successfully updated"
+      elif request.GET["ack"] == "expanded_pool":
+        return_dict['ack_message'] = "ZFS pool successfully expanded"
+      elif request.GET["ack"] == "set_quota":
+        return_dict['ack_message'] = "ZFS quota successfully set"
+      elif request.GET["ack"] == "removed_quota":
+        return_dict['ack_message'] = "ZFS quota successfully removed"
+      elif request.GET["ack"] == "set_permissions":
+        return_dict['ack_message'] = "Directory ownership/permissions successfully set"
+      elif request.GET["ack"] == "created_dataset":
+        return_dict['ack_message'] = "ZFS dataset successfully created"
+      elif request.GET["ack"] == "created_zvol":
+        return_dict['ack_message'] = "ZFS block device volume successfully created"
+      elif request.GET["ack"] == "pool_scrub_initiated":
+        return_dict['ack_message'] = "ZFS pool scrub successfully initiated"
+      elif request.GET["ack"] == "dataset_deleted":
+        return_dict['ack_message'] = "ZFS dataset successfully destroyed"
+      elif request.GET["ack"] == "zvol_deleted":
+        return_dict['ack_message'] = "ZFS block device volume successfully destroyed"
+      elif request.GET["ack"] == "slog_deleted":
+        return_dict['ack_message'] = "ZFS write cache successfully removed"
+      elif request.GET["ack"] == "l2arc_deleted":
+        return_dict['ack_message'] = "ZFS read cache successfully removed"
+      elif request.GET["ack"] == "changed_slog":
+        return_dict['ack_message'] = "ZFS pool write cache successfully set"
+      elif request.GET["ack"] == "changed_l2arc":
+        return_dict['ack_message'] = "ZFS pool read cache successfully set"
+      elif request.GET["ack"] == "added_spares":
+        return_dict['ack_message'] = "Successfully added spare disks to the pool"
+      elif request.GET["ack"] == "removed_spare":
+        return_dict['ack_message'] = "Successfully removed a spare disk from the pool"
 
     pool_name = request.REQUEST['name']
     pool, err = zfs.get_pool(pool_name)
@@ -168,9 +189,8 @@ def view_zfs_pool(request):
 def replicate_zfs_pool(request):
   return_dict = {}
   if request.method == "GET":
-    pool = request.GET.get('pool_name')
-    #pool_list, err = zfs.get_all_datasets_and_pools()
-    cmd = "select * from pool_repl where pool='%s'"%str(pool)
+    dataset = request.GET.get('dataset_name')
+    cmd = "select * from dataset_repl where dataset='%s'"%str(dataset)
     db_path,err = common.get_db_path()
     status,err = db.read_single_row(db_path,cmd)
     if not err:
@@ -180,11 +200,11 @@ def replicate_zfs_pool(request):
         return_dict["replication_status"] = "enabled"
         return_dict["ip"] = status["ip"]
         return_dict["dest"] = status["dest"]
-    return_dict['pool'] = pool
+    return_dict['dataset'] = dataset
     return django.shortcuts.render_to_response('replicate_zfs_pool.html',return_dict,context_instance=django.template.context.RequestContext(request))
   elif request.method == "POST":
     try:
-      pool = request.POST.get('pool')
+      dataset = request.POST.get('dataset')
       host_ip = request.POST.get('ip')
       dest_pool = request.POST.get('dest_pool')
       username = "root"
@@ -193,20 +213,20 @@ def replicate_zfs_pool(request):
       if (not host_ip) and (not dest_pool):
         raise Exception("Data Incomplete.")
       if action == "update":
-        cmd = "update pool_repl set pool='%s',ip='%s',user='%s',dest='%s' where pool='%s'"%(pool,host_ip,username,dest_pool,pool)
+        cmd = "update dataset_repl set dataset='%s',ip='%s',user='%s',dest='%s' where dataset='%s'"%(dataset,host_ip,username,dest_pool,dataset)
         db_path,err = common.get_db_path()
         status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
       elif action == "start": 
-        cmd = "insert into pool_repl (pool,ip,user,dest) values ('%s','%s','%s','%s')"%(pool,host_ip,username,dest_pool)
+        cmd = "insert into dataset_repl (dataset,ip,user,dest) values ('%s','%s','%s','%s')"%(dataset,host_ip,username,dest_pool)
         db_path,err = common.get_db_path()
         status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
       elif action == "stop":
-        cmd = "delete from pool_repl where pool='%s'"%pool
+        cmd = "delete from dataset_repl where dataset='%s'"%dataset
         db_path,err = common.get_db_path()
         status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
       else:
         raise Exception("Malformed request. Please use the menus")
-      return django.http.HttpResponseRedirect('replicate_zfs_pool/?pool_name='+pool)
+      return django.http.HttpResponseRedirect('replicate_zfs_pool/?dataset_name='+dataset)
     except Exception as e:
       return_dict['base_template'] = "storage_base.html"
       return_dict["page_title"] = 'Setting ZFS quota'
@@ -262,9 +282,9 @@ def set_zfs_quota(request):
       audit_str = "Set ZFS quota for %s %s for %s to %s%s"%(cd['ug_type'], cd['ug_name'], cd['path'], cd['size'], cd['unit'])
       audit.audit("set_zfs_quota", audit_str, request.META["REMOTE_ADDR"])
       if path_type == 'pool':
-        return django.http.HttpResponseRedirect('/view_zfs_pool?action=set_quota&name=%s'%pool_name)
+        return django.http.HttpResponseRedirect('/view_zfs_pool?ack=set_quota&name=%s'%pool_name)
       else:
-        return django.http.HttpResponseRedirect('/view_zfs_dataset?action=set_quota&name=%s'%path)
+        return django.http.HttpResponseRedirect('/view_zfs_dataset?ack=set_quota&name=%s'%path)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Setting ZFS quota'
@@ -307,9 +327,9 @@ def remove_zfs_quota(request):
       audit_str = "Removed ZFS quota for %s %s for %s"%(ug_type, ug_name, path)
       audit.audit("remove_zfs_quota", audit_str, request.META["REMOTE_ADDR"])
       if path_type == 'pool':
-        return django.http.HttpResponseRedirect('/view_zfs_pool?action=removed_quota&name=%s'%pool_name)
+        return django.http.HttpResponseRedirect('/view_zfs_pool?ack=removed_quota&name=%s'%pool_name)
       else:
-        return django.http.HttpResponseRedirect('/view_zfs_dataset?action=removed_quota&name=%s'%path)
+        return django.http.HttpResponseRedirect('/view_zfs_dataset?ack=removed_quota&name=%s'%path)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Removing ZFS quota'
@@ -339,7 +359,7 @@ def export_zfs_pool(request):
  
       audit_str = 'Exported ZFS pool "%s"'%pool_name
       audit.audit("export_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=pool_exported')
+      return django.http.HttpResponseRedirect('/view_zfs_pools?ack=pool_exported')
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Export ZFS pool'
@@ -387,7 +407,7 @@ def import_zfs_pool(request):
         raise Exception(err)
       audit_str = 'Imported a ZFS pool named "%s" '%(cd['name'])
       audit.audit("import_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=imported_pool')
+      return django.http.HttpResponseRedirect('/view_zfs_pools?ack=imported_pool')
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Import a ZFS pool'
@@ -454,7 +474,7 @@ def create_zfs_pool(request):
  
       audit_str = "Created a ZFS pool named %s of type %s"%(cd['name'], cd['pool_type'])
       audit.audit("create_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=created_pool')
+      return django.http.HttpResponseRedirect('/view_zfs_pools?ack=created_pool')
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'ZFS pool creation'
@@ -484,7 +504,7 @@ def expand_zfs_pool(request):
         raise Exception(err)
       audit_str = "Expanded the ZFS pool named %s"%pool_name
       audit.audit("expand_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pool?action=expanded_pool&name=%s'%pool_name)
+      return django.http.HttpResponseRedirect('/view_zfs_pool?ack=expanded_pool&name=%s'%pool_name)
   
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
@@ -515,7 +535,7 @@ def scrub_zfs_pool(request):
  
       audit_str = "ZFS pool scrub initiated on pool %s"%name
       audit.audit("scrub_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pool?action=pool_scrub_initiated&name=%s'%name)
+      return django.http.HttpResponseRedirect('/view_zfs_pool?ack=pool_scrub_initiated&name=%s'%name)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'ZFS pool scrub'
@@ -576,7 +596,7 @@ def delete_zfs_pool(request):
  
       audit_str = "Deleted ZFS pool %s"%name
       audit.audit("delete_zfs_pool", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pools?action=pool_deleted')
+      return django.http.HttpResponseRedirect('/view_zfs_pools?ack=pool_deleted')
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Remove a ZFS pool'
@@ -671,7 +691,7 @@ def set_zfs_slog(request):
         if err:
           raise Exception(err)
         audit.audit("edit_zfs_slog", 'Changed the write log for pool %s to a flash drive'%(cd['pool']), request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pool?action=changed_slog&name=%s'%pool_name)
+      return django.http.HttpResponseRedirect('/view_zfs_pool?ack=changed_slog&name=%s'%pool_name)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Set ZFS pool write cache'
@@ -711,7 +731,7 @@ def remove_zfs_slog(request):
  
       audit_str = "Removed ZFS write cache for pool %s"%pool
       audit.audit("remove_zfs_slog", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&action=slog_deleted'%pool)
+      return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&ack=slog_deleted'%pool)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Removing ZFS pool write cache'
@@ -764,7 +784,7 @@ def set_zfs_l2arc(request):
       if err:
         raise Exception(err)
       ret, err = audit.audit("edit_zfs_l2arc", 'Changed the read cache for pool %s to a flash drive'%(cd['pool']), request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pool?action=changed_l2arc&name=%s'%pool_name)
+      return django.http.HttpResponseRedirect('/view_zfs_pool?ack=changed_l2arc&name=%s'%pool_name)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Set ZFS pool read cache'
@@ -803,7 +823,7 @@ def remove_zfs_l2arc(request):
  
       audit_str = "Removed ZFS read cache for pool %s"%pool
       ret, err = audit.audit("remove_zfs_l2arc", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&action=l2arc_deleted'%pool)
+      return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&ack=l2arc_deleted'%pool)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Removing ZFS pool read cache'
@@ -820,19 +840,17 @@ def view_zfs_dataset(request):
     if 'name' not in request.REQUEST :
       raise Exception("Malformed request. Please use the menus.")
 
-    if "action" in request.GET:
-      if request.GET["action"] == "set_quota":
-        conf = "ZFS quota successfully set"
-      elif request.GET["action"] == "removed_quota":
-        conf = "ZFS quota successfully removed"
-      elif request.GET["action"] == "set_permissions":
-        conf = "Directory ownership/permissions successfully set"
-      elif request.GET["action"] == "modified_dataset_properties":
-        conf = "ZFS dataset/volume configuration successfully modified"
-      elif request.GET["action"] == "created_dataset":
-        conf = "ZFS dataset successfully created"
-      if conf:
-        return_dict["conf"] = conf
+    if "ack" in request.GET:
+      if request.GET["ack"] == "set_quota":
+        return_dict['ack_message'] = "ZFS quota successfully set"
+      elif request.GET["ack"] == "removed_quota":
+        return_dict['ack_message'] = "ZFS quota successfully removed"
+      elif request.GET["ack"] == "set_permissions":
+        return_dict['ack_message'] = "Directory ownership/permissions successfully set"
+      elif request.GET["ack"] == "modified_dataset_properties":
+        return_dict['ack_message'] = "ZFS dataset/volume configuration successfully modified"
+      elif request.GET["ack"] == "created_dataset":
+        return_dict['ack_message'] = "ZFS dataset successfully created"
     
     dataset_name = request.REQUEST['name']
     if '/' in dataset_name:
@@ -871,7 +889,7 @@ def view_zfs_dataset(request):
     return_dict['exposed_properties'] = ['compression', 'compressratio', 'dedup',  'type', 'usedbychildren', 'usedbydataset', 'creation']
     if 'result' in request.GET:
       return_dict['result'] = request.GET['result']
-    cmd = "select * from pool_repl where pool='%s'"%str(dataset_name)
+    cmd = "select * from dataset_repl where dataset='%s'"%str(dataset_name)
     db_path,err = common.get_db_path()
     status,err = db.read_single_row(db_path,cmd)
     if not err:
@@ -948,8 +966,7 @@ def edit_zfs_dataset(request):
       if success:
         audit.audit("edit_zfs_dataset", audit_str, request.META["REMOTE_ADDR"])
                 
-      #return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&result=%s'%(name, result_str))
-      return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&action=modified_dataset_properties'%name)
+      return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&ack=modified_dataset_properties'%name)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Modify ZFS dataset properties'
@@ -1014,11 +1031,11 @@ def delete_zfs_dataset(request):
       if type == 'dataset':
         audit_str = "Deleted ZFS dataset %s"%name
         audit.audit("delete_zfs_dataset", audit_str, request.META["REMOTE_ADDR"])
-        return django.http.HttpResponseRedirect('/view_zfs_pool?action=dataset_deleted&name=%s'%pool_name)
+        return django.http.HttpResponseRedirect('/view_zfs_pool?ack=dataset_deleted&name=%s'%pool_name)
       else:
         audit_str = "Deleted ZFS block device volume %s"%name
         audit.audit("delete_zfs_zvol", audit_str, request.META["REMOTE_ADDR"])
-        return django.http.HttpResponseRedirect('/view_zfs_pool?action=zvol_deleted&name=%s'%pool_name)
+        return django.http.HttpResponseRedirect('/view_zfs_pool?ack=zvol_deleted&name=%s'%pool_name)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Remove a ZFS dataset/volume'
@@ -1067,7 +1084,7 @@ def create_zfs_dataset(request):
  
       audit_str = "Created a ZFS dataset named %s/%s"%(cd['pool'], cd['name'])
       audit.audit("create_zfs_dataset", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&action=created_dataset'%pool)
+      return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&ack=created_dataset'%pool)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Create a ZFS dataset'
@@ -1121,7 +1138,7 @@ def create_zfs_zvol(request):
       else:
         audit_str = "Created a ZFS block device volume named %s/%s with size %s%s"%(cd['pool'], cd['name'], cd['size'],cd['unit'])
       audit.audit("create_zfs_zvol", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pool?action=created_zvol&name=%s'%pool)
+      return django.http.HttpResponseRedirect('/view_zfs_pool?ack=created_zvol&name=%s'%pool)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Create a ZFS block device volume'
@@ -1182,28 +1199,27 @@ def view_zfs_snapshots(request):
     if 'name' in request.GET:
       name = request.GET['name']
     else:
-      if datasets:
-        name = datasets[0]
+      name = None
+
+    if name == 'None':
+      name = None
     if name:
       initial['name'] = name
-      snap_list, err = zfs.get_snapshots(name)
-      if err:
-        raise Exception(err)
+    snap_list, err = zfs.get_snapshots(name)
+    if err:
+      raise Exception(err)
 
-    if "action" in request.GET:
-      conf = None
-      if request.GET["action"] == "created":
-        conf = "ZFS snapshot successfully created"
-      elif request.GET["action"] == "deleted":
-        conf = "ZFS snapshot successfully destroyed"
-      elif request.GET["action"] == "scheduled":
-        conf = "ZFS snapshot schedule successfully modified"
-      elif request.GET["action"] == "renamed":
-        conf = "ZFS snapshot successfully renamed"
-      elif request.GET["action"] == "rolled_back":
-        conf = "ZFS filesystem successfully rolled back to the snapshot"
-      if conf:
-        return_dict["conf"] = conf
+    if "ack" in request.GET:
+      if request.GET["ack"] == "created":
+        return_dict['ack_message'] = "ZFS snapshot successfully created"
+      elif request.GET["ack"] == "deleted":
+        return_dict['ack_message'] = "ZFS snapshot successfully destroyed"
+      elif request.GET["ack"] == "scheduled":
+        return_dict['ack_message'] = "ZFS snapshot schedule successfully modified"
+      elif request.GET["ack"] == "renamed":
+        return_dict['ack_message'] = "ZFS snapshot successfully renamed"
+      elif request.GET["ack"] == "rolled_back":
+        return_dict['ack_message'] = "ZFS filesystem successfully rolled back to the snapshot"
 
     form = zfs_forms.ViewSnapshotsForm(initial = initial, datasets = datasets)
     return_dict['form'] = form
@@ -1242,27 +1258,6 @@ def create_zfs_snapshot(request):
       if not form.is_valid():
         return django.shortcuts.render_to_response("create_zfs_snapshot.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
-      '''
-      if request.POST.get("id_scheduler"):
-        target = cd['target']
-        result, err = zfs.get_create_snapshot_command(target)
-        if err:
-          raise Exception(err)
-        if result:
-          # <QueryDict: {u'is_scheduler': [u'on'], u'target': [u'pool1'], u'is_week': [u''], u'is_hour': [u'', u''], u'is_month': [u'', u''], u'name': [u'snap1']}> /sbin/zfs snapshot pool1@snap1
-          min = request.POST.get('id_minute')
-          hour = request.POST.get('id_hour')
-          day_of_month = request.POST.get('id_day_of_month')
-          month = request.POST.get('id_month')
-          week = request.POST.get('id_week')
-          result = result + "$(date +\%d-\%m-\%Y-\%I-\%M)"
-          msg,err = scheduler_utils.create_cron("ZFS Snapshot Creation",min,hour,day_of_month,month,week,result,None)
-          if msg:
-            return_dict["conf"] = "Snapshot Schedule Successful"
-          else:
-            return_dict["conf"] = "Snapshot Schedule Unsuccessful"
-      else:
-      '''
       result, err = zfs.create_snapshot(cd['target'], cd['name'])
       if not result:
         if not err:
@@ -1272,7 +1267,7 @@ def create_zfs_snapshot(request):
  
       audit_str = "Created a ZFS snapshot named %s for target %s"%(cd['name'], cd['target'])
       audit.audit("create_zfs_snapshot", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_snapshots?action=created')
+      return django.http.HttpResponseRedirect('/view_zfs_snapshots?ack=created')
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Create a ZFS snapshot'
@@ -1305,7 +1300,7 @@ def delete_zfs_snapshot(request):
  
       audit_str = "Deleted ZFS snapshot %s"%name
       audit.audit("delete_zfs_snapshot", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_snapshots?action=deleted')
+      return django.http.HttpResponseRedirect('/view_zfs_snapshots?ack=deleted')
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Delete a ZFS snapshot'
@@ -1338,7 +1333,7 @@ def rollback_zfs_snapshot(request):
  
       audit_str = "Rolled back to ZFS snapshot %s"%name
       audit.audit("rollback_zfs_snapshot", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_snapshots?action=rolled_back')
+      return django.http.HttpResponseRedirect('/view_zfs_snapshots?ack=rolled_back')
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Rollback a ZFS snapshot'
@@ -1378,7 +1373,7 @@ def rename_zfs_snapshot(request):
  
       audit_str = "Renamed  ZFS snapshot for %s from %s to %s"%(cd['ds_name'], cd['snapshot_name'], cd['new_snapshot_name'])
       audit.audit("rename_zfs_snapshot", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_snapshots?action=renamed')
+      return django.http.HttpResponseRedirect('/view_zfs_snapshots?ack=renamed')
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Rename a ZFS snapshot'
@@ -1437,7 +1432,7 @@ def schedule_zfs_snapshot(request):
         raise Exception(err)
  
       audit.audit("schedule_zfs_snapshot", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_snapshots?action=scheduled')
+      return django.http.HttpResponseRedirect('/view_zfs_snapshots?ack=scheduled')
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Schedule a ZFS snapshot'
@@ -1476,7 +1471,7 @@ def add_zfs_spares(request):
         raise Exception(err)
       audit_str = "Added %s spare drive(s) to pool %s"%(num_spares, pool_name)
       audit.audit("add_zfs_spares", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pool?action=added_spares&name=%s'%pool_name)
+      return django.http.HttpResponseRedirect('/view_zfs_pool?ack=added_spares&name=%s'%pool_name)
       
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
@@ -1506,7 +1501,7 @@ def remove_zfs_spare(request):
         raise Exception(err)
       audit_str = "Removed a  spare drive from pool %s"%pool_name
       audit.audit("remove_zfs_spare", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_zfs_pool?action=removed_spare&name=%s'%pool_name)
+      return django.http.HttpResponseRedirect('/view_zfs_pool?ack=removed_spare&name=%s'%pool_name)
       
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
@@ -1883,7 +1878,7 @@ def modify_dir_permissions(request):
   return_dict = {}
   try:
     if 'path' not in request.REQUEST:
-      path = "/"
+      path = "/tmp/"
       #raise Exception('Path not specified')
     else:
       path = request.REQUEST['path']
@@ -1933,6 +1928,8 @@ def modify_dir_permissions(request):
       initial['other_read'] = _other_readable(stat_info)
       initial['other_write'] = _other_writeable(stat_info)
       initial['other_execute'] = _other_executeable(stat_info)
+      if 'dataset' in request.GET:
+        initial['dataset'] = request.GET['dataset']
   
       form = common_forms.SetFileOwnerAndPermissionsForm(initial = initial, user_list = users, group_list = groups)
   
@@ -1955,7 +1952,7 @@ def modify_dir_permissions(request):
         audit_str = "Modified directory ownsership/permissions for %s"%cd["path"]
         audit.audit("modify_dir_owner_permissions", audit_str, request.META["REMOTE_ADDR"])
   
-        return django.http.HttpResponseRedirect('/view_zfs_pools?action=set_permissions')
+        return django.http.HttpResponseRedirect('/view_zfs_pools?ack=set_permissions')
   
       else:
         #Invalid form

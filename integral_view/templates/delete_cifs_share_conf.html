@@ -1,26 +1,29 @@
 {% extends 'shares_base.html' %}
+
 {%block tab_header %}
-Delete a CIFS share - confirmation
+  Delete a Windows share - confirmation
 {%endblock%}
 
 {%block inside_content %}
-<br><br>
 
-<!-- Modal -->
 
-<p id="p-warning-text">Are you sure you want to delete the share named "{{name}}"? </p>
-<br>
-<form action="/delete_cifs_share/" method="POST">
-<input type=hidden name="name" value="{{name}}">
-<input type=hidden name="share_id" value="{{share_id}}">
-<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_cifs_share?access_mode=by_id&index={{share_id}}'"> &nbsp;&nbsp;
-<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete</button>
-</form>
+  <p id="p-warning-text">Are you sure you want to delete the share named "{{name}}"? </p>
+  <br>
+  <form action="/delete_cifs_share/" method="POST">
+    <input type=hidden name="name" value="{{name}}">
+    <input type=hidden name="share_id" value="{{share_id}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_cifs_share?access_mode=by_id&index={{share_id}}'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger cover-page" ">Confirm and delete</button>
+    </div>
+  </form>
 
 {%endblock%}
+
 {%block help_header%}
-Deleting a share
+  Deleting a share
 {%endblock%}
+
 {%block help_body%}
 <p>Confirming this operation results in the specified share being deleted from the system. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}

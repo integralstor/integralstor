@@ -1,193 +1,165 @@
 {% extends 'networking_base.html' %}
+
 {%block tab_header %}
-NIC details
+  NIC details
 {%endblock%}
   
 {%block inside_content %}
-<br><br>
 
-{% if conf %}
-<p><i>{{conf}}</i></p>
-{%endif%}
+  {% if not nic %}
+    No information for the specified network interface. Click <a href="/view_interfaces/"> here</a> to view all network interfaces.
+  {%else %}
 
-{% if not nic %}
-No information for the specified network interface. Click <a href="/view_interfaces/"> here</a> to view all network interfaces.
-{%else %}
-<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-<h3>{%if nic.vlan%} VLAN name {%else%} Interface name {%endif%}- {{name}}</h3>
-<table  class="table table-bordered">
-{%if not nic.vlan %}
-<tr>
-<th>
-MAC address
-</th>
-<td>
-{%if nic.addresses.AF_LINK.0.addr %}
-{{nic.addresses.AF_LINK.0.addr}}
-{%else%}
- - 
-{%endif%}
-</td>
-</tr>
-{%endif%}
-<tr>
-<th>
-IP Address
-</th>
-<td>
-{%if nic.bootproto == 'dhcp'%}
-DHCP Addressing <br>
-{%elif nic.bootproto == 'static' %}
-Static Addressing
-{%endif%}
-{%if nic.addresses.AF_INET.0.addr %}
-Address - {{nic.addresses.AF_INET.0.addr}}<br>
-Netmask - {{nic.addresses.AF_INET.0.broadcast}}<br>
-Broadcast - {{nic.addresses.AF_INET.0.netmask}}
-{%else%}
- - 
-{%endif%}
-</td>
-</tr>
-<tr>
-<th>
-Gateways
-</th>
-<td>
-{%if nic.gateways %}
-{%for gw in nic.gateways %}
-{%if gw.2 %}
-Default Gateway IP : {{gw.0}}
-{%else%}
-Gateway IP : {{gw.0}}
-{%endif%}
-{%endfor%}
-{%else%}
-None configured 
-{%endif%}
-</td>
-</tr>
-{%if not nic.vlan %}
-<tr>
-<th>
-Bonding status
-</th>
-<td>
-{% if nic.slave_to %}
-Slave to {{nic.slave_to}}
-{%else%}
-Not bonded
-{%endif%}
-</td>
-</tr>
-<tr>
-<th>
-Cable connected?
-</th>
-<td>
-{{nic.carrier_status}}
-</td>
-</tr>
-<tr>
-<th>
-Interface up?
-</th>
-<td>
-{{nic.up_status}}
-</td>
-</tr>
-{%endif%}
-<tr>
-<th>
-MTU
-</th>
-<td>
-{{nic.mtu}}
-</td>
-</tr>
-{%if not nic.vlan %}
-<tr>
-<th>
-Speed
-</th>
-<td>
-{{nic.speed}}
-</td>
-</tr>
-{%endif%}
-</table>
-{%if nic.vlan %}
-<a href="/view_nic?name={{parent_nic}}" role="button" class="btn btn-default">Back to interface details</a>
-{%else%}
-<a href="/view_interfaces/" role="button" class="btn btn-default">Back to interface list</a>
-{%endif%}
-{% if not nic.slave_to %}
-<a href="/edit_interface_address?name={{name}}" role="button" class="btn btn-primary">Edit interface address..</a>
-{%endif%}
-{%if not nic.vlan %}
-{%if nic.up_status == 'up' %}
-<a href="/set_interface_state?name={{name}}&state=down" role="button" class="btn btn-danger">Bring down this interface</a>
-{%else %}
-<a href="/set_interface_state?name={{name}}&state=up" role="button" class="btn btn-success">Bring up this interface</a>
-{%endif%}
-{%endif%}
-<br><br>
-<hr>
-{%if vlans %}
-<h4> VLANs</h4>
-<table  class="table table-bordered">
-<tr>
-<th>
-VLAN ID
-</th>
-<th>
-Configuration
-</th>
-<th>
-Modify..
-</th>
-<th>
-Delete..
-</th>
-</tr>
-{%for vlan_dict in vlans%}
-<tr>
-  <td>
-    {{vlan_dict.vlan_id}}
-  </td>
-  <td>
-    {%if vlan_dict.info.bootproto == 'dhcp'%}
-    DHCP Addressing <br>
-    {%elif vlan_dict.info.bootproto == 'static' %}
-    Static Addressing
-    {%endif%}
-    {%if vlan_dict.info.addresses.AF_INET.0.addr %}
-    Address - {{vlan_dict.info.addresses.AF_INET.0.addr}}<br>
-    Netmask - {{vlan_dict.info.addresses.AF_INET.0.broadcast}}<br>
-    Broadcast - {{vlan_dict.info.addresses.AF_INET.0.netmask}}
-    {%else%}
-     - 
-    {%endif%}
-  </td>
-  <td>
-    <a href="/edit_interface_address?name={{vlan_dict.name}}" role="button" class="btn btn-primary">Edit configuration</a>
-  </td>
-  <td>
-    <a href="/remove_vlan?name={{vlan_dict.name}}" role="button" class="btn btn-primary">Remove this VLAN</a>
-  </td>
-{%endfor%}
-{%else%}
-No VLANs configured for this interface.<br><br>
-{%endif%}
-<a href="/create_vlan?nic={{name}}" role="button" class="btn btn-primary">Create a VLAN</a>
-{%endif%}
-</div>
-<p>
+    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+
+      <h5>{%if nic.vlan%} VLAN name {%else%} Interface name {%endif%}- {{name}}</h5>
+  
+      <table  class="table table-bordered">
+        {%if not nic.vlan %}
+          <tr>
+            <th> MAC address </th>
+            <td>
+              {%if nic.addresses.AF_LINK.0.addr %}
+                {{nic.addresses.AF_LINK.0.addr}}
+              {%else%}
+                 - 
+              {%endif%}
+            </td>
+          </tr>
+        {%endif%}
+        <tr>
+          <th> IP Address </th>
+          <td>
+            {%if nic.bootproto == 'dhcp'%}
+              DHCP Addressing <br>
+            {%elif nic.bootproto == 'static' %}
+              Static Addressing
+            {%endif%}
+            {%if nic.addresses.AF_INET.0.addr %}
+              Address - {{nic.addresses.AF_INET.0.addr}}<br>
+              Netmask - {{nic.addresses.AF_INET.0.broadcast}}<br>
+              Broadcast - {{nic.addresses.AF_INET.0.netmask}}
+            {%else%}
+               - 
+            {%endif%}
+          </td>
+        </tr>
+        <tr>
+          <th> Gateways </th>
+          <td>
+            {%if nic.gateways %}
+              {%for gw in nic.gateways %}
+                {%if gw.2 %}
+                  Default Gateway IP : {{gw.0}}
+                {%else%}
+                  Gateway IP : {{gw.0}}
+                {%endif%}
+              {%endfor%}
+            {%else%}
+              None configured 
+            {%endif%}
+          </td>
+        </tr>
+        {%if not nic.vlan %}
+          <tr>
+            <th> Bonding status </th>
+            <td>
+              {% if nic.slave_to %}
+                Slave to {{nic.slave_to}}
+              {%else%}
+                Not bonded
+              {%endif%}
+            </td>
+          </tr>
+          <tr>
+            <th> Cable connected?  </th>
+            <td> {{nic.carrier_status}} </td>
+          </tr>
+          <tr>
+            <th> Interface up?  </th>
+            <td> {{nic.up_status}} </td>
+          </tr>
+        {%endif%}
+        <tr>
+          <th> MTU </th>
+          <td> {{nic.mtu}} </td>
+        </tr>
+        {%if not nic.vlan %}
+          <tr>
+            <th> Speed </th>
+            <td> {{nic.speed}} </td>
+          </tr>
+        {%endif%}
+      </table>
+  
+      <div class="btn-group btn-group-sm" role="group" aria-label="...">
+        {%if nic.vlan %}
+          <a href="/view_nic?name={{parent_nic}}" role="button" class="btn btn-default">Back to interface details</a>
+        {%else%}
+          <a href="/view_interfaces/" role="button" class="btn btn-default">Back to interface list</a>
+        {%endif%}
+        {% if not nic.slave_to %}
+          <a href="/edit_interface_address?name={{name}}" role="button" class="btn btn-primary">Edit interface address..</a>
+        {%endif%}
+        {%if not nic.vlan %}
+          {%if nic.up_status == 'up' %}
+            <a href="/set_interface_state?name={{name}}&state=down" role="button" class="btn btn-danger ">Bring down this interface</a>
+          {%else %}
+            <a href="/set_interface_state?name={{name}}&state=up" role="button" class="btn btn-success">Bring up this interface</a>
+          {%endif%}
+        {%endif%}
+      </div>
+      <br><br>
+  
+      <hr>
+      <h5> VLANs</h5>
+      {%if vlans %}
+        <table  class="table table-bordered">
+          <tr>
+            <th> VLAN ID </th>
+            <th> Configuration </th>
+            <th> Modify..  </th>
+            <th> Delete..  </th>
+          </tr>
+          {%for vlan_dict in vlans%}
+          <tr>
+            <td> {{vlan_dict.vlan_id}} </td>
+            <td>
+              {%if vlan_dict.info.bootproto == 'dhcp'%}
+                DHCP Addressing <br>
+              {%elif vlan_dict.info.bootproto == 'static' %}
+                Static Addressing
+              {%endif%}
+              {%if vlan_dict.info.addresses.AF_INET.0.addr %}
+                Address - {{vlan_dict.info.addresses.AF_INET.0.addr}}<br>
+                Netmask - {{vlan_dict.info.addresses.AF_INET.0.broadcast}}<br>
+                Broadcast - {{vlan_dict.info.addresses.AF_INET.0.netmask}}
+              {%else%}
+                 - 
+              {%endif%}
+            </td>
+            <td>
+              <a href="/edit_interface_address?name={{vlan_dict.name}}" role="button" class="btn btn-primary btn-xs">Edit configuration</a>
+            </td>
+            <td>
+              <a href="/remove_vlan?name={{vlan_dict.name}}" role="button" class="btn btn-danger btn-xs">Remove this VLAN</a>
+            </td>
+          </tr>
+          {%endfor%}
+        </table>
+      {%else%}
+          No VLANs configured for this interface.<br><br>
+      {%endif%}
+      <a href="/create_vlan?nic={{name}}" role="button" class="btn btn-primary btn-sm">Create a VLAN</a>
+    </div>
+  {%endif%}
 
 {%endblock%}
+
 {%block help_header%}
-View network interface details
+  View network interface details
 {%endblock%}
+
 {%block help_body%}
   <p> This screen provides details about the selected network interface that have been created on this IntegralStor system. </p>
 {%endblock%}

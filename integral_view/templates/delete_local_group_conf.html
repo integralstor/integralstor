@@ -1,28 +1,27 @@
 {% extends 'users-groups_base.html' %}
+
 {%block tab_header %}
-Delete a local user group - confirmation
+  Delete a local user group - confirmation
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
-<!-- Modal -->
 
-<p id="p-warning-text">Are you sure you want to delete the local group "{{grpname}}"? </p>
-<br>
-<form action="/delete_local_group/" method="POST">
-<input type=hidden name="grpname" value="{{grpname}}">
-<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_local_groups'"> &nbsp;&nbsp;
-<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete >></button>
-</form>
-
-
-
-
+  <p id="p-warning-text">Are you sure you want to delete the local group "{{grpname}}"? </p>
+  <br>
+  <form action="/delete_local_group/" method="POST">
+    <input type=hidden name="grpname" value="{{grpname}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_local_group/?grpname={{grpname}}&searchby=grpname" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete </button>
+    </div>
+  </form>
 
 {%endblock%}
+
 {%block help_header%}
-Deleting local group.
+  Deleting local group.
 {%endblock%}
+
 {%block help_body%}
 <p>Confirming this operation results in a local group of the IntegralStor system being deleted.</p>
 {%endblock%}

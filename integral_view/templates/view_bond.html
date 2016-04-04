@@ -1,133 +1,101 @@
 {% extends 'networking_base.html' %}
 {%block tab_header %}
-NIC bond details
+  NIC bond details
 {%endblock%}
 
 {%block inside_content%}
-<br><br>
 
-{% if conf %}
-<p class="text-green"><i>{{conf}}</i></p>
-{%endif%}
-
-{% if not bond %}
-No information for the specified network bond. Click <a href="/view_interfaces/"> here</a> to view all network interfaces.
-{%else %}
-<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-<h3>Network bond name - {{name}}</h3>
-<table  class="table table-bordered">
-<tr>
-<th>
-IP Address
-</th>
-<td>
-{%if nic.bootproto == 'dhcp'%}
-DHCP Addressing - <br>
-{%elif nic.bootproto == 'static' %}
-Static Addressing - <br>
-{%endif%}
-{%if nic.addresses.AF_INET.0.addr %}
-Address - {{nic.addresses.AF_INET.0.addr}}<br>
-Netmask - {{nic.addresses.AF_INET.0.broadcast}}<br>
-Broadcast - {{nic.addresses.AF_INET.0.netmask}}
-{%else%}
- - 
-{%endif%}
-</td>
-</tr>
-<tr>
-<th>
-Gateways
-</th>
-<td>
-{%if nic.gateways %}
-{%for gw in nic.gateways %}
-{%if gw.2 %}
-Default Gateway IP for this interface : {{gw.0}}
-{%else%}
-Gateway IP : {{gw.0}}
-{%endif%}
-{%endfor%}
-{%else%}
-None configured 
-{%endif%}
-</td>
-</tr>
-<tr>
-<th>
-Bonding slaves
-</th>
-<td>
-{%for slave in bond.slaves %}
-{{slave}}, 
-{%endfor%}
-</td>
-<tr>
-<th>
-Active slaves
-</th>
-<td>
-{{bond.active_slave}} 
-</td>
-</tr>
-</tr>
-<tr>
-<th>
-Bond status
-</th>
-<td>
-{{bond.mii_status}}
-</td>
-</tr>
-<tr>
-<th>
-Bonding mode
-</th>
-<td>
-{{bond.mode_str}} (Mode {{bond.mode_num}})
-</td>
-</tr>
-<tr>
-<th>
-MTU
-</th>
-<td>
-{{bond.mtu}}
-</td>
-</tr>
-<tr>
-<th>
-Speed
-</th>
-<td>
-{{bond.speed}}
-</td>
-</tr>
-</table>
-<a href="/view_interfaces/" role="button" class="btn btn-default"> Back to interface list</a>
-<a href="/edit_interface_address?name={{name}}" role="button" class="btn btn-primary">Edit bond address..</a>
-{%if nic.up_status == 'up' %}
-<a href="/set_interface_state?name={{name}}&state=down" role="button" class="btn btn-danger">Bring down this bond</a>
-{%else %}
-<a href="/set_interface_state?name={{name}}&state=up" role="button" class="btn btn-success">Bring up this bond</a>
-{%endif%}
-<a href="/remove_bond?name={{name}}" role="button" class="btn btn-danger">Remove this bond</a>
-<!--
-<a href="/create_zfs_snapshot?target={{pool.pool_name}}&pool={{pool.pool_name}}" role="button" class="btn btn-default">Create a snapshot for this pool</a>
--->
-{%endif%}
-</div>
-<p>
-<!--
-<a href="/create_zfs_pool" role="button" class="btn btn-default"> Create a new ZFS pool</a>-->
+  {% if not bond %}
+    No information for the specified network bond. Click <a href="/view_interfaces/"> here</a> to view all network interfaces.
+  {%else %}
+    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+      <h5>Network bond name - {{name}}</h5>
+      <table  class="table table-bordered">
+        <tr>
+          <th> IP Address </th>
+          <td>
+            {%if nic.bootproto == 'dhcp'%}
+              DHCP Addressing - <br>
+            {%elif nic.bootproto == 'static' %}
+              Static Addressing - <br>
+            {%endif%}
+            {%if nic.addresses.AF_INET.0.addr %}
+              Address - {{nic.addresses.AF_INET.0.addr}}<br>
+              Netmask - {{nic.addresses.AF_INET.0.broadcast}}<br>
+              Broadcast - {{nic.addresses.AF_INET.0.netmask}}
+            {%else%}
+               - 
+            {%endif%}
+          </td>
+        </tr>
+        <tr>
+          <th> Gateways </th>
+          <td>
+            {%if nic.gateways %}
+              {%for gw in nic.gateways %}
+                {%if gw.2 %}
+                  Default Gateway IP for this interface : {{gw.0}}
+                {%else%}
+                  Gateway IP : {{gw.0}}
+                {%endif%}
+              {%endfor%}
+            {%else%}
+              None configured 
+            {%endif%}
+          </td>
+        </tr>
+        <tr>
+          <th> Bonding slaves </th>
+          <td>
+            {%for slave in bond.slaves %}
+              {{slave}}, 
+            {%endfor%}
+          </td>
+        </tr>
+        <tr>
+          <th> Active slaves </th>
+          <td> {{bond.active_slave}} </td>
+        </tr>
+        <tr>
+          <th> Bond status </th>
+          <td> {{bond.mii_status}} </td>
+        </tr>
+        <tr>
+          <th> Bonding mode </th>
+          <td> {{bond.mode_str}} (Mode {{bond.mode_num}}) </td>
+        </tr>
+        <tr>
+          <th> MTU </th>
+          <td> {{bond.mtu}} </td>
+        </tr>
+        <tr>
+          <th> Speed </th>
+          <td> {{bond.speed}} </td>
+        </tr>
+      </table>
+      <div class="btn-group btn-group-sm" role="group" aria-label="...">
+        <a href="/view_interfaces/" role="button" class="btn btn-default"> Back to interface list</a>
+        <a href="/edit_interface_address?name={{name}}" role="button" class="btn btn-primary">Edit bond address..</a>
+        {%if nic.up_status == 'up' %}
+          <a href="/set_interface_state?name={{name}}&state=down" role="button" class="btn btn-danger">Bring down this bond</a>
+        {%else %}
+          <a href="/set_interface_state?name={{name}}&state=up" role="button" class="btn btn-success">Bring up this bond</a>
+        {%endif%}
+          <a href="/remove_bond?name={{name}}" role="button" class="btn btn-danger">Remove this bond</a>
+      </div>
+    </div>
+  {%endif%}
 
 {%endblock%}
+
 {%block help_header%}
-View network bond details
+  View network bond details
 {%endblock%}
+
 {%block help_body%}
   <p> This screen provides details about the selected network bond that have been created on this IntegralStor system. </p>
 {%endblock%}
+
 {% block tab_active%}
   <script>
    make_tab_active("view_interfaces_tab")

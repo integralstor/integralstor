@@ -9,13 +9,11 @@ from integral_view.forms import ftp_management_forms
 def view_ftp_configuration(request):
   return_dict = {}
   try:
-    if "action" in request.GET:
-      if request.GET["action"] == "dirs_created":
-        conf = "FTP user home directories successfully created"
-      elif request.GET["action"] == "saved":
-        conf = "FTP configuration successfully updated"
-      if conf:
-        return_dict["conf"] = conf
+    if "ack" in request.GET:
+      if request.GET["ack"] == "dirs_created":
+        return_dict['ack_message'] = "FTP user home directories successfully created"
+      elif request.GET["ack"] == "saved":
+        return_dict['ack_message'] = "FTP configuration successfully updated"
 
     config, err = vsftp.get_ftp_config()
     if err:
@@ -83,7 +81,7 @@ def configure_ftp(request):
       else:
         audit_str = audit_str + ' SSL disabled.'
       ret, err = audit.audit("update_ftp_config", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_ftp_configuration?action=saved')
+      return django.http.HttpResponseRedirect('/view_ftp_configuration?ack=saved')
   except Exception, e:
     return_dict['base_template'] = "services_base.html"
     return_dict["page_title"] = 'Configure FTP service'
@@ -109,7 +107,7 @@ def create_ftp_user_dirs(request):
       raise Exception(err)
     
     audit.audit("create_ftp_dir", 'Created FTP user directories', request.META["REMOTE_ADDR"])
-    return django.http.HttpResponseRedirect('/view_ftp_configuration?action=dirs_created')
+    return django.http.HttpResponseRedirect('/view_ftp_configuration?ack=dirs_created')
   
   except Exception, e:
     return_dict['base_template'] = "services_base.html"

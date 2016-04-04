@@ -1,102 +1,83 @@
 {% extends 'storage_base.html' %}
+
 {%block tab_header %}
-Modify a ZFS pool's write cache
+  Modify a ZFS pool's write cache
 {%endblock%}
 
 {%block inside_content %}
-<br><br>
-<script>
-function select_field(field) {
-  e = document.getElementById(field);
-  val = e.options[e.selectedIndex].value;
-
-  if (val == 'ramdisk') {
-     $('#ramdisk_size_row').show();
-     $('#disk_selector_row').hide();
+  <script>
+  function select_field(field) {
+    e = document.getElementById(field);
+    val = e.options[e.selectedIndex].value;
+  
+    if (val == 'ramdisk') {
+       $('#ramdisk_size_row').show();
+       $('#disk_selector_row').hide();
+    }
+    else {
+       $('#disk_selector_row').show();
+       $('#ramdisk_size_row').hide();
+    }
   }
-  else {
-     $('#disk_selector_row').show();
-     $('#ramdisk_size_row').hide();
-  }
-}
-</script>
+  </script>
 
-{%if request.GET.result %}
-{{request.GET.result}}
-{%endif%}
+  <form id="edit_form" name="edit_form" action="" method="post">
+    <input name="pool" type="hidden" value="{{ form.pool.value }}">
+    {{ form.pool}}
+    <table class="table" style="width:800px">
+      <tr>
+        <th> Pool name :</th>
+        <td> {{ form.pool.value }} </td>
+        <td> &nbsp </td>
+      </tr>
+      <tr>
+        <th> Write Cache Device :</th>
+        <td>
+          <select name="slog" class="form-control" id="slog" onchange="select_field('slog');">
+            {% for choice in form.slog.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.initial.slog %} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.slog.errors }} </td>
+      </tr>
+      <tr id="disk_selector_row" style="display:none">
+        <th> Select flash drive :</th>
+        <td>
+          <select name="disk" class="form-control">
+            {% for choice in form.disk.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.initial.disk %} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.disk.errors }} </td>
+      </tr>
+      <tr id="ramdisk_size_row" style="display:none">
+        <th> Ramdisk size (in GB) :</th>
+        <td>
+          <input type="text"  name="ramdisk_size" class="form-control" id="id_ramdisk_size" placeholder="Enter the size of the RAM Disk in Gigabytes" /> 
+        </td>
+        <td> {{ form.ramdisk_size.errors }} </td>
+      </tr>
+    </table>
 
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_zfs_pool/?name={{form.pool.value}}" role="button" class="btn btn-default cover-page"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary cover-page">Save</button>
+    </div>
+  </form>
 
-<form id="edit_form" name="edit_form" action="" method="post">
-<input name="pool" type="hidden" value="{{ form.pool.value }}">
-{{ form.pool}}
-            <table class="table" style="width:800px">
-            <tr>
-              <td>
-            <label for="id_name">Pool name :</label>
-              </td>
-              <td>
-            {{ form.pool.value }}
-              </td>
-              <td>
-              &nbsp
-              </td>
-            </tr>
-            <tr>
-              <td>
-            <label for="id_slog">Write Cache Device :</label>
-              </td>
-              <td>
-                  <select name="slog" class="form-control" id="slog" onchange="select_field('slog');">
-                  {% for choice in form.slog.field.choices %}
-                    <option value="{{choice.0}}" {%if choice.0 == form.initial.slog %} selected="selected"{%endif%}>{{choice.1}}</option>
-                  {%endfor%}
-                  </select>
-              </td>
-              <td>
-            {{ form.slog.errors }}
-              </td>
-            </tr>
-            <tr id="disk_selector_row" style="display:none">
-              <td>
-                <label for="id_disk">Select flash drive :</label>
-              </td>
-              <td>
-                  <select name="disk" class="form-control">
-                  {% for choice in form.disk.field.choices %}
-                    <option value="{{choice.0}}" {%if choice.0 == form.initial.disk %} selected="selected"{%endif%}>{{choice.1}}</option>
-                  {%endfor%}
-                  </select>
-              </td>
-              <td>
-            {{ form.disk.errors }}
-              </td>
-            </tr>
-            <tr id="ramdisk_size_row" style="display:none">
-              <td>
-            <label for="id_ramdisk_size">Ramdisk size (in GB) :</label>
-              </td>
-              <td>
-                <input type="text"  name="ramdisk_size" class="form-control" id="id_ramdisk_size" placeholder="Enter the size of the RAM Disk in Gigabytes" /> 
-              </td>
-              <td>
-            {{ form.ramdisk_size.errors }}
-              </td>
-            </tr>
-            </table>
-
-        <a href="/view_zfs_pool/?name={{form.pool.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary cover-page">Save</button>
-</form>
-
-<script>
-window.onload = select_field("slog");
-</script>
+  <script>
+    window.onload = select_field("slog");
+    </script>
 {%endblock%}
+
 {%block help_header%}
-Edit ZFS pool write cache
+  Edit ZFS pool write cache
 {%endblock%}
+
 {%block help_body%}
-<p>Use this screen to change the device that is used as the write cache for the ZFS pool. The settings will take effect upon saving this information.</p>
+  <p>Use this screen to change the device that is used as the write cache for the ZFS pool. The settings will take effect upon saving this information.</p>
 {%endblock%}
 
 {% block tab_active %}

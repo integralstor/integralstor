@@ -1,191 +1,166 @@
 {% extends 'dashboard_base.html' %}
+
 {%block tab_header %}
-ZFS pools status
+  ZFS pools status
 {%endblock%}
+
 {% block inside_content %}
-<br><br>
-{%if not pools %}
-  No storage pools created
-{%else%}
-<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+  {%if not pools %}
+    No storage pools created
+  {%else%}
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
-  {%for pool in pools %}
+      {%for pool in pools %}
 
-  <div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="headingOne">
-      <h4 class="panel-title">
-        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{pool.pool_name}}" aria-expanded="true" aria-controls="collapse{{pool.pool_name}}">
-          Pool : {{pool.pool_name}}. <span class="label {%if pool.config.pool.root.status.state == 'ONLINE' %} label-default {%elif pool.config.pool.root.status.state == 'DEGRADED'%} label-warning {%else %} label-danger {%endif%}"> Status : {{pool.config.pool.root.status.state}}</span>&nbsp; <span class="caret">&nbsp;</span>
-        </a>
-      </h4>
-    </div>
-    <div id="collapse{{pool.pool_name}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{pool.pool_name}}">
-      <div class="panel-body">
+        <div class="panel panel-default">
+          <div class="panel-heading" role="tab" id="headingOne">
+            <h5 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{pool.pool_name}}" aria-expanded="true" aria-controls="collapse{{pool.pool_name}}">
+                Pool : {{pool.pool_name}}. <span class="label {%if pool.config.pool.root.status.state == 'ONLINE' %} label-default {%elif pool.config.pool.root.status.state == 'DEGRADED'%} label-warning {%else %} label-danger {%endif%}"> Status : {{pool.config.pool.root.status.state}}</span>&nbsp; <span class="caret">&nbsp;</span>
+              </a>
+            </h5>
+          </div>
+          <div id="collapse{{pool.pool_name}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{pool.pool_name}}">
+            <div class="panel-body">
+      
+              <table class="table table-bordered table-hover table-responsive" style="width:800px">
+                <thead>
+                  <th > Pool name </th>
+                  <th > Pool type </th>
+                  <th> Status details </th>
+                  <th> Errors </th>
+                  <th> Scan status </th>
+                </thead>
+                <tr>
+                  <td> {{pool.pool_name}} </td>
+                  <td> {{pool.config.pool.type.upper}} </td>
+                  <td>
+                    {{pool.config.pool.root.status.read}} read errors, <br>{{pool.config.pool.root.status.write}} write errors, <br>{{pool.config.pool.root.status.read}} checksum errors 
+                  </td>
+                  <td> {{pool.errors}} </td>
+                  <td> {{pool.scan}} </td>
+                </tr>
+              </table>
 
-        <table class="table table-bordered table-hover table-responsive" style="width:800px">
-          <thead>
-            <th > Pool name </th>
-            <th > Pool type </th>
-            <th> Status details </th>
-            <th> Errors </th>
-            <th> Scan status </th>
-          </thead>
-        <tr>
-          <td> {{pool.pool_name}} </td>
-          <td> {{pool.config.pool.type.upper}} </td>
-          <td>
-            {{pool.config.pool.root.status.read}} read errors, <br>{{pool.config.pool.root.status.write}} write errors, <br>{{pool.config.pool.root.status.read}} checksum errors 
-          </td>
-          <td> {{pool.errors}} </td>
-          <td> {{pool.scan}} </td>
-        </tr>
-      </table>
-
-      <h4>Storage pool status</h4>
-      <ul>
-        <li> {{pool.pool_name}} (Pool)- State ({{pool.config.pool.root.status.state}}), Read ({{pool.config.pool.root.status.read}}), Write ({{pool.config.pool.root.status.write}}), Checksum ({{pool.config.pool.root.status.chksum}})
-            {%if pool.config.pool.root.status.state == 'ONLINE'%}
-              <i class="fa fa-check-circle green fa-1x"></i>	
-            {%else%}
-              <i class="fa fa-remove red fa-2x"></i>	
-            {%endif%}
-          <ul>
-            
-            {%for child in pool.config.pool.root.children %}
-            <li> {{child.name}} ({{child.type}}), State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
-            {%if child.status.state == 'ONLINE'%}
-              <i class="fa fa-check-circle green fa-1x"></i>	
-            {%else%}
-              <i class="fa fa-remove red fa-2x"></i>	
-            {%endif%}
-              {%if child.children %}
+              <h5>Storage pool status</h5>
               <ul>
-                {%for gr_child in child.children %}
-                  <li> {{gr_child.name}} ({{gr_child.type}}), State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
-                  {%if gr_child.status.state == 'ONLINE'%}
-                    <i class="fa fa-check-circle green fa-1x"></i>	
-                  {%else%}
-                    <i class="fa fa-remove red fa-2x"></i>	
-                  {%endif%}
-                  {%if gr_child.children %}
-                  <ul>
-                    {%for gr_gr_child in gr_child.children %}
-                      <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, <br>Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
-                      {%if gr_gr_child.status.state == 'ONLINE'%}
-                        <i class="fa fa-check-circle green fa-1x"></i>	
-                      {%else%}
-                        <i class="fa fa-remove red fa-2x"></i>	
-                      {%endif%}
-            
-                    {%endfor%}
-                  </ul>
-                  {%endif%}
+                <li> {{pool.pool_name}} (Pool)- State ({{pool.config.pool.root.status.state}}), Read ({{pool.config.pool.root.status.read}}), Write ({{pool.config.pool.root.status.write}}), Checksum ({{pool.config.pool.root.status.chksum}})
+                {%if pool.config.pool.root.status.state == 'ONLINE'%}
+                  <i class="fa fa-check-circle green fa-1x"></i>	
+                {%else%}
+                  <i class="fa fa-remove red fa-2x"></i>	
+                {%endif%}
+                <ul>
+                  {%for child in pool.config.pool.root.children %}
+                    <li> {{child.name}} ({{child.type}}), State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
+                    {%if child.status.state == 'ONLINE'%}
+                      <i class="fa fa-check-circle green fa-1x"></i>	
+                    {%else%}
+                      <i class="fa fa-remove red fa-2x"></i>	
+                    {%endif%}
+                    {%if child.children %}
+                      <ul>
+                        {%for gr_child in child.children %}
+                          <li> {{gr_child.name}} ({{gr_child.type}}), State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
+                          {%if gr_child.status.state == 'ONLINE'%}
+                            <i class="fa fa-check-circle green fa-1x"></i>	
+                          {%else%}
+                            <i class="fa fa-remove red fa-2x"></i>	
+                          {%endif%}
+                          {%if gr_child.children %}
+                            <ul>
+                              {%for gr_gr_child in gr_child.children %}
+                                <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, <br>Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
+                                {%if gr_gr_child.status.state == 'ONLINE'%}
+                                  <i class="fa fa-check-circle green fa-1x"></i>	
+                                {%else%}
+                                  <i class="fa fa-remove red fa-2x"></i>	
+                                {%endif%}
+                              {%endfor%}
+                            </ul>
+                          {%endif%}
+                        {%endfor%}
+                      </ul>
+                    {%endif%}
+                  {%endfor%}
+                </ul>
+            </ul>
+            {%if pool.config.spares%}
+              <h5>Spare disk status</h5>
+              <table class="table table-bordered table-hover table-responsive" >
+                <th> Disk ID </th>
+                <th> Status </th>
+                {%for id, status in pool.config.spares.items%}
+                  <tr>
+                    <td> {{id}} </td>
+                    <td> {{status}} </td>
+                  </tr>
                 {%endfor%}
-              </ul>
-              {%endif%}
-            {%endfor%}
-          </ul>
-      </ul>
-      {%if pool.config.spares%}
-      <h4>Spare disk status</h4>
-      <table class="table table-bordered table-hover table-responsive" >
-      <th>
-        Disk ID
-      </th>
-      <th>
-        Status
-      </th>
-      {%for id, status in pool.config.spares.items%}
-      <tr>
-        <td>
-          {{id}}
-        </td>
-        <td>
-          {{status}}
-        </td>
-      </tr>
-      {%endfor%}
-      </table>
-      {%endif%}
-
-      {% if pool.config.logs %}
-      <h4>Write cache status</h4>
-
-        <ul>
-        {%if pool.config.logs.root.status %}
-        <li>  Write cache Status - State ({{pool.config.logs.root.status.state}}), Read ({{pool.config.logs.root.status.read}}), Write ({{pool.config.logs.root.status.write}}), Checksum ({{pool.config.logs.root.status.chksum}})
-            {%if pool.config.logs.root.status.state == 'ONLINE'%}
-              <i class="fa fa-check-circle green fa-2x"></i>	
-            {%else%}
-              <i class="fa fa-remove red fa-2x"></i>	
+              </table>
             {%endif%}
-          <ul>
-        {%endif%}
-            
-            {%for child in pool.config.logs.root.children %}
-            <li> Name - {{child.name}}, Type - {{child.type}}, Status - State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
-            {%if child.status.state == 'ONLINE'%}
-              <i class="fa fa-check-circle green fa-2x"></i>	
-            {%else%}
-              <i class="fa fa-remove red fa-2x"></i>	
-            {%endif%}
-              {%if child.children %}
+      
+            {% if pool.config.logs %}
+              <h5>Write cache status</h5>
               <ul>
-                {%for gr_child in child.children %}
-                  <li> Name - {{gr_child.name}}, Type - {{gr_child.type}}, Status - State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
-                  {%if gr_child.status.state == 'ONLINE'%}
+                {%if pool.config.logs.root.status %}
+                  <li>  Write cache Status - State ({{pool.config.logs.root.status.state}}), Read ({{pool.config.logs.root.status.read}}), Write ({{pool.config.logs.root.status.write}}), Checksum ({{pool.config.logs.root.status.chksum}})
+                    {%if pool.config.logs.root.status.state == 'ONLINE'%}
+                      <i class="fa fa-check-circle green fa-2x"></i>	
+                    {%else%}
+                      <i class="fa fa-remove red fa-2x"></i>	
+                    {%endif%}
+                {%endif%}
+                  
+                {%for child in pool.config.logs.root.children %}
+                  <li> Name - {{child.name}}, Type - {{child.type}}, Status - State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
+                  {%if child.status.state == 'ONLINE'%}
                     <i class="fa fa-check-circle green fa-2x"></i>	
                   {%else%}
                     <i class="fa fa-remove red fa-2x"></i>	
                   {%endif%}
-                  {%if gr_child.children %}
-                  <ul>
-                    {%for gr_gr_child in gr_child.children %}
-                      <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
-                      {%if gr_gr_child.status.state == 'ONLINE'%}
-                        <i class="fa fa-check-circle green fa-2x"></i>	
-                      {%else%}
-                        <i class="fa fa-remove red fa-2x"></i>	
-                      {%endif%}
-            
-                    {%endfor%}
-                  </ul>
+                  {%if child.children %}
+                    <ul>
+                      {%for gr_child in child.children %}
+                        <li> Name - {{gr_child.name}}, Type - {{gr_child.type}}, Status - State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
+                        {%if gr_child.status.state == 'ONLINE'%}
+                          <i class="fa fa-check-circle green fa-2x"></i>	
+                        {%else%}
+                          <i class="fa fa-remove red fa-2x"></i>	
+                        {%endif%}
+                        {%if gr_child.children %}
+                          <ul>
+                            {%for gr_gr_child in gr_child.children %}
+                              <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
+                              {%if gr_gr_child.status.state == 'ONLINE'%}
+                                <i class="fa fa-check-circle green fa-2x"></i>	
+                              {%else%}
+                                <i class="fa fa-remove red fa-2x"></i>	
+                              {%endif%}
+                            {%endfor%}
+                          </ul>
+                        {%endif%}
+                      {%endfor%}
+                    </ul>
                   {%endif%}
                 {%endfor%}
               </ul>
-              {%endif%}
-            {%endfor%}
-        {%if pool.config.logs.root.status %}
-          </ul>
-        {%endif%}
-      </ul>
-      {%endif%}
-
+            {%endif%}
+      
+            </div>
+          </div>
+        </div>
+        {%endfor%}
       </div>
-    </div>
-  </div>
-  {%endfor%}
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
+      
 {%endif%}
 
 
 {% endblock %}
+
 {%block help_header%}
-View ZFS pool status
+  View ZFS pool status
 {%endblock%}
+
 {%block help_body%}
   <p> 
   This screen gives the status of all the ZFS pools that have been created. You can click on the entry next to the pool name to expand a tab which gives you details about that pool.
@@ -193,7 +168,7 @@ View ZFS pool status
 {%endblock%}
 
 {% block tab_active %}
-<script>
-   make_tab_active("pools_tab")
-</script>
+  <script>
+    make_tab_active("pools_tab")
+  </script>
 {% endblock%}

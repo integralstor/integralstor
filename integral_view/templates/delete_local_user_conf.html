@@ -1,31 +1,30 @@
 {% extends 'users-groups_base.html' %}
+
 {%block tab_header %}
-Delete a local user - confirmation
+  Delete a local user - confirmation
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
-
-<!-- Modal -->
-
-<p id="p-warning-text">Are you sure you want to delete the local user "{{username}}"? </p>
-<br>
-<form action="/delete_local_user/" method="POST">
-<input type=hidden name="username" value="{{username}}">
-<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_local_users'"> &nbsp;&nbsp;
-<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete >></button>
-</form>
 
 
-
-
+  <p id="p-warning-text">Are you sure you want to delete the local user "{{username}}"? </p>
+  <br>
+  <form action="/delete_local_user/" method="POST">
+    <input type=hidden name="username" value="{{username}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_local_user/?username={{username}}&searchby=username" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete </button>
+    </div>
+  </form>
 
 {%endblock%}
+
 {%block help_header%}
-Deleting local users.
+  Deleting local users.
 {%endblock%}
+
 {%block help_body%}
-<p>Confirming this operation results in a local user of the IntegralStor system being deleted.</p>
+  <p>Confirming this operation results in a local user of the IntegralStor system being deleted.</p>
 {%endblock%}
 
 {% block tab_active %}

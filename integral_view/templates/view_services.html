@@ -1,103 +1,64 @@
 {% extends 'services_base.html' %}
+
 {%block tab_header %}
-System services
+  System services
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
-{% if conf %}
-<p class="text-green">{{conf}}</p>
+  {% if not services %}
+    <p>No services appear to be configured. </p>
+  {%else %}
+    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+      <table  class="table table-bordered">
+        <tr>
+          <th > Service name </th>
+          <th> Service status </th>
+          <th> Action </th>
+          <th> Details </th>
+        </tr>
+        {%for name, service in services.items %}
+          <tr>
+            <td> {{service.name}} </td>
+            <td  style="max-width:150px;word-wrap: break-word">
+              {%if service.info %}
+                {{service.info.status_str}}
+              {%else%}
+                Error
+              {%endif%}
+            </td>
+            <td>
+              <form method='POST' action='/change_service_status/'>
+                {%if service.info.status_code == 0 %}
+                  <input name='action' type='hidden' value='stop'>
+                    <button type="submit" class="btn btn-danger btn-xs cover-page">Stop </button>
+                {%else%}
+                  <input name='action' type='hidden' value='start'>
+                  <button type="submit" class="btn btn-success btn-xs cover-page">Start </button>
+                {%endif%}
+                <input name='service' type='hidden' value={{service.service}}>
+              </form>
+            </td>
+            <td  style="max-width:200px;word-wrap: break-word">
+              {%if service.info %}
+                {{service.info.output_str}}
+              {%elif service.err%}
+                {{service.err}}
+              {%endif%}
+            </td>
+          </tr>
+        {%endfor%}
+      </table>
+  </div>
 {%endif%}
 
-{% if not services %}
-<p>No services appear to be configured. </p>
-{%else %}
-<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-<table  class="table table-bordered">
-<tr>
-<th >
-Service name
-</th>
-<th>
-Service status
-</th>
-<th>
-Action
-</th>
-<th>
-Details
-</th>
-</tr>
-{%for name, service in services.items %}
-<tr>
-<td>
-{{service.name}}
-</td>
-<td>
-{%if service.info %}
-{{service.info.status_str}}
-{%else%}
-Error
-{%endif%}
-</td>
-<td>
-{% if 'FTP' in service.name %}
-{%if service.info.status_code == 0 %}
-	<form method='POST' action='/change_service_status/'>
-		<input name='service' type='hidden' value={{service.service}}>
-		<input name='action' type='hidden' value='stop'>
-		<button type="submit" class="btn btn-danger cover-page">Stop this service</button>
-	</form>
-	{%else%}
-<a href="/start_ftp_service" class="btn btn-success">Start this service</a>
-{%endif%}
-{%else%}
-
-<form method='POST' action='/change_service_status/'>
-{%if service.info.status_code == 0 %}
-<input name='action' type='hidden' value='stop'>
-<button type="submit" class="btn btn-danger cover-page">Stop this service</button>
-{%else%}
-<input name='action' type='hidden' value='start'>
-<button type="submit" class="btn btn-success cover-page">Start this service</button>
-{%endif%}
-<input name='service' type='hidden' value={{service.service}}>
-</form>
-{%endif%}
-</td>
-<td>
-{%if service.info %}
-{{service.info.output_str}}
-{%elif service.err%}
-{{service.err}}
-{%endif%}
-</td>
-</tr>
-{%endfor%}
-</table>
-{%endif%}
-</div>
-<script>
-    setInterval(function(){
-    window.location.href = "/view_services/"
-    },30000);
-    $(".btn-success").click(function(){
-      setTimeout(function(){
-        window.location.href = "/view_services/?&action=start_success"; 
-      },5000);
-    });
-    $(".btn-danger").click(function(){
-      setTimeout(function(){
-        window.location.href = "/view_services/?&action=stop_success"; 
-      },5000);
-    });
-</script>
 
 {%endblock%}
+
 {%block help_header%}
-View services
+  View services
 {%endblock%}
+
 {%block help_body%}
   <p> This screen provides the list of all the services that have been configured on this IntegralStor system. 
   </p>

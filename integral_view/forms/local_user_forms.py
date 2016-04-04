@@ -1,6 +1,4 @@
 from django import forms
-import integralstor_common
-from integralstor_common import networking
 
 class LocalUserForm(forms.Form):
 
@@ -13,6 +11,7 @@ class LocalUserForm(forms.Form):
     if kwargs:
       group_list = kwargs.pop("group_list")
     super(LocalUserForm, self).__init__(*args, **kwargs)
+
     ch = []
     if group_list:
       for group in group_list:
@@ -27,6 +26,7 @@ class LocalUserForm(forms.Form):
         self._errors["password"] = self.error_class(["The password and password confirmation do not match."])
         del cd["password"]
         del cd["password_conf"]
+
     if "'" in cd["name"] or '"' in cd["name"]:
       self._errors["name"] = self.error_class(["The name cannot contain special characters."])
       del cd["name"]
@@ -44,6 +44,7 @@ class EditLocalUserGidForm(forms.Form):
     if kwargs:
       group_list = kwargs.pop("group_list")
     super(EditLocalUserGidForm, self).__init__(*args, **kwargs)
+
     ch = []
     if group_list:
       for group in group_list:
@@ -57,6 +58,7 @@ class EditLocalUserGroupMembershipForm(forms.Form):
     if kwargs:
       group_list = kwargs.pop("group_list")
     super(EditLocalUserGroupMembershipForm, self).__init__(*args, **kwargs)
+
     ch = []
     if group_list:
       for group in group_list:

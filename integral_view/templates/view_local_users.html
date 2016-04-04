@@ -1,81 +1,66 @@
 {% extends 'users-groups_base.html' %}
+
 {%block tab_header %}
-Local users
+  Local users
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
+  {% if warnings %}
+    <p class="text-red">The following problems occurred during the process : {{warnings}}</p><br><br>
+  {%endif%}
 
-{% if conf %}
-  <p class="text-green">{{conf}}</p><br><br>
-{%endif%}
-{% if warnings %}
-<p class="text-red">The following problems occurred during the process : {{warnings}}</p><br><br>
-{%endif%}
-
-{% if not user_list %}
-No local users appear to have been created. Click <a href="/create_local_user/"> here</a> to create a new local user. 
-{%else %}
-<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-<table class="table table-striped">
-<thead>
-<tr>
-<th>
-Username
-</th>
-<th>
-Primary group
-</th>
-<th>
-CIFS User?
-</th>
-<th>
-Name
-</th>
-<th>
-&nbsp;
-</th>
-</thead>
-{%for u in user_list %}
-<tr>
-  <td>
-    {{u.username}}
-  </td>
-  <td>
-    {{u.grpname}}
-  </td>
-  <td>
-    {%if u.smb_user %}
-    Yes
-    {%else%}
-    No
-    {%endif%}
-  </td>
-  <td>
-    {%if u.comment%}
-    {{u.comment}}
-    {%else%}
-    -
-    {%endif%}
-  </td>
-  <td>
-    <a href="/view_local_user?username={{u.username}}&searchby=username" role="button" class="btn btn-info"> View details</a>
-  </td>
-</tr>
-{%endfor%}
-</table>
-</div>
-<br>
-<a href="/create_local_user" role="button" class="btn btn-primary"> Create a new local user</a>
-{%endif%}
+  {% if not user_list %}
+    No local users appear to have been created. Click <a href="/create_local_user/"> here</a> to create a new local user. 
+  {%else %}
+    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th> Username </th>
+            <th> Primary group </th>
+            <th> Windows access user?  </th>
+            <th> Name </th>
+            <th> &nbsp; </th>
+          </tr>
+        </thead>
+        {%for u in user_list %}
+          <tr>
+            <td> {{u.username}} </td>
+            <td> {{u.grpname}} </td>
+            <td> 
+              {%if u.smb_user %} 
+                Yes
+              {%else%}
+                No
+              {%endif%}
+            </td>
+            <td>
+              {%if u.comment%}
+                {{u.comment}}
+              {%else%}
+                -
+              {%endif%}
+            </td>
+            <td>
+              <a href="/view_local_user?username={{u.username}}&searchby=username" role="button" class="btn btn-info btn-xs"> Details</a>
+            </td>
+          </tr>
+        {%endfor%}
+      </table>
+    </div>
+    <br>
+    <a href="/create_local_user" role="button" class="btn btn-primary btn-sm"> Create a new local user</a>
+  {%endif%}
 
 {%endblock%}
+
 {%block help_header%}
-View local users 
+  View local users 
 {%endblock%}
+
 {%block help_body%}
-  <p>Use local user authentication when you want CIFS access but do not want to use or deploy Active Directory authentication. This page is used to view the list of local users who have been created for this purpose. These accounts are used only for IntegralStor access and not for any other purpose.</p>
+  <p>Use local user authentication when you want Windows access but do not want to use or deploy Active Directory authentication. This page is used to view the list of local users who have been created for this purpose. These accounts are used only for IntegralStor access and not for any other purpose.</p>
 {%endblock%}
 
 {% block tab_active %}

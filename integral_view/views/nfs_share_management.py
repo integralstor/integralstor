@@ -15,14 +15,13 @@ def view_nfs_shares(request):
     if not exports_list and err:
       raise Exception(err)
   
-    if "action" in request.GET:
-      if request.GET["action"] == "saved":
-        conf = "NFS Export information successfully updated"
-      elif request.GET["action"] == "created":
-        conf = "NFS Export successfully created"
-      elif request.GET["action"] == "deleted":
-        conf = "NFS Export successfully deleted"
-      return_dict["conf"] = conf
+    if "ack" in request.GET:
+      if request.GET["ack"] == "saved":
+        return_dict['ack_message'] = "NFS Export information successfully updated"
+      elif request.GET["ack"] == "created":
+        return_dict['ack_message'] = "NFS Export successfully created"
+      elif request.GET["ack"] == "deleted":
+        return_dict['ack_message'] = "NFS Export successfully deleted"
     return_dict["exports_list"] = exports_list
     template = "view_nfs_shares.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
@@ -85,7 +84,7 @@ def delete_nfs_share(request):
  
       audit_str = "Deleted NFS share %s"%path
       audit.audit("delete_nfs_share", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_nfs_shares?action=deleted')
+      return django.http.HttpResponseRedirect('/view_nfs_shares?ack=deleted')
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
     return_dict["page_title"] = 'Remove NFS share '
@@ -139,7 +138,7 @@ def edit_nfs_share(request):
  
       audit_str = "Edited NFS share %s"%path
       audit.audit("edit_nfs_share", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_nfs_shares?action=saved')
+      return django.http.HttpResponseRedirect('/view_nfs_shares?ack=saved')
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
     return_dict["page_title"] = 'Modify a NFS share '
@@ -181,7 +180,7 @@ def create_nfs_share(request):
  
       audit_str = "Created NFS share %s"%path
       audit.audit("create_nfs_share", audit_str, request.META["REMOTE_ADDR"])
-      return django.http.HttpResponseRedirect('/view_nfs_shares?action=created')
+      return django.http.HttpResponseRedirect('/view_nfs_shares?ack=created')
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
     return_dict["page_title"] = 'Create a NFS share '

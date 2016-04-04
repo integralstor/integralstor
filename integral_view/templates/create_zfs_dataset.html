@@ -1,71 +1,51 @@
 {% extends 'storage_base.html' %}
 
 {%block tab_header %}
-Create a ZFS dataset
+  Create a ZFS dataset
 {%endblock%}
+
 {%block inside_content %}
-<br><br>
 
-{{conf_message}}
+  {{form.errors}}
+  <form id="create_form" name="create_form" action="/create_zfs_dataset/" method="post">
+    <input type="hidden" name="pool" value="{{pool}}">
+    <table class="table">
+      <tr>
+        <th> Parent pool :</th>
+        <td> {{form.pool.value}} </td>
+        <td> &nbsp; </td>
+      </tr>
+      <tr>
+        <th> Dataset name:</th>
+        <td> 
+          <input type="text"  name="name" class="form-control" id="id_clients" placeholder="Enter the name of the dataset" />
+        </td>
+        <td> {{ form.name.errors }} </td>
+      </tr>
+      <tr>
+        <th> Enable compression:</th>
+        <td> {{ form.compression }} </td>
+        <td> {{ form.compression.errors }} </td>
+      </tr>
+      <tr>
+        <th> Enable deduplication :</th>
+        <td> {{ form.dedup }} </td>
+        <td> {{ form.dedup.errors }} </td>
+      </tr>
+    </table>
 
-{{form.errors}}
-<form id="create_form" name="create_form" action="/create_zfs_dataset/" method="post">
-<input type="hidden" name="pool" value="{{pool}}">
-            <table class="table" style="width:800px">
-            <tr>
-              <td>
-            <label >Parent pool :</label>
-              </td>
-              <td>
-                {{form.pool.value}}
-              </td>
-              <td>
-                &nbsp;
-              </td>
-            </tr>
-            <tr>
-              <td>
-            <label for="id_name">Dataset name:</label>
-              </td>
-              <td>
-                <input type="text"  name="name" class="form-control" id="id_clients" placeholder="Enter the name of the dataset" />
-              </td>
-              <td>
-            {{ form.name.errors }}
-              </td>
-            </tr>
-            <tr>
-              <td>
-            <label for="id_compression">Enable compression:</label>
-              </td>
-              <td>
-            {{ form.compression }}
-              </td>
-              <td>
-            {{ form.compression.errors }}
-              </td>
-            </tr>
-            <tr>
-              <td>
-            <label for="id_dedup">Enable deduplication :</label>
-              </td>
-              <td>
-            {{ form.dedup }}
-              </td>
-              <td>
-            {{ form.dedup.errors }}
-              </td>
-            </tr>
-            </table>
-
-        <a href="/view_zfs_pools" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary">Save</button>
-</form>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_zfs_pool?name={{pool}}" role="button" class="btn btn-default cover-page"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
 
 {%endblock%}
+
 {%block help_header%}
-Create a  ZFS dataset
+  Create a  ZFS dataset
 {%endblock%}
+
 {%block help_body%}
 <p>Use this screen to create a ZFS dataset. The settings will take effect upon saving this information.</p>
 {%endblock%}

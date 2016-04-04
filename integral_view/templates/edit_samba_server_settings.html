@@ -1,69 +1,67 @@
 {% extends 'services_base.html' %}
+
 {%block tab_header %}
-Modify CIFS authentication settings
+  Modify Windows shares authentication settings
 {%endblock%}
 
 {%block inside_content %}
-<br><br>
-<p id="p-instruction-text">{{conf}}</p>
-{{form.errors}}
+  {{form.errors}}
 
-<form name="save_form" action="/save_samba_server_settings/" method="post" >
-{{form.security}}
-<input type="hidden" name="netbios_name" value="Fractalio">
-<div  style=" position:relative;border:0px solid #DDDDDD;width:600px; padding:15px 15px 15px;margin:0px 15px;border-radius:4px 4px 0px 0px">
-{%if form.data.security == "ads" or form.initial.security == "ads"%}
-  <div class="form-group" >
-    <label for="id_password_server" >Authentication server DNS name:</label>
-    <input type="text"  name="password_server" class="form-control" id="id_password_server" placeholder="Authentication server DNS name" value="{{form.password_server.value|default_if_none:''}}"> 
-    {{ form.password_server.errors }}
-  </div>
-  <div class="form-group" >
-    <label for="id_password_server_ip" >Authentication server IP address:</label>
-    <input type="text"  name="password_server_ip" class="form-control" id="id_password_server_ip" placeholder="Authentication server IP Address" value="{{form.password_server_ip.value|default_if_none:''}}"> 
-    {{ form.password_server_ip.errors }}
-  </div>
-  <div class="form-group" >
-    <label for="id_realm" >AD Domain/Realm:</label>
-    <input type="text"  name="realm" class="form-control" id="id_realm" placeholder="AD Domain/Realm:" value="{{form.realm.value|default_if_none:''}}"> 
-    {{ form.realm.errors }}
-  </div>
-  <!--
-  <div class="form-group" >
-    <label for="id_ad_schema_mode" >Volume name :</label>
-    <select name="ad_schema_mode" class="form-control">
-    {% for choice in form.ad_schema_mode.field.choices %} 
-      <option value="{{choice.0}}" {%if form.initial.ad_schema_mode == choice.0%} selected="selected" {%endif%}>{{choice.1}}</option>
-    {%endfor%}
-    </select>
-    {{ form.ad_schema_mode.errors }}
-  </div>
-  <div class="form-group" >
-    <label for="id_id_map_min" >AD UID Mapping range :</label>
-    <input type="text"  name="id_map_min" class="form-control" id="id_id_map_min" placeholder="Range minimum" value="{{form.id_map_min.value|default_if_none:'16777216'}}"> to  <input type="text"  name="id_map_max" class="form-control" id="id_id_map_max" placeholder="Range maximum"  value="{{form.id_map_max.value|default_if_none:'33554431'}}">
-    {{ form.id_map_min.errors }}
-    {{ form.id_map_max.errors }}
-  </div>
-  -->
-  <div class="form-group" >
-    <label for="id_password" >AD Admininstrator password  </label> (Never stored. Used only to initially join AD realm) 
-    <input type="password"  name="password" class="form-control" id="id_password" placeholder="AD Administrator password"> 
-    {{ form.password_server.errors }}
-  </div>
-{%endif%}
-  <div class="form-group" >
-    <label for="id_workgroup" >Workgroup:</label>
-    <input type="text"  name="workgroup" class="form-control" id="id_workgroup" placeholder="Workgroup" value="{{form.workgroup.value|default_if_none:''}}"> 
-    {{ form.workgroup.errors }}
-  </div>
-  <a href="/auth_server_settings/" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;<button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');"> Save </button>
-</div>
+  <form name="save_form" action="/save_samba_server_settings/" method="post" >
+    {{form.security}}
+    <input type="hidden" name="netbios_name" value="Fractalio">
 
+    <table class="table" >
+      {%if form.data.security == "ads" or form.initial.security == "ads"%}
+        <tr>
+          <th>  Authentication server DNS name: </th>
+          <td>
+            <input type="text"  name="password_server" class="form-control" id="id_password_server" placeholder="Authentication server DNS name" value="{{form.password_server.value|default_if_none:''}}"> 
+          </td>
+          <td> {{ form.password_server.errors }} </td>
+        </tr>
+        <tr>
+          <th>  Authentication server IP address: </th>
+          <td>
+            <input type="text"  name="password_server_ip" class="form-control" id="id_password_server_ip" placeholder="Authentication server IP Address" value="{{form.password_server_ip.value|default_if_none:''}}"> 
+          </td>
+          <td> {{ form.password_server_ip.errors }}  </td>
+        </tr>
+        <tr>
+          <th> AD Domain/Realm: </th>
+          <td>
+            <input type="text"  name="realm" class="form-control" id="id_realm" placeholder="AD Domain/Realm:" value="{{form.realm.value|default_if_none:''}}"> 
+          </td>
+          <td> {{ form.realm.errors }} </td>
+        </tr>
+        <tr>
+          <td> <b>AD Admininstrator password </b><br> (Never stored. Used only to initially join AD realm) </td>
+          <td>
+            <input type="password"  name="password" class="form-control" id="id_password" placeholder="AD Administrator password"> 
+          </td>
+          <td> {{ form.password.errors }} </td>
+        </tr>
+      {%endif%}
+      <tr>
+        <th> Workgroup: </th>
+        <td>
+          <input type="text"  name="workgroup" class="form-control" id="id_workgroup" placeholder="Workgroup" value="{{form.workgroup.value|default_if_none:''}}"> 
+        </td>
+        <td> {{ form.workgroup.errors }} </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/auth_server_settings/" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');"> Save </button>
+    </div>
+  </form>
 
 {%endblock%}
+
 {%block help_header%}
-Active Directory Authentication settings
+  Active Directory Authentication settings
 {%endblock%}
+
 {%block help_body%}
 <p> Use this screen to provide information about your Active Directory server against which authentication for share access will happen. Please ensure that you provide the correct server name, IP address and administrative user password in order for the authentication to proceed properly.</p>
 {%endblock%}

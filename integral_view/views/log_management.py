@@ -3,8 +3,9 @@ import zipfile, datetime,os,shutil
 import django, django.template
 from  django.contrib import auth
 from django.core.files.storage import default_storage
+from django.contrib.auth.decorators import login_required
 
-from integralstor_common import common, audit, alerts
+from integralstor_common import common, audit, alerts,command, db
 
 from integralstor_unicell import system_info
 
@@ -12,6 +13,38 @@ import integral_view
 from integral_view.forms import log_management_forms,common_forms
 from integral_view.utils import iv_logging
 
+def view_alerts(request):
+  return_dict = {}
+  try:
+    alerts_list, err = alerts.load_alerts()
+    if err:
+      raise Exception(err)
+    return_dict['alerts_list'] = alerts_list
+    return django.shortcuts.render_to_response('view_alerts.html', return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception, e:
+    return_dict['base_template'] = "logging_base.html"
+    return_dict["page_title"] = 'System alerts'
+    return_dict['tab'] = 'view_current_alerts_tab'
+    return_dict["error"] = 'Error loading system alerts'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def view_audit_trail(request):
+  return_dict = {}
+  try:
+    al = None
+    al, err = audit.get_lines()
+    if err:
+      raise Exception(err)
+    return_dict["audit_list"] = al
+    return django.shortcuts.render_to_response('view_audit_trail.html', return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception, e:
+    return_dict['base_template'] = "logging_base.html"
+    return_dict["page_title"] = 'System audit trail'
+    return_dict['tab'] = 'view_current_audit_tab'
+    return_dict["error"] = 'Error loading system audit trail'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def handle_uploaded_file(f):
   with open('/tmp/upload.zip', 'wb+') as destination:
@@ -22,6 +55,7 @@ def handle_uploaded_file(f):
 def copy_and_overwrite(from_path, to_path):
   if os.path.exists(to_path):
     shutil.rmtree(to_path)
+  #command.execute("cp -rf %s/* %s"%(from_path,to_path))
   shutil.copytree(from_path, to_path)
   return True
 
@@ -67,10 +101,10 @@ def download_sys_log(request):
 
   return_dict = {}
   try:
-    scl, err = system_info.load_system_config()
+    si, err = system_info.load_system_config()
     if err:
       raise Exception(err)
-    form = log_management_forms.SystemLogsForm(request.POST or None, system_config_list = scl)
+    form = log_management_forms.SystemLogsForm(request.POST or None, initial = {'hostname':si.keys()[0]})
   
     if request.method == 'POST':
       if form.is_valid():
@@ -186,8 +220,7 @@ def rotate_log(request, log_type=None):
 def download_sys_info(request):
   return_dict = {}
   try:
-    display_name, err = common.get_platform_root()
-    print display_name
+    display_name, err = common.get_config_dir()
     if err:
       raise Exception(err)
     zf_name = "system_info.zip"
@@ -195,14 +228,13 @@ def download_sys_info(request):
       zf = zipfile.ZipFile(zf_name, 'w')
       abs_src = os.path.abspath(display_name)
       for dirname, subdirs, files in os.walk(display_name):
-        if "config" in dirname:
+        if not "logs" in dirname:
           for filename in files:
             absname = os.path.abspath(os.path.join(dirname, filename))
             arcname = absname[len(abs_src) + 1:]
             zf.write(absname, arcname)
-      logs = {'boot':'/var/log/boot.log', 'dmesg':'/var/log/dmesg', 'message':'/var/log/messages', 'smb':'/var/log/smblog.vfs', 'winbind':'/var/log/samba/log.winbindd','ctdb':'/var/log/log.ctdb','smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf'}
+      logs = {'smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf','nfs':'/etc/exports','ftp':'/etc/vsftpd/vsftpd.conf'}
       for key,value in logs.iteritems():
-          print value
           if os.path.isfile(value):
             zf.write(value, key)
       zf.close()
@@ -233,16 +265,17 @@ def upload_sys_info(request):
     if request.method == "POST" :
       status,path = handle_uploaded_file(request.FILES['file_field'])
       if path:
-        print path
         zip = zipfile.ZipFile(path,'r')
         data = zip.namelist()
         move = zip.extractall("/tmp/upload/")
-        logs = {'boot':'/var/log/boot.log', 'dmesg':'/var/log/dmesg', 'message':'/var/log/messages', 'smb':'/var/log/smblog.vfs', 'winbind':'/var/log/samba/log.winbindd','ctdb':'/var/log/log.ctdb','smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf'}
+        logs = {'smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf','nfs':'/etc/exports','ftp':'/etc/vsftpd/vsftpd.conf'}
         for key,value in logs.iteritems():
-          if key and os.path.isfile(key):
+          if key and os.path.isfile("/tmp/upload/"+key):
             copy_file_and_overwrite("/tmp/upload/"+key,value)
-        copy_and_overwrite("/tmp/upload/config",common.get_config_dir()[0])
-        return django.http.HttpResponseRedirect("/show/node_info/")
+        for dir in os.listdir("/tmp/upload"):
+          if dir and os.path.isdir("/tmp/upload/"+dir):
+            copy_and_overwrite("/tmp/upload/"+dir,common.get_config_dir()[0]+"/"+dir)
+        return django.http.HttpResponseRedirect("/view_system_info/")
     else:
       form = common_forms.FileUploadForm()
       return_dict["form"] = form  
@@ -326,3 +359,72 @@ def view_rotated_log_file(request, log_type):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+def refresh_alerts(request, random=None):
+  try:
+    from datetime import datetime
+    cmd_list = []
+    #this command will insert or update the row value if the row with the user exists.
+    cmd = ["INSERT OR REPLACE INTO admin_alerts (user, last_refresh_time) values (?,?);", (request.user.username, datetime.now())]
+    cmd_list.append(cmd)
+    db_path, err = common.get_db_path()
+    if err:
+      raise Exception(err)
+    test, err = db.execute_iud(db_path, cmd_list)
+    if err:
+      raise Exception(err)
+    new_alerts_present, err = alerts.new_alerts()
+    if err:
+      raise Exception(err)
+    if new_alerts_present:
+      import json
+      alerts_list, err = alerts.load_alerts(last_n = 5)
+      if err:
+        raise Exception(err)
+      if not alerts_list:
+        raise Exception('Error loading alerts')
+      new_alerts = json.dumps([dict(alert=pn) for pn in alerts_list])
+      return django.http.HttpResponse(new_alerts, mimetype='application/json')
+    else:
+      clss = "btn btn-default btn-sm"
+      message = "View alerts"
+      return django.http.HttpResponse("No New Alerts")
+  except Exception, e:
+    return django.http.HttpResponse("Error loading alerts : %s"%str(e))
+
+@login_required
+def raise_alert(request):
+
+  return_dict = {}
+  template = "logged_in_error.html"
+  if "msg" not in request.REQUEST:
+    return_dict["error"] = "No alert message specified."
+  else:
+    try:
+      msg = request.REQUEST["msg"]
+      ret, err = alerts.raise_alert(msg)
+      if err:
+        raise Exception(err)
+    except Exception, e:
+      return_dict["error"] = "Error logging alert : %s"%e
+      iv_logging.info("Error logging alert %s"%str(e))
+    else:
+      return django.http.HttpResponse("Raised alert")
+
+  return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
+
+@login_required
+def internal_audit(request):
+
+  response = django.http.HttpResponse()
+  if request.method == "GET":
+    response.write("Error!")
+  else:
+    if not "who" in request.POST or request.POST["who"] != "batch":
+      response.write("Unknown requester")
+      return response
+    if (not "audit_action" in request.POST) or (not "audit_str" in request.POST):
+      response.write("Insufficient information!")
+    else:
+      audit.audit(request.POST["audit_action"], request.POST["audit_str"], "0.0.0.0")
+    response.write("Success")
+  return response

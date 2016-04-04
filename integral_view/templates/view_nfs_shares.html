@@ -1,58 +1,53 @@
 {% extends 'shares_base.html' %}
 
-
 {%block tab_header %}
-NFS shares
+  NFS expoprts
 {%endblock%}
+
 {%block inside_content %}
-<br><br>
 
-{% if conf %}
-<p class="text-green">{{conf}}</p><br><br>
-{%endif%}
 
-{% if not exports_list %}
-No NFS shares appear to have been created. 
-{%else %}
-<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-<table class="table table-striped">
-<thead>
-<tr>
-<th>
-Path
-</th>
-<th>
-Client restrictions on
-</th>
-<th>
-Details
-</th>
-</thead>
-{%for d in exports_list %}
-<tr>
-  <td>
-    {{d.path}}
-  </td>
-  <td>
-    {% for cd in d.clients %}
-    {{cd.name}}, 
-    {%endfor%}
-  </td>
-  <td>
-    <a href="/view_nfs_share?path={{d.path}}" role="button" class="btn btn-info"> View Details</a>
-  </td>
-</tr>
-{%endfor%}
-</table>
-</div>
-{%endif%}
-<br><br>
+  {% if not exports_list %}
+    No NFS shares appear to have been created. 
+  {%else %}
+    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th> Path </th>
+            <th> Client restrictions on </th>
+            <th> Details </th>
+        </thead>
+        {%for d in exports_list %}
+          <tr>
+            <td> {{d.path}} </td>
+            <td>
+              {% for cd in d.clients %}
+                {{cd.name}}, 
+              {%endfor%}
+            </td>
+            <td>
+              <a href="/view_nfs_share?path={{d.path}}" role="button" class="btn btn-info btn-xs"> Details</a>
+            </td>
+          </tr>
+        {%endfor%}
+      </table>
+    </div>
+  {%endif%}
+  <br><br>
   <a href="/create_nfs_share/" class="btn btn-primary btn-sm"> Create NFS Share </a>
 
 {%endblock%}
+
 {%block help_header%}
-View all NFS shares 
+  View all NFS shares 
 {%endblock%}
+
 {%block help_body%}
   <p> This screen provides the list of all the NFS shares that have been created on this IntegralStor system. To view details about a particular NFS share, please select the the desired share from the list.</p>
 {%endblock%}
+{% block tab_active %}
+ <script>
+  make_tab_active("view_nfs_shares_tab")
+ </script>
+{% endblock %}

@@ -1,105 +1,98 @@
 {% extends 'storage_base.html' %}
+
 {%block tab_header %}
-ZFS pool/dataset snapshots
+  ZFS pool/dataset snapshots
 {%endblock%}
 
 {%block inside_content %}
-<br><br>
 
-{% if conf %}
-<div style="margin:0 auto;border-radius: 10px;background: #A1A3A6; width: 50%; position:relative;height: 30px;line-height:30px;text-align:center;">
-<p style="color:white;align:center;"><b>{{conf}}</b></p>
-</div>
-<br>
-{%endif%}
+  <div style="width:850px;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
 
-<div style="width:850px;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+    <a href="/schedule_zfs_snapshot/" role="button" class="btn btn-primary btn-sm pull-right">Scheduled snapshots</a>
+    <a href="/create_zfs_snapshot" role="button" class="btn btn-primary btn-sm pull-right">Create a snapshot </a>
+    <br>
+    <br>
+    <br>
 
-  <a href="/create_zfs_snapshot" role="button" class="btn btn-primary btn-sm pull-right">Create snapshot </a>
-<br>
-<hr>
-<br>
+    {%if form%}
+      <form id="view_form" name="view_form" action="/view_zfs_snapshots/" method="post">
+        <table class="table table-responsive">
+          <tr>
+            <th> Select target :</th>
+            <td>
+              <select name="name" id="name_select" class="form-control">
+                {% for choice in form.name.field.choices %}
+                  <option value="{{choice.0}}" {%if choice.0 == form.initial.name %} selected="selected"{%endif%}>{{choice.1}}</option>
+                {%endfor%}
+              </select>
+            </td>
+            <td> {{ form.name.errors }} </td>
+          </tr>
+        </table>
+      </form>
+    {%endif%}
 
-{%if form%}
-<form id="view_form" name="view_form" action="/view_zfs_snapshots/" method="post">
-  <table class="table table-responsive" style="width:800px">
-  <tr>
-    <td>
-      <label for="id_target">Select target :</label>
-    </td>
-    <td>
-        <select name="name" id="name_select" class="form-control">
-        {% for choice in form.name.field.choices %}
-          <option value="{{choice.0}}" {%if choice.0 == form.initial.name %} selected="selected"{%endif%}>{{choice.1}}</option>
+    {% if not snap_list %}
+      No ZFS snapshots appear to have been created.<br /> <br /> 
+    {%else %}
+      <table  class="table table-bordered table-striped table-responsive">
+        <tr>
+          <th> Target name </th>
+          <th > Snapshot name </th>
+          <th> Target type </th>
+          <th> Created on </th>
+          <th > Space consumed by snapshot </th>
+          <th > Space consumed by target </th>
+          <th colspan=3> Actions </th>
+        </tr>
+        {%for d in snap_list %}
+          <tr>
+            <td>{{d.dataset}}</td>
+            <td> {{d.snapshot_name}} </td>
+            <td>{% if '/' in d.dataset%} Dataset {%else%} Pool{%endif%}</td>
+            <td>{{d.properties.creation.value}}</td>
+            <td>{{d.used}}</td>
+            <td>{{d.refer}}</td>
+            <td>
+              <a href="/delete_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-danger btn-xs"> Delete</a>
+            </td>
+            <td>
+              <a href="/rollback_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-danger btn-xs"> Rollback</a>
+            </td>
+            <td>
+              <a href="/rename_zfs_snapshot?snapshot_name={{d.snapshot_name}}&ds_name={{d.dataset}}" role="button" class="btn btn-primary btn-xs"> Rename</a>
+            </td>
+          </tr>
         {%endfor%}
-        </select>
-      <script>
-          $(function(){
-            // bind change event to select
-            $('#name_select').on('change', function () {
-                var url = "/view_zfs_snapshots?name="+$(this).val(); // get selected value
-                if (url) { // require a URL
-                    window.location = url; // redirect
-                }
-                return false;
-            });
-          });
-      </script>
-    </td>
-    <td>
-    {{ form.name.errors }}
-    </td>
-  </tr>
-</table>
-</form>
-{%endif%}
-{% if not snap_list %}
-  No ZFS snapshots appear to have been created.<br /> <br /> 
-{%else %}
-  <table  class="table table-striped table-responsive">
-    <tr>
-      <th> Target name </th>
-      <th > Snapshot name </th>
-      <th> Target type </th>
-      <th> Created on </th>
-      <th > Space consumed by snapshot </th>
-      <th > Space consumed by target </th>
-      <th colspan=3> Actions </th>
-    </tr>
-    {%for d in snap_list %}
-      <tr>
-        <td>{{d.dataset}}</td>
-        <td> {{d.snapshot_name}} </td>
-        <td>{% if '/' in d.dataset%} Dataset {%else%} Pool{%endif%}</td>
-        <td>{{d.properties.creation.value}}</td>
-        <td>{{d.used}}</td>
-        <td>{{d.refer}}</td>
-        <td>
-          <a href="/delete_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-danger btn-xs"> Delete</a>
-        </td>
-        <td>
-          <a href="/rollback_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" role="button" class="btn btn-success btn-xs"> Rollback</a>
-        </td>
-        <td>
-          <a href="/rename_zfs_snapshot?snapshot_name={{d.snapshot_name}}&ds_name={{d.dataset}}" role="button" class="btn btn-primary btn-xs"> Rename</a>
-        </td>
-      </tr>
-    {%endfor%}
-  </table>
-{%endif%}
+      </table>
+    {%endif%}
 
-</div>
+  </div>
+  <script>
+    $(function(){
+      // bind change event to select
+      $('#name_select').on('change', function () {
+        var url = "/view_zfs_snapshots?name="+$(this).val(); // get selected value
+        if (url) { // require a URL
+          window.location = url; // redirect
+        }
+        return false;
+      });
+    });
+  </script>
 
 {%endblock%}
+
 {%block help_header%}
-View all ZFS snapshots
+  View all ZFS snapshots
 {%endblock%}
+
 {%block help_body%}
   <p> This screen provides the list of all the ZFS snapshots that have been created on this IntegralStor system.  </p>
 {%endblock%}
 
 {% block tab_active %}
   <script>
-   make_tab_active("view_zfs_snapshots_tab")
+    make_tab_active("view_zfs_snapshots_tab")
   </script>
 {% endblock %}

@@ -16,31 +16,13 @@ def view_targets(request):
   
     return_dict["target_list"] = target_list
   
-    if "action" in request.GET:
-      conf = ''
-      if request.GET["action"] == "created":
-        conf = "ISCSI target successfully created"
-      elif request.GET["action"] == "target_deleted":
-        conf = "ISCSI target successfully created"
-      elif request.GET["action"] == "lun_created":
-        conf = "ISCSI LUN successfully created"
-      elif request.GET["action"] == "added_acl":
-        conf = "ISCSI target ACL successfully added"
-      elif request.GET["action"] == "removed_acl":
-        conf = "ISCSI target ACL successfully removed"
-      elif request.GET["action"] == "lun_deleted":
-        conf = "ISCSI LUN successfully deleted"
-      elif request.GET["action"] == "deleted":
-        conf = "ISCSI target successfully deleted"
-      elif request.GET["action"] == "added_initiator_authentication":
-        conf = "ISCSI initiator authentication successfully added"
-      elif request.GET["action"] == "added_target_authentication":
-        conf = "ISCSI target authentication successfully added"
-      elif request.GET["action"] == "removed_initiator_authentication":
-        conf = "ISCSI initiator authentication successfully removed"
-      elif request.GET["action"] == "removed_target_authentication":
-        conf = "ISCSI target authentication successfully removed"
-      return_dict["conf"] = conf
+    if "ack" in request.GET:
+      if request.GET["ack"] == "created":
+        return_dict['ack_message'] = "ISCSI target successfully created"
+      elif request.GET["ack"] == "target_deleted":
+        return_dict['ack_message'] = "ISCSI target successfully created"
+      elif request.GET["ack"] == "deleted":
+        return_dict['ack_message'] = "ISCSI target successfully deleted"
   
     return django.shortcuts.render_to_response('view_iscsi_targets.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
@@ -65,6 +47,24 @@ def view_target(request):
     if not target:
       raise Exception("Specified target not found. Please use the menus.")
       
+    if "ack" in request.GET:
+      if request.GET["ack"] == "lun_created":
+        return_dict['ack_message'] = "ISCSI LUN successfully created"
+      elif request.GET["ack"] == "lun_deleted":
+        return_dict['ack_message'] = "ISCSI LUN successfully deleted"
+      elif request.GET["ack"] == "added_acl":
+        return_dict['ack_message'] = "ISCSI target ACL successfully added"
+      elif request.GET["ack"] == "removed_acl":
+        return_dict['ack_message'] = "ISCSI target ACL successfully removed"
+      elif request.GET["ack"] == "added_initiator_authentication":
+        return_dict['ack_message'] = "ISCSI initiator authentication successfully added"
+      elif request.GET["ack"] == "added_target_authentication":
+        return_dict['ack_message'] = "ISCSI target authentication successfully added"
+      elif request.GET["ack"] == "removed_initiator_authentication":
+        return_dict['ack_message'] = "ISCSI initiator authentication successfully removed"
+      elif request.GET["ack"] == "removed_target_authentication":
+        return_dict['ack_message'] = "ISCSI target authentication successfully removed"
+
     return_dict["target"] = target
   
     return django.shortcuts.render_to_response('view_iscsi_target.html', return_dict, context_instance=django.template.context.RequestContext(request))
@@ -98,7 +98,7 @@ def create_iscsi_target(request):
             raise Exception("Unknown error.")
         audit_str = "Created an ISCSI target %s"%cd["name"]
         audit.audit("create_iscsi_target", audit_str, request.META["REMOTE_ADDR"])
-        url = '/view_iscsi_targets?action=created'
+        url = '/view_iscsi_targets?ack=created'
         return django.http.HttpResponseRedirect(url)
       else:
         return_dict["form"] = form
@@ -130,7 +130,7 @@ def delete_iscsi_target(request):
         else:
           raise Exception("Unknown error")
       audit_str = "Deleted ISCSI target %s"%target_name
-      url = '/view_iscsi_targets?action=target_deleted'
+      url = '/view_iscsi_targets?ack=target_deleted'
       audit.audit("delete_iscsi_target", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect(url)
   except Exception, e:
@@ -176,7 +176,7 @@ def create_iscsi_lun(request):
             raise Exception("Unknown error.")
         audit_str = "Created an ISCSI LUN in target %s with path %s"%(cd["target_name"], cd['path'])
         audit.audit("create_iscsi_lun", audit_str, request.META["REMOTE_ADDR"])
-        url = '/view_iscsi_targets?action=lun_created'
+        url = '/view_iscsi_target?name=%s&ack=lun_created'%target_name
         return django.http.HttpResponseRedirect(url)
       else:
         return_dict["form"] = form
@@ -212,7 +212,7 @@ def delete_iscsi_lun(request):
         else:
           raise Exception("Unknown error.")
       audit_str = "Deleted ISCSI LUN %s from target %s"%(store, target_name)
-      url = '/view_iscsi_targets?action=lun_deleted'
+      url = '/view_iscsi_target?name=%s&ack=lun_deleted'%target_name
       audit.audit("delete_iscsi_lun", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect(url)
   except Exception, e:
@@ -260,10 +260,10 @@ def add_iscsi_user_authentication(request):
             raise Exception("Error adding the ISCSI target user.")
         if cd['authentication_type'] == 'incoming':
           audit_str = "Added ISCSI initiator authentication user %s for target %s"%(cd["username"], cd['target_name'])
-          url = '/view_iscsi_targets?action=added_initiator_authentication'
+          url = '/view_iscsi_target?name=%s&ack=added_initiator_authentication'%target_name
         else:
           audit_str = "Added ISCSI target authentication user %s for target %s"%(cd["username"], cd['target_name'])
-          url = '/view_iscsi_targets?action=added_target_authentication'
+          url = '/view_iscsi_target?name=%s&ack=added_target_authentication'%target_name
         audit.audit("add_iscsi_target_authentication", audit_str, request.META["REMOTE_ADDR"])
         return django.http.HttpResponseRedirect(url)
       else:
@@ -309,10 +309,10 @@ def remove_iscsi_user_authentication(request):
           raise Exception("Unknown error.")
       if authentication_type == 'incoming':
         audit_str = "Removed ISCSI initiator authentication user %s for target %s"%(username, target_name)
-        url = '/view_iscsi_targets?action=removed_initiator_authentication'
+        url = '/view_iscsi_target?name=%s&ack=removed_initiator_authentication'%target_name
       else:
         audit_str = "Removed ISCSI target authentication user %s for target %s"%(username, target_name)
-        url = '/view_iscsi_targets?action=removed_target_authentication'
+        url = '/view_iscsi_target?name=%s&ack=removed_target_authentication'%target_name
       audit.audit("remove_iscsi_target_authentication", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect(url)
   except Exception, e:
@@ -356,7 +356,7 @@ def add_iscsi_acl(request):
           else:
             raise Exception("Unknown error.")
         audit_str = "Added ISCSI ACL %s for target %s"%(cd["acl"], cd['target_name'])
-        url = '/view_iscsi_targets?action=added_acl'
+        url = '/view_iscsi_target?name=%s&ack=added_acl'%target_name
         audit.audit("add_iscsi_acl", audit_str, request.META["REMOTE_ADDR"])
         return django.http.HttpResponseRedirect(url)
       else:
@@ -393,7 +393,7 @@ def remove_iscsi_acl(request):
         else:
           raise Exception("Unknown error.")
       audit_str = "Removed ISCSI ACL %s for target %s"%(acl, target_name)
-      url = '/view_iscsi_targets?action=removed_acl'
+      url = '/view_iscsi_target?name=%s&ack=removed_acl'%target_name
       audit.audit("remove_iscsi_acl", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect(url)
   except Exception, e:

@@ -1,4 +1,5 @@
 from django import forms
+
 import integralstor_common
 import common_forms
 from integralstor_common import networking
@@ -47,6 +48,7 @@ class NICForm(forms.Form):
   netmask = forms.GenericIPAddressField(protocol='IPv4', required=False)
   default_gateway = forms.GenericIPAddressField(protocol='IPv4', required = False)
   mtu = forms.IntegerField(initial=1500, max_value=9000)
+
   ch = [('static', r'Static'), ('dhcp', r'DHCP')]
   addr_type = forms.ChoiceField(choices=ch, widget=forms.RadioSelect())
 
@@ -97,6 +99,7 @@ class CreateBondForm(forms.Form):
       self.interfaces = kwargs.pop('interfaces')
       self.existing_bonds = kwargs.pop('existing_bonds')
     super(CreateBondForm, self).__init__(*args, **kwargs)
+
     ch = []
     if self.interfaces:
       for iface in self.interfaces:

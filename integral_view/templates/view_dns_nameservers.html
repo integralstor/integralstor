@@ -1,46 +1,36 @@
 {% extends 'networking_base.html' %}
+
 {%block tab_header %}
-DNS servers
+  DNS servers
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
-{% if conf %}
-<p><i>{{conf}}</i></p>
-{%endif%}
+  {%if not name_servers %}
+    <p id="p-instructional-text"> No name servers have been configured.</p><br>
+    <a href="/edit_dns_nameservers/" role="button" class="btn btn-default btn-sm">Configure DNS Name servers</a>
+  {%else%}
 
-{%if not name_servers %}
-<p id="p-instructional-text"> No name servers have been configured.</p><br>
-<a href="/edit_dns_nameservers/" role="button" class="btn btn-default">Configure DNS Name servers</a>
+    <table class="table table-bordered" style="width:200px">
+      <tr>
+        <th> Configured DNS nameservers </th>
+      </tr>
+      {% for server in name_servers %}
+        <tr>
+          <td> {{ server}} </td>
+        </tr>
+      {%endfor%}
+    </table>
 
-{%else%}
-
-
-            <table class="table table-bordered" style="width:200px">
-            <tr>
-              <th>
-              Configured DNS nameservers
-              </th>
-            </tr>
-{% for server in name_servers %}
-            <tr>
-              <td>
-                {{ server}}
-              </td>
-            </tr>
-{%endfor%}
-            </table>
-
-<a href="/edit_dns_nameservers/" role="button" class="btn btn-primary">Modify DNS Name servers</a>
-
-{%endif%}
-
+    <a href="/edit_dns_nameservers/" role="button" class="btn btn-primary btn-sm">Modify DNS Name servers</a>
+  {%endif%}
 
 {%endblock%}
+
 {%block help_header%}
-DNS Nameservers
+  DNS Nameservers
 {%endblock%}
+
 {%block help_body%}
 <p>Use this screen to view the currently configured list of DNS server's IP addresses.</p>
 {%endblock%}

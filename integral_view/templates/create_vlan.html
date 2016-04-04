@@ -1,44 +1,33 @@
 {% extends 'networking_base.html' %}
 
 {%block tab_header %}
-Create a network VLAN
+  Create a network VLAN
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
-{{conf_message}}
-<form class="form-horizontal" role="form" name="create_form" action="" method="post">
-{{form.base_interface}}
-            <table  class="table " style="width:800px">
-            <tr>
-              <td>
-                <label >Base interface:</label>
-              </td>
-              <td>
-                {{form.base_interface.value}}
-              </td>
-              <td>
-                &nbsp;
-              </td>
-            </tr>
-            <tr>
-              <td>
-            <label for="id_vlan_id">VLAN ID:</label>
-              </td>
-              <td>
-                <input type="text"  name="vlan_id" class="form-control" id="id_vlan_id" placeholder="Enter the VLAN ID" value={{form.vlan_id.value|default_if_none:""}}> 
-              </td>
-              <td>
-                {{ form.vlan_id.errors }}
-              </td>
-            </tr>
+  <form class="form-horizontal" role="form" name="create_form" action="" method="post">
+    {{form.base_interface}}
+    <table  class="table " style="width:800px">
+      <tr>
+        <th> Base interface: </th>
+        <td> {{form.base_interface.value}} </td>
+        <td> &nbsp; </td>
+      </tr>
+      <tr>
+        <th> VLAN ID:</th>
+        <td>
+          <input type="text"  name="vlan_id" class="form-control" id="id_vlan_id" placeholder="Enter the VLAN ID" value={{form.vlan_id.value|default_if_none:""}}> 
+        </td>
+        <td> {{ form.vlan_id.errors }} </td>
+      </tr>
+    </table>
 
-            </table>
-
-        <a href="/view_nic?name={{form.base_interface.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary cover-page" > Create </button>
-</form>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_nic?name={{form.base_interface.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary cover-page" > Create </button>
+    </div>
+  </form>
 
 {%endblock%}
 

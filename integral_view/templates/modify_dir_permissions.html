@@ -5,70 +5,59 @@
 {% endblock tab_header %}
 
 {% block inside_content %}
- <form action="." method="POST"> 
-    <table class="table" style="width:800px">
-            <tr>
-              <td>
-            	<label for="id_dataset">Underlying ZFS Dataset :</label>
-              </td>
-              <td>
-                  <select id = "id_dataset" class="form-control" onchange="change_dataset(this)">
-                  {% for choice in dataset %}
-		    <option value="/{{choice}}" onclick="option_selected(this)">{{choice}}</option>
-                  {%endfor%}
-                  </select>
-              </td>
-              <td>
-              	{{ form.dataset.errors }}
-              </td>
-            </tr>
-            <tr>
-              <td>
-            	<label for="id_dataset">Selected ZFS Dataset :</label>
-              </td>
-              <td>
-		<input id="val_dataset" name="dataset" readonly class="form-control"/>
-              </td>
-              <td>
-              	{{ form.dataset.errors }}
-              </td>
-            </tr>
-            <tr>
-              <td>
-            <label for="id_path">Share path:</label>
-              </td>
-              <td>
-                <input type="text" name="display_path" class="form-control" id="id_display_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value={{form.path.value|default_if_none:""}}> 
-                    <a href="#" role="button" class="btn btn-primary" onClick="displayTree();return false;"> Browse..</a>
-                <div id="pathdiv" style="display:inline"> </div>
-              </td>
-              <td>
-            {{ form.path.errors }}
-              </td>
-            </tr>
-  </table>
-  {% include 'permissions_form.html' %}
-</form>
+  <form action="." method="POST"> 
+    <table class="table" >
+      <tr>
+        <th> Underlying ZFS Dataset :</th>
+        <td>
+          <select id = "id_dataset" class="form-control" onchange="change_dataset(this)">
+            {% for choice in dataset %}
+      		    <option value="/{{choice}}" onclick="option_selected(this)" {%if form.initial.dataset == choice%} selected="selected" {%endif%}>{{choice}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.dataset.errors }} </td>
+      </tr>
+      <tr>
+        <th> Selected ZFS Dataset :</th>
+        <td>
+		      <input id="val_dataset" name="dataset" readonly class="form-control"/>
+        </td>
+        <td> {{ form.dataset.errors }} </td>
+      </tr>
+      <tr>
+        <th> Share path:</th>
+        <td>
+          <input type="text" name="display_path" class="form-control" id="id_display_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value={{form.path.value|default_if_none:""}}> 
+          <a href="#" role="button" class="btn btn-primary btn-xs" onClick="displayTree();return false;"> Browse..</a>
+          <div id="pathdiv" style="display:inline"> </div>
+        </td>
+        <td> {{ form.path.errors }} </td>
+      </tr>
+    </table>
+    {% include 'permissions_form.html' %}
+  </form>
+
   <script src="/static/jstree/dist/jstree.js"></script>
   <script>
-	function option_selected(a){
-		localStorage.setItem('last_selected',a.value);
-		localStorage.setItem('last_selected_time',new Date().getTime());
-		location.reload();
-	};
-	function change_dataset(a){
-	};
-	// Invalidate the local storage value after 1 min.
-	var one_min = 60 * 1000
-	if ((new Date) - localStorage.getItem('last_selected_time') < one_min){
-		$("#val_dataset").val(localStorage.getItem('last_selected'));
-		$("#id_dataset option[value='"+localStorage.getItem('last_selected')+"']").attr("selected","selected")
-	}else{
-      		localStorage.removeItem('last_selected');
-      		localStorage.removeItem('last_selected_time');
-		$("#val_dataset").val($("#id_dataset").val());
-	}
-  function displayTree() {
+    function option_selected(a){
+      localStorage.setItem('last_selected',a.value);
+      localStorage.setItem('last_selected_time',new Date().getTime());
+      location.reload();
+    };
+    function change_dataset(a){
+    };
+    // Invalidate the local storage value after 1 min.
+    var one_min = 60 * 1000
+    if ((new Date) - localStorage.getItem('last_selected_time') < one_min){
+      $("#val_dataset").val(localStorage.getItem('last_selected'));
+      $("#id_dataset option[value='"+localStorage.getItem('last_selected')+"']").attr("selected","selected")
+    }else{
+      localStorage.removeItem('last_selected');
+      localStorage.removeItem('last_selected_time');
+      $("#val_dataset").val($("#id_dataset").val());
+    }
+    function displayTree() {
       document.getElementById("pathdiv").style.display = "block";
       $('#pathdiv').jstree({ 'core' : {
         'multiple':false,
@@ -81,33 +70,26 @@
           'data' : function (node) {
             var e = document.getElementById("val_dataset")
             if (node.data) {              //return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
-
               //return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
               return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.value};
             }
             else
               //return { 'dir' : node.text , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
               return { 'dir' : node.text , 'id':node.id, "pool_name": e.value};
-            }
-            
           }
-          
         }
-    });
- $(function () {
-    $('#pathdiv').on('changed.jstree', function (e, data) {
-        var i, j, r = [];
-        r = data.instance.get_node(data.selected[0]).text;
-        rfp = data.instance.get_node(data.selected[0]).data["dir"];
-        location.href = location.pathname+"?path=/"+rfp
-        //$("#id_display_path").val(rfp);
-        //$("#id_path").val(rfp);
-        //$("#id_path_value").text(rfp);
-        
-        document.getElementById("pathdiv").style.display = "none";
-      })
-      .jstree();
-  });
-  }
-</script>
+      }
+      });
+      $(function () {
+        $('#pathdiv').on('changed.jstree', function (e, data) {
+          var i, j, r = [];
+          r = data.instance.get_node(data.selected[0]).text;
+          rfp = data.instance.get_node(data.selected[0]).data["dir"];
+          location.href = location.pathname+"?path=/"+rfp
+          document.getElementById("pathdiv").style.display = "none";
+        })
+        .jstree();
+      });
+    }
+  </script>
 {% endblock inside_content %}

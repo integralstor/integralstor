@@ -1,79 +1,68 @@
 {% extends 'services_base.html'%}
-{% block tab_header %}Configure FTP Service{% endblock %}
+
+{% block tab_header %}
+  Configure FTP Service
+{% endblock %}
 
 {% block inside_content %}
-<br><br>
-<script>
-function select_field(field) {
-  e = document.getElementById(field);
-  val = e.checked;
+  <script>
+    function select_field(field) {
+      e = document.getElementById(field);
+      val = e.checked;
 
-  if (val == true) {
-     $('#cert_name_row').show();
-  }
-  else {
-     $('#cert_name_row').hide();
-  }
-}
-</script>
-<form id="create_form" name="create_form" action="/configure_ftp/" method="post">
-  <table class="table" >
-    <tr>
-      <td>
-        <label for="id_dataset"> Base dataset for FTP data:</label>
-      </td>
-      <td>
-        <select name="dataset" class="form-control">
-          {% for choice in form.dataset.field.choices %}
-            <option value="{{choice.0}}" {%if choice.0 == form.initial.dataset %} selected="selected"{%endif%}>{{choice.1}}</option>
-          {%endfor%}
-        </select>
-      </td>
-      <td>
-        {{ form.dataset.errors }}
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <label for="id_ssl_enabled"> SSL(TLS) enabled :</label>
-      </td>
-      <td>
-        {{form.ssl_enabled}}
-      </td>
-      <td>
-        {{ form.ssl_enabled.errors }}
-      </td>
-    </tr>
-    <tr id="cert_name_row" style="display:none">
-      <td>
-        <label for="id_cert_name"> Certificate name :</label>
-      </td>
-      <td>
-        <select name="cert_name" class="form-control">
-          {% for choice in form.cert_name.field.choices %}
-            <option value="{{choice.0}}" {%if choice.0 == form.initial.cert_name %} selected="selected"{%endif%}>{{choice.1}}</option>
-          {%endfor%}
-        </select>
-      </td>
-      <td>
-        {{ form.cert_name.errors }}
-      </td>
-    </tr>
-  </table>
-  <div class="btn-group btn-group-sm" role="group" aria-label="...">
-    <a href="/view_ftp_configuration" role="button" class="btn btn-default "> Cancel</a>
-    <button type="submit" class="btn btn-primary cover-page">Save</button>
-  </div>
-</form>
-<script>
-window.onload = select_field("id_ssl_enabled");
-</script>
+      if (val == true) {
+        $('#cert_name_row').show();
+      }
+      else {
+        $('#cert_name_row').hide();
+      }
+    }
+  </script>
+  <form id="create_form" name="create_form" action="/configure_ftp/" method="post">
+    <table class="table" >
+      <tr>
+        <th>  Base dataset for FTP data:</th>
+        <td>
+          <select name="dataset" class="form-control">
+            {% for choice in form.dataset.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.initial.dataset %} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.dataset.errors }} </td>
+      </tr>
+      <tr>
+        <th>  SSL(TLS) enabled :</th>
+        <td> {{form.ssl_enabled}} </td>
+        <td> {{ form.ssl_enabled.errors }} </td>
+      </tr>
+      <tr id="cert_name_row" style="display:none">
+        <th> Certificate name :</th>
+        <td>
+          <select name="cert_name" class="form-control">
+            {% for choice in form.cert_name.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.initial.cert_name %} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.cert_name.errors }} </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_ftp_configuration" role="button" class="btn btn-default "> Cancel</a>
+      <button type="submit" class="btn btn-primary cover-page">Save</button>
+    </div>
+  </form>
+
+  <script>
+    window.onload = select_field("id_ssl_enabled");
+    </script>
 	
 {% endblock %}
 
 {% block tab_active %}
   <script>
-   make_tab_active("ftp_service_settings")
+    make_tab_active("ftp_service_settings")
   </script>
 {% endblock %}
 

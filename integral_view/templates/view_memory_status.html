@@ -1,92 +1,90 @@
 {% extends 'dashboard_base.html' %}
-{%block tab_header %}
-System memory statistics
-{%endblock%}
-{% block inside_content %}
-<br><br>
 
-<div class="row">
-  <div class="col-sm-12 col-md-8 col-lg-8">
-    <span class="margin-left-5">Memory Graph (Memory Used VS Time) </span>
-    {% if data %}
-      <canvas id="dashboard_chart" width="800" height="300"></canvas>
-    {% else %}
-      <br /> <br />
-      <span class="margin-left-5 red">No Data Found</span>
-    {% endif %}
+{%block tab_header %}
+  System memory statistics
+{%endblock%}
+
+{% block inside_content %}
+  <div class="row">
+    <div class="col-sm-12 col-md-8 col-lg-8">
+      <span class="margin-left-5">Memory Graph (Memory Used in GB VS Time) </span>
+      {% if data %}
+        <canvas id="dashboard_chart" width="800" height="300" class="margin-left-5"></canvas>
+      {% else %}
+        <br /> <br />
+        <span class="margin-left-5 red">No Data Found</span>
+      {% endif %}
+    </div>
+    <div class="col-sm-12 col-md-1 col-lg-1">
+    </div>
   </div>
-  <div class="col-sm-12 col-md-1 col-lg-1">
-  </div>
-</div>
-<table class="table table-bordered table-hover table-responsive" style="width:800px">
-  <tr>
-  <th >
-  Total memory
-  </th>
-  <td>
-  {{memory_status.mem_total.value}} {{memory_status.mem_total.unit}}
-  </td>
-  </tr>
-  <tr>
-  <th >
-  Free memory
-  </th>
-  <td>
-  {{memory_status.mem_free.value}} {{memory_status.mem_free.unit}}
-  </td>
-  </tr>
-</table>
+  <br></br>
+  <table class="table table-bordered table-hover table-responsive margin-left-2" >
+    <tr>
+      <th > Total memory </th>
+      <td> {{memory_status.mem_total.value|floatformat}} {{memory_status.mem_total.unit}} </td>
+    </tr>
+    <tr>
+      <th > Free memory </th>
+      <td> {{memory_status.mem_free.value|floatformat}} {{memory_status.mem_free.unit}} </td>
+    </tr>
+  </table>
+
+  <script src="/static/js/Chart.js"></script>
+
+  <script>
+    var labels = []
+    {% for l in labels %}
+      labels.push("{{l}}")
+    {% endfor %}
+
+    Chart.defaults.global.animationSteps = 1;
+    Chart.types.Line.extend({
+      name: "LineAlt",
+      initialize: function (data) {
+        Chart.types.Line.prototype.initialize.apply(this, arguments);
+        var xLabels = this.scale.xLabels;
+        xLabels.forEach(function (label, i) {
+          if ( i % 60 == 0 )
+            xLabels[i] = '';
+        })
+      }
+    });
+    var data = {
+      labels: labels, 
+       datasets: [
+         {
+           label: "Memory Chart",
+           fillColor: "rgba(220,220,220,0.2)",
+           strokeColor: "rgba(220,220,220,1)",
+           pointColor: "rgba(220,220,220,1)",
+           pointStrokeColor: "#fff",
+           pointHighlightFill: "#fff",
+           pointHighlightStroke: "rgba(220,220,220,1)",
+           data: {{data}}
+          },
+       ]
+    };
+    var ctx = document.getElementById("dashboard_chart").getContext("2d");
+    var myLineChart = new Chart(ctx).LineAlt(data, {});
+
+  </script>
 {% endblock %}
 
 {%block help_header%}
-View memory status
+  View memory status
 {%endblock%}
+
 {%block help_body%}
   <p> 
   This page displays the memory usage statistics along with a historical memory usage chart.
   </p>
 {%endblock%}
+
 {% block tab_active %}
   <script>
-   make_tab_active("memory_tab")
+    make_tab_active("memory_tab")
   </script>
-<script src="/static/js/Chart.js"></script>
-<script>
-var labels = []
-{% for l in labels %}
-  labels.push("{{l}}")
-{% endfor %}
 
-Chart.defaults.global.animationSteps = 1;
-Chart.types.Line.extend({
-    name: "LineAlt",
-    initialize: function (data) {
-    Chart.types.Line.prototype.initialize.apply(this, arguments);
-    var xLabels = this.scale.xLabels;
-    xLabels.forEach(function (label, i) {
-      if ( i % 60 == 0 )
-        xLabels[i] = '';
-    })
-  }
-});
-var data = {
-    labels: labels, 
-     datasets: [
-        {
-         label: "Memory Chart",
-         fillColor: "rgba(220,220,220,0.2)",
-         strokeColor: "rgba(220,220,220,1)",
-         pointColor: "rgba(220,220,220,1)",
-         pointStrokeColor: "#fff",
-         pointHighlightFill: "#fff",
-         pointHighlightStroke: "rgba(220,220,220,1)",
-         data: {{data}}
-        },
-     ]
-};
-var ctx = document.getElementById("dashboard_chart").getContext("2d");
-var myLineChart = new Chart(ctx).LineAlt(data, {});
-
-</script>
 {% endblock %}
 

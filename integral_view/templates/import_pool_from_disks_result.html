@@ -1,27 +1,30 @@
 {% extends 'storage_base.html' %}
+
 {%block tab_header %}
-ZFS pools import
+  ZFS pools import
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
-{%if output %}
-
-Results of the import operation : <p>
-{{output}}
-
-{%else%}
-
-The import attempt has completed. <a href="/view_zfs_pools/"> Please click here to check the pool list to see the results </a>. 
-
-<p><br> 
-
-If the expected pool is not listed, then there may not have been any ZFS pools available on the disks to be imported or the disks may have been corrupted.
-{%endif%}
+  {%if output %}
+    Results of the import operation : <p>
+    {{output}}
+  {%else%}
+    The import attempt has completed. <a href="/view_zfs_pools/"> Please click here to check the pool list to see the results </a>. 
+    <p><br> 
+    If the expected pool is not listed, then there may not have been any ZFS pools available on the disks to be imported or the disks may have been corrupted.
+  {%endif%}
 {%endblock%}
+
 {%block help_header%}
-View all ZFS pools
+  View all ZFS pools
 {%endblock%}
+
 {%block help_body%}
   <p> This screen displays the result of an attempt at importing existing ZFS pools from the data drives.</p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}

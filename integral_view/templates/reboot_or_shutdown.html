@@ -1,0 +1,32 @@
+{% extends 'admin_base.html' %}
+
+{% block tab_header %}
+  Reboot/Shutdown the system
+{% endblock %}
+
+{% block inside_content %}
+
+  <span id="error-heading"> 
+    Are you sure you want to {{do}} the system? 
+    <br><br>
+    Doing so will stop all the services, disconnect all the users, will stop data transfer, which could lead to disruption of services to the end user.</p>
+  </span><br><br>
+  <form action="" method="POST" >   
+    <input type="hidden" name="do" value="{{do}}">
+    <input type="hidden" name="conf" value="yes">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/dashboard/disks" role="button" class="btn btn-primary "> Cancel</a>
+      <button type="submit" class="btn btn-danger btn-sm" >{{do}} the system </button>
+    </div>
+
+{% endblock %}
+
+{% block tab_active %}
+  <script>
+    {% if do == 'reboot' %}
+      make_tab_active("reboot_tab")
+    {%elif do == 'shutdown'%}
+      make_tab_active("shutdown_tab")
+    {%endif%}
+  </script>
+{% endblock %}

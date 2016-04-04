@@ -1,37 +1,37 @@
 {% extends 'users-groups_base.html' %}
 
 {%block tab_header %}
-Create a local user group
+  Create a local user group
 {%endblock%}
+
 {% block inside_content %}
-<br><br>
-{{conf_message}}
 
-
-{{form.errors}}
-<form class="form-horizontal" role="form" name="create_form" action="" method="post">
-  <table  class="table " style="width:80%">
-    <tr>
-      <td>
-        <label for="id_grpname">Group name :</label>
-      </td>
-      <td>
-        <input type="text"  name="grpname" class="form-control" id="id_grpname" value="{%if form.grpname.value%}{{form.grpname.value}}{%endif%}" placeholder="Enter name for the new local group"> 
-      </td>
-      <td>
-    {{ form.grpname.errors }}
-      </td>
-    </tr>
+  {{form.errors}}
+  <form class="form-horizontal" role="form" name="create_form" action="" method="post">
+    <table  class="table " style="width:80%">
+      <tr>
+        <th  style="max-width:60px;word-wrap: break-word">  
+          Group name :
+        </th>
+        <td>
+          <input type="text"  name="grpname" class="form-control" id="id_grpname" value="{%if form.grpname.value%}{{form.grpname.value}}{%endif%}" placeholder="Enter name for the new local group"> 
+        </td>
+        <td> {{ form.grpname.errors }} </td>
+      </tr>
     </table>
 
-<a href="/view_local_groups" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-<button type="submit" class="btn btn-primary"> Create </button>
-</form>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_local_groups" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary"> Create </button>
+    </div>
+  </form>
 
 {%endblock%}
+
 {%block help_header%}
-Create local group help
+  Create local group help
 {%endblock%}
+
 {%block help_body%}
 {%endblock%}
 

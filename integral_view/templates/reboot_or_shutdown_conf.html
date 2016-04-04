@@ -1,0 +1,23 @@
+{% extends 'admin_base.html' %}
+
+{% block tab_header %}
+  Reboot/Shutdown the system - results
+{% endblock %}
+
+{% block inside_content %}
+
+  <span id="error-heading"> 
+    The system will {{do}} in {{minutes_to_wait}} minutes!!
+  <span><br><br>
+
+{% endblock %}
+
+{% block tab_active %}
+  <script>
+    {% if do == 'reboot' %}
+      make_tab_active("reboot_tab")
+    {%elif do == 'shutdown'%}
+      make_tab_active("shutdown_tab")
+    {%endif%}
+  </script>
+{% endblock %}

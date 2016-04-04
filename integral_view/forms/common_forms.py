@@ -1,8 +1,6 @@
 
 from django import forms
 
-import re
-
 import integralstor_common
 from integralstor_common import networking
 
@@ -17,23 +15,25 @@ class SetFileOwnerAndPermissionsForm(forms.Form):
   other_read = forms.BooleanField(required=False)
   other_write = forms.BooleanField(required=False)
   other_execute = forms.BooleanField(required=False)
-
-  path = forms.CharField(widget=forms.HiddenInput)
-
   set_owner = forms.BooleanField(required=False)
   set_group = forms.BooleanField(required=False)
+
+  path = forms.CharField(widget=forms.HiddenInput)
 
   def __init__(self, *args, **kwargs):
     if kwargs:
       group_list = kwargs.pop("group_list")
       user_list = kwargs.pop("user_list")
     super(SetFileOwnerAndPermissionsForm, self).__init__(*args, **kwargs)
+
     ch = []
     if group_list:
       for group in group_list:
         tup = (group['gid'], group['grpname'])
         ch.append(tup)   
     self.fields['gid'] =  forms.ChoiceField(widget=forms.Select, choices=ch, required=False)
+
+    ch = []
     if user_list:
       for user in user_list:
         tup = (user['uid'], user['username'])

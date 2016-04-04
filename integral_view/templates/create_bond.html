@@ -1,62 +1,49 @@
 {% extends 'networking_base.html' %}
 
 {%block tab_header %}
-Create a NIC bond
+  Create a NIC bond
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
-{{conf_message}}
-<form class="form-horizontal" role="form"name="create_form" action="" method="post">
-            <table  class="table " style="width:800px">
-            <tr>
-              <td>
-            <label for="id_name">Bond name:</label>
-              </td>
-              <td>
-                <input type="text"  name="name" class="form-control" id="id_name" placeholder="Bond name" value={{form.name.value|default_if_none:""}}> 
-              </td>
-              <td>
-            {{ form.name.errors }}
-              </td>
-            </tr>
+  <form class="form-horizontal" role="form"name="create_form" action="" method="post">
+    <table  class="table " style="width:800px">
+      <tr>
+        <th> Bond name: </th>
+        <td>
+          <input type="text"  name="name" class="form-control" id="id_name" placeholder="Bond name" value={{form.name.value|default_if_none:""}}> 
+        </td>
+        <td> {{ form.name.errors }} </td>
+      </tr>
+      <tr>
+        <th> Bonding mode: </th>
+        <td>
+          <select id="id_mode" name="mode" class="form-control" >
+            {% for choice in form.mode.field.choices %} 
+              <option value="{{choice.0}}" {%if choice.0 in form.initial.mode %} selected{%endif%} >{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.mode.errors }} </td>
+      </tr>
+      <tr>
+        <th> Slave interfaces: </th>
+        <td>
+          {% for choice in form.slaves.field.choices %} 
+            <div class="radio" >
+                <input type="checkbox" name="slaves" id="{{choice.0}}" value="{{choice.0}}" {%if choice.0 in form.initial.slaves %} checked="checked"{%endif%}> {{choice.0}}
+            </div>
+          {%endfor%}
+        </td>
+        <td> {{ form.slaves.errors }} </td>
+      </tr>
+    </table>
 
-            <tr>
-              <td>
-            <label for="id_readonly">Bonding mode:</label>
-              </td>
-              <td>
-              <select id="id_mode" name="mode" class="form-control" >
-                {% for choice in form.mode.field.choices %} 
-                <option value="{{choice.0}}" {%if choice.0 in form.initial.mode %} selected{%endif%} >{{choice.1}}</option>
-                {%endfor%}
-              </select>
-              </td>
-              <td>
-            {{ form.mode.errors }}
-              </td>
-            </tr>
-            <tr>
-              <td>
-            <label for="id_slaves">Slave interfaces:</label>
-              </td>
-              <td>
-                {% for choice in form.slaves.field.choices %} 
-                  <div class="radio" >
-                      <input type="checkbox" name="slaves" id="{{choice.0}}" value="{{choice.0}}" {%if choice.0 in form.initial.slaves %} checked="checked"{%endif%}> {{choice.0}}
-                  </div>
-                {%endfor%}
-              </td>
-              <td>
-            {{ form.slaves.errors }}
-              </td>
-            </tr>
-            </table>
-
-        <a href="/view_interfaces" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-primary cover-page" > Create </button>
-</form>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_interfaces" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary cover-page" > Create </button>
+    </div>
+  </form>
 
 {%endblock%}
 

@@ -1,24 +1,27 @@
 {% extends 'networking_base.html' %}
+
 {%block tab_header %}
-Remove a NIC bond - confirmation
+  Remove a NIC bond - confirmation
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
-<p id="p-warning-text">Are you sure you want to remove the network bond "{{name}}"?  This will potentially result in a disruption of usage of the system.</p>
-<br>
-<form action="/remove_bond/" method="POST">
-<input type=hidden name="name" value="{{name}}">
-<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_bond?name={{name}}'"> &nbsp;&nbsp;
-<button type="submit" class="btn btn-primary cover-page">Confirm and continue</button>
-</form>
-
+  <p id="p-warning-text">Are you sure you want to remove the network bond "{{name}}"?  This will potentially result in a disruption of usage of the system.</p>
+  <br>
+  <form action="/remove_bond/" method="POST">
+    <input type=hidden name="name" value="{{name}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_bond?name={{name}}'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger cover-page">Confirm and continue</button>
+    </div>
+  </form>
 
 {%endblock%}
+
 {%block help_header%}
-Remove a network bond
+  Remove a network bond
 {%endblock%}
+
 {%block help_body%}
 <p>Confirming this operation results in the removal of the specified network bond in the system. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}

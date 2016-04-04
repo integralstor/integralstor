@@ -1,12 +1,16 @@
 from django.conf.urls import patterns, include, url
 
-from integral_view.views.admin_auth  import login, logout, change_admin_password, configure_email_settings 
+from integral_view.views.scheduler_cron_management import list_cron_jobs,download_cron_log,remove_cron_job,view_background_tasks,view_task_details
 
-from integral_view.views.pki_management  import view_certificates, delete_certificate, create_self_signed_cert, upload_cert
+from integral_view.views.ntp_management import configure_ntp_settings, view_ntp_settings
 
-from integral_view.views.common import show, refresh_alerts, raise_alert, internal_audit, configure_ntp_settings, reset_to_factory_defaults, flag_node, set_file_owner_and_permissions,dir_contents,dashboard,reload_manifest,list_cron_jobs,download_cron_log,remove_cron_job,view_background_tasks,view_task_details
+from integral_view.views.admin_auth  import login, logout, change_admin_password, view_email_settings, configure_email_settings, view_https_mode, edit_https_mode, reboot_or_shutdown, reload_manifest, reset_to_factory_defaults, flag_node, view_system_info
 
-from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level,download_sys_info,upload_sys_info
+from integral_view.views.pki_management  import view_ssl_certificates, delete_ssl_certificate, create_self_signed_ssl_certificate, upload_ssl_certificate, download_ssh_keys, upload_ssh_user_key,upload_ssh_host_key
+
+from integral_view.views.common import show, dir_contents,dashboard
+
+from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level,download_sys_info,upload_sys_info, refresh_alerts, raise_alert, internal_audit, view_alerts, view_audit_trail
 
 from integral_view.views.cifs_share_management import view_cifs_shares, create_cifs_share, samba_server_settings, save_samba_server_settings, view_cifs_share, edit_cifs_share, delete_cifs_share, edit_auth_method
 
@@ -14,13 +18,13 @@ from integral_view.views.local_user_management import view_local_users, create_l
 
 from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share, create_nfs_share, edit_nfs_share
 
-from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog, remove_zfs_slog, scrub_zfs_pool, create_zfs_zvol, view_zfs_zvol,modify_dir_permissions, replace_disk, import_all_zfs_pools, add_zfs_spares, remove_zfs_spare, expand_zfs_pool, remove_zfs_quota, set_zfs_quota, export_zfs_pool, import_zfs_pool, schedule_zfs_snapshot, set_zfs_l2arc, remove_zfs_l2arc,replicate_zfs_pool
+from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog, remove_zfs_slog, scrub_zfs_pool, create_zfs_zvol, view_zfs_zvol,modify_dir_permissions, replace_disk, import_all_zfs_pools, add_zfs_spares, remove_zfs_spare, expand_zfs_pool, remove_zfs_quota, set_zfs_quota, export_zfs_pool, import_zfs_pool, schedule_zfs_snapshot, set_zfs_l2arc, remove_zfs_l2arc,replicate_zfs_pool, view_disks
 
 #from zfs.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
 
 from integral_view.views.networking_management import view_interfaces, view_nic, view_bond, set_interface_state, edit_interface_address, create_bond, remove_bond, view_hostname, edit_hostname, view_dns_nameservers, edit_dns_nameservers,view_route, create_route,edit_route,delete_route, remove_vlan, create_vlan
 
-from integral_view.views.services_management import view_services, change_service_status, reboot,get_my_keys,upload_ssh_key,upload_host_key
+from integral_view.views.services_management import view_services, change_service_status
 
 from integral_view.views.ftp_management import configure_ftp, view_ftp_configuration, create_ftp_user_dirs
 
@@ -47,20 +51,27 @@ urlpatterns = patterns('',
     url(r'^$', login),
     url(r'^dashboard/([A-Za-z0-9_]+)', login_required(dashboard),name="dashboard_page"),
     url(r'^raise_alert/', raise_alert),
+    url(r'^view_https_mode/', login_required(view_https_mode)),
+    url(r'^view_system_info/', login_required(view_system_info)),
+    url(r'^edit_https_mode/', login_required(edit_https_mode)),
     url(r'^reload_manifest/', login_required(reload_manifest)),
     url(r'^flag_node/', flag_node),
-    url(r'^set_file_owner_and_permissions/', set_file_owner_and_permissions),
+    #url(r'^set_file_owner_and_permissions/', set_file_owner_and_permissions),
     url(r'^internal_audit/', internal_audit),
     url(r'^change_admin_password/', login_required(change_admin_password),name="change_admin_password"),
+    url(r'^view_email_settings/', login_required(view_email_settings)),
     url(r'^configure_email_settings/', login_required(configure_email_settings)),
     url(r'^reset_to_factory_defaults/', login_required(reset_to_factory_defaults)),
+    url(r'^view_alerts/', login_required(view_alerts)),
+    url(r'^view_audit_trail/', login_required(view_audit_trail)),
     url(r'^configure_ntp_settings/', login_required(configure_ntp_settings)),
+    url(r'^view_ntp_settings/', login_required(view_ntp_settings)),
     url(r'^view_cifs_shares/', login_required(view_cifs_shares)),
     url(r'^view_services/', login_required(view_services)),
-    url(r'^view_certificates/', login_required(view_certificates)),
-    url(r'^upload_cert/', login_required(upload_cert)),
-    url(r'^create_self_signed_cert/', login_required(create_self_signed_cert)),
-    url(r'^delete_certificate/', login_required(delete_certificate)),
+    url(r'^view_ssl_certificates/', login_required(view_ssl_certificates)),
+    url(r'^upload_ssl_certificate/', login_required(upload_ssl_certificate)),
+    url(r'^create_self_signed_ssl_certificate/', login_required(create_self_signed_ssl_certificate)),
+    url(r'^delete_ssl_certificate/', login_required(delete_ssl_certificate)),
     url(r'^change_service_status/', login_required(change_service_status)),
     url(r'^view_interfaces/', login_required(view_interfaces)),
     url(r'^set_interface_state/', login_required(set_interface_state)),
@@ -115,6 +126,7 @@ urlpatterns = patterns('',
     url(r'^set_zfs_l2arc/', login_required(set_zfs_l2arc)),
     url(r'^remove_zfs_slog/', login_required(remove_zfs_slog)),
     url(r'^remove_zfs_l2arc/', login_required(remove_zfs_l2arc)),
+    url(r'^view_disks/', login_required(view_disks)),
     url(r'^view_zfs_pool/', login_required(view_zfs_pool)),
     url(r'^create_zfs_pool/', login_required(create_zfs_pool)),
     url(r'^expand_zfs_pool/', login_required(expand_zfs_pool)),
@@ -165,10 +177,10 @@ urlpatterns = patterns('',
     url(r'^configure_ftp', login_required(configure_ftp)),
     url(r'^create_ftp_user_dirs', login_required(create_ftp_user_dirs)),
     url(r'^view_ftp_configuration', login_required(view_ftp_configuration)),
-    url(r'^reboot',login_required(reboot)), 
-    url(r'^show_my_ssh_key',login_required(get_my_keys)),
-    url(r'^upload_ssh_key',login_required(upload_ssh_key)),
-    url(r'^upload_host_key',login_required(upload_host_key)),
+    url(r'^reboot_or_shutdown',login_required(reboot_or_shutdown)), 
+    url(r'^download_ssh_keys',login_required(download_ssh_keys)),
+    url(r'^upload_ssh_user_key',login_required(upload_ssh_user_key)),
+    url(r'^upload_ssh_host_key',login_required(upload_ssh_host_key)),
 
 )
 

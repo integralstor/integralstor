@@ -168,7 +168,7 @@ table#header_table {
 }
 #p-error-text{
   /*font-family: 'Roboto Slab',serif; font-size: 1.6rem; font-weight: 300; line-height: 1.625;*/
-  font-family: Avant Garde, Arial, Sans-Serif;font-size: 0.8rem; font-weight: 200; line-height: 1.625;color:red;
+  font-family: Avant Garde, Arial, Sans-Serif;font-size: 1.2rem; font-weight: 200; line-height: 1.625;color:red;
 }
 
 td {
@@ -213,6 +213,10 @@ input {
  background-color:#ffffff;
  border:1px solid;
  border-color: #696 #363 #363 #696;
+}
+
+#fileinput {
+  border:0px none;
 }
 .nav > li > a {
   padding-left:10px;
@@ -315,6 +319,10 @@ input {
 
 .red {
   color: #dd5a43 !important;
+}
+
+.yellow {
+  color: yellow !important;
 }
 
 .pink {

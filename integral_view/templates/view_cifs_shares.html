@@ -1,65 +1,51 @@
 {% extends 'shares_base.html' %}
+
 {%block tab_header %}
-CIFS shares
+  Windows shares
 {%endblock%}
 
 {%block inside_content %}
-<br><br>
 
-{% if conf %}
-<p class="text-green">{{conf}}</p><br><br>
-{%endif%}
 
-{% if not shares_list %}
-No shares appear to have been created. <br><br>
-{%else %}
-<div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-<table class="table table-striped">
-<thead>
-<tr>
-<th>
-Share name
-</th>
-<th>
-Share path
-</th>
-<th>
-Description
-</th>
-<th>
-&nbsp;
-</th>
-</thead>
-{%for d in shares_list %}
-<tr>
-  <td>
-    {{d.name}}
-  </td>
-  <td>
-    {{d.display_path}}
-  </td>
-  <td>
-    {{d.comment}}
-  </td>
-  <td>
-    <a href="/view_cifs_share?access_mode=by_id&index={{d.share_id}}" role="button" class="btn btn-info"> Details</a>
-  </td>
-</tr>
-{%endfor%}
-</table>
-</div>
-{%endif%}
-<p>
-  <a href="/create_cifs_share/" class="btn btn-primary btn-sm"> Create a CIFS Share </a>
-</p>
+  {% if not shares_list %}
+    No shares appear to have been created. <br><br>
+  {%else %}
+    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th> Share name </th>
+            <th> Share path </th>
+            <th> Description </th>
+            <th> &nbsp; </th>
+          </tr>
+        </thead>
+        {%for d in shares_list %}
+          <tr>
+            <td> {{d.name}} </td>
+            <td> {{d.display_path}} </td>
+            <td> {{d.comment}} </td>
+            <td>
+              <a href="/view_cifs_share?access_mode=by_id&index={{d.share_id}}" role="button" class="btn btn-info btn-xs"> Details</a>
+            </td>
+          </tr>
+        {%endfor%}
+      </table>
+    </div>
+  {%endif%}
+  <p>
+  <a href="/create_cifs_share/" class="btn btn-primary btn-sm"> Create a Windows share </a>
 
 {%endblock%}
+
 {%block help_header%}
-View all shares 
+  View all shares 
 {%endblock%}
+
 {%block help_body%}
   <p> This screen provides the list of all the shares that have been created on this IntegralStor system. To view details about a particular share, please select the the desired share from the list.</p>
 {%endblock%}
+
 {% block tab_active %}
  <script>
   make_tab_active("view_cifs_shares_tab")

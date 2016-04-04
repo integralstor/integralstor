@@ -1,27 +1,30 @@
 {% extends 'storage_base.html' %}
+
 {%block tab_header %}
-Delete a ZFS pool - confirmation
+  Delete a ZFS pool - confirmation
 {%endblock%}
 
 {%block inside_content %}
-<br><br>
 
-
-<p id="p-warning-text">Are you sure you want to delete the ZFS pool with name  "{{name}}"? </p>
-<br>
-<form action="/delete_zfs_pool/" method="POST">
-<input type=hidden name="name" value="{{name}}">
-<input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_pools'"> &nbsp;&nbsp;
-<button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete</button>
-</form>
+  <p id="p-warning-text">Are you sure you want to delete the ZFS pool with name  "{{name}}"? </p>
+  <br>
+  <form action="/delete_zfs_pool/" method="POST">
+    <input type=hidden name="name" value="{{name}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default cover-page" value="Cancel" onClick="window.location='/view_zfs_pool?name={{name}}'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger cover-page" >Confirm and delete</button>
+    </div>
+  </form>
 
 
 {%endblock%}
+
 {%block help_header%}
-Deleting a ZFS pool
+  Deleting a ZFS pool
 {%endblock%}
+
 {%block help_body%}
-<p>Confirming this operation results in the specified ZFS pool being deleted from the system. Please ensure that this is actually intended before continuing.</p>
+  <p>Confirming this operation results in the specified ZFS pool being deleted from the system. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}
 
 {% block tab_active %}

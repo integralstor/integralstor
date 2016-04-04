@@ -1,37 +1,35 @@
 {% extends 'storage_base.html' %}
 
 {%block tab_header %}
-Import a ZFS pool
+  Import a ZFS pool
 {%endblock%}
+
 {%block inside_content %}
-<br><br>
 
-{{conf_message}}
+  <form id="import_form" name="import_form" action="/import_zfs_pool/" method="post">
+    <table class="table" style="width:800px">
+      <tr>
+        <th> Pool name:</th>
+        <td>
+          <input type="text"  name="name" class="form-control" id="id_name" placeholder="Enter the name of the pool" />
+        </td>
+        <td> {{ form.name.errors }} </td>
+      </tr>
+      </table>
 
-<form id="import_form" name="import_form" action="/import_zfs_pool/" method="post">
-  <table class="table" style="width:800px">
-  <tr>
-    <td>
-  <label for="id_name">Pool name:</label>
-    </td>
-    <td>
-      <input type="text"  name="name" class="form-control" id="id_name" placeholder="Enter the name of the pool" />
-    </td>
-    <td>
-  {{ form.name.errors }}
-    </td>
-  </tr>
-  </table>
-
-  <a href="/view_zfs_pools" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-  <button type="submit" class="btn btn-primary cover-page">Import </button>
-</form>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_zfs_pools" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary cover-page">Import </button>
+    </div>
+  </form>
 {%endblock%}
+
 {%block help_header%}
-Import a  ZFS Pool
+  Import a  ZFS Pool
 {%endblock%}
+
 {%block help_body%}
-<p>Use this screen to import a ZFS pool from the data disks that has been previously exported. If successfully imported, the pool will show up in the list of pools.</p>
+  <p>Use this screen to import a ZFS pool from the data disks that has been previously exported. If successfully imported, the pool will show up in the list of pools.</p>
 {%endblock%}
 
 {% block tab_active %}

@@ -4,7 +4,7 @@ import django, django.template
 import integral_view
 from integral_view.forms import local_user_forms
 
-from integralstor_common import audit, networking
+from integralstor_common import audit
 from integralstor_unicell import local_users
 
 def view_local_users(request):
@@ -17,17 +17,15 @@ def view_local_users(request):
   
     return_dict["user_list"] = user_list
   
-    if "action" in request.GET:
-      conf = ''
-      if request.GET["action"] == "saved":
-        conf = "Local user password successfully updated"
-      elif request.GET["action"] == "created":
-        conf = "Local user successfully created"
-      elif request.GET["action"] == "deleted":
-        conf = "Local user successfully deleted"
-      elif request.GET["action"] == "changed_password":
-        conf = "Successfully update password"
-      return_dict["conf"] = conf
+    if "ack" in request.GET:
+      if request.GET["ack"] == "saved":
+        return_dict['ack_message'] = "Local user password successfully updated"
+      elif request.GET["ack"] == "created":
+        return_dict['ack_message'] = "Local user successfully created"
+      elif request.GET["ack"] == "deleted":
+        return_dict['ack_message'] = "Local user successfully deleted"
+      elif request.GET["ack"] == "changed_password":
+        return_dict['ack_message'] = "Successfully update password"
   
     return django.shortcuts.render_to_response('view_local_users.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
@@ -48,13 +46,11 @@ def view_local_groups(request):
   
     return_dict["group_list"] = group_list
   
-    if "action" in request.GET:
-      conf = ''
-      if request.GET["action"] == "created":
-        conf = "Local group successfully created"
-      elif request.GET["action"] == "deleted":
-        conf = "Local group successfully deleted"
-      return_dict["conf"] = conf
+    if "ack" in request.GET:
+      if request.GET["ack"] == "created":
+        return_dict['ack_message'] = "Local group successfully created"
+      elif request.GET["ack"] == "deleted":
+        return_dict['ack_message'] = "Local group successfully deleted"
   
     return django.shortcuts.render_to_response('view_local_groups.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
@@ -89,13 +85,11 @@ def view_local_user(request):
       
     return_dict["user"] = ud
   
-    if "action" in request.GET:
-      conf = ''
-      if request.GET["action"] == "gid_changed":
-        conf = "Local user's group successfully updated"
-      elif request.GET["action"] == "changed_password":
-        conf = "Successfully update password"
-      return_dict["conf"] = conf
+    if "ack" in request.GET:
+      if request.GET["ack"] == "gid_changed":
+        return_dict['ack_message'] = "Local user's group successfully updated"
+      elif request.GET["ack"] == "changed_password":
+        return_dict['ack_message'] = "Successfully update password"
   
     return django.shortcuts.render_to_response('view_local_user.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
@@ -129,15 +123,11 @@ def view_local_group(request):
       
     return_dict["group"] = gd
   
-    if "action" in request.GET:
-      conf = ''
-      '''
-      if request.GET["action"] == "gid_changed":
-        conf = "Local user's group successfully updated"
-      elif request.GET["action"] == "changed_password":
-        conf = "Successfully update password"
-      return_dict["conf"] = conf
-      '''
+    if "ack" in request.GET:
+      if request.GET["ack"] == "gid_changed":
+        return_dict['ack_message'] = "Local user's group successfully updated"
+      elif request.GET["ack"] == "changed_password":
+        return_dict['ack_message'] = "Successfully update password"
   
     return django.shortcuts.render_to_response('view_local_group.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
@@ -195,7 +185,7 @@ def edit_local_user_gid(request):
         audit_str = "Modified local user's primary group %s"%cd["username"]
         audit.audit("modify_local_user_gid", audit_str, request.META["REMOTE_ADDR"])
   
-        return django.http.HttpResponseRedirect('/view_local_user?username=%s&searchby=username&action=gid_changed'%cd["username"])
+        return django.http.HttpResponseRedirect('/view_local_user?username=%s&searchby=username&ack=gid_changed'%cd["username"])
   
       else:
         #Invalid form
@@ -262,7 +252,7 @@ def edit_local_user_group_membership(request):
         audit_str = "Modified local user group membership information %s"%cd["username"]
         audit.audit("modify_local_user_grp_membership", audit_str, request.META["REMOTE_ADDR"])
   
-        return django.http.HttpResponseRedirect('/view_local_user?username=%s&searchby=username&action=groups_changed'%cd["username"])
+        return django.http.HttpResponseRedirect('/view_local_user?username=%s&searchby=username&ack=groups_changed'%cd["username"])
   
       else:
         #Invalid form
@@ -298,9 +288,10 @@ def create_local_user(request):
             raise Exception(err)
           else:
             raise Exception("Error creating the local user.")
+                
         audit_str = "Created a local user %s"%cd["username"]
         audit.audit("create_local_user", audit_str, request.META["REMOTE_ADDR"])
-        url = '/view_local_users?action=created'
+        url = '/view_local_users?ack=created'
         return django.http.HttpResponseRedirect(url)
       else:
         return_dict["form"] = form
@@ -339,7 +330,7 @@ def create_local_group(request):
             raise Exception("Error creating the local group.")
         audit_str = "Created a local group %s"%cd["grpname"]
         audit.audit("create_local_group", audit_str, request.META["REMOTE_ADDR"])
-        url = '/view_local_groups?action=created'
+        url = '/view_local_groups?ack=created'
         return django.http.HttpResponseRedirect(url)
       else:
         return_dict["form"] = form
@@ -383,7 +374,7 @@ def delete_local_group(request):
           raise Exception('Error deleting group')
       audit_str = "Deleted a local group %s"%request.POST["grpname"]
       audit.audit("delete_local_group", audit_str, request.META["REMOTE_ADDR"])
-      url = '/view_local_groups?action=deleted'
+      url = '/view_local_groups?ack=deleted'
       return django.http.HttpResponseRedirect(url)
   except Exception, e:
     return_dict['base_template'] = 'users-groups_base.html'
@@ -415,7 +406,7 @@ def delete_local_user(request):
           raise Exception('Error deleting local user')
       audit_str = "Deleted a local user %s"%request.POST["username"]
       audit.audit("delete_local_user", audit_str, request.META["REMOTE_ADDR"])
-      url = '/view_local_users?action=deleted'
+      url = '/view_local_users?ack=deleted'
       return django.http.HttpResponseRedirect(url)
   except Exception, e:
     return_dict['base_template'] = 'users-groups_base.html'
@@ -454,7 +445,7 @@ def change_local_user_password(request):
   
         audit_str = "Changed password for local user %s"%cd["username"]
         audit.audit("change_local_user_password", audit_str, request.META["REMOTE_ADDR"])
-        return django.http.HttpResponseRedirect('/view_local_users?action=changed_password')
+        return django.http.HttpResponseRedirect('/view_local_users?ack=changed_password')
       else:
         return_dict["form"] = form
         return django.shortcuts.render_to_response("change_local_user_password.html", return_dict, context_instance = django.template.context.RequestContext(request))

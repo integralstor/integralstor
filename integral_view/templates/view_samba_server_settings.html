@@ -1,102 +1,85 @@
 {% extends 'services_base.html' %}
+
 {%block tab_header %}
-CIFS authentication settings
+  Windows shares authentication settings
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
-{% if not samba_global_dict %}
-<p id="p-instructional-text"> You have not configured authentication settings.</p><br>
-<a href="/auth_server_settings?action=edit" role="button" class="btn btn-default">Configure authentication settings</a>
-{%else%}
-<p id="p-instruction-text">{{conf}}</p>
+  {% if not samba_global_dict %}
+    <p id="p-instructional-text"> You have not configured authentication settings.</p><br>
+    <a href="/auth_server_settings?action=edit" role="button" class="btn btn-default">Configure authentication settings</a>
+  {%else%}
+    <p id="p-instruction-text">{{conf}}</p>
 
-        <div class="field">
-            <table class="table table-bordered" style="width:60%">
-            <tr>
-              <th>
-              Authentication mode:
-              </th>
-              <td>
-              {% if samba_global_dict.security == "ads" %} Active directory
-              {% elif samba_global_dict.security == "users" %} Local users
+    <div class="field">
+      <table class="table table-bordered" style="width:60%">
+        <tr>
+          <th> Authentication mode: </th>
+          <td>
+            {% if samba_global_dict.security == "ads" %} 
+              Active directory
+            {% elif samba_global_dict.security == "users" %} 
+              Local users
+            {%endif%}
+          </td>
+        </tr>
+        {% if samba_global_dict.security == "ads" %} 
+          <tr>
+            <th> AD server DNS name: </th>
+            <td>
+              {{ samba_global_dict.password_server }}
+            </td>
+          </tr>
+          <tr>
+            <th> AD server IP address: </th>
+            <td>
+              {{ samba_global_dict.password_server_ip }}
+            </td>
+          </tr>
+          <tr>
+            <th> AD Domain/Realm: </th>
+            <td>
+              {{ samba_global_dict.realm }}
+            </td>
+          </tr>
+          <tr>
+            <th> AD UNIX Services Manager : </th>
+            <td>
+              {% if samba_global_dict.ad_schema_mode == "rfc2307" %}
+                Identity Management For Unix
+              {%else%}
+                Services For Unix
               {%endif%}
-              </td>
-            </tr>
-          {% if samba_global_dict.security == "ads" %} 
-            <tr>
-              <th>
-              AD server DNS name:
-              </th>
-              <td>
-            {{ samba_global_dict.password_server }}
-              </td>
-            </tr>
-              <th>
-              AD server IP address:
-              </th>
-              <td>
-            {{ samba_global_dict.password_server_ip }}
-              </td>
-            </tr>
-            <tr>
-              <th>
-              AD Domain/Realm:
-              </th>
-              <td>
-            {{ samba_global_dict.realm }}
-              </td>
-            </tr>
-            <tr>
-              <th>
-            AD UNIX Services Manager :
-              </th>
-              <td>
-            {% if samba_global_dict.ad_schema_mode == "rfc2307" %}
-            Identity Management For Unix
-            {%else%}
-            Services For Unix
-            {%endif%}
-              </td>
-            </tr>
-            <tr>
-              <th>
-              AD UID Mapping range :
-              </th>
-              <td>
-            {{ samba_global_dict.id_map_min }} - {{samba_global_dict.id_map_max}}
-              </td>
-            </tr>
-            {%endif%}
-            <tr>
-              <th>
-              Workgroup:
-              </th>
-              <td>
+            </td>
+          </tr>
+          <tr>
+            <th> AD UID Mapping range : </th>
+            <td>
+              {{ samba_global_dict.id_map_min }} - {{samba_global_dict.id_map_max}}
+            </td>
+          </tr>
+        {%endif%}
+        <tr>
+          <th> Workgroup: </th>
+          <td>
             {{ samba_global_dict.workgroup }}
-              </td>
-            </tr>
-            <!--
-            <tr>
-              <td  style="text-align:center">
-              <a href="/auth_server_settings?action=edit" role="button" class="btn btn-default" >Edit authentication settings</a>
-              </td>
-              <td  style="text-align:center">
-              <a href="/edit_auth_method" role="button" class="btn btn-default" >Change authentication method</a>
-              </td>
-            </tr>
-            -->
-            </table>
-        </div>
-              <a href="/auth_server_settings?action=edit" role="button" class="btn btn-primary" >Edit authentication settings</a>
-              <a href="/edit_auth_method" role="button" class="btn btn-primary" >Change authentication method</a>
-{%endif%}
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/auth_server_settings?action=edit" role="button" class="btn btn-primary" >Edit authentication settings</a>
+      <a href="/edit_auth_method" role="button" class="btn btn-primary" >Change authentication method</a>
+    </div>
+  {%endif%}
 
 {%endblock%}
+
 {%block help_header%}
-Active directory authentication settings
+  Active directory authentication settings
 {%endblock%}
+
 {%block help_body%}
 <p>Use this screen to view the current configuration information about your Active Directory server against which authentication for share access will happen. Please ensure that you provide the correct server name, IP address and administrative user password in order for the authentication to proceed properly.</p>
 {%endblock%}

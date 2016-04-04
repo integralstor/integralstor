@@ -1,0 +1,14 @@
+{% extends  'key_management_base.html' %}
+
+{% block tab_header %}
+  Download SSH Keys
+{% endblock  %}
+
+{% block inside_content %}
+
+  <div class="btn-group btn-group-sm" role="group" aria-label="...">
+    <a href="/static/{{ssh_key}}" class="btn btn-success">Download replication user key</a>
+    <a href="/static/{{host_key}}" class="btn btn-success">Download SSH host key</a>
+  </div>
+
+{% endblock %}

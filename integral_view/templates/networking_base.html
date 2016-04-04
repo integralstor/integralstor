@@ -1,27 +1,53 @@
 {% extends 'logged_in_base.html' %}
 
-{% block contents %}
-  <div class="nav-tabs-custom">
-	<ul class="nav nav-tabs">
-	  <li id="view_interfaces_tab"><a href="/view_interfaces/">Network Interfaces</a></li>
-    <li id="view_hostname_tab"><a href="/view_hostname/" >Hostname</a></li>
-    <li id="view_dns_nameservers_tab"><a href="/view_dns_nameservers/">DNS</a></li>
-    {% include 'help_and_refresh.html' %}
-</ul>
-	<div class="tab-content">
-	  <div class="tab-pane active" id="content">
-    <span class="bigger-120"><i class="fa fa-circle text-yellow"></i> <span> {% block tab_header %}Information{% endblock %}</span></span>
-     <span class="white-space:pre-line"></span>
-     {% block inside_content %}
-      Information Not found. Please refresh the page
-     {% endblock inside_content %}
-    </div>
-  </div>
-  </div>
+{%block tab_items %}
+  <li id="view_interfaces_tab">
+    <a href="/view_interfaces/">Network Interfaces</a>
+  </li>
+  <li id="view_hostname_tab">
+    <a href="/view_hostname/" >Hostname</a>
+  </li>
+  <li id="view_dns_nameservers_tab">
+    <a href="/view_dns_nameservers/">DNS</a>
+  </li>
+{%endblock tab_items %}
 
-{% endblock%}
 {% block menu_active %}
 <script>
    make_side_menu_active("network_menu")
 </script>
 {% endblock %}
+
+<!--
+  <div class="nav-tabs-custom">
+    <ul class="nav nav-tabs">
+      <li id="view_interfaces_tab">
+        <a href="/view_interfaces/">Network Interfaces</a>
+      </li>
+      <li id="view_hostname_tab">
+        <a href="/view_hostname/" >Hostname</a>
+      </li>
+      <li id="view_dns_nameservers_tab">
+        <a href="/view_dns_nameservers/">DNS</a>
+      </li>
+      {% include 'help_and_refresh.html' %}
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="content">
+        <span class="bigger-120">
+          <i class="fa fa-circle text-yellow"></i> 
+          <span> 
+            {% block tab_header %}
+              Information
+            {% endblock %}
+          </span>
+        </span>
+        <span class="white-space:pre-line"></span>
+        {% block inside_content %}
+          Information Not found. Please refresh the page
+        {% endblock inside_content %}
+      </div>
+    </div>
+  </div>
+-->
+

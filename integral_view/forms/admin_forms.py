@@ -6,16 +6,22 @@ from email.utils import parseaddr
 class _MultipleEmailField(forms.CharField):
 
   def _is_valid_email(self, email):
-    email = email.strip()
-    t = parseaddr(email)
-    if t[0] or t[1]:
-      if not '@' in t[1]:
+    try:
+      email = email.strip()
+      t = parseaddr(email)
+      if t[0] or t[1]:
+        if not '@' in t[1]:
+          return False
+        if not re.match('^[A-Za-z0-9._%+-]+@[A-Za-z0-9\.\-]+', email):
+          return False
+        return True
+      else:
         return False
-      if not re.match('^[A-Za-z0-9._%+-]+@[A-Za-z0-9\.\-]+', email):
-        return False
-      return True
+    except Exception, e:
+      return None, 'Error validating email address : %s'%str(e)
     else:
-      return False
+      return ret, None
+
     
   def clean(self, value):
     if not value:
@@ -25,7 +31,10 @@ class _MultipleEmailField(forms.CharField):
     else:
       emails = value.lower().split(' ')
     for email in emails:
-      if not self._is_valid_email(email):
+      ret, err = self._is_valid_email(email)
+      if err:
+        raise forms.ValidationError(err)
+      if not ret:
         raise forms.ValidationError("%s is not a valid email address"%email)
 
     return value.lower()
@@ -51,7 +60,5 @@ class ConfigureEmailForm(forms.Form):
   pswd = forms.CharField(widget=forms.PasswordInput())
   tls = forms.BooleanField(required=False)
   rcpt_list = _MultipleEmailField()
-
   email_alerts = forms.BooleanField(required=False)
-
 

@@ -10,37 +10,35 @@
     <link rel="stylesheet" type="text/css" href="/static/css/skin-purple.css">
     <link rel="stylesheet" type="text/css" href="/static/css/AdminLTE.css">
 
-    <title> {%block title%}IntegralView admin console | Log In{%endblock%}</title>
-  
-</head>
+    <title> 
+      {%block title%}
+        IntegralView administration console 
+      {%endblock%}
+    </title>
+  </head>
   <body class="skin-purple">
     <div class="wrapper">
-    <header class="main-header">
-            <a href="/dashboard/cpu" class="logo">
-                <!-- Add the class icon to your logo image or logo icon to add the margining -->
-                 <img src="/static/images/LOGO-transparent.png" height="45" width="45" alt="Fractalio Data" class="pull-left margin-left-40"/>
-            </a>
-            <!-- Header Navbar: style can be found in header.less -->
-            <nav class="navbar navbar-static-top" role="navigation">
-                <a href="/dashboard/cpu" class="white margin-left-30 hidden-phone">
-                  <img src="/static/images/integralview-white.png" height="40" width="100" class="margin-top-5"/><sub style="bottom: -1.25em;">Beta</sub>
-                  </a>
-            </nav>
-        </header>
-<!-- end of top menu -->
+      <header class="main-header">
+        <a href="/dashboard/cpu" class="logo">
+          <!-- Add the class icon to your logo image or logo icon to add the margining -->
+          <img src="/static/images/LOGO-transparent.png" height="45" width="45" alt="Fractalio Data" class="pull-left margin-left-40"/>
+        </a>
+        <!-- Header Navbar: style can be found in header.less -->
+        <nav class="navbar navbar-static-top" role="navigation">
+          <a href="/dashboard/cpu" class="white margin-left-30 hidden-phone">
+            <img src="/static/images/integralview-white.png" height="40" width="100" class="margin-top-5"/>
+          </a>
+        </nav>
+      </header>
+    <!-- end of top menu -->
     </div>
 
+    {%block content%}
+    {%endblock%}
 
-
-
-       {%block content%}
-
-       {%endblock%}
-       <br><br>
-       {%block footer%}
-      
-       {%endblock%}
-    </div>
+    <br><br>
+    {%block footer%}
+    {%endblock%}
   </body>
 </html>
 

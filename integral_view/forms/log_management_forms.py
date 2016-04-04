@@ -6,22 +6,7 @@ class SystemLogsForm(forms.Form):
 
   ch = [('boot','Boot log'), ('dmesg', 'Dmesg log'), ('message', 'Message log'),('smb', 'Samba logs'),('winbind', 'Samba Winbind logs'),('ctdb', 'CTDB logs')]
   sys_log_type = forms.ChoiceField(choices=ch)
-
-  def __init__(self, *args, **kwargs):
-
-    if kwargs:
-      si = kwargs.pop('system_config_list')
-
-    super(SystemLogsForm, self).__init__(*args, **kwargs)
-    ch = []
-
-    if si:
-      for hostname in si.keys():
-        if si[hostname]["node_status"] < 0:
-          continue
-        tup = (hostname,hostname)
-        ch.append(tup)
-    self.fields['hostname'] = forms.ChoiceField(choices = ch)
+  hostname = forms.CharField(widget=forms.HiddenInput)
 
 class IntegralViewLoggingForm(forms.Form):
 

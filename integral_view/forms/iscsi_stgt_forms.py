@@ -1,6 +1,5 @@
 
 from django import forms
-import integralstor_common
 
 class IscsiAuthenticationForm(forms.Form):
 
@@ -19,10 +18,10 @@ class IscsiLunForm(forms.Form):
   target_name = forms.CharField(widget=forms.HiddenInput)
 
   def __init__(self, *args, **kwargs):
-    dsll = None
     if kwargs:
       zvols = kwargs.pop('zvols')
     super(IscsiLunForm, self).__init__(*args, **kwargs)
+
     ch = []
     if zvols:
       for zvol in zvols:

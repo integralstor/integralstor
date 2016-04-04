@@ -1,9 +1,9 @@
 import django, django.template,os
 
-import subprocess 
+import subprocess, urllib 
 import integralstor_common
 import integralstor_unicell
-from integralstor_common import networking, audit, command,zfs,common,scheduler_utils,ssh
+from integralstor_common import networking, audit, command,zfs,common,scheduler_utils, services_management
 from integralstor_unicell import local_users
 
   
@@ -12,23 +12,28 @@ def view_services(request):
   try:
     template = 'logged_in_error.html'
   
-    if "action" in request.GET:
-      if request.GET["action"] == "start_success":
-        conf = "Service start successful. Please wait for a few seconds for the status below to be updated."
-      elif request.GET["action"] == "stop_success":
-        conf = "Service stop successful. Please wait for a few seconds for the status below to be updated."
-      elif request.GET["action"] == "stop_fail":
-        conf = "Service stop failed"
-      elif request.GET["action"] == "start_fail":
-        conf = "Service start failed"
-      return_dict["conf"] = conf
+    if "ack" in request.GET:
+      if request.GET["ack"] == "start_success":
+        return_dict['ack_message'] = "Service start successful. Please wait for a few seconds for the status below to be updated."
+      elif request.GET["ack"] == "stop_success":
+        return_dict['ack_message'] = "Service stop successful. Please wait for a few seconds for the status below to be updated."
+      elif request.GET["ack"] == "stop_fail":
+        return_dict['ack_message'] = "Service stop failed"
+      elif request.GET["ack"] == "start_fail":
+        return_dict['ack_message'] = "Service start failed"
+    if 'service_change_status' in request.GET:
+      if request.GET['service_change_status'] != 'none':
+        return_dict['ack_message'] = 'Service status change initiated. Output : %s'%urllib.quote(request.GET['service_change_status'])
+      else:
+        return_dict['ack_message'] = 'Service status change initiated'
+
     services_dict = {}
     services = [('network', 'Networking'), ('ntpd','NTP'), ('smb', 'CIFS - smb'), ('winbind', 'CIFS - winbind'), ('tgtd', 'ISCSI'), ('nfs', 'NFS'),('vsftpd','FTP')]
     for service in services:
       services_dict[service[0]] = {} 
       services_dict[service[0]]['name'] =  service[1]
       services_dict[service[0]]['service'] =  service[0]
-      sd, err = _get_service_status(service)
+      sd, err = services_management.get_service_status(service)
       if not sd:
         if err:
           services_dict[service[0]]['err'] = err
@@ -36,9 +41,8 @@ def view_services(request):
           services_dict[service[0]]['err'] = 'Error retrieving status'
       services_dict[service[0]]['info'] = sd
 
-      return_dict["services"] = services_dict
-      template = "view_services.html"
-    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+    return_dict["services"] = services_dict
+    return django.shortcuts.render_to_response('view_services.html', return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "services_base.html"
     return_dict["page_title"] = 'System services'
@@ -56,34 +60,34 @@ def change_service_status(request):
       raise Exception("Invalid request. Please use the menus")
     if 'action' not in request.POST or request.POST['action'] not in ['start', 'stop']:
       raise Exception("Invalid request. Please use the menus")
-    audit_str = "Service status change of %s initiated to %s state."%(request.POST['service'], request.POST['action'])
-    d, err = _change_service_status(request.POST['service'], request.POST['action'])
-    if not d:
-      audit_str += 'Request failed.'
-      audit.audit("change_service_status", audit_str, request.META["REMOTE_ADDR"])
+
+    service = request.POST['service']
+    action = request.POST['action']
+
+    if 'action' == 'start' and service == 'vsftpd':
+      #Need to make sure that all local users have their directories created so do it..
+      config, err = vsftp.get_ftp_config()
       if err:
         raise Exception(err)
-      else:
-        raise Exception('Changing service status error')
+      users,err = local_users.get_local_users()
+      if err:
+        raise Exception(err)
+      ret, err = create_ftp_user_dirs(config['dataset'], users)
+      if err:
+        raise Exception(err)
 
-    if d['status_code'] == 0:
-      audit_str += 'Request succeeded.'
-    else:
-      audit_str += 'Request failed.'
+    audit_str = "Service status change of %s initiated to %s state."%(service, action)
     audit.audit("change_service_status", audit_str, request.META["REMOTE_ADDR"])
 
-    if request.POST['action'] == 'start':
-      if d['status_code'] == 0:
-        return django.http.HttpResponseRedirect('/view_services?&action=start_success')
-      else:
-        return django.http.HttpResponseRedirect('/view_services?&action=start_fail')
-    elif request.POST['action'] == 'stop':
-      if d['status_code'] == 0:
-        return django.http.HttpResponseRedirect('/view_services?&action=stop_success')
-      else:
-        return django.http.HttpResponseRedirect('/view_services?&action=stop_fail')
+    out, err = services_management.change_service_status(service, action)
+    if err:
+      raise Exception(err)
 
-      
+    if out:
+      return django.http.HttpResponseRedirect('/view_services?&service_change_status=%s'%','.join(out))
+    else:
+      return django.http.HttpResponseRedirect('/view_services?service_change_status=none')
+    
   except Exception, e:
     return_dict['base_template'] = "services_base.html"
     return_dict["page_title"] = 'Modify system service state'
@@ -92,129 +96,11 @@ def change_service_status(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def upload_ssh_key(request):
-  return_dict = {}
-  if request.method == 'POST':
-    authorized_key = request.FILES.get('pub_key')
-    with open('/root/.ssh/authorized_keys', 'wb+') as destination:
-        for chunk in authorized_key.chunks():
-            destination.write(chunk)
-    perm,err = ssh.ssh_dir_permissions()
-    return django.shortcuts.render_to_response("add_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
-  elif request.method == 'GET':
-    return django.shortcuts.render_to_response("add_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-def upload_host_key(request):
-  return_dict = {}
-  hosts_file = "/root/.ssh/known_hosts"
-  if request.method == 'POST':
-    authorized_key = request.FILES.get('pub_key')
-    ip = request.POST.get('ip')
-    with open(hosts_file, 'wb+') as destination:
-        for chunk in authorized_key.chunks():
-            destination.write(chunk)
-    #perm,err = ssh.ssh_dir_permissions()
-    with open(hosts_file,'r') as key:
-      data = key.read()
-    with open(hosts_file,'wb+') as key:
-      key.write(ip+" "+data)
-    return django.shortcuts.render_to_response("add_host_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
-  elif request.method == 'GET':
-    return django.shortcuts.render_to_response("add_host_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-def edit_ssh_key(request):
-  pass
-
-def list_ssh_keys(request):
-  pass
-
-def delete_ssh_keys(request):
-  pass
-
-def get_my_keys(request):
-  return_dict = {}
-  key = ssh.get_ssh_key() 
-  if key:
-    ssh.generate_ssh_key()
-  ssh_key = ssh.get_ssh_key()
-  return_dict['ssh_key'] = ssh_key
-  host_key = ssh.get_host_identity_key()
-  return_dict['host_key'] = host_key
-  return django.shortcuts.render_to_response("show_my_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-def regenerate_ssh_key(request):
-  return_dict = {}
-  key = ssh.generate_new_ssh_key() 
-  return_dict['my_ssh_key'] = key
-  return django.shortcuts.render_to_response("show_my_ssh_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
-def _get_service_status(service):
-  d = {}
-  try:
-    (ret, rc), err = command.execute_with_rc('service %s status'%service[0])
-    if err:
-      raise Exception(err)
-    d['status_code'] = rc
-    if rc == 0:
-      d['status_str'] = 'Running'
-    elif rc == 3:
-      d['status_str'] = 'Stopped'
-    elif rc == 1:
-      d['status_str'] = 'Error'
-    d['output_str'] = ''
-    out, err = command.get_output_list(ret)
-    if err:
-      raise Exception(err)
-    if out:
-      d['output_str'] += ','.join(out)
-    err, e = command.get_error_list(ret)
-    if e:
-      raise Exception(e)
-    if err:
-      d['output_str'] += ','.join(err)
-  except Exception, e:
-    return None, 'Error retrieving service status : %s'%str(e)
-  else:
-    return d, None
+'''
+DEPRECATED - NOT USED ANYMORE - FUNCTIONALITY MOVED TO ftp_management.py
 
-def _change_service_status(service, action):
-  d = {}
-  try:
-    #ret, rc = command.execute_with_rc('service %s %s'%(service, action))
-    cmd = {'%s %s'%(service, action):'service %s %s'%(service, action)}
-    cmd_list= [cmd]
-    task_name = "%s %s"%(service,action)
-    db_path,err = common.get_db_path()
-    status,err = scheduler_utils.schedule_a_job(db_path,task_name,cmd_list)
-    if not err:
-      d['output_str'] = 'Scheduled for restart'
-      d['status_code'] = 0 
-    else:
-      d['output_str'] = 'Schedule failed. Please try again'
-      d['status_code'] = -1
-  except Exception, e:
-    return None, 'Error retrieving service status : %s'%str(e)
-  else:
-    return d, None
-
-def _reboot_system(action):
-  d = {}
-  try:
-    ret, rc = command.execute_with_rc(action)
-    if not err:
-      d['output_str'] = 'Scheduled for restart'
-      d['status_code'] = 0 
-    else:
-      d['output_str'] = 'Schedule failed. Please try again'
-      d['status_code'] = -1
-  except Exception, e:
-    return None, 'Error retrieving service status : %s'%str(e)
-  else:
-    return d, None
-
-
-## This is a lot of hack inside just to get it work. Re-write when rewriting the architecture.
 def start_ftp_service(request):
   return_dict = {}
   try:
@@ -248,10 +134,10 @@ def start_ftp_service(request):
           raise Exception('Changing service status error')
       if d['status_code'] == 0:
         audit_str += 'Request succeeded.'
-        return django.http.HttpResponseRedirect('/view_services?&action=start_success')
+        return django.http.HttpResponseRedirect('/view_services?&ack=start_success')
       else:
         audit_str += 'Request failed.'
-        return django.http.HttpResponseRedirect('/view_services?&action=start_fail')
+        return django.http.HttpResponseRedirect('/view_services?&ack=start_fail')
       audit.audit("change_service_status", audit_str, request.META["REMOTE_ADDR"])
   except Exception, e:
     return_dict['base_template'] = "services_base.html"
@@ -288,37 +174,9 @@ def start_ftp_service(request):
       return_dict["error"] = 'Create a dataset before starting the FTP service'
       return_dict["error_details"] = str(e)
       return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+'''
       
-def reboot(request):
-  return_dict = {}
-  audit_str = ""
-  if request.method == "POST":
-    try:
-      d, err = _reboot_system('reboot')
-      if not d:
-        audit_str += 'Request failed.'
-        audit.audit("Rebooting System", audit_str, request.META["REMOTE_ADDR"])
-        if err:
-          raise Exception(err)
-        else:
-          raise Exception('Reboot Scheduling Error')
-
-      if d['status_code'] == 0:
-        audit_str += 'Reboot Succeeded succeeded.'
-      else:
-        audit_str += 'Request failed.'
-      audit.audit("Reboot ", audit_str, request.META["REMOTE_ADDR"])
-      return django.shortcuts.render_to_response("reboot.html", return_dict, context_instance=django.template.context.RequestContext(request))
-    except Exception, e:
-      return_dict['base_template'] = "admin_base.html"
-      return_dict["page_title"] = 'Reboot'
-      return_dict['tab'] = 'reboot'
-      return_dict["error"] = 'Reboot Happening. Please Wait ...!'
-      return_dict["error_details"] = str(e)
-      return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-  if request.method == "GET":
-    return django.shortcuts.render_to_response("reboot.html", return_dict, context_instance=django.template.context.RequestContext(request))
      
 
 if __name__ == '__main__':

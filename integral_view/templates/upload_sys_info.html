@@ -1,7 +1,7 @@
 {% extends 'system_base.html' %}
 
 {% block tab_header %}
-  Restore system to a configuration
+  Restore system to a previous configuration
 {% endblock %}
 
 {% block inside_content %}
@@ -9,14 +9,19 @@
   <form action="." method="post" enctype="multipart/form-data" class="form-horizontal" id="upload-form" role="form"> 
 
     {%csrf_token%}
-<div class="form-group">
-                  <label for="upload_file" class="col-sm-2 control-label">Upload system configuration</label>
-                  <div class="col-sm-10">
-                    <input id="upload_file" type="file" name="file_field" class="form-control">
-                    <p class="help-block">Select a previously downloaded zip file for an upload here</p>
-                  </div>
-                </div>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirm-upload">Upload Config</button>
+    <table class="table" >
+      <tr>
+        <td><b> Select a config file to be uploaded. </b><br>Select a previously downloaded configuration file to be applied</td>
+        <td>
+              <input id="upload_file" type="file" name="file_field" style="width:400px" required>
+        </td>
+        <td> {{form.auth_method.errors}} </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_system_info/" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;
+      <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#confirm-upload">Apply configuration file</button>
+    </div>
   </form>
 
 <div class="modal fade" tabindex="-1" role="dialog" id="confirm-upload">

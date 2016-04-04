@@ -1,27 +1,36 @@
 {% extends 'networking_base.html' %}
+
 {%block tab_header %}
-Modify DNS servers
+  Modify DNS servers
 {%endblock%}
 
 {% block inside_content %}
-<br><br>
 
-<form action="/edit_dns_nameservers/" method="post">
-<div  style=" position:relative;border:0px solid #DDDDDD;width:600px; padding:15px 15px 15px;margin:0px 15px;border-radius:4px 4px 0px 0px">
-  <div class="form-group" >
-    <label for="id_nameservers" > DNS Nameserver list (enter comma separated list of DNS nameserver IP addresses ):</label>
-    <input type="text"  name="nameservers" class="form-control" id="id_nameservers" value="{{form.initial.nameservers}}" placeholder="Enter comma separated list of DNS nameservers"> 
-    {{ form.nameservers.errors }}
-  </div>
-  <a href="/view_dns_nameservers/" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-  <button type="submit" class="btn btn-primary">Save</button>
-</div>
-</form>
+  <form action="/edit_dns_nameservers/" method="post">
+    <table class="table" >
+      <tr>
+        <td  style="max-width:100px;word-wrap: break-word"> 
+          <b>DNS Nameserver list</b><br> (enter comma separated list of DNS nameserver IP addresses ): 
+        </td>
+        <td>
+          <input type="text"  name="nameservers" class="form-control" id="id_nameservers" value="{{form.initial.nameservers}}" placeholder="Enter comma separated list of DNS nameservers"> 
+        </td>
+        <td>  
+          {{ form.nameservers.errors }}
+        </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_dns_nameservers/" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+
 
 {%endblock%}
 
 {%block help_header%}
-Modify DNS nameservers
+  Modify DNS nameservers
 {%endblock%}
 
 {%block help_body%}
