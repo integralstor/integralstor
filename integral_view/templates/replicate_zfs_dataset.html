@@ -6,8 +6,20 @@
 
 {% block inside_content %}
 
-  {% if not dataset %}
-    <p>No ZFS storage pools appear to have been created. </p>
+  {% if not dataset %} 
+      <table class="table " style="width:800px">
+        <tr>
+  	  <td>Select a dataset of replication </td>
+     	  <td>
+            <select id="id_datasets" class="form-control"> 
+  	      {% for dataset in datasets %}
+ 		<option id="{{dataset}}">{{dataset}}</option>
+	      {% endfor %}
+ 	    </select>
+          </td>
+        </tr>
+      </table>
+      <button class="btn btn-primary" id="replication_status">Change Replication Status </button>
   {%else %}
     <form class="form-horizontal" role="form" name="schedule_replication" action="" method="post">
       <table  class="table " style="width:800px">
@@ -39,7 +51,7 @@
 	    </table>
       <input type="text"  name="action" class="form-control" id="id_action" readonly style="display:none;"> 
       <div class="btn-group btn-group-sm" role="group" aria-label="...">
-        <a href="/view_zfs_dataset?name={{dataset}}" role="button" class="btn btn-default"> Cancel</a>
+        <a href="/view_remote_replications" role="button" class="btn btn-default"> Cancel</a>
         {% if "disabled" in replication_status %}
           <button type="submit" class="btn btn-primary" id="start">Start Replication</button>
         {% else %}
@@ -61,10 +73,15 @@
 
 {% block tab_active %}
   <script>
-   make_tab_active("view_zfs_pools_tab")
+   make_tab_active("view_remote_replications_tab")
    $(".btn").click(function(){
 	  $("#id_action").val(this.id)
 	})
+  </script>
+  <script>
+    $("#replication_status").click(function(){
+      window.location = "/replicate_zfs_dataset/?dataset_name="+$("#id_datasets option:selected").text() 
+   });
   </script>
 {% endblock %}
 

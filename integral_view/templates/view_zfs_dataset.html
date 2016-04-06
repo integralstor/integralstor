@@ -86,9 +86,9 @@
       Status : {{replication_status|title}}
       <br><br>
       {% if "disabled" in replication_status %}
-    	  <a href="/replicate_zfs_pool?dataset_name={{name}}" role="button" class="btn btn-info btn-sm">Enable replication on this dataset</a>
+    	  <a href="/replicate_zfs_dataset?dataset_name={{name}}" role="button" class="btn btn-info btn-sm">Enable replication on this dataset</a>
       {% else %}
-    	  <a href="/replicate_zfs_pool?dataset_name={{name}}" role="button" class="btn btn-info btn-sm">Modify/Disable replicate on this dataset</a>
+    	  <a href="/replicate_zfs_dataset?dataset_name={{name}}" role="button" class="btn btn-info btn-sm">Modify/Disable replicate on this dataset</a>
     	{% endif %}
       <br>
       <hr>

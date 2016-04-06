@@ -184,11 +184,8 @@ def download_ssh_keys(request):
   try:
     # This gets the ssh file for download.
     key,err = pki.get_ssh_key() 
-    print "====================="
-    print key,err
-    print "====================="
     # If the response is True instead of a file, the file does not exist. So generate it.
-    if key:
+    if not key:
       status,err = pki.generate_ssh_key()
       if err:
         raise Exception(err)
@@ -196,7 +193,9 @@ def download_ssh_keys(request):
     if err:
       raise Exception(err)
     return_dict['ssh_key'] = ssh_key
-    host_key = pki.get_ssh_host_identity_key()
+    host_key,err = pki.get_ssh_host_identity_key()
+    if err:
+      raise Exception(err)
     return_dict['host_key'] = host_key
     return django.shortcuts.render_to_response("download_ssh_keys.html", return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception,e:

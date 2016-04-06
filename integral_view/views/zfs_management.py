@@ -186,22 +186,53 @@ def view_zfs_pool(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def replicate_zfs_pool(request):
+def view_remote_replications(request):
+  return_dict = {}
+  try:
+    db_path,err = common.get_db_path()
+    if err:
+      raise Exception(err)
+    cmd = "select * from dataset_repl"
+    replications,err = db.read_multiple_rows(db_path,cmd)
+    if err: 
+      raise Exception(err)
+    return_dict["replications"] = replications
+    return django.shortcuts.render_to_response('view_remote_replications.html',return_dict,context_instance=django.template.context.RequestContext(request))
+  except Exception as e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'View Remote Replication'
+    return_dict['tab'] = 'view_remote_replications_tab'
+    return_dict["error"] = 'Error retreiving replication information'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    
+
+def replicate_zfs_dataset(request):
   return_dict = {}
   if request.method == "GET":
     dataset = request.GET.get('dataset_name')
-    cmd = "select * from dataset_repl where dataset='%s'"%str(dataset)
-    db_path,err = common.get_db_path()
-    status,err = db.read_single_row(db_path,cmd)
-    if not err:
-      if not status:
-        return_dict["replication_status"] = "disabled"
-      else:
-        return_dict["replication_status"] = "enabled"
-        return_dict["ip"] = status["ip"]
-        return_dict["dest"] = status["dest"]
-    return_dict['dataset'] = dataset
-    return django.shortcuts.render_to_response('replicate_zfs_pool.html',return_dict,context_instance=django.template.context.RequestContext(request))
+    if dataset:
+      cmd = "select * from dataset_repl where dataset='%s'"%str(dataset)
+      db_path,err = common.get_db_path()
+      status,err = db.read_single_row(db_path,cmd)
+      if not err:
+        if not status:
+          return_dict["replication_status"] = "disabled"
+        else:
+          return_dict["replication_status"] = "enabled"
+          return_dict["ip"] = status["ip"]
+          return_dict["dest"] = status["dest"]
+      return_dict['dataset'] = dataset
+    else:
+      datasets = []
+      pools,err = zfs.get_all_datasets_and_pools()
+      if err:
+        raise Exception(err)
+      for pool in pools:
+        if "/" in pool:
+          datasets.append(pool)
+      return_dict["datasets"] = datasets
+    return django.shortcuts.render_to_response('replicate_zfs_dataset.html',return_dict,context_instance=django.template.context.RequestContext(request))
   elif request.method == "POST":
     try:
       dataset = request.POST.get('dataset')

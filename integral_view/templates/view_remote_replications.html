@@ -1,0 +1,36 @@
+{% extends 'storage_base.html' %}
+{%block tab_header %}
+  ZFS dataset/volume replication
+{%endblock%}
+
+{% block inside_content %}
+
+  {% if replications %}
+    <table id="remote_replications_list" class="table table-stripped" style="width:800px;">
+      <thead>
+        <tr>
+          <td> Source Dataset</td>
+          <td> Destination IP </td>
+          <td> Destination Pool </td>
+          <td></td>
+        </tr>
+      </thead>
+      <tbody> 
+        {% for replication in replications %}
+          <tr>
+            <td> {{replication.dataset}} </td>
+            <td> {{replication.ip}} </td>
+            <td> {{replication.dest}} </td>
+            <td> <a href="/replicate_zfs_dataset/?dataset_name={{replication.dataset}}" class="btn btn-info btn-sm">Modify Replication Status </a>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    Currently No active replications
+  {% endif %}
+  <br />
+  <br />
+  <br />
+  <a href="/replicate_zfs_dataset/" role="button" class="btn btn-primary btn-sm"> Enable Dataset Replication </a>
+{% endblock %}
