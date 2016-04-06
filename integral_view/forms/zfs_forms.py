@@ -98,6 +98,7 @@ class ImportPoolForm(forms.Form):
 class CreatePoolForm(forms.Form):
   name = forms.CharField()
   num_disks = forms.IntegerField(widget=forms.HiddenInput, required=False)
+  dedup = forms.BooleanField(required=False)
 
   ch = [ ('rotational', 'All rotating drives'), ('flash', 'All flash drives') ]
   disk_type = forms.ChoiceField(choices=ch)

@@ -10,14 +10,14 @@
     <p>No ZFS storage pools appear to have been created. </p>
   {%else %}
     <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-      {%for d in pool_list %}
-        <table  class="table table-bordered">
-          <tr>
-            <th > Pool name </th>
-            <th> Datasets in pool </th>
-            <th> Block device volumes in pool </th>
-            <th> Details </th>
-          </tr>
+      <table  class="table table-bordered">
+        <tr>
+          <th > Pool name </th>
+          <th> Datasets in pool </th>
+          <th> Block device volumes in pool </th>
+          <th> Details </th>
+        </tr>
+        {%for d in pool_list %}
           <tr>
             <td> {{d.pool_name}} </td>
             <td> 
@@ -50,8 +50,8 @@
               <a href="/view_zfs_pool?name={{d.pool_name}}" role="button" class="btn btn-info btn-xs cover-page" title="Click here to view detailed information about this pool"> Details</a>
             </td>
           </tr>
-        </table>
-      {%endfor%}
+        {%endfor%}
+      </table>
     </div>
   {%endif%}
   <div class="btn-group btn-group-sm" role="group" aria-label="...">

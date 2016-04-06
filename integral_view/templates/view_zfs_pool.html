@@ -44,14 +44,19 @@
         <div id="collapse2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading2">
           <div class="panel-body">
               <div class="progress" style="background: rgba(204, 188, 188, 1); border: 1px solid rgba(245, 245, 245, 1); ">
-                <div class="progress-bar {%if pool.usage.used_percent.value > 50 and pool.usage.used_percent.value < 70 %}  progress-bar-warning {%elif pool.usage.used_percent.value >= 70 %}  progress-bar-danger{%else%} progress-bar-info {%endif%}" role="progressbar" aria-valuenow="{{pool.usage.used_percent.value}}" aria-valuemin="0" aria-valuemax="100" style="{%if pool.usage.used_percent.value %} width: {{pool.usage.used_percent.value}}%;{%endif%}min-width: 3em;">
-                  {{pool.usage.used_percent.value|floatformat}}%
+                <div class="progress-bar {%if pool.usage.capacity.value > 50 and pool.usage.capacity.value < 70 %}  progress-bar-warning {%elif pool.usage.capacity.value >= 70 %}  progress-bar-danger{%else%} progress-bar-info {%endif%}" role="progressbar" aria-valuenow="{{pool.usage.capacity.value}}" aria-valuemin="0" aria-valuemax="100" style="{%if pool.usage.capacity.value %} width: {{pool.usage.capacity.value}}%;{%endif%}min-width: 3em;">
+                  {{pool.usage.capacity.value|floatformat}}%
                 </div>
               </div>
               <table class="table table-bordered table-hover table-responsive" style="width:800px">
                 <tr><th> Pool size </th> <td>{{pool.usage.size.value}}{{pool.usage.size.unit}}<td></tr>
-                <tr><th> Pool usage </th> <td>{{pool.usage.used.value}}{{pool.usage.used.unit}}<td></tr>
-                <tr><th> Pool free space </th> <td>{{pool.usage.free.value}}{{pool.usage.free.unit}}<td></tr>
+                <tr><th> Pool usage </th> <td>{{pool.usage.allocated.value}}{{pool.usage.allocated.unit}}<td></tr>
+                <tr><th> Pool used percentage </th> <td>{{pool.usage.capacity.value}}{{pool.usage.capacity.unit}}<td></tr>
+                <tr><th> Pool dedup </th> <td>{{pool.usage.dedup}}<td></tr>
+                {%if pool.usage.dedup == 'on'%}
+                  <tr><th> Pool dedup ratio</th> <td>{{pool.usage.dedupratio.value}}{{pool.usage.dedupratio.unit}}<td></tr>
+                {%endif%}
+                <tr><th> Pool fragmentation percentage</th> <td>{{pool.usage.fragmentation.value}}{{pool.usage.fragmentation.unit}}<td></tr>
               </table>
           </div>
         </div>
