@@ -27,8 +27,8 @@ CREATE TABLE "scheduler_tasks" (
 );
 
 
-CREATE TABLE "pool_repl" (
-	"pool" varchar(100) NOT NULL,
+CREATE TABLE "dataset_repl" (
+	"dataset" varchar(100) NOT NULL,
 	"ip" varchar(100) NOT NULL,
 	"user" varchar(100) NOT NULL,
 	"dest" varchar(100) NOT NULL
