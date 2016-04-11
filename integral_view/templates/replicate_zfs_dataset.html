@@ -7,19 +7,19 @@
 {% block inside_content %}
 
   {% if not dataset %} 
-      <table class="table " style="width:800px">
-        <tr>
-  	  <td>Select a dataset of replication </td>
-     	  <td>
-            <select id="id_datasets" class="form-control"> 
-  	      {% for dataset in datasets %}
- 		<option id="{{dataset}}">{{dataset}}</option>
-	      {% endfor %}
- 	    </select>
-          </td>
-        </tr>
-      </table>
-      <button class="btn btn-primary" id="replication_status">Change Replication Status </button>
+    <table class="table " style="width:800px">
+      <tr>
+        <td>Select a dataset of replication </td>
+        <td>
+          <select id="id_datasets" class="form-control"> 
+            {% for dataset in datasets %}
+              <option id="{{dataset}}">{{dataset}}</option>
+            {% endfor %}
+          </select>
+        </td>
+      </tr>
+    </table>
+    <button class="btn btn-primary btn-sm" id="replication_status">Change replication status </button>
   {%else %}
     <form class="form-horizontal" role="form" name="schedule_replication" action="" method="post">
       <table  class="table " style="width:800px">
@@ -48,7 +48,13 @@
             <input type="text"  name="dataset" class="form-control" id="id_dataset" placeholder="{{dataset}}" value="{{dataset}}" readonly > 
           </td>
         </tr>
-	    </table>
+        <tr>
+          <th> Schedule </th>
+          <td>
+            <div id="scheduler"></div>
+          </td>
+        </tr>
+      </table>
       <input type="text"  name="action" class="form-control" id="id_action" readonly style="display:none;"> 
       <div class="btn-group btn-group-sm" role="group" aria-label="...">
         <a href="/view_remote_replications" role="button" class="btn btn-default"> Cancel</a>
@@ -85,3 +91,11 @@
   </script>
 {% endblock %}
 
+{% block js %}
+
+  <script type="text/javascript" src="/static/js/jquery-cron-min.js"></script>
+  <link type="text/css" href="/static/css/jquery-cron.css" rel="stylesheet" />
+  <script>
+    $('#scheduler').cron();
+  </script>
+{% endblock %}

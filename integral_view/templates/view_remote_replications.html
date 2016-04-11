@@ -1,4 +1,5 @@
 {% extends 'storage_base.html' %}
+
 {%block tab_header %}
   ZFS dataset/volume replication
 {%endblock%}
@@ -27,10 +28,10 @@
       </tbody>
     </table>
   {% else %}
-    Currently No active replications
+    There are currently no active replications enabled/scheduled.
   {% endif %}
   <br />
   <br />
   <br />
-  <a href="/replicate_zfs_dataset/" role="button" class="btn btn-primary btn-sm"> Enable Dataset Replication </a>
+  <a href="/replicate_zfs_dataset/" role="button" class="btn btn-primary btn-sm"> Enable dataset replication </a>
 {% endblock %}

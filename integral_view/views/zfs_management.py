@@ -483,7 +483,7 @@ def create_zfs_pool(request):
       if not form.is_valid():
         return django.shortcuts.render_to_response("create_zfs_pool.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
-      print cd
+      #print cd
       vdev_list = None
       if cd['pool_type'] in ['raid5', 'raid6']:
         vdev_list, err = zfs.create_pool_data_vdev_list(cd['pool_type'], disk_type = cd['disk_type'], num_raid_disks = cd['num_raid_disks'])
