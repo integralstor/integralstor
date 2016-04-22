@@ -49,9 +49,11 @@
           </td>
         </tr>
         <tr>
-          <th> Schedule </th>
+          <th> Time to run replication </th>
           <td>
-            <div id="scheduler"></div>
+            <div id="scheduler" class="form-control">
+	    </div>
+              <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select time from time selector" type="text" required readonly>
           </td>
         </tr>
       </table>
@@ -96,6 +98,14 @@
   <script type="text/javascript" src="/static/js/jquery-cron-min.js"></script>
   <link type="text/css" href="/static/css/jquery-cron.css" rel="stylesheet" />
   <script>
-    $('#scheduler').cron();
+    $('#scheduler').cron({
+      onChange: function() {
+        $('#id_scheduler').val($(this).cron("value"));
+      },
+      customValues: {
+        "20 Minutes" : "*/20 * * * *",
+        "30 Minutes" : "*/30 * * * *",
+    }
+     });
   </script>
 {% endblock %}

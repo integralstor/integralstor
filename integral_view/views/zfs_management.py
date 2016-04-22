@@ -236,6 +236,8 @@ def replicate_zfs_dataset(request):
   elif request.method == "POST":
     try:
       dataset = request.POST.get('dataset')
+      scheduler = request.POST.get('scheduler')
+      schedule = scheduler.split()
       host_ip = request.POST.get('ip')
       dest_pool = request.POST.get('dest_pool')
       username = "root"
@@ -243,18 +245,39 @@ def replicate_zfs_dataset(request):
       action = request.POST.get('action')
       if (not host_ip) and (not dest_pool):
         raise Exception("Data Incomplete.")
+      comment = "Replication for %s-%s"%(dataset.split("/")[0],dataset.split("/")[1])
+
       if action == "update":
         cmd = "update dataset_repl set dataset='%s',ip='%s',user='%s',dest='%s' where dataset='%s'"%(dataset,host_ip,username,dest_pool,dataset)
         db_path,err = common.get_db_path()
         status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
+        if err:
+          raise Exception(err)
+        cron_remove,err = scheduler_utils.delete_cron_with_comment(comment)
+        if err:
+          raise Exception(err)
+        schedule,err = scheduler_utils.create_cron(comment,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4],"/usr/bin/python -c 'from integralstor_common import zfs; zfs.schedule_remote_replication("'"%s"'","'"%s"'","'"%s"'","'"%s"'")'"%(dataset,host_ip,username,dest_pool))
+        if err:
+          raise Exception(err)
+         
       elif action == "start": 
         cmd = "insert into dataset_repl (dataset,ip,user,dest) values ('%s','%s','%s','%s')"%(dataset,host_ip,username,dest_pool)
         db_path,err = common.get_db_path()
         status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
+        if err:
+          raise Exception(err)
+        schedule,err = scheduler_utils.create_cron(comment,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4],"/usr/bin/python -c 'from integralstor_common import zfs; zfs.schedule_remote_replication("'"%s"'","'"%s"'","'"%s"'","'"%s"'")'"%(dataset,host_ip,username,dest_pool))
+        if err:
+          raise Exception(err)
+
       elif action == "stop":
         cmd = "delete from dataset_repl where dataset='%s'"%dataset
         db_path,err = common.get_db_path()
         status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
+        cron_remove,err = scheduler_utils.delete_cron_with_comment(comment)
+        if err:
+          raise Exception(err)
+
       else:
         raise Exception("Malformed request. Please use the menus")
       return django.http.HttpResponseRedirect('replicate_zfs_pool/?dataset_name='+dataset)
