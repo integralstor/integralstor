@@ -6,19 +6,21 @@
       background : rgb(210,214,222);
     }
   </style>
-  <div class="row margin-top-100">
+  <div class="row margin-top-80">
     <div class="col-md-offset-3 col-md-6 col-sm-offset-3 sol-sm-6 col-xs-12">
       <div class="loginbox">
         <div class="login-logo">
+          <img src="/static/images/istor.png" width="60px"><span style="color:white;margin:10px;">UNIcell Login</span>
         </div>
         {%if session_active%}
           <div class="callout callout-danger">
-            <h5>Another user is logged in !</h5>
-            <p>You are seeing this message, either because another user is already logged in to the application and doing some process or another user has loggedin to the system. If you login, then you might logout the other user and his process will be terminated.</p>
+            <h5>Another user is currently logged in !</h5>
+            <p>You are seeing this message, because another user is already logged in to the application. </p>
+
+            <p> If you choose to continue and login and make changes to the system, your changes may be overridden by the other user or vice-versa.</p>
           </div>
         {%endif%}
-        <div class="login-box-body">
-          <p class="login-box-msg"><span class="">IntegralStor Unicell Login</span></p>
+        <div class="login-box-body" style="text-align:center;vertical-align:middle">
           <form role="form" action="." method="post">
             {% csrf_token %}
             <div class="form-group">
@@ -35,7 +37,7 @@
             </div>
             <div class="box-footer">
               <div class="form-group">
-                  <button type="submit" class="btn btn-primary"><strong>Submit</strong></button>
+                  <button type="submit" class="btn btn-primary cover-page"><strong>Login</strong></button>
               </div>
             </div>
           </form>
@@ -43,8 +45,6 @@
       </div>
     </div>
   </div>
-
-
   {% if invalidUser %}
     <div class="row">
       <div class="col-md-offset-3 col-md-6 col-sm-offset-3 col-sm-6 col-xs-12">
@@ -52,12 +52,5 @@
       </div>
     </div>
   {% endif %}
-
-  <script src="/static/jquery-ui-1.10.2.custom/js/jquery-1.9.1.js"></script>
-  <script type="text/javascript">
-    $(function() {
-      $("#id_username").focus();
-    });
-  </script>
 
 {%endblock%}

@@ -1,4 +1,5 @@
 import json, time, os, shutil, tempfile, os.path, re, subprocess, sys, shutil, pwd, grp, stat,datetime
+from datetime import timedelta
 
 import salt.client, salt.wheel
 
@@ -13,7 +14,7 @@ from integralstor_common import command, db, common, audit, alerts, mail, zfs, f
 from integralstor_common import cifs as cifs_common, services_management
 
 import integralstor_unicell
-from integralstor_unicell import system_info, local_users
+from integralstor_unicell import system_info, local_users, iscsi_stgt, nfs
 
 from integral_view.utils import iv_logging
 
@@ -52,46 +53,129 @@ def dashboard(request,page):
       raise Exception(err)
     if not si:
       raise Exception('Error loading system configuration')
-    return_dict['system_info'] = si
+
+    node = si[si.keys()[0]]
+    return_dict['node'] = node
+
     #By default show error page
     template = "logged_in_error.html"
-    num_nodes_bad = 0
-    total_pool = 0
-    total_nodes = len(si)
-    nodes = {}
+
     # Chart specific declarations
-    today_day = (datetime.date.today()).strftime('%d') # will return 02, instead of 2.
-    # This is a hack, need to figure out a better way to get hour and minute in 2 digit format like today_day.
-    start_hour = datetime.datetime.today().hour-3
-    end_hour = datetime.datetime.today().hour
-    if start_hour < 10:
-      start_hour = '0%d'%start_hour
-    if end_hour < 10:
-      end_hour = '0%d'%end_hour
-    minute = datetime.datetime.today().minute
-    if minute < 10:
-      minute = '0%d'%minute
+    todays_date = (datetime.date.today()).strftime('%02d') # will return 02, instead of 2.
+    start_hour = '%02d'%(datetime.datetime.today().hour-3)
+    end_hour = '%02d'%(datetime.datetime.today().hour)
+    minute = '%02d'%(datetime.datetime.today().minute)
     start = str(start_hour)+":"+str(minute)+str(":10")
     end = str(end_hour)+":"+str(minute)+str(":40")
-    #today_day = datetime.datetime.today().day
-    #if end < 10:
-    #  end = '0%d'%end
+
     value_list = []
     time_list = []
     use_salt, err = common.use_salt()
     if err:
       raise Exception(err)
+
+    num_bad_disks = 0
+    num_disks = len(node['disks'])
+    disks_ok = True
+    for sn, disk in node['disks'].items():
+      if disk['status'] == 'PASSED' or disk['status'] == 'OK':
+        pass
+      else:
+        num_bad_disks += 1
+        disks_ok = False
+    return_dict['num_disks'] = num_disks
+    return_dict['num_bad_disks'] = num_bad_disks
+    return_dict['disks_ok'] = disks_ok
         
-    ks = si.keys()
-    if not ks:
-      raise Exception('System configuration invalid')
-    info = ks[0]
+    num_sensors = len(node['ipmi_status'])
+    num_bad_sensors = 0
+    ipmi_ok = True
+    for sensor in node['ipmi_status']:
+      if sensor['status'] in ['ok', 'nr', 'na']:
+        continue
+      else:
+        num_bad_sensors += 1
+        ipmi_ok = False
+    return_dict['num_sensors'] = num_sensors
+    return_dict['num_bad_sensors'] = num_bad_sensors
+    return_dict['ipmi_ok'] = ipmi_ok
+
+    services_list =  ['winbind', 'smb', 'nfs', 'tgtd', 'ntpd', 'vsftpd']
+    num_services = len(services_list)
+    num_bad_services = 0
+    services_ok = True
+    for service in services_list:
+      output_list, err = command.get_command_output('service %s status'%service, False)
+      if err:
+        raise Exception(err)
+      service_ok = False
+      for line in output_list:
+        if 'is running' in line:
+          service_ok = True
+          break
+      if not service_ok:
+        num_bad_services += 1
+        services_ok = False
+
+    pools, err = zfs.get_pools()
+    if err:
+      raise Exception(err)
+
+    return_dict['num_services'] = num_services
+    return_dict['num_bad_services'] = num_bad_services
+    return_dict['services_ok'] = services_ok
+
+    info = si.keys()[0]
+    num_pools = len(pools)
+    num_bad_pools = 0
+    num_degraded_pools = 0
+    num_high_usage = 0
+    for pool in pools:
+      if pool['usage']['capacity']['value'] > 75:
+        num_high_usage += 1
+      if pool['config']['pool']['root']['status']['state'] == 'ONLINE':
+        pass
+      elif pool['config']['pool']['root']['status']['state'] == 'DEGRADED':
+        num_degraded_pools += 1
+      else:
+        num_bad_pools += 1
+    return_dict['num_pools'] = num_pools
+    return_dict['num_bad_pools'] = num_bad_pools
+    return_dict['num_degraded_pools'] = num_degraded_pools
+    return_dict['num_high_usage'] = num_high_usage
+
+    load_avg_ok = True
+    if (node["load_avg"]["5_min"] > node["load_avg"]["cpu_cores"]) or (node["load_avg"]["15_min"] > node["load_avg"]["cpu_cores"]):
+      load_avg_ok = False
+    return_dict['load_avg_ok'] = load_avg_ok
+
+    shares_list, err = cifs_common.load_shares_list()
+    if err:
+      raise Exception(err)
+    return_dict['num_cifs_shares'] = len(shares_list)
+
+    exports_list, err = nfs.load_exports_list()
+    if err:
+      raise Exception(err)
+    return_dict['num_nfs_exports'] = len(exports_list)
+
+    target_list, err = iscsi_stgt.get_targets()
+    if err:
+      raise Exception(err)
+    return_dict['num_iscsi_targets'] = len(target_list)
+
+
+    with open('/proc/uptime', 'r') as f:
+      uptime_seconds = float(f.readline().split()[0])
+      uptime_str = '%s hours'%(':'.join(str(timedelta(seconds = uptime_seconds)).split(':')[:2]))
+      return_dict['uptime_str'] = uptime_str
+    
     # CPU status
     if page == "cpu":
       return_dict["page_title"] = 'CPU statistics'
       return_dict['tab'] = 'cpu_tab'
       return_dict["error"] = 'Error loading CPU statistics'
-      cpu,err = stats.get_system_stats(today_day,start,end,"cpu")
+      cpu,err = stats.get_system_stats(todays_date,start,end,"cpu")
       if err:
         raise Exception(err)
       value_dict = {}
@@ -108,7 +192,7 @@ def dashboard(request,page):
                 value_list.append(a[1])
             value_dict[key] = value_list
       return_dict["data_dict"] = value_dict
-      queue,err = stats.get_system_stats(today_day,start,end,"queue")
+      queue,err = stats.get_system_stats(todays_date,start,end,"queue")
       if err:
         raise Exception(err)
       value_dict = {}
@@ -128,6 +212,11 @@ def dashboard(request,page):
       return_dict['node'] = si[info]
       d = {}
       template = "view_cpu_status.html"
+    elif page == "dashboard":
+      return_dict["page_title"] = 'Overall system health'
+      return_dict['tab'] = 'system_health_tab'
+      return_dict["error"] = 'Error loading system health data'
+      template = "dashboard_system_health.html"
     # Hardware
     elif page == "hardware":
       return_dict["page_title"] = 'Hardware status'
@@ -143,7 +232,7 @@ def dashboard(request,page):
       return_dict["page_title"] = 'Memory statistics'
       return_dict['tab'] = 'memory_tab'
       return_dict["error"] = 'Error loading memory statistics'
-      mem,err = stats.get_system_stats(today_day,start,end,"memory")
+      mem,err = stats.get_system_stats(todays_date,start,end,"memory")
       if err:
         raise Exception(err)
       if mem:
@@ -157,7 +246,7 @@ def dashboard(request,page):
       return_dict["page_title"] = 'Network statistics'
       return_dict['tab'] = 'network_tab'
       return_dict["error"] = 'Error loading Network statistics'
-      network,err = stats.get_system_stats(today_day,start,end,"network")
+      network,err = stats.get_system_stats(todays_date,start,end,"network")
       if err:
         raise Exception(err)
       value_dict = {}
@@ -187,13 +276,13 @@ def dashboard(request,page):
         client = salt.client.LocalClient()
         winbind = client.cmd(info,'cmd.run',['service winbind status'])
         smb = client.cmd(info,'cmd.run',['service smb status'])
-        nfs = client.cmd(info,'cmd.run',['service nfs status'])
+        nfss = client.cmd(info,'cmd.run',['service nfs status'])
         iscsi = client.cmd(info,'cmd.run',['service tgtd status'])
         ntp = client.cmd(info,'cmd.run',['service ntpd status'])
         ftp = client.cmd(info,'cmd.run',['service vsftpd status'])
         return_dict['services_status']['winbind'] = winbind[info]
         return_dict['services_status']['smb'] = smb[info]
-        return_dict['services_status']['nfs'] = nfs[info]
+        return_dict['services_status']['nfs'] = nfss[info]
         return_dict['services_status']['iscsi'] = iscsi[info]
         return_dict['services_status']['ntp'] = ntp[info]
         return_dict['services_status']['ftp'] = ftp[info]

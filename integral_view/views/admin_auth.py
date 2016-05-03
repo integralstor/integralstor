@@ -43,12 +43,14 @@ def login(request):
           production, err = integralstor_common.common.is_production()
           if err:
             raise Exception(err)
+          '''
           if production:
             # Clear the session if the user has been logged in anywhere else.
             sessions = Session.objects.all()
             for s in sessions:
               if s.get_decoded() and (s.get_decoded()['_auth_user_id'] == user.id):
                 s.delete()
+          '''
           # authentication succeeded! Login and send to home screen
           django.contrib.auth.login(request, user)
           iv_logging.info("Login request from user '%s' succeeded"%username)
@@ -71,7 +73,7 @@ def login(request):
     return_dict['form'] = form
 
     if authSucceeded:
-      return django.http.HttpResponseRedirect('/dashboard/disks')
+      return django.http.HttpResponseRedirect('/dashboard/dashboard')
 
     # For all other cases, return to login screen with return_dict 
     # appropriately populated

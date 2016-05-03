@@ -1,4 +1,6 @@
 from django.conf.urls import patterns, include, url
+from django.conf import settings
+from django.conf.urls.static import static
 
 from integral_view.views.scheduler_cron_management import list_cron_jobs,download_cron_log,remove_cron_job,view_background_tasks,view_task_details
 
@@ -182,6 +184,8 @@ urlpatterns = patterns('',
     url(r'^download_ssh_keys',login_required(download_ssh_keys)),
     url(r'^upload_ssh_user_key',login_required(upload_ssh_user_key)),
     url(r'^upload_ssh_host_key',login_required(upload_ssh_host_key)),
+    url(r"^filemanager/", include("filemanager.urls")),
+    url(r'^files/', include('django_bfm.urls')),
 
-)
+)  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

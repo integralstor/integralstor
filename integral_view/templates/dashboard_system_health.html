@@ -1,0 +1,377 @@
+{% extends 'dashboard_base.html' %}
+
+{%block tab_header %}
+  Overall system health {%if uptime_str%}- System running for {{uptime_str}}{%endif%}
+{%endblock%}
+
+{% block inside_content %}
+
+  <div class="row" style="width:98%;margin:0 auto">
+    <div class="col-md-4">
+      {%if disks_ok %}
+        <div class="box box-success">
+      {%else%}
+        <div class="box box-warning" >
+      {%endif%}
+          <div  class="box-body">
+            <h5>
+              Hard drives
+              {% if disks_ok %}
+                <i class="fa fa-check-circle green fa-1x"></i>
+              {%else%}
+                <i class="fa fa-exclamation-circle red fa-1x"></i>
+              {%endif%}
+              <a href="/view_disks"  class="pull-right cover-page" title="Click here to view detailed information about the hard drives"> <i class="fa  fa-info-circle fa-lg"></i></a>
+            </h5>
+            <hr>
+            <table class="table table-hover table-responsive">
+              <tr>
+                <td>Number of drives : </td>
+                <td>{{num_disks}}</td>
+              </tr>
+              <tr>
+                <td>Hard drives with S.M.A.R.T errors : </td>
+                <td>{{num_bad_disks}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+      {%if num_degraded_pools or num_bad_pools %}
+        <div class="box box-warning">
+      {%else%}
+        <div class="box box-success">
+      {%endif%}
+          <div class="box-body">
+            <h5>
+              ZFS pools
+              {% if num_bad_pools or num_degraded_pools %}
+                <i class="fa fa-exclamation-circle red fa-1x"></i>
+              {%else%}
+                <i class="fa fa-check-circle green fa-1x"></i>
+              {%endif%}
+              <a href="/view_zfs_pools" class="pull-right cover-page" title="Click here to view detailed information about the pools"> <i class="fa  fa-info-circle fa-lg"></i></a>
+            </h5>
+            <hr>
+            <table class="table table-hover table-responsive">
+              <tr>
+                <td>Number of pools : </td>
+                <td>{{num_pools}}</td>
+              </tr>
+              <tr>
+                <td> Degraded pools : </td>
+                <td>{{num_degraded_pools}}</td>
+              </tr>
+              <tr>
+                <td> Faulty pools : </td>
+                <td>{{num_bad_pools}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="box box-success">
+        <div class="box-body">
+          <h5> Shares and targets </h5>
+          <hr>
+          <table class="table table-hover table-responsive">
+            <tr>
+              <td>Windows shares : </td>
+              <td>{{num_cifs_shares}}</td>
+              <td><a href="/view_cifs_shares" class="pull-right cover-page" title="Click here to view detailed information about the Windows shares"> <i class="fa  fa-info-circle fa-lg"></i></a></td>
+            </tr>
+            <tr>
+              <td>NFS exports : </td>
+              <td>{{num_nfs_exports}}</td>
+              <td><a href="/view_nfs_shares" class="pull-right cover-page" title="Click here to view detailed information about the NFS shares"><i class="fa  fa-info-circle fa-lg"></i></a></td> 
+            </tr>
+            <tr>
+              <td>ISCSI targets :</td>
+              <td> {{num_iscsi_targets}}</td>
+              <td><a href="/view_iscsi_targets" class="pull-right cover-page" title="Click here to view detailed information about the ISCSI targets"> <i class="fa  fa-info-circle fa-lg"></i></a></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="row" style="width:98%;margin:0 auto">
+
+    <div class="col-md-4">
+      {%if load_avg_ok %}
+        <div class="box box-success">
+      {%else%}
+        <div class="box box-warning">
+      {%endif%}
+          <div  class="box-body">
+            <h5>
+              CPU load average
+              {% if load_avg_ok %}
+                <i class="fa fa-check-circle green fa-1x"></i>
+              {%else%}
+                <i class="fa fa-exclamation-circle red fa-1x"></i>
+              {%endif%}
+              <a href="/view_services"  class="pull-right cover-page" title="Click here to view detailed information about the services"> <i class="fa fa-info-circle fa-info-circle fa-lg"></i></a>
+            </h5>
+            <hr>
+            <table class="table table-hover table-responsive">
+              <tr>
+                <td> 5 minute load average :  </td>
+                <td>
+                  {{node.load_avg.5_min}}
+                  {%if node.load_avg.5_min > node.load_avg.cpu_cores %}
+                    <i class="fa fa-remove red "></i>
+                  {%else%}
+                    <i class="fa fa-check-circle green "></i>
+                  {%endif%}
+                </td>
+              </tr>
+              <tr>
+                <td> 15 minute load average : </td>
+                <td>
+                  {{node.load_avg.15_min}}
+                  {%if node.load_avg.15_min > node.load_avg.cpu_cores %}
+                    <i class="fa fa-remove red "></i>
+                  {%else%}
+                    <i class="fa fa-check-circle green "></i>
+                  {%endif%}
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+      {%if services_ok %}
+        <div class="box box-success">
+      {%else%}
+        <div class="box box-warning" >
+      {%endif%}
+          <div  class="box-body">
+            <h5>
+              System services 
+              {% if services_ok %}
+                <i class="fa fa-check-circle green fa-1x"></i>
+              {%else%}
+                <i class="fa fa-exclamation-circle red fa-1x"></i>
+              {%endif%}
+              <a href="/view_services"  class="pull-right cover-page" title="Click here to view detailed information about the services"> <i class="fa fa-info-circle fa-info-circle fa-lg"></i></a>
+            </h5>
+            <hr>
+            <table class="table table-hover table-responsive">
+              <tr>
+                <td>Services monitored : </td>
+                <td>{{num_services}}</td>
+              </tr>
+              <tr>
+                <td> Services not running : </td>
+                <td>{{num_bad_services}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+    </div>
+
+
+  </div>
+
+  <div class="row" style="width:98%;margin:0 auto">
+    <div class="col-md-6">
+    {%if not num_high_usage %}
+      <div class="box box-success ">
+    {%else%}
+      <div class="box box-warning ">
+    {%endif%}
+        <div class="box-body">
+          <h5> Pool usage
+            {% if not num_high_usage %}
+                <i class="fa fa-check-circle green fa-1x"></i>
+              {%else%}
+                <i class="fa fa-exclamation-circle red fa-1x"></i>
+            {%endif%}
+            <a href="/view_zfs_pools" class="pull-right cover-page" title="Click here to view detailed information about the pools"> <i class="fa  fa-info-circle fa-lg"></i></a>
+          </h5>
+          <hr>
+          {%if node.pools %}
+          <table class="table table-bordered table-hover table-responsive">
+            <thead>
+              <tr>
+                <th colspan=1> Pool name</th>
+                <th colspan=3> Used percent</th>
+                <th colspan=3> Status</th>
+              </tr>
+            </thead>
+            <tr>
+            </tr>
+            {%for pool in node.pools%}
+              <tr>
+                <td colspan=1> <a href="/view_zfs_pool?name={{pool.pool_name}}">{{pool.pool_name}}</a> </td>
+                <td colspan=3> {{pool.usage.capacity.value}} </td>
+                <td colspan=2> 
+                  {% if pool.usage.capacity.value < 75 %}
+                    <i class="fa fa-check-circle green fa-2x"></i>
+                  {%else%}
+                    <i class="fa fa-remove red fa-2x"></i>
+                  {%endif%}
+                </td>
+              </tr>
+            {%endfor%}
+          </table>
+          {%else%}
+              No ZFS pools created
+          {%endif%}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+    {%if ipmi_ok %}
+      <div class="box box-success ">
+    {%else%}
+      <div class="box box-warning ">
+    {%endif%}
+        <div class="box-body">
+          <h5> Hardware components 
+            {% if ipmi_ok %}
+                <i class="fa fa-check-circle green fa-1x"></i>
+              {%else%}
+                <i class="fa fa-exclamation-circle red fa-1x"></i>
+            {%endif%}
+          </h5>
+          <hr>
+          {%if node.ipmi_status %}
+          <table class="table table-bordered table-hover table-responsive">
+            <thead>
+              <tr>
+                <th colspan=1> Component Type </th>
+                <th colspan=3> Component Detail </th>
+                <th colspan=5> Status </th>
+              </tr>
+            </thead>
+            <tr>
+            </tr>
+            {%for ipmi in node.ipmi_status%}
+              <tr>
+                <td colspan=1> {{ipmi.component_name}} </td>
+                <td colspan=3> {{ipmi.parameter_name}} </td>
+                <td colspan=2> {{ipmi.reading}} </td>
+                <td colspan=2> 
+                  {% if ipmi.status == "ok" %}
+                    <i class="fa fa-check-circle green fa-2x"></i>
+                  {%else%}
+                    <i class="fa fa-remove red fa-2x"></i>
+                  {%endif%}
+                </td>
+              </tr>
+              {% empty %}
+              Hardware Status can be detected only on IPMI enabled devices.
+            {%endfor%}
+          </table>
+          {%else%}
+              Hardware Status can be detected only on IPMI enabled devices.
+          {%endif%}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!--
+  <table class="table table-bordered table-hover table-responsive" style="width:800px">
+    <thead>
+      <tr>
+        <th > Disk serial number </th>
+        <th> S.M.A.R.T status </th>
+      </tr>
+    </thead>
+    {%for sn, disk in disk_status.items %}
+      {%if disk.os_device %}
+        <tr>
+          <td> {{sn}}  (OS disk) </td>
+          <td>
+            {{disk.status}} &nbsp;&nbsp;
+            {%if disk.status == 'PASSED' or disk.status == 'OK'%}
+              <i class="fa fa-check-circle green fa-2x"></i>
+            {%else%}
+              <i class="fa fa-remove red fa-2x"></i>
+            {%endif%}
+          </td>
+        </tr>
+      {%endif%}
+    {%endfor%}
+    {%for sn, disk in disk_status.items %}
+      {%if not disk.os_device %}
+        <tr>
+          <td> {{sn}}  (Data disk) </td>
+          <td>
+            {{disk.status}} &nbsp;&nbsp;
+            {%if disk.status == 'PASSED' or disk.status == 'OK'%}
+              <i class="fa fa-check-circle green fa-2x"></i>
+            {%else%}
+              <i class="fa fa-remove red fa-2x"></i>
+            {%endif%}
+          </td>
+        </tr>
+      {%endif%}
+    {%endfor%}
+  </table>
+
+  {% if hardware%}
+    <h5> Disk positions </h5>
+
+    <div class="row">
+      {% for i in "xxxxxxxxxxxx" %}
+        <div class="col-sm-12 col-md-3 col-lg-3">
+          <div class="info-box">
+      	    <span class="info-box-icon bg-purple" id="disk_{{forloop.counter0}}_colour">{{forloop.counter0|add:'1'}}</span>
+           <div class="info-box-content">
+      		    <span class="info-box-text" id="disk_{{ forloop.counter0 }}_serial">No Disk</span>
+      		    <span class="info-box-number" id="disk_{{forloop.counter0}}_status">&nbsp;</span>
+      	    </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <script>
+      {%for sn, disk in disk_status.items %}
+        {%if disk.status != 'PASSED' and disk.status != 'OK' and not disk.os_device%}
+          $('#disk_{{disk.scsi_info.2}}_serial').html("S No. : {{sn}}")
+          $('#disk_{{disk.scsi_info.2}}_status').text("Status :{{disk.status}}")
+          $('#disk_{{disk.scsi_info.2}}_colour').removeClass('bg-purple').addClass('bg-red')
+        {%elif not disk.os_device%}
+          $('#disk_{{disk.scsi_info.2}}_serial').html("S No. : {{sn}}")
+          $('#disk_{{disk.scsi_info.2}}_status').text("Status :OK")
+          $('#disk_{{disk.scsi_info.2}}_colour').removeClass('bg-purple').addClass('bg-green')
+        {%endif%}
+      {%endfor%}
+    </script>
+  {% endif %}
+
+  -->
+{% endblock %}
+
+{%block help_header%}
+View disk status
+{%endblock%}
+
+{%block help_body%}
+  <p> 
+  This screen displays the status of all the disks in the system. The information includes the S.M.A.R.T information and the disk position in the chassis. If there is an issue with a disk, then a button next to the disk will give you the option of replacing the disk. Clicking on this button will take you through a wizard for the disk replacement process.
+  </p>
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+   make_tab_active("system_health_tab")
+  </script>
+{% endblock%}
+
+
+

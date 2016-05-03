@@ -240,7 +240,7 @@ def replicate_zfs_dataset(request):
       schedule = scheduler.split()
       host_ip = request.POST.get('ip')
       dest_pool = request.POST.get('dest_pool')
-      username = "root"
+      username = "replicator"
       replication_status = request.POST.get('replication_status')
       action = request.POST.get('action')
       if (not host_ip) and (not dest_pool):
@@ -1931,11 +1931,6 @@ def replace_disk(request):
 def modify_dir_permissions(request):
   return_dict = {}
   try:
-    if 'path' not in request.REQUEST:
-      path = "/tmp/"
-      #raise Exception('Path not specified')
-    else:
-      path = request.REQUEST['path']
     users, err = local_users.get_local_users()
     if err:
       raise Exception('Error retrieving local user list : %s'%err)
@@ -1948,6 +1943,19 @@ def modify_dir_permissions(request):
     if not groups:
       raise Exception('No local groups seem to be created. Please create at least one local group before performing this operation.')
 
+    pools, err = zfs.get_pools() 
+    ds_list = [] 
+    for pool in pools:
+      for ds in pool["datasets"]:
+        if ds['properties']['type']['value'] == 'filesystem':
+          ds_list.append(ds["name"])
+    if not ds_list:
+      raise Exception('No ZFS datasets available. Please create a dataset before creating shares.')
+
+    if 'path' not in request.REQUEST:
+      path = "/"+pools[0]["datasets"][0]["name"]
+    else:
+      path = request.REQUEST['path']
     try:
       stat_info = os.stat(path)
     except Exception, e:
@@ -1958,14 +1966,7 @@ def modify_dir_permissions(request):
     grpname = grp.getgrgid(gid)[0]
     return_dict["username"] = username
     return_dict["grpname"] = grpname
-    pools, err = zfs.get_pools()
-    ds_list = [] 
-    for pool in pools:
-      for ds in pool["datasets"]:
-        if ds['properties']['type']['value'] == 'filesystem':
-          ds_list.append(ds["name"])
-    if not ds_list:
-      raise Exception('No ZFS datasets available. Please create a dataset before creating shares.')
+    
     return_dict["dataset"] = ds_list
     if request.method == "GET":
       # Shd be an edit request
@@ -1990,27 +1991,58 @@ def modify_dir_permissions(request):
       return_dict["form"] = form
       return django.shortcuts.render_to_response('modify_dir_permissions.html', return_dict, context_instance=django.template.context.RequestContext(request))
   
-    else:
+    elif request.method == "POST":
+      path = request.POST.get("path")
       # Shd be an save request
-      form = common_forms.SetFileOwnerAndPermissionsForm(request.POST, user_list = users, group_list = groups)
-      return_dict["form"] = form
-      if form.is_valid():
-        cd = form.cleaned_data
-        ret, err = file_processing.set_dir_ownership_and_permissions(cd)
-        if not ret:
-          if err:
-            raise Exception(err)
-          else:
-            raise Exception("Error setting directory ownership/permissions.")
-  
-        audit_str = "Modified directory ownsership/permissions for %s"%cd["path"]
-        audit.audit("modify_dir_owner_permissions", audit_str, request.META["REMOTE_ADDR"])
-  
-        return django.http.HttpResponseRedirect('/view_zfs_pools?ack=set_permissions')
-  
+      if request.POST.get("action") == "add_folder":
+        folder_name = request.POST.get("new_folder_name")
+        directory = path +"/"+folder_name
+        if not os.path.exists(directory):
+          os.makedirs(directory)
+          audit_str = "Creating %s" %directory
+          audit.audit("modify_dir_owner_permissions", audit_str, request.META["REMOTE_ADDR"])
+      elif request.POST.get("action") == "delete_folder":
+        delete = "false"
+        if len(path.split("/")) > 2:
+          delete = "true"
+        # Need to also check if the path is a share or not. If share, dont delete again.
+        # Checking NFS
+        exports,err = nfs.load_exports_list()
+        if exports:
+          for export in exports: 
+            print id(export["path"]),id(path)
+            if export["path"] == path:
+              delete = "false"
+              break
+            else: 
+              delete = "true"
+              
+        if delete:
+          print delete
+          #shutil.rmtree(path,ignore_errors=True)
+          audit_str = "Deleting directory %s" %path
+          audit.audit("modify_dir_owner_permissions", audit_str, request.META["REMOTE_ADDR"])
+        else:
+          raise Exception("Cannot delete folder. It is either a dataset of a share")
       else:
-        #Invalid form
-        return django.shortcuts.render_to_response('modify_dir_permissions.html', return_dict, context_instance=django.template.context.RequestContext(request))
+        form = common_forms.SetFileOwnerAndPermissionsForm(request.POST, user_list = users, group_list = groups)
+        return_dict["form"] = form
+        if form.is_valid():
+          cd = form.cleaned_data
+          ret, err = file_processing.set_dir_ownership_and_permissions(cd)
+          if not ret:
+            if err:
+              raise Exception(err)
+            else:
+              raise Exception("Error setting directory ownership/permissions.")
+  
+          audit_str = "Modified directory ownsership/permissions for %s"%cd["path"]
+          audit.audit("modify_dir_owner_permissions", audit_str, request.META["REMOTE_ADDR"])
+  
+      return django.http.HttpResponseRedirect('/modify_dir_permissions/?ack=set_permissions')
+  
+    else:
+      return django.shortcuts.render_to_response('modify_dir_permissions.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Modify ownership/permissions on a directory'

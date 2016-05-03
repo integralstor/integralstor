@@ -5,7 +5,6 @@
 {% endblock tab_header %}
 
 {% block inside_content %}
-  <form action="." method="POST"> 
     <table class="table" >
       <tr>
         <th> Underlying ZFS Dataset :</th>
@@ -35,9 +34,84 @@
         <td> {{ form.path.errors }} </td>
       </tr>
     </table>
-    {% include 'permissions_form.html' %}
-  </form>
+    <button  class="btn btn-primary" data-toggle="modal" data-target="#change_permissions_modal">Change Permissions </button>
+    <button  class="btn btn-primary" data-toggle="modal" data-target="#add_folder_modal">Add new folder here </button>
+    <button  class="btn btn-danger" data-toggle="modal" data-target="#delete_folder_modal">Delete this folder </button>
 
+
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="change_permissions_modal" id="change_permissions_modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span></button>
+                <h4 class="modal-title">Change Permissions</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="." method="POST"> 
+                        <input type="text" name="path" class="form-control" id="id_path" value={{form.path.value|default_if_none:""}} style="display:none;"> 
+                          {% include 'permissions_form.html' %}
+                          <button type="submit" class="btn btn-primary pull-right">Change Permissions</button>
+                      <br />
+                      <br />
+                    </form>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="add_folder_modal" id="add_folder_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">X</span></button>
+                <h4 class="modal-title">Add New folder</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="." method="POST"> 
+                        <input type="text" name="action" class="form-control" id="id_add_folder_path" placeholder="" value="add_folder" style="display:none;"> 
+                        <input type="text" name="path" class="form-control" id="id_new_folder_path" placeholder="" readonly placeholder="Share Path" value={{form.path.value|default_if_none:""}} style="display:none;"> 
+                        <input type="text" name="new_folder_name" class="form-control" id="id_new_folder_path" placeholder="Enter a folder name">
+                          <br />
+                          <button type="submit" class="btn btn-primary pull-right">Add Folder</button>
+                      <br />
+                      <br />
+                    </form>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="delete_folder_modal" id="delete_folder_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span></button>
+                <h4 class="modal-title">Delete this folder</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="." method="POST"> 
+                        <input type="text" name="path" class="form-control" id="id_delete_path" placeholder="" readonly placeholder="Share Path" value={{form.path.value|default_if_none:""}}> 
+                        <input type="text" name="action" class="form-control" id="id_delete_folder_path" placeholder="" value="delete_folder" style="display:none;"> 
+                          <br />
+                          <button type="submit" class="btn btn-danger pull-right">Delete Folder</button>
+                      <br />
+                      <br />
+                        
+                    </form>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+  
   <script src="/static/jstree/dist/jstree.js"></script>
   <script>
     function option_selected(a){
@@ -85,7 +159,7 @@
           var i, j, r = [];
           r = data.instance.get_node(data.selected[0]).text;
           rfp = data.instance.get_node(data.selected[0]).data["dir"];
-          location.href = location.pathname+"?path=/"+rfp
+          location.href = location.pathname+"?path="+rfp
           document.getElementById("pathdiv").style.display = "none";
         })
         .jstree();

@@ -2,14 +2,14 @@
 <html lang="en">
   <head>
     <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-    <link rel="stylesheet" type="text/css" href="/static/css/fractalio.css">
-    <link rel="stylesheet" href="/static/jquery-ui-1.10.2.custom/css/ui-lightness/jquery-ui-1.10.2.custom.css">
-    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css" type="text/css" />
-    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css"/>
-    <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.2.0/css/font-awesome.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/skin-purple.css">
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css" type="text/css" >
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css">
     <link rel="stylesheet" type="text/css" href="/static/css/AdminLTE.css">
-
+    <link rel="stylesheet" type="text/css" href="/static/css/skin-purple.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/fractalio.css">
+    <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.2.0/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.2.0/css/font-awesome-animation.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/modify_bootstrap.css">
     <title> 
       {%block title%}
         IntegralView administration console 
@@ -35,10 +35,27 @@
 
     {%block content%}
     {%endblock%}
+      <div class="lightbox" id="wait_lightbox">
+        <div class="row">
+          <div class="col-lg-12" style="margin-top:15%;color:#fff">
+            <h1>
+              {% block light-box-text %}
+              Processing . . . . <br><br>
+              <i class="fa fa-refresh fa-spin fa-2x fa-fw" aria-hidden="true"></i>
+              {% endblock %}
+            </h1>
+          </div>
+        </div>
+      </div>
 
-    <br><br>
+
+  </body>
+
+  <script src="/static/js/jquery-2.2.3.min.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/fractalio.js"></script>
     {%block footer%}
     {%endblock%}
-  </body>
+
 </html>
 

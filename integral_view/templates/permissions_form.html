@@ -1,3 +1,4 @@
+
 <table class="table">
   <tr>
     <th> Set permissions for :</th>
@@ -40,7 +41,44 @@
     <td> {{ form.gid.errors }} </td>
   </tr>
   <tr>
-    <th> Owner permissions:</th>
+ <table>
+  <thead>  
+    <tr> 
+      <td> Permissions </td> 
+      <td> Owner </td> 
+      <td> Group </td>
+      <td> Others </td> 
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+     <td> 
+       <tr>
+         <td> Read </td>
+         <td> {{form.owner_read}} </td>
+         <td> {{form.group_read}} </td>
+         <td> {{form.other_read}} </td>
+     </td>   
+     <td> 
+       <tr>
+         <td> Write </td>
+         <td> {{form.owner_write}} </td>
+         <td> {{form.group_write}} </td>
+         <td> {{form.other_write}} </td>
+     </td>   
+     <td> 
+       <tr>
+         <td> Execute </td>
+         <td> {{form.owner_execute}} </td>
+         <td> {{form.group_execute}} </td>
+         <td> {{form.other_execute}} </td>
+     </td>   
+    </tr>
+  </tbody>
+</table>
+
+ <!--
+  <th> Owner permissions:</th>
     <td>
       <table>
         <tr>
@@ -98,11 +136,10 @@
       </table>
     </td>
     <td> &nbsp; </td>
+  -->
   </tr>
 </table>
 <div class="btn-group btn-group-sm" role="group" aria-label="...">
-  <a href="/view_zfs_pools" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-  <button type="submit" class="btn btn-primary">Save</button>
 </div>
 
 
