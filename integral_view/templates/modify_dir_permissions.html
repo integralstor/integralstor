@@ -1,13 +1,13 @@
 {% extends 'storage_base.html' %}
 
 {% block tab_header%}
-  Modify Directory Permissions
+  Modify directory permissions
 {% endblock tab_header %}
 
 {% block inside_content %}
     <table class="table" >
       <tr>
-        <th> Underlying ZFS Dataset :</th>
+        <th> Underlying ZFS dataset :</th>
         <td>
           <select id = "id_dataset" class="form-control" onchange="change_dataset(this)">
             {% for choice in dataset %}
@@ -18,25 +18,27 @@
         <td> {{ form.dataset.errors }} </td>
       </tr>
       <tr>
-        <th> Selected ZFS Dataset :</th>
+        <th> Selected ZFS dataset :</th>
         <td>
 		      <input id="val_dataset" name="dataset" readonly class="form-control"/>
         </td>
         <td> {{ form.dataset.errors }} </td>
       </tr>
       <tr>
-        <th> Share path:</th>
+        <th> Selected directory :</th>
         <td>
-          <input type="text" name="display_path" class="form-control" id="id_display_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value={{form.path.value|default_if_none:""}}> 
-          <a href="#" role="button" class="btn btn-primary btn-xs" onClick="displayTree();return false;"> Browse..</a>
+          <input type="text" name="display_path" class="form-control" id="id_display_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value={{form.path.value|default_if_none:""}}> <br/>
+          <a href="#" role="button" class="btn btn-primary btn-xs" onClick="displayTree();return false;"> Modify selected directory..</a>
           <div id="pathdiv" style="display:inline"> </div>
         </td>
         <td> {{ form.path.errors }} </td>
       </tr>
     </table>
-    <button  class="btn btn-primary" data-toggle="modal" data-target="#change_permissions_modal">Change Permissions </button>
-    <button  class="btn btn-primary" data-toggle="modal" data-target="#add_folder_modal">Add new folder here </button>
-    <button  class="btn btn-danger" data-toggle="modal" data-target="#delete_folder_modal">Delete this folder </button>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <button  title="Change the permissions for the selected directory" class="btn btn-primary" data-toggle="modal" data-target="#change_permissions_modal">Change Permissions </button>
+      <button  title="Add a new subdirectory under the selected directory" class="btn btn-primary" data-toggle="modal" data-target="#add_folder_modal">Create new subdirectory </button>
+      <button  title="Delete the selected directory" class="btn btn-danger" data-toggle="modal" data-target="#delete_folder_modal">Delete selected directory </button>
+    </div>
 
 
     <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="change_permissions_modal" id="change_permissions_modal">
@@ -51,7 +53,7 @@
                     <form action="." method="POST"> 
                         <input type="text" name="path" class="form-control" id="id_path" value={{form.path.value|default_if_none:""}} style="display:none;"> 
                           {% include 'permissions_form.html' %}
-                          <button type="submit" class="btn btn-primary pull-right">Change Permissions</button>
+                          <button type="submit" class="btn btn-sm btn-primary pull-right">Change Permissions</button>
                       <br />
                       <br />
                     </form>
@@ -68,15 +70,15 @@
                 <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">X</span></button>
-                <h4 class="modal-title">Add New folder</h4>
+                <h4 class="modal-title">Create a new subdirectory</h4>
                 </div>
                 <div class="modal-body">
                     <form action="." method="POST"> 
                         <input type="text" name="action" class="form-control" id="id_add_folder_path" placeholder="" value="add_folder" style="display:none;"> 
-                        <input type="text" name="path" class="form-control" id="id_new_folder_path" placeholder="" readonly placeholder="Share Path" value={{form.path.value|default_if_none:""}} style="display:none;"> 
-                        <input type="text" name="new_folder_name" class="form-control" id="id_new_folder_path" placeholder="Enter a folder name">
+                        <input type="text" name="path" class="form-control" id="id_new_folder_path" placeholder="" readonly placeholder="Directory Path" value={{form.path.value|default_if_none:""}} style="display:none;"> 
+                        <input type="text" name="new_folder_name" class="form-control" id="id_new_folder_path" placeholder="Enter directory name">
                           <br />
-                          <button type="submit" class="btn btn-primary pull-right">Add Folder</button>
+                          <button type="submit" class="btn btn-sm btn-primary pull-right">Create directory</button>
                       <br />
                       <br />
                     </form>
@@ -93,14 +95,14 @@
                 <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">×</span></button>
-                <h4 class="modal-title">Delete this folder</h4>
+                <h4 class="modal-title">Delete this directory</h4>
                 </div>
                 <div class="modal-body">
                     <form action="." method="POST"> 
                         <input type="text" name="path" class="form-control" id="id_delete_path" placeholder="" readonly placeholder="Share Path" value={{form.path.value|default_if_none:""}}> 
                         <input type="text" name="action" class="form-control" id="id_delete_folder_path" placeholder="" value="delete_folder" style="display:none;"> 
                           <br />
-                          <button type="submit" class="btn btn-danger pull-right">Delete Folder</button>
+                          <button type="submit" class="btn btn-sm btn-danger pull-right">Delete Folder</button>
                       <br />
                       <br />
                         

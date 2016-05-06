@@ -372,7 +372,7 @@ i                   {%if child.children %}
       <a href="/view_zfs_pools" role="button" class="btn btn-default">Back to pool list</a>
     </div>
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      <a href="/set_file_owner_and_permissions?path={{pool.properties.mountpoint.value}}&pool_name={{pool.pool_name}}&from=pool" role="button" class="btn btn-info"> Change ownership and permissions</a>
+      <!--<a href="/set_file_owner_and_permissions?path={{pool.properties.mountpoint.value}}&pool_name={{pool.pool_name}}&from=pool" role="button" class="btn btn-info"> Change ownership and permissions</a>-->
       <a href="/scrub_zfs_pool?name={{pool.pool_name}}" role="button" class="btn btn-info">Initiate a scrub</a>
       {%if can_expand_pool %}
         <a href="/expand_zfs_pool?pool_name={{pool.pool_name}}" role="button" class="btn btn-info">Expand this pool</a>

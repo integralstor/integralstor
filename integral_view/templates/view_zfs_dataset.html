@@ -101,11 +101,10 @@
           <a href="/modify_dir_permissions?path={{properties.mountpoint.value}}&dataset={{name}}" role="button" class="btn btn-primary"> Change ownership and permissions</a>
         {%endif%}
         <a href="/edit_zfs_dataset?name={{name}}&pool_name={{pool}}" role="button" class="btn btn-primary"> Change {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} properties</a> 
+        <a href="/delete_zfs_dataset?name={{name}}&type={{properties.type.value}}&pool_name={{pool}}" role="button" class="btn btn-sm btn-danger"> Delete this {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} </a>
       </div>
       <br/><br/>
-      <a href="/delete_zfs_dataset?name={{name}}&type={{properties.type.value}}&pool_name={{pool}}" role="button" class="btn btn-danger"> Delete this {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} </a>
-      <br/><br/>
-      <a href="/view_zfs_pool?name={{pool}}" role="button" class="btn btn-default cover-page">Back to pool details</a>
+      <a href="/view_zfs_pool?name={{pool}}" role="button" class="btn btn-sm btn-default cover-page">Back to pool details</a>
 
     </div>
   {%endif%}
