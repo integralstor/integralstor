@@ -15,7 +15,7 @@ import integralstor_unicell
 from integralstor_unicell import system_info
 
 import integralstor_common
-from integralstor_common import audit, mail, common, certificates, nginx
+from integralstor_common import audit, mail, common, certificates, nginx,command
 
 
 def login(request):
