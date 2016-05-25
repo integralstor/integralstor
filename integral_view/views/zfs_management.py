@@ -1725,7 +1725,7 @@ def replace_disk(request):
             cmd_list.append({'Replace old disk':'zpool replace -f %s %s %s'%(pool, old_id, new_id)})
             cmd_list.append({'Online the new disk':'zpool online %s %s'%(pool, new_id)})
             cmd_list.append({'Regenerate the system configuration':'%s/generate_manifest.py'%common_python_scripts_path})
-            ret, err = scheduler_utils.schedule_a_job(db_path,'Disk replacement',cmd_list,None,retries=0)
+            ret, err = scheduler_utils.schedule_a_job(db_path,'Disk replacement',cmd_list,retries=0)
             if err:
               raise Exception(err)
             if not ret:
