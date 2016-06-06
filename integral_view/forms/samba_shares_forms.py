@@ -66,7 +66,7 @@ class CreateShareForm(forms.Form):
     cd = super(CreateShareForm, self).clean()
     go = cd['guest_ok']
     us = cd['users']
-    gr = cd['users']
+    gr = cd['groups']
     if go:
       if us:
         self._errors["users"] = self.error_class(["This field cannot be set when guest ok is selected"])
