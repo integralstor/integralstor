@@ -9,14 +9,15 @@ class _MultipleEmailField(forms.CharField):
     try:
       email = email.strip()
       t = parseaddr(email)
-      if t[0] or t[1]:
+      # This is because t[1] is the email address
+      if t[1]:
         if not '@' in t[1]:
-          return False
+          return None, 'Error validating email address : %s. Check if your email host is correct'%str(e)
         if not re.match('^[A-Za-z0-9._%+-]+@[A-Za-z0-9\.\-]+', email):
-          return False
-        return True
+          return None, 'Error validating email address : %s. Wrongly formatted email ?'%str(e)
+        return True,None
       else:
-        return False
+        return False,"Not valid email address. Enter a valid email address"
     except Exception, e:
       return None, 'Error validating email address : %s'%str(e)
     else:
@@ -54,11 +55,13 @@ class ChangeAdminPasswordForm(forms.Form):
 
 class ConfigureEmailForm(forms.Form):
 
-  email_server = forms.CharField()
-  email_server_port = forms.IntegerField()
-  username = forms.CharField()
+  server = forms.CharField(required=True)
+  port = forms.IntegerField(required=True)
+  username = forms.CharField(required=True)
   pswd = forms.CharField(widget=forms.PasswordInput())
   tls = forms.BooleanField(required=False)
-  rcpt_list = _MultipleEmailField()
+  rcpt_list = _MultipleEmailField(required=True)
   email_alerts = forms.BooleanField(required=False)
+  email_audit = forms.BooleanField(required=False)
+  email_quota = forms.BooleanField(required=False,widget=forms.HiddenInput())
 

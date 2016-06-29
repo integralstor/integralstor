@@ -228,24 +228,23 @@ def configure_email_settings(request):
           d["email_alerts"] = True
         else:
           d["email_alerts"] = False
-        form = admin_forms.ConfigureEmailForm(initial = {'email_server':d["server"], 'email_server_port':d["port"], 'tls':d["tls"], 'username':d["username"], 'email_alerts':d["email_alerts"], 'rcpt_list':d["rcpt_list"]})
+        form = admin_forms.ConfigureEmailForm(initial = {'server':d["server"], 'port':d["port"], 'tls':d["tls"], 'username':d["username"], 'email_alerts':d["email_alerts"],'email_audit':d['email_audit'], 'rcpt_list':d["rcpt_list"],'pswd':""})
     else:
       form = admin_forms.ConfigureEmailForm(request.POST)
       if form.is_valid():
         cd = form.cleaned_data
         #print "Saving : "
-        #print cd
         ret, err = mail.save_email_settings(cd)
         if err:
           raise Exception(err)
 
-        ret, err = mail.send_mail(cd["email_server"], cd["email_server_port"], cd["username"], cd["pswd"], cd["tls"], cd["rcpt_list"], "Test email from IntegralStor", "This is a test email sent by the IntegralStor system in order to confirm that your email settings are working correctly.")
+        ret, err = mail.send_mail(cd["server"], cd["port"], cd["username"], cd["pswd"], cd["tls"], cd["rcpt_list"], "Test email from IntegralStor", "This is a test email sent by the IntegralStor system in order to confirm that your email settings are working correctly.")
         if err:
           raise Exception(err)
         if ret:
-          return django.http.HttpResponseRedirect("/view_email_settings?ack=saved&err=%s"%ret)
-        else:
           return django.http.HttpResponseRedirect("/view_email_settings?ack=saved&sent_mail=1")
+        else:
+          return django.http.HttpResponseRedirect("/view_email_settings?ack=saved&err=%s"%err)
     return_dict["form"] = form
     return django.shortcuts.render_to_response(url, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
@@ -346,7 +345,7 @@ def reboot_or_shutdown(request):
   return_dict = {}
   audit_str = ""
   try:
-    minutes_to_wait = 2
+    minutes_to_wait = 1
     return_dict['minutes_to_wait'] = minutes_to_wait
     if 'do' not in request.REQUEST:
       raise Exception('Unknown action. Please use the menus')
@@ -358,17 +357,17 @@ def reboot_or_shutdown(request):
     else:
       if 'conf' not in request.POST:
         raise Exception('Unknown action. Please use the menus')
-      if action == 'reboot':
-        command.execute_with_rc('shutdown -r +%d'%minutes_to_wait)
-      elif action == 'shutdown':
-        command.execute_with_rc('shutdown -h +%d'%minutes_to_wait)
       audit.audit('reboot_shutdown', 'System %s initiated'%do, request.META["REMOTE_ADDR"])
+      if do == 'reboot':
+        command.execute_with_rc('shutdown -r +%d'%minutes_to_wait)
+      elif do == 'shutdown':
+        command.execute_with_rc('shutdown -h +%d'%minutes_to_wait)
       return django.shortcuts.render_to_response("reboot_or_shutdown_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "admin_base.html"
-    return_dict["page_title"] = 'Change admininistrator password'
-    return_dict['tab'] = 'change_admin_pswd_tab'
-    return_dict["error"] = 'Error changing administrator password'
+    return_dict["page_title"] = 'Reboot or Shutdown Failure'
+    return_dict['tab'] = 'reboot_tab'
+    return_dict["error"] = 'Error Rebooting'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
 
