@@ -37,8 +37,8 @@
             {%endif%}
             {%if nic.addresses.AF_INET.0.addr %}
               Address - {{nic.addresses.AF_INET.0.addr}}<br>
-              Netmask - {{nic.addresses.AF_INET.0.broadcast}}<br>
-              Broadcast - {{nic.addresses.AF_INET.0.netmask}}
+              Netmask - {{nic.addresses.AF_INET.0.netmask}}<br>
+              Broadcast - {{nic.addresses.AF_INET.0.broadcast}}
             {%else%}
                - 
             {%endif%}
