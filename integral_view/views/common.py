@@ -22,7 +22,7 @@ from integral_view.utils import iv_logging
 production = common.is_production()
 
 def dir_contents(request):
-  path = request.GET.get("pool_name")
+  path = request.GET.get("id") if request.GET.get("id") != "#" else request.GET.get("pool_name")
   first = request.GET.get("first")
   dirs = os.listdir(path)
   dir_dict_list = []
