@@ -27,7 +27,7 @@
       <tr>
         <th> Selected directory :</th>
         <td>
-          <input type="text" name="display_path" class="form-control" id="id_display_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value={{form.path.value|default_if_none:""}}> <br/>
+          <input type="text" name="display_path" class="form-control" id="id_display_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value='{{form.path.value|default_if_none:""}}'> <br/>
           <a href="#" role="button" class="btn btn-primary btn-xs" onClick="displayTree();return false;"> Modify selected directory..</a>
           <div id="pathdiv" style="display:inline"> </div>
         </td>
