@@ -33,3 +33,14 @@ CREATE TABLE "dataset_repl" (
 	"user" varchar(100) NOT NULL,
 	"dest" varchar(100) NOT NULL
 );
+
+CREATE TABLE "rsync_shares" (
+        "name" varchar(200) NOT NULL,
+        "path" varchar(200) NOT NULL,
+        "comment" varchar(200) NOT NULL,
+        "list" boolean NOT NULL DEFAULT 'yes',
+        "readonly" boolean NOT NULL DEFAULT 'no',
+        "uid" varchar(200) NOT NULL,
+        "gid" varchar(200) NOT NULL
+);
+
