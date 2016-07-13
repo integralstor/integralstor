@@ -1,0 +1,66 @@
+
+{% extends 'shares_base.html' %}
+
+{%block tab_header %}
+  Modify a RSync Share
+{%endblock%}
+
+{% block inside_content %}
+  <form id="create_form" name="create_form" action="/edit_rsync_share/" method="post">
+    <table class="table" style="width:800px">
+      <tr>
+        <th>Share Name </th>
+        <td>
+          <input type="text"  name="name" class="form-control" id="id_name" placeholder="Share Name" value="{{form.name.value}}" readonly> 
+        </td>
+        <td> {{ form.name.errors }} </td>
+      </tr>
+      <tr>
+        <th>Description </th>
+        <td>
+          <input type="text"  name="comment" class="form-control" id="id_comment" placeholder="Share Description" value="{{form.comment.value}}"> 
+        </td>
+        <td> {{ form.comment.errors }} </td>
+      </tr>
+      <tr>
+        <th> Final Path</th>
+        <td>
+          <input type="text" name="path" class="form-control" id="id_path" placeholder="Share Path" value="{{form.path.value}}" readonly>
+          <span id="display_path_text"></span>
+        </td>
+        <td> {{ form.path.errors }} </td>
+      </tr>
+      <tr>
+        <th> Browsable:</th>
+        <td> 
+	     {{ form.browsable }}
+        </td>
+        <td> {{ form.browsable.errors }} </td>
+      </tr>
+      <tr>
+        <th> Readonly:</th>
+        <td> {{ form.readonly }} </td>
+        <td> {{ form.readonly.errors }} </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_nfs_shares" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Create a  NFS share 
+{%endblock%}
+
+{%block help_body%}
+<p>Use this screen to create a NFS share. The settings will take effect upon saving this information.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_rsync_shares_tab")
+  </script>
+{% endblock %}
