@@ -30,6 +30,8 @@ from integral_view.views.ftp_management import configure_ftp, view_ftp_configura
 
 from integral_view.views.stgt_iscsi_management import view_targets, view_target, create_iscsi_target, delete_iscsi_target, add_iscsi_user_authentication, remove_iscsi_user_authentication, create_iscsi_lun, delete_iscsi_lun, add_iscsi_acl, remove_iscsi_acl
 
+from integral_view.views.rsync_share_management import create_rsync_share,edit_rsync_share,view_rsync_shares,delete_rsync_share
+
 from django.contrib.auth.decorators import login_required
 
 # Uncomment the next two lines to enable the admin:
@@ -182,6 +184,9 @@ urlpatterns = patterns('',
     url(r'^download_ssh_keys',login_required(download_ssh_keys)),
     url(r'^upload_ssh_user_key',login_required(upload_ssh_user_key)),
     url(r'^upload_ssh_host_key',login_required(upload_ssh_host_key)),
-
+    url(r'^create_rsync_share',login_required(create_rsync_share)),
+    url(r'^edit_rsync_share',login_required(edit_rsync_share)),
+    url(r'^view_rsync_shares',login_required(view_rsync_shares)),
+    url(r'^delete_rsync_share',login_required(delete_rsync_share)),
 )
 
