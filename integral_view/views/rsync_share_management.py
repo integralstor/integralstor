@@ -34,7 +34,7 @@ def create_rsync_share(request):
       result, err = rsync.create_rsync_share(cd["name"],cd["path"],cd["comment"],cd["browsable"],cd["readonly"],"integralstor","integralstor")
       if err:
         raise Exception(err)
-      audit_str = "Created RSYNC share %s"%path
+      audit_str = "Created RSYNC share with name '%s'. The share is set to be %s and %s"%(cd["name"],"Browsable" if cd["browsable"] else "Not Browsable", "Readonly" if cd["readonly"] else "Read/Write")
       audit.audit("create_rsync_share", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_rsync_shares/?ack=created')
   except Exception, e:
@@ -79,7 +79,8 @@ def edit_rsync_share(request):
         result, err = rsync.create_rsync_share(cd["name"],cd["path"],cd["comment"],cd["browsable"],cd["readonly"],"integralstor","integralstor")
         if err:
           raise Exception(err)
-        audit_str = "Edited RSYNC share %s"%cd["name"]
+        audit_str = "Edited RSYNC share with name '%s'. The share was modified to be %s and %s"%(cd["name"],"Browsable" if cd["browsable"] else "Not Browsable", "Readonly" if cd["readonly"] else "Read/Write")
+        #audit_str = "Edited RSYNC share %s"%cd["name"]
         audit.audit("edit_rsync_share", audit_str, request.META["REMOTE_ADDR"])
         return django.http.HttpResponseRedirect('/view_rsync_shares/?ack=saved')
       else:
