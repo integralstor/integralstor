@@ -1,0 +1,87 @@
+
+{% extends 'shares_base.html' %}
+
+{%block tab_header %}
+  RSync Shares
+{%endblock%}
+
+{% block inside_content %}
+
+  {% if not shares %}
+   No RSync shares created. 
+  {%else %}
+    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th> ShareName </th>
+            <th> Description </th>
+            <th> Path  </th>
+            <th> Browsable </th>
+            <th> Readonly </th>
+            <th> &nbsp; </th>
+          </tr>
+        </thead>
+        {%for share in shares %}
+          <tr>
+            <td> {{share.name}} </td>
+            <td>
+              {%if share.comment%}
+                {{share.comment}}
+              {%else%}
+                -
+              {%endif%}
+            </td>
+            <td> {{share.path}} </td>
+            <td> 
+              {%if share.list %} 
+                Yes
+              {%else%}
+                No
+              {%endif%}
+            </td>
+            <td> 
+              {%if share.readonly %} 
+                Yes
+              {%else%}
+                No
+              {%endif%}
+            </td>
+            <td>
+              <a href="/edit_rsync_share?name={{share.name}}" role="button" class="btn btn-info btn-xs"> Edit</a>
+              <a href="/delete_rsync_share?name={{share.name}}" role="button" class="btn btn-danger btn-xs"> Delete</a>
+            </td>
+          </tr>
+        {%endfor%}
+      </table>
+    </div>
+    <br>
+  {%endif%}
+  <br />
+  <br />
+  <p>
+    <a href="/create_rsync_share/" role="button" class="btn btn-primary btn-sm"> Create RSync Share</a>
+  </p>
+
+
+{%endblock%}
+
+{%block help_header%}
+  Accessing RSync Shares
+{%endblock%}
+
+{%block help_body%}
+<p>
+	To copy data to a RSync share, use rsync -avz /path/to/your/files ip::rsync_share_name
+</p>
+<p>
+	To copy data from a RSync share, use rsync -avz  ip::rsync_share_name /path/to/copy
+</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_rsync_shares_tab")
+  </script>
+{% endblock %}
+
