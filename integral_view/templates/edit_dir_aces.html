@@ -1,0 +1,134 @@
+{% extends 'shares_base.html' %}
+
+{%block tab_header %}
+  Modify directory ACL entries
+{%endblock%}
+
+{%block inside_content %}
+
+
+  <br>
+  <form action="/edit_aces/" method="POST">
+    {{form.path}}
+
+    Modifying ACL entries for folder : <b>{{form.path.value}}</b><br><br>
+    <br/>
+    <table>
+      <th>
+        Apply recursively to all sub-directories
+      </th>
+      <td>
+        {{form.recursive}}
+      </td>
+    </table>
+    <br/>
+    <table class="table table-bordered">
+      <tr>
+        <th> Name </th>
+        <th>
+          View directory contents (r)
+        </th>
+        <th>
+          Modify directory contents (w)
+        </th>
+        <th>
+          Enter and access directory contents (x)
+        </th>
+      </tr>
+      <tr>
+        <td>
+          Owner (User)
+        </td>
+        <td  style="text-align: center;">
+          {{form.ou_r}}
+        </td>
+        <td  style="text-align: center;">
+          {{form.ou_w}}
+        </td>
+        <td  style="text-align: center;">
+          {{form.ou_x}}
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Owner (Group)
+        </td>
+        <td  style="text-align: center;">
+          {{form.og_r}}
+        </td>
+        <td  style="text-align: center;">
+          {{form.og_w}}
+        </td>
+        <td  style="text-align: center;">
+          {{form.og_x}}
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Others
+        </td>
+        <td  style="text-align: center;">
+          {{form.ot_r}}
+        </td>
+        <td  style="text-align: center;">
+          {{form.ot_w}}
+        </td>
+        <td  style="text-align: center;">
+          {{form.ot_x}}
+        </td>
+      </tr>
+      {% for name, field in user_form_fields.items%}
+        <tr>
+          <td>
+            {{name}} (User)
+          </td>
+          <td  style="text-align: center;">
+            {{field.0}}
+          </td>
+          <td  style="text-align: center;">
+            {{field.1}}
+          </td>
+          <td  style="text-align: center;">
+            {{field.2}}
+          </td>
+        </tr>
+      {%endfor%}
+      {% for name, field in group_form_fields.items%}
+        <tr>
+          <td>
+            {{name}} (Group)
+          </td>
+          <td  style="text-align: center;">
+            {{field.0}}
+          </td>
+          <td  style="text-align: center;">
+            {{field.1}}
+          </td>
+          <td  style="text-align: center;">
+            {{field.2}}
+          </td>
+        </tr>
+      {%endfor%}
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_dir_ownership_permissions?path={{form.path.value}}" role="button" class="btn btn-default"> Cancel</a>
+      <button type="submit" class="btn btn-primary cover-page" ">Save </button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Modifying a directory ACL entry
+{%endblock%}
+
+{%block help_body%}
+<p>Confirming this operation results in the specified folder's ACL entry being modified. This may cause some access issues for the share. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("dir_manager_tab")
+  </script>
+{% endblock %}
+

@@ -6,7 +6,7 @@
 
 {% block inside_content %}
 
-  <table class="table">
+  <table class="table table-striped">
     <tr>
       <th> Group name: </th>
       <td> {{ group.grpname }} </td>
@@ -23,6 +23,7 @@
 
   <div class="btn-group btn-group-sm" role="group" aria-label="...">
     <a href="/view_local_groups" role="button" class="btn btn-default"> Back to group list</a>
+    <a href="/modify_group_membership?grpname={{group.grpname}}" role="button" class="btn btn-primary"> Modify group membership</a>
     <a href="/delete_local_group?grpname={{group.grpname}}" role="button" class="btn btn-danger"> Delete this group</a>
   </div>
 

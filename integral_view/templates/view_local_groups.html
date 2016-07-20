@@ -10,29 +10,41 @@
     <i>The following problems occurred during the process : {{warnings}}</i><br><br>
   {%endif%}
 
+  <a class="btn btn-primary btn-sm pull-right" style="margin-bottom:15px" href="/create_local_group"> <i class="fa fa-plus-square-o fa-fw "></i> Create new group</a>
   {% if not group_list %}
     No local groups appear to have been created. Click <a href="/create_local_group/"> here</a> to create a new local group. 
   {%else %}
-    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+    <div class="table-responsive" style=";width:100%;padding:0px 5px 0px 5px;margin-left:00px;margin-right:20px;border:1px solid #f4f4f4;height:300px;-webkit-overflow-scrolling: touch;">
       <table class="table table-striped">
         <thead>
           <tr>
             <th> Groupname </th>
-            <th> &nbsp; </th>
+            <th> Members </th>
+            <th> Actions </th>
           </tr>
         </thead>
         {%for g in group_list %}
           <tr>
             <td> {{g.grpname}} </td>
+            <td> {{g.members|join:","}} </td>
             <td> 
-              <a href="/view_local_group?grpname={{g.grpname}}&searchby=grpname" role="button" class="btn btn-info btn-xs"> Details</a>
+              <div class="btn-group btn-group-xs" >
+                <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li><a href="/modify_group_membership?grpname={{g.grpname}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Modify group membership</a>
+                  <li><a href="/delete_local_group?grpname={{g.grpname}}" style="color:red"><i class="fa fa-trash fa-fw"></i>&nbsp; Delete this group</a>
+                </ul>
+              </div>
+              <!--<a href="/view_local_group?grpname={{g.grpname}}&searchby=grpname" role="button" class="btn btn-info btn-xs"> Details</a>-->
             </td>
           </tr>
         {%endfor%}
       </table>
     </div>
+    <!--
     <br>
     <a href="/create_local_group" role="button" class="btn btn-primary btn-sm"> Create a new local group</a>
+    -->
   {%endif%}
 
 {%endblock%}

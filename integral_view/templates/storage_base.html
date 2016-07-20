@@ -1,21 +1,21 @@
 {% extends 'logged_in_base.html' %}
 
 {%block tab_items %}
-  <li id="view_disks_tab">
-    <a href="/view_disks/">Disks</a>
-  </li>
   <li id="view_zfs_pools_tab">
     <a href="/view_zfs_pools/" >ZFS pools</a>
   </li>
+  <li id="view_disks_tab">
+    <a href="/view_disks/">Disks</a>
+  </li>
+  <!-- Now in a separate menu item
   <li id="view_zfs_snapshots_tab">
     <a href="/view_zfs_snapshots/" >Snapshots</a>
   </li>
   <li id="view_remote_replications_tab">
     <a href="/view_remote_replications/" >Remote replication</a>
   </li>
-  <li id="dir_permissions_tab">
-    <a href="/modify_dir_permissions/">Ownership/permissions</a>
-  </li>
+  -->
+
 {%endblock tab_items %}
 
 {% block menu_active %}

@@ -21,33 +21,6 @@ from integral_view.utils import iv_logging
 
 production = common.is_production()
 
-def dir_contents(request):
-  # Check if this path is #, if yes, then use the pool as the root dir, else use path passed
-  path = request.GET.get("id") if request.GET.get("id") != "#" else request.GET.get("pool_name")
-  first = request.GET.get("first")
-  dirs = os.listdir(path)
-  dir_dict_list = []
-  if not dirs or first:
-    if not os.listdir(path):
-      d_dict = {'id':path, 'text':"/",'icon':'fa fa-angle-right','children':False,'data':{'dir':path},'parent':"#"}
-    else:
-      d_dict = {'id':path, 'text':"/",'icon':'fa fa-angle-right','children':True,'data':{'dir':path},'parent':"#"}
-    dir_dict_list.append(d_dict)
-  if not first:
-    for d in dirs:
-      true = True
-      if os.path.isdir(path+"/"+d):
-        if first:
-          parent = "#"
-        else:
-          parent = path
-        if not os.listdir(path+"/"+d):
-          d_dict = {'id':path+"/"+d, 'text':d,'icon':'fa fa-angle-right','children':False,'data':{'dir':path+"/"+d},'parent':parent}
-        else:
-          d_dict = {'id':path+"/"+d, 'text':d,'icon':'fa fa-angle-right','children':True,'data':{'dir':path+"/"+d},'parent':parent}
-      print d_dict
-      dir_dict_list.append(d_dict)
-  return HttpResponse(json.dumps(dir_dict_list),mimetype='application/json')
 
 
 @login_required

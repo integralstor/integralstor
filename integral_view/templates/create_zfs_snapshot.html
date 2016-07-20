@@ -1,4 +1,4 @@
-{% extends 'storage_base.html' %}
+{% extends 'snapshot_replication_base.html' %}
 
 {%block tab_header %}
   Create a ZFS pool/dataset snapshot
@@ -22,7 +22,7 @@
       <tr>
         <th> Snapshot name:</th>
         <td>
-          <input type="text"  name="name" class="form-control" id="id_clients" placeholder="Enter a name of this snapshot" value="Snapshot"/>
+          <input type="text"  name="name" class="form-control" id="id_clients" placeholder="Enter a name of this snapshot" value=""/>
         </td>
         <td> {{ form.name.errors }} </td>
       </tr>

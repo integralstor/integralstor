@@ -11,12 +11,14 @@
       <th> User name: </th>
       <td> {{ user.username }} </td>
     </tr>
+    <!--
     <tr>
       <th> Primary group : </th>
       <td> {{user.grpname}} </td>
     </tr>
+    -->
     <tr>
-      <th> Additional group membership : </th>
+      <th> Group membership : </th>
       <td>
         {%for g in user.other_groups %}
           {{g}},
@@ -25,8 +27,9 @@
     </tr>
     <tr>
       <th> Actual name </th>
-      <td> {{ user.comment }} </td>
+      <td> {{ user.comment |slice:"18:"}} </td>
     </tr>
+    <!--
     <tr>
       <th> Windows access user?  </th>
       <td>
@@ -41,17 +44,20 @@
       <th> Shell </th>
       <td> {{ user.shell }} </td>
     </tr>
+    -->
   </table>
   <div class="btn-group btn-group-sm" role="group" aria-label="...">
     <a href="/view_local_users" role="button" class="btn btn-default">  Back to user list</a>
     <a href="/change_local_user_password?username={{user.username}}" role="button" class="btn btn-primary"> Change password</a>
     <a href="/delete_local_user?username={{user.username}}" role="button" class="btn btn-danger"> Delete this user</a>
+    <a href="/edit_local_user_group_membership?username={{user.username}}" role="button" class="btn btn-primary"> Modify group membership</a>
   </div>
+  <!--
   <br> <br>
   <div class="btn-group btn-group-sm" role="group" aria-label="...">
     <a href="/edit_local_user_gid?username={{user.username}}" role="button" class="btn btn-primary"> Change user's primary group</a>
-    <a href="/edit_local_user_group_membership?username={{user.username}}" role="button" class="btn btn-primary"> Change user's additional group membership</a>
   </div>
+  -->
 
 {%endblock%}
 

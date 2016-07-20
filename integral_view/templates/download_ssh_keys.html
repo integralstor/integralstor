@@ -5,38 +5,39 @@
 {% endblock  %}
 
 {% block inside_content %}
-    <table class="table" style="width:800px">
-       <tr>
-	<th> Select User :</th>
-	 <td> 
-	  <select name="user" id="id_user" class="form-control">
-           {% for user in users %}
+  <table class="table" style="width:800px">
+    <tr>
+      <th> Select User :</th>
+      <td> 
+        <select name="user" id="id_user" class="form-control">
+          {% for user in users %}
             <option value="{{user.username}}" {% if user.username == selected_user%} selected="selected" {% endif %}>{{user.username}}</option>
-           {%endfor%}
-          </select>
-	 </td>
-       </tr>
+          {%endfor%}
+        </select>
+      </td>
+    </tr>
 
-       <tr>
-        <th> Public Key for User {{selected_user}}:</th>
-	 <td>
-    	     <a href="/static/{{ssh_key}}" class="btn btn-success btn-sm pull-right">Download Public Key</a>
-	 </td>	
-       </tr>
+    <tr>
+      <th> Public Key for User {{selected_user}}:</th>
+      <td>
+        <a href="/static/{{ssh_key}}" class="btn btn-success btn-sm pull-right">Download Public Key</a>
+      </td>	
+    </tr>
 
-       <tr>
-        <th> System's Host Key:</th>
-	 <td>
-    	     <a href="/static/{{host_key}}" class="btn btn-success btn-sm pull-right">Download host key</a>
-	 </td>	
-       </tr>
+    <tr>
+      <th> System's Host Key:</th>
+      <td>
+        <a href="/static/{{host_key}}" class="btn btn-success btn-sm pull-right">Download host key</a>
+      </td>	
+    </tr>
+
     <script>
-
-  	document.getElementById("id_user").onchange = function () {
-    	var user = $("#id_user").val()
-    	location.href = "/download_ssh_keys/?user="+user
-  	}
+      document.getElementById("id_user").onchange = function () {
+        var user = $("#id_user").val()
+        location.href = "/download_ssh_keys/?user="+user
+      }
     </script>
+
     </table>
 {% endblock %}
 

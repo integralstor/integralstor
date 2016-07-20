@@ -103,6 +103,29 @@
                   <i class="fa fa-dashboard"></i> <span>Dashboard</span>
                 </a>
               </li>
+              <hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #7d7676;">
+              <li id="storage_menu">
+                <a href="/view_zfs_pools/">
+                  <i class="fa fa-hdd-o"></i>
+                  <span>Disks and storage pools</span>
+                </a>
+              </li>
+              <li id="shares_menu">
+                <a href="/view_cifs_shares/">
+                  <i class="fa fa-files-o"></i> Directories, shares & targets
+                </a>
+              </li>
+              <li id="replication_snapshots_menu">
+                <a href="/view_zfs_snapshots/"> 
+                  <i class="fa fa-share"></i> Replication & snapshots
+                </a>
+              </li>
+              <li id="scheduler_menu">
+                <a href="/list_scheduled_jobs/"> 
+                  <i class="fa fa-clock-o"></i> Scheduled tasks
+                </a>
+              </li>
+              <hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #7d7676;">
               <li id="system_menu">
                 <a href="/view_system_info/">
                   <i class="fa fa-building"></i>
@@ -121,40 +144,25 @@
                   <span>Networking</span>
                 </a>
               </li>
-              <li id="storage_menu">
-                <a href="/view_disks/">
-                  <i class="fa fa-th"></i>
-                  <span>Storage</span>
-                </a>
-              </li>
               <li id="users_menu">
                 <a href="/view_local_users/"> 
-                  <i class="fa fa-users"></i> Users and groups
-                </a>
-              </li>
-              <li id="scheduler_menu">
-                <a href="/list_cron_jobs/"> 
-                  <i class="fa fa-clock-o"></i> Scheduler
-                </a>
-              </li>
-              <li id="shares_menu">
-                <a href="/view_cifs_shares/">
-                  <i class="fa fa-files-o"></i> Shares and Targets
+                  <i class="fa fa-users"></i> Users & groups
                 </a>
               </li>
               <li id="key_management_menu">
                 <a href="/download_ssh_keys/">
-                  <i class="fa fa-files-o"></i> Keys and Certificates
+                  <i class="fa fa-key"></i> Keys and Certificates
                 </a>
               </li>
               <li id="logging_menu">
                 <a href="/view_audit_trail/">
-                  <i class="fa fa-bell"></i> Logs, audit, alerts
+                  <i class="fa fa-file"></i> Logs
                 </a>
               </li>
+              <hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #7d7676;">
               <li id="admin_menu">
                 <a href="/change_admin_password/"> 
-                  <i class="fa fa-cogs"></i> Admin
+                  <i class="fa fa-cogs"></i> IntegralView settings
                 </a>
               </li>
             </ul>
@@ -266,7 +274,6 @@
 
     <!-- /wrapper div -->
   </body>
-
   <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.2.0/css/font-awesome.css">
   <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.2.0/css/font-awesome-animation.min.css">
   <link rel="stylesheet" type="text/css" href="/static/datatables/css/jquery.dataTables.css">
@@ -290,7 +297,7 @@
           info: false, 
         });
       {%endblock%}
-      $("table").css({'width':'90%'})
+      //$("table").css({'width':'90%'})
       $(".dataTables_info").addClass('margin-left-10')
     });
     $("#alerts_dropdown").click(function(){
@@ -301,6 +308,7 @@
       location.reload();
     })
   </script>
+
 
   {% block menu_active %}
     <script>

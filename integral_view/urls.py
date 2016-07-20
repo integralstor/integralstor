@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 
-from integral_view.views.scheduler_cron_management import list_cron_jobs,download_cron_log,remove_cron_job,view_background_tasks,view_task_details
+from integral_view.views.scheduler_cron_management import list_scheduled_jobs,download_cron_log,remove_cron_job,view_background_tasks,view_task_details
 
 from integral_view.views.ntp_management import configure_ntp_settings, view_ntp_settings
 
@@ -8,17 +8,19 @@ from integral_view.views.admin_auth  import login, logout, change_admin_password
 
 from integral_view.views.pki_management  import view_ssl_certificates, delete_ssl_certificate, create_self_signed_ssl_certificate, upload_ssl_certificate, download_ssh_keys, upload_ssh_user_key,upload_ssh_host_key
 
-from integral_view.views.common import show, dir_contents,dashboard
+from integral_view.views.common import show, dashboard
 
 from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level,download_sys_info,upload_sys_info, refresh_alerts, raise_alert, internal_audit, view_alerts, view_audit_trail
 
-from integral_view.views.cifs_share_management import view_cifs_shares, create_cifs_share, samba_server_settings, save_samba_server_settings, view_cifs_share, edit_cifs_share, delete_cifs_share, edit_auth_method
+from integral_view.views.cifs_share_management import view_cifs_shares, create_cifs_share, samba_server_settings, save_samba_server_settings, view_cifs_share, edit_cifs_share, delete_cifs_share, edit_auth_method 
 
-from integral_view.views.local_user_management import view_local_users, create_local_user, change_local_user_password, delete_local_user, view_local_user, edit_local_user_gid, view_local_groups, edit_local_user_group_membership, view_local_group, create_local_group, delete_local_group
+from integral_view.views.folder_management import delete_ace, add_aces, edit_aces, modify_dir_permissions, create_dir, delete_dir, dir_manager, modify_dir_owner, get_dir_listing, view_dir_ownership_permissions, dir_contents
+
+from integral_view.views.local_user_management import view_local_users, create_local_user, change_local_user_password, delete_local_user, view_local_user, edit_local_user_gid, view_local_groups, edit_local_user_group_membership, view_local_group, create_local_group, delete_local_group, modify_group_membership
 
 from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share, create_nfs_share, edit_nfs_share
 
-from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog, remove_zfs_slog, scrub_zfs_pool, create_zfs_zvol, view_zfs_zvol,modify_dir_permissions, replace_disk, import_all_zfs_pools, add_zfs_spares, remove_zfs_spare, expand_zfs_pool, remove_zfs_quota, set_zfs_quota, export_zfs_pool, import_zfs_pool, schedule_zfs_snapshot, set_zfs_l2arc, remove_zfs_l2arc,replicate_zfs_dataset, view_disks,view_remote_replications
+from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog, remove_zfs_slog, scrub_zfs_pool, create_zfs_zvol, view_zfs_zvol, replace_disk, import_all_zfs_pools, add_zfs_spares, remove_zfs_spare, expand_zfs_pool, remove_zfs_quota, set_zfs_quota, export_zfs_pool, import_zfs_pool, schedule_zfs_snapshot, set_zfs_l2arc, remove_zfs_l2arc,replicate_zfs_dataset, view_disks,view_remote_replications
 
 #from zfs.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
 
@@ -69,6 +71,15 @@ urlpatterns = patterns('',
     url(r'^configure_ntp_settings/', login_required(configure_ntp_settings)),
     url(r'^view_ntp_settings/', login_required(view_ntp_settings)),
     url(r'^view_cifs_shares/', login_required(view_cifs_shares)),
+    url(r'^delete_ace/', login_required(delete_ace)),
+    url(r'^add_aces/', login_required(add_aces)),
+    url(r'^view_dir_ownership_permissions/', login_required(view_dir_ownership_permissions)),
+    url(r'^create_dir/', login_required(create_dir)),
+    url(r'^get_dir_listing/', login_required(get_dir_listing)),
+    url(r'^delete_dir/', login_required(delete_dir)),
+    url(r'^modify_dir_owner/', login_required(modify_dir_owner)),
+    url(r'^dir_manager/', login_required(dir_manager)),
+    url(r'^edit_aces/', login_required(edit_aces)),
     url(r'^view_services/', login_required(view_services)),
     url(r'^view_ssl_certificates/', login_required(view_ssl_certificates)),
     url(r'^upload_ssl_certificate/', login_required(upload_ssl_certificate)),
@@ -98,6 +109,7 @@ urlpatterns = patterns('',
     url(r'^create_vlan/', login_required(create_vlan)),
     url(r'^remove_bond/', login_required(remove_bond)),
     url(r'^create_bond/', login_required(create_bond)),
+    url(r'^modify_group_membership/', login_required(modify_group_membership)),
     url(r'^edit_local_user_gid/', login_required(edit_local_user_gid)),
     url(r'^edit_local_user_group_membership/', login_required(edit_local_user_group_membership)),
     url(r'^view_local_user/', login_required(view_local_user)),
@@ -167,7 +179,7 @@ urlpatterns = patterns('',
     url(r'^view_rotated_log_list/([A-Za-z_]+)', login_required(view_rotated_log_list)),
     url(r'^view_rotated_log_file/([A-Za-z_]+)', login_required(view_rotated_log_file)),
     url(r'dir_contents/',login_required(dir_contents)),
-    url(r'^list_cron_jobs/', login_required(list_cron_jobs)),
+    url(r'^list_scheduled_jobs/', login_required(list_scheduled_jobs)),
     url(r'^download_cron_log', login_required(download_cron_log)),
     url(r'^remove_cron_job', login_required(remove_cron_job)),
     url(r'^view_background_tasks/', login_required(view_background_tasks)),

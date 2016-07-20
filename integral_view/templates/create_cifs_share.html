@@ -4,35 +4,11 @@
   Create a Windows share
 {%endblock%}
 
-<script type="text/javascript">
-  function set_field_visibility() {
-    var guest_ok = document.forms["create_form"].elements["guest_ok"];
-    var guest_ok_val;
-    for(var i = 0; i < guest_ok.length; i++){
-      if(guest_ok[i].checked){
-        guest_ok_val = guest_ok[i].value;
-      }
-    }
-    if (guest_ok_val=="yes") {
-      set_select_field_disabled(document.forms["create_form"].elements["users"], true);
-    } else {
-      set_select_field_disabled(document.forms["create_form"].elements["users"], false);
-    } 
-  }
-  function set_select_field_disabled(f, val) {
-    for(var i = 0; i < f.length; i++)
-      f[i].disabled = val
-  }
-  function select_guest_ok() {
-    for (var i=0;i<2;i++)
-      if (document.forms["create_form"].elements["guest_ok"][i].value == "no")
-        document.forms["create_form"].elements["guest_ok"][i].checked = true;
-  }
-</script>
 
 {%block inside_content %}
 
-  <form class="form-horizontal" role="form" name="create_form" action="" method="post">
+{{form.path.value}}
+  <form id="share_form" class="form-horizontal" role="form" name="create_form" action="" method="post">
     <table  class="table " style="width:800px">
       <tr>
         <th> Share name:</th>
@@ -42,16 +18,41 @@
         <td> {{ form.name.errors }} </td>
       </tr>
       <tr>
+        <th> Select underlying ZFS dataset :</th>
+        <td>
+          <select id = "id_dataset" name="dataset" class="form-control" onchange="change_path(this);this.form.submit()">
+            {% for choice in dataset %}
+      		    <option value="{{choice.0}}" onclick="option_selected(this)" {%if form.initial.dataset == choice.0%} selected="selected" {%endif%}>{{choice.0}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td>&nbsp;</td>
+        <td> {{ form.dataset.errors }} </td>
+      </tr>
+      <tr>
+        <th> Select a directory :</th>
+        <td>
+          <input type="text" name="path" class="form-control" id="id_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value="{{form.path.value|default_if_none:""}}"> <br/>
+        </td>
+        <td>
+          <a href="#" role="button" class="btn btn-primary btn-xs" onClick="displayTree();return false;"> Browse...</a>
+          <div id="pathdiv" style="display:inline"> </div>
+        </td>
+        <td> {{ form.path.errors }} </td>
+      </tr>
+      <!--
+      <tr>
         <th> Underlying ZFS Dataset :</th>
         <td>
-            <select id="id_dataset" class="form-control">
-              {% for choice in form.dataset.field.choices %}
+            <select id="id_path" name="path" class="form-control">
+              {% for choice in form.path.field.choices %}
                 <option value="{{choice.0}}" {%if choice.0 == form.initial.path %} selected="selected"{%endif%} onclick="option_selected(this)">{{choice.1}}</option>
               {%endfor%}
             </select> 
         </td>
-        <td> {{ form.dataset.errors }} </td>
+        <td> {{ form.path.errors }} </td>
       </tr>
+
       <tr>
         <th> Selected ZFS Dataset :</th>
         <td>
@@ -82,6 +83,9 @@
         </td>
         <td> {{ form.path.errors }} </td>
       </tr>
+      -->
+
+
       <tr>
         <th> Description:</th>
         <td>
@@ -99,6 +103,8 @@
         <td> {{ form.browseable }} </td>
         <td> {{ form.browseable.errors }} </td>
       </tr>
+
+      <!--
       <tr>
         <th> Accessible to all(guest ok):</th>
         <td>
@@ -108,6 +114,10 @@
         </td>
         <td> {{ form.guest_ok.errors }} </td>
       </tr>
+      -->
+
+
+      <!--
       <tr>
         <th> Permitted users:</th>
         <td>
@@ -134,117 +144,59 @@
         </td>
         <td> {{ form.groups.errors }} </td>
       </tr>
+
+      -->
     </table>
 
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <a href="/view_cifs_shares" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-      <button type="submit" class="btn btn-primary" onClick="document.getElementById('id_path').disabled = false;return true;")> Create </button>
+      <!--<button type="submit" class="btn btn-primary" onClick="document.getElementById('id_path').disabled = false;return true;")> Create </button>-->
+      <button type="submit" class="btn btn-primary"> Create </button>
     </div>
 
   </form>
-
-  <script type="text/javascript">
-    document.getElementById('id_path').disabled = true;
-    function set_select_field_disabled(f, val) {
-      for(var i = 0; i < f.length; i++)
-        f[i].disabled = val
-    }
-    $("form input[name='guest_ok']").click(function () { 
-      if (document.forms["create_form"].elements["guest_ok"].checked) {
-        document.getElementById('guest_help').innerHTML = " <i>(In order to select users and/or groups below, this option should be disabled)</i>"
-        set_select_field_disabled(document.getElementsByName('users'), true);
-        set_select_field_disabled(document.getElementsByName('groups'), true);
-      } else {
-        document.getElementById('guest_help').innerHTML = ""
-        set_select_field_disabled(document.getElementsByName('users'),false);
-        set_select_field_disabled(document.getElementsByName('groups'), false);
-      }
-    });
-    $(window).load(function() {
-      document.forms["create_form"].elements["guest_ok"].checked = true
-      document.getElementById('guest_help').innerHTML = " <i>(In order to select users and/or groups below, this option should be disabled)</i>"
-      set_select_field_disabled(document.getElementsByName('users'),true);
-      set_select_field_disabled(document.getElementsByName('groups'), true);
-    });
-  </script>
-
   <script src="/static/jstree/dist/jstree.js"></script>
   <script>
-
-	function option_selected(a){
-		localStorage.setItem('last_selected',a.value);
-		localStorage.setItem('last_selected_time',new Date().getTime());
-		location.reload();
-	};
-
-	function change_dataset(a){
-	};
-
-	var one_min = 60 * 1000
-	if ((new Date) - localStorage.getItem('last_selected_time') < one_min){
-		$("#val_dataset").val(localStorage.getItem('last_selected'));
-		$("#id_dataset option[value='"+localStorage.getItem('last_selected')+"']").attr("selected","selected")
-	}else{
-      		localStorage.removeItem('last_selected');
-      		localStorage.removeItem('last_selected_time');
-		$("#val_dataset").val($("#id_dataset").val());
-	}
-  var dataset_path = $("#id_dataset").val()
-  $("#display_path_text").text(dataset_path)
-  $("#id_path").val(dataset_path)
-
-  function displayTree() {
-    document.getElementById("pathdiv").style.display = "block";
-    $('#pathdiv').jstree({ 'core' : {
-      'multiple':false,
-      'data' : {
-        'url' : function (node) {
-          return node.id === '#' ? 
-            '/dir_contents?first=1&dir=/' : 
-            '/dir_contents'; 
-        },
-        'data' : function (node) {
-          var e = document.getElementById("id_dataset");
-          if (node.data) {
-            return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
+    function change_path(sel){
+      document.getElementById('id_path').value = "/"+sel.value;
+      $("#share_form").attr("method", "get");
+    };
+    function displayTree() {
+      document.getElementById("pathdiv").style.display = "block";
+      $('#pathdiv').jstree({ 'core' : {
+        'multiple':false,
+        'data' : {
+          'url' : function (node) {
+            return node.id === '#' ? 
+              '/dir_contents?first=1&dir=/' : 
+              '/dir_contents'; 
+          },
+          'data' : function (node) {
+            var e = document.getElementById("id_dataset")
+            if (node.data) {              //return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
+              return {'dir' : node.data['dir'] , 'id':node.id, "from": "dataset", "dataset_name": e.value};
+            }
+            else
+              return { 'dir' : node.text , 'id':node.id, "from": "dataset", "dataset_name": e.value};
           }
-          else
-            return { 'dir' : node.text , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
         }
       }
+      });
+      $(function () {
+        $('#pathdiv').on('changed.jstree', function (e, data) {
+          var i, j, r = [];
+          var ds_elem = document.getElementById("id_dataset");
+          var ds_value = ds_elem.options[ds_elem.selectedIndex].value;
+          r = data.instance.get_node(data.selected[0]).text;
+          rfp = data.instance.get_node(data.selected[0]).data["dir"];
+          //alert(rfp);
+          location.href = location.pathname+"?path="+rfp+"&dataset="+ds_value
+          document.getElementById("pathdiv").style.display = "none";
+        })
+        .jstree();
+      });
     }
-    });
-    $(function () {
-      $('#pathdiv').on('changed.jstree', function (e, data) {
-        var i, j, r = [];
-        r = data.instance.get_node(data.selected[0]).text;
-        rfp = data.instance.get_node(data.selected[0]).data["dir"];
-        document.forms["create_form"].elements["path"].value = rfp;
-        document.forms["create_form"].elements["display_path"].value = rfp;
-        document.getElementById("pathdiv").style.display = "none";
-        $("#new_folder").trigger('input')
-      })
-      .jstree();
-    });
-  }
-  if($("#id_path").val() != ""){
-  	var final_path = $("#id_path").val()
-  	$("#display_path_text").text(final_path)
-  }
-  $("#new_folder").on('input',function(){
-  	var final_path = $("#id_display_path").val()
-  	if (final_path === ""){
-  		$("#id_path").val(dataset_path+"/"+$(this).val())
-  		$("#display_path_text").text(dataset_path+"/"+$(this).val())
-  	}
-  	else{
-  		$("#id_path").val(final_path+"/"+$(this).val())
-  		$("#display_path_text").text(final_path+"/"+$(this).val())
-  	}
-  });
-  $("#id_path").addClass("form-control")
-  $("#id_path").attr("style","display:none")
-</script>
+  </script>
 
 {%endblock%}
 

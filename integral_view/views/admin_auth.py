@@ -5,7 +5,7 @@ from django.contrib import auth
 from django.contrib.sessions.models import Session
 from django.contrib.auth.decorators import login_required
 
-import os
+import os, time, datetime
 
 import integral_view
 from integral_view.forms import admin_forms, pki_forms
@@ -160,6 +160,11 @@ def view_system_info(request):
     si,err = system_info.load_system_config()
     if err:
       raise Exception(err)
+    now = datetime.datetime.now()
+    milliseconds =  int(time.mktime(time.localtime())*1000)
+    return_dict['date_str'] = now.strftime("%A %d %B %Y")
+    return_dict['time'] = now
+    return_dict['milliseconds'] = milliseconds
     return_dict['system_info'] = si
     if "from" in request.GET:
       frm = request.GET["from"]
@@ -273,7 +278,7 @@ def view_https_mode(request):
     return_dict['port'] = mode['port']
     return django.shortcuts.render_to_response('view_https_mode.html', return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    return_dict['base_template'] = "system_base.html"
+    return_dict['base_template'] = "admin_base.html"
     return_dict["page_title"] = 'Integralview access mode'
     return_dict['tab'] = 'https_tab'
     return_dict["error"] = 'Error loading IntegralView access mode'
@@ -334,7 +339,7 @@ def edit_https_mode(request):
       return django.http.HttpResponseRedirect('/view_https_mode?ack=set_to_%s'%change_to)
 
   except Exception, e:
-    return_dict['base_template'] = "system_base.html"
+    return_dict['base_template'] = "admin_base.html"
     return_dict["page_title"] = 'Set Integralview access mode'
     return_dict['tab'] = 'https_tab'
     return_dict["error"] = 'Error setting IntegralView access mode'
@@ -364,7 +369,7 @@ def reboot_or_shutdown(request):
         command.execute_with_rc('shutdown -h +%d'%minutes_to_wait)
       return django.shortcuts.render_to_response("reboot_or_shutdown_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    return_dict['base_template'] = "admin_base.html"
+    return_dict['base_template'] = "system_base.html"
     return_dict["page_title"] = 'Reboot or Shutdown Failure'
     return_dict['tab'] = 'reboot_tab'
     return_dict["error"] = 'Error Rebooting'

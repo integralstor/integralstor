@@ -6,59 +6,73 @@
 
 {% block inside_content %}
 
+  
+  <div class="btn-group btn-group-sm pull-right" style="margin-bottom:15px;margin-right:10px;">
+    <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Global pool actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a href="/create_zfs_pool"  title="Create a new ZFS pool"> <i class="fa fa-plus fa-fw"></i>Create a new pool</a> 
+      <li><a href="/import_zfs_pool"  title="Import a known pool from the data disks"> <i class="fa fa-download fa-fw"></i>Import a specific pool from disks</a> 
+      <li><a href="/import_all_zfs_pools"  title="Import all pools from the data disks"> <i class="fa fa-download fa-fw"></i>Recover/Import all pool(s) from disks</a> 
+    </ul>
+  </div>
   {% if not pool_list %}
     <p>No ZFS storage pools appear to have been created. </p>
   {%else %}
-    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-      <table  class="table table-bordered">
+    <div style="width:100%; clear:both;padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+      <table  class="table table-striped">
         <tr>
           <th > Pool name </th>
-          <th> Datasets in pool </th>
-          <th> Block device volumes in pool </th>
-          <th> Details </th>
+          <th> Underlying datasets</th>
+          <th> Underlying block device volumes</th>
+          <th> Pool specific actions </th>
         </tr>
         {%for d in pool_list %}
           <tr>
             <td> {{d.pool_name}} </td>
             <td> 
               {%if d.datasets%} 
-                <ul>
                   {%for ds in d.datasets %}
                     {%if ds.properties.type.value == 'filesystem'%}
-                      <li><a href="/view_zfs_dataset?name={{ds.name}}">{{ds.name}}</a>
+                       <a href="/view_zfs_dataset?name={{ds.name}}" title="Click to view and configure this dataset"><i class="fa fa-cog fa-fw"></i>&nbsp;{{ds.name}}</a><br>
                     {%endif%}
                   {%endfor%}
-                </ul>
               {%else%}
                 No datasets in this pool
               {%endif%}
             </td>
             <td>
               {%if d.datasets%}
-                <ul>
                   {%for ds in d.datasets %}
                     {%if ds.properties.type.value == 'volume'%}
-                      <li><a href="/view_zfs_dataset?name={{ds.name}}">{{ds.name}}</a>
+                      <a href="/view_zfs_dataset?name={{ds.name}}" title="Click to view and configure this block device volume"><i class="fa fa-cog fa-fw"></i>&nbsp;{{ds.name}}</a><br>
                     {%endif%}
                   {%endfor%}
-                </ul>
               {%else%}
                 No block device volumes in this pool
               {%endif%}
             </td>
             <td>
-              <a href="/view_zfs_pool?name={{d.pool_name}}" role="button" class="btn btn-info btn-xs cover-page" title="Click here to view detailed information about this pool"> Configure..</a>
+              <div class="btn-group btn-group-xs" >
+                <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Pool specific actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li><a href="/view_zfs_pool?name={{d.pool_name}}"  title="View and configure this pool properties" class="cover-page"> <i class="fa fa-cog fa-fw"></i>View and configure</a> 
+                  <li><a href="/create_zfs_dataset?pool={{d.pool_name}}&parent={{d.pool_name}}"  title="Create a new file system dataset" > <i class="fa fa-plus fa-fw"></i>Create a new dataset</a> 
+                  <li><a href="/create_zfs_zvol?pool={{d.pool_name}}"  title="Create a new block device volume" > <i class="fa fa-plus fa-fw"></i>Create a new block device volume</a> 
+                </ul>
+              </div>
             </td>
           </tr>
         {%endfor%}
       </table>
     </div>
   {%endif%}
+  <!--
   <div class="btn-group btn-group-sm" role="group" aria-label="...">
     <a href="/create_zfs_pool" role="button" class="btn btn-primary" title="Click here to create a new ZFS pool"> Create a new pool</a> &nbsp;&nbsp;
     <a href="/import_zfs_pool" role="button" class="btn btn-primary" title="Click here to import a known pool from the data disks"> Import a specific pool from disks</a> &nbsp;&nbsp;
     <a href="/import_all_zfs_pools" role="button" class="btn btn-primary" title="Click here to import all pools from the data disks"> Recover/Import all pool(s) from disks</a> &nbsp;&nbsp;
   </div>
+  -->
 
 {%endblock%}
 

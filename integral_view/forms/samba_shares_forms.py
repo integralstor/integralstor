@@ -1,6 +1,7 @@
 from django import forms
 import integralstor_common
 from integralstor_common import networking
+from integral_view.forms import folder_management_forms
 
 class AuthADSettingsForm(forms.Form):
   security = forms.CharField(widget=forms.HiddenInput)
@@ -24,61 +25,39 @@ class AuthUsersSettingsForm(forms.Form):
   netbios_name = forms.CharField()
 
 
-class CreateShareForm(forms.Form):
+class CreateShareForm(folder_management_forms.DirForm):
   share_id =  forms.IntegerField(widget=forms.HiddenInput, required = False)
   name = forms.CharField()
-  dataset = forms.CharField(required=False)
-  path = forms.CharField()
-  display_path = forms.CharField(required=False)
   comment = forms.CharField(required=False)
   browseable = forms.BooleanField(required=False,initial=True)
   read_only = forms.BooleanField(required=False)
-  guest_ok = forms.BooleanField(required=False)
 
   def __init__(self, *args, **kwargs):
     if kwargs:
-      user_list = kwargs.pop("user_list")
-      group_list = kwargs.pop("group_list")
       dataset_list = kwargs.pop("dataset_list")
     super(CreateShareForm, self).__init__(*args, **kwargs)
-    ch = []
-    if user_list:
-      for user in user_list:
-        tup = (user, user)
-        ch.append(tup)   
-    self.fields["users"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(attrs={'onclick':'select_guest_ok();'}), choices=ch,required=False )
 
     ch = []
     if dataset_list:
       for ds in dataset_list:
-        tup = ( ds['mountpoint'], ds['name'])
+        tup = (ds[0], ds[1])
         ch.append(tup)   
-    self.fields["dataset"] = forms.ChoiceField(choices=ch)
+    self.fields['dataset'] =  forms.ChoiceField(widget=forms.Select, choices=ch)
 
-    ch = []
-    if group_list:
-      for gr in group_list:
-        tup = (gr, gr)
-        ch.append(tup)   
-    self.fields["groups"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(attrs={'onclick':'select_guest_ok();'}), choices=ch,required=False )
 
-  def clean(self):
-    cd = super(CreateShareForm, self).clean()
-    go = cd['guest_ok']
-    us = cd['users']
-    gr = cd['groups']
-    if go:
-      if us:
-        self._errors["users"] = self.error_class(["This field cannot be set when guest ok is selected"])
-        del cd["users"]
-      if gr:
-        self._errors["groups"] = self.error_class(["This field cannot be set when guest ok is selected"])
-        del cd["groups"]
-    else:
-      if (not us) and (not gr):
-        self._errors["guest_ok"] = self.error_class(["This field cannot be left unselected if no users or groups are selected"])
-        
-    return cd
+class AddShareAcesForm(folder_management_forms.AddAcesForm):
+  share_index =  forms.IntegerField(widget=forms.HiddenInput)
+  share_name =  forms.CharField(widget=forms.HiddenInput)
+
+  def __init__(self, *args, **kwargs):
+    super(AddShareAcesForm, self).__init__(*args, **kwargs)
+
+
+class EditShareAcesForm(folder_management_forms.EditAcesForm):
+  share_index =  forms.IntegerField(widget=forms.HiddenInput)
+  share_name =  forms.CharField(widget=forms.HiddenInput)
+  def __init__(self, *args, **kwargs):
+    super(EditShareAcesForm, self).__init__(*args, **kwargs)
 
 class EditShareForm(forms.Form):
   share_id =  forms.IntegerField(widget=forms.HiddenInput)
@@ -87,8 +66,9 @@ class EditShareForm(forms.Form):
   comment = forms.CharField(required=False)
   browseable = forms.BooleanField(required=False)
   read_only = forms.BooleanField(required=False)
-  guest_ok = forms.BooleanField(required=False)
+  #guest_ok = forms.BooleanField(required=False)
 
+  '''
   def __init__(self, *args, **kwargs):
     if kwargs:
       user_list = kwargs.pop("user_list")
@@ -124,4 +104,5 @@ class EditShareForm(forms.Form):
       if (not us) and (not gr):
         self._errors["guest_ok"] = self.error_class(["This field cannot be left unselected if no users or groups are selected"])
     return cd
+  '''
 

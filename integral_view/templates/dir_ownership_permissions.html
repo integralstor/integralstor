@@ -1,0 +1,51 @@
+{% extends 'shares_base.html' %}
+
+{% block tab_header%}
+  Directory ownership and permissions
+{% endblock tab_header %}
+
+{% block inside_content %}
+
+    <h4>Directory ownership for {{path}}</h4>
+    <table class="table table-bordered" style="width:300px;">
+    <tr>
+      <th>
+        Owning user
+      </th>
+      <td>
+        {{user_name}}
+      </td>
+    </tr>
+    <tr>
+      <th>
+        Owning group
+      </th>
+      <td>
+        {{grp_name}}
+      </td>
+    </tr>
+    </table>
+    <a href="/modify_dir_owner?path={{path}}" role="button" class="btn btn-primary btn-sm"> Modify directory ownership</a>&nbsp;&nbsp;
+
+    <hr>
+    <h4>Access control for {{path}}</h4>
+  
+    {% include 'ace_management.html' %}
+
+
+{% endblock inside_content %}
+
+{%block help_header%}
+  View directory ownership and permissions
+{%endblock%}
+
+{%block help_body%}
+<p> This page enables you to view the owner user and owner group and the access control permissions of the chosen directory. </p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("dir_manager_tab")
+  </script>
+{% endblock %}
+

@@ -1,7 +1,7 @@
 {% extends 'scheduler_base.html' %}
 
 {% block tab_header %}
-  Background Jobs
+  Background tasks
 {% endblock %}
 
 {% block inside_content %}
@@ -12,10 +12,10 @@
       <table class="table table-bordered table-hover">
         <thead>
           <tr>
-            <td> Job Name </td>
+            <td> Task name </td>
             <td> Status </td>
-            <td> Create Time </td>
-            <td> Initiate Time </td>
+            <td> Create time </td>
+            <td> Initiate time </td>
           </tr>
         </thead>
         <tbody>
@@ -31,6 +31,6 @@
       </table>
     </div>
   {% else %}
-      No background tasks scheduled
+      No background tasks appear to be pending.
   {% endif %}
 {% endblock %}

@@ -1,0 +1,83 @@
+
+
+    <div class="table-responsive" style=";width:100%;padding:0px 5px 0px 5px;margin-left:00px;margin-right:20px;border:1px solid #f4f4f4;height:150px;-webkit-overflow-scrolling: touch;">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th> Name </th>
+          <th> View directory contents (r) </th>
+          <th> Modify directory contents (w) </th>
+          <th> Enter and access directory contents (x) </th>
+          <th> &nbsp; </th>
+        </tr>
+      </thead>
+      <tbody>
+      {%if minimal_aces%}
+      {%for ace in minimal_aces %}
+        <tr>
+          {%if ace.0 == 'user'%}
+            <td> Owner (user)</td>
+            <td style="text-align: center;">{%if ace.2.0 == 'r' %}x{%else%} &nbsp;{%endif%}</td>
+            <td style="text-align: center;">{%if ace.2.1 == 'w' %}x{%else%} &nbsp;{%endif%}</td>
+            <td style="text-align: center;">{%if ace.2.2 == 'x' %}x{%else%} &nbsp;{%endif%}</td>
+          {%elif ace.0 == 'group'%}
+            <td> Owner (group) </td>
+            <td style="text-align: center;">{%if ace.2.0 == 'r' %}x{%else%} &nbsp;{%endif%}</td>
+            <td style="text-align: center;">{%if ace.2.1 == 'w' %}x{%else%} &nbsp;{%endif%}</td>
+            <td style="text-align: center;">{%if ace.2.2 == 'x' %}x{%else%} &nbsp;{%endif%}</td>
+          {%elif ace.0 == 'other'%}
+            <td> Others </td>
+            <td style="text-align: center;">{%if ace.2.0 == 'r' %}x{%else%} &nbsp;{%endif%}</td>
+            <td style="text-align: center;">{%if ace.2.1 == 'w' %}x{%else%} &nbsp;{%endif%}</td>
+            <td style="text-align: center;">{%if ace.2.2 == 'x' %}x{%else%} &nbsp;{%endif%}</td>
+          {%endif%}
+          <td>&nbsp;</td>
+          </tr>
+      {%endfor %}
+    {%endif%}
+    {%if user_aces%}
+      {%for ace in user_aces %}
+        <tr>
+          <td> {{ace.2}} (User)</td>
+          <td style="text-align: center;">{%if ace.3.0 == 'r' %}x{%else%} &nbsp;{%endif%}</td>
+          <td style="text-align: center;">{%if ace.3.1 == 'w' %}x{%else%} &nbsp;{%endif%}</td>
+          <td style="text-align: center;">{%if ace.3.2 == 'x' %}x{%else%} &nbsp;{%endif%}</td>
+          {%if share%}
+            <td><a href="/delete_ace?path={{share.path}}&type=user&name={{ace.2}}&share_name={{share.name}}&share_index={{share.share_id}}&for=share" role="button" class="btn btn-danger btn-xs">Delete</a></td>
+          {%else%}
+            <td><a href="/delete_ace?path={{path}}&type=user&name={{ace.2}}" role="button" class="btn btn-danger btn-xs">Delete</a></td>
+          {%endif%}
+        </tr>
+      {%endfor %}
+    {%endif%}
+    {%if group_aces%}
+      {%for ace in group_aces %}
+        <tr>
+          <td> {{ace.2}} (Group)</td>
+          <td style="text-align: center;">{%if ace.3.0 == 'r' %}x{%else%} &nbsp;{%endif%}</td>
+          <td style="text-align: center;">{%if ace.3.1 == 'w' %}x{%else%} &nbsp;{%endif%}</td>
+          <td style="text-align: center;">{%if ace.3.2 == 'x' %}x{%else%} &nbsp;{%endif%}</td>
+          {%if share%}
+            <td><a href="/delete_ace?path={{share.path}}&type=group&name={{ace.2}}&share_name={{share.name}}&share_index={{share.share_id}}&for=share" role="button" class="btn btn-danger btn-xs">Delete</a></td>
+          {%else%}
+            <td><a href="/delete_ace?path={{path}}&type=group&name={{ace.2}}" role="button" class="btn btn-danger btn-xs">Delete</a></td>
+          {%endif%}
+        </tr>
+      {%endfor %}
+    {%endif%}
+    <tbody>
+  </table>
+  </div>
+
+  <br>
+  <div class="btn-group btn-group-sm" role="group" aria-label="...">
+    {%if share%}
+      <a href="/edit_aces?path={{share.path}}&share_name={{share.name}}&share_index={{share.share_id}}&for=share" role="button" class="btn btn-primary btn-sm">Modify entries</a>
+      <a href="/add_aces?path={{share.path}}&share_name={{share.name}}&share_index={{share.share_id}}&for=share" role="button" class="btn btn-primary btn-sm">Add entries</a>
+    {%else%}
+      <a href="/edit_aces?path={{path}}" role="button" class="btn btn-primary btn-sm">Modify entries</a>
+      <a href="/add_aces?path={{path}}" role="button" class="btn btn-primary btn-sm">Add entries</a>
+    {%endif%}
+  </div>
+
+

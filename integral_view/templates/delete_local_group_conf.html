@@ -11,7 +11,8 @@
   <form action="/delete_local_group/" method="POST">
     <input type=hidden name="grpname" value="{{grpname}}">
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      <a href="/view_local_group/?grpname={{grpname}}&searchby=grpname" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;
+      <!--<a href="/view_local_group/?grpname={{grpname}}&searchby=grpname" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;-->
+      <a href="/view_local_groups" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;
       <button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete </button>
     </div>
   </form>

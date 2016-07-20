@@ -4,14 +4,18 @@ from django.contrib.auth.decorators import login_required
 import django.http 
 
 import os, os.path
-from integralstor_common import scheduler_utils, common, command
+from integralstor_common import scheduler_utils, common, command, zfs
 
-def list_cron_jobs(request):
+def list_scheduled_jobs(request):
   return_dict = {}
   try:
     cron_jobs,err = scheduler_utils.list_all_cron()
     if err:
       raise Exception(err)
+    snapshot_schedules, err = zfs.get_all_snapshot_schedules()
+    if err:
+      raise Exception(err)
+    return_dict["snapshot_schedules"] = snapshot_schedules
     return_dict["cron_list"] = cron_jobs
     return django.shortcuts.render_to_response("view_cron_jobs.html", return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:

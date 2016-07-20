@@ -1,0 +1,90 @@
+{% extends 'shares_base.html' %}
+
+{%block tab_header %}
+  Add new Windows ACL entries
+{%endblock%}
+
+{%block inside_content %}
+
+
+  <br>
+  Please select the users and groups for which you want to add ACL entries. These will be added with default ACL settings which can then be modified later.
+  <br>
+  <form action="/add_aces/" method="POST">
+    {{form.share_index}}
+    {{form.share_name}}
+    {{form.path}}
+    <input type="hidden" name="for" value="share">
+
+    <br/>
+    <table >
+      <th>
+        Apply recursively to all sub-directories
+      </th>
+      <td>
+        {{form.recursive}}
+      </td>
+    </table>
+    <br/>
+
+    <div style="overflow:auto;width:100%">
+      <div class="table-responsive" style="float:left;width:45%;padding:0px 5px 0px 5px;margin-left:00px;margin-right:20px;border:1px solid #f4f4f4;height:150px;-webkit-overflow-scrolling: touch;">
+        <h4> Users</h4>
+        {%if form.users.field.choices|length > 0%}
+          <table style="width:300px;" class="table table-bordered table-compressed" >
+            {% for choice in form.users.field.choices %}
+              <tr>
+                <td> {{choice.0}} </td>
+                <td style="text-align:center;">
+                  <input type="checkbox" name="users" id="{{choice.0}}" value="{{choice.0}}" > 
+                </td>
+              </tr>
+            {%endfor%}
+          </table>
+        {%else%}
+          No new users to add.
+        {%endif%}
+      </div>
+
+      <div class="table-responsive" style="float:left;width:45%;padding:0px 5px 0px 5px;margin-left:00px;margin-right:20px;border:1px solid #f4f4f4;height:150px;-webkit-overflow-scrolling: touch;">
+        <h4> Groups</h4>
+        {%if form.groups.field.choices|length > 0%}
+          <table style="width:300px;" class="table table-bordered table-compressed" >
+            {% for choice in form.groups.field.choices %}
+              <tr>
+                <td> {{choice.0}} </td>
+                <td style="text-align:center;">
+                  <input type="checkbox" name="groups" id="{{choice.0}}" value="{{choice.0}}" > 
+                </td>
+              </tr>
+            {%endfor%}
+          </table>
+        {%else%}
+          No new groups to add.
+        {%endif%}
+      </div>
+    </div>
+    <br>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_cifs_share?access_mode=by_id&index={{form.share_index.value}}'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary cover-page" ">Add </button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Adding a new share ACL entry
+{%endblock%}
+
+{%block help_body%}
+<p>Confirming this operation results in new ACL entries being added to the specified share. This may cause some access issues for the share. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_cifs_shares_tab")
+  </script>
+{% endblock %}
+

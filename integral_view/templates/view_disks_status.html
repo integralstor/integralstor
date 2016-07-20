@@ -12,6 +12,8 @@
       <tr>
         <th > Disk serial number </th>
         <th> S.M.A.R.T status </th>
+        <th> Disk replacement </th>
+        <th > Disk details</th>
       </tr>
     </thead>
     {%for sn, disk in disk_status.items %}
@@ -25,6 +27,23 @@
             {%else%}
               <i class="fa fa-remove red fa-2x"></i>
             {%endif%}
+          </td>
+          <td> &nbsp; </td>
+          <td> Capacity : {{disk.capacity}}
+                <br>
+                {%if disk.rotational %}
+                  Type : SSD
+                {%else%}
+                  Type : Rotational
+                {%endif%}
+                <br>
+                Number of partitions : {{disk.partitions|length}}
+                <br>
+                SCSI bus address : {{disk.scsi_info}}
+                <br>
+                Name : {{disk.name}}
+                <br>
+                ID : {{disk.id}}
           </td>
         </tr>
       {%endif%}
@@ -40,6 +59,38 @@
             {%else%}
               <i class="fa fa-remove red fa-2x"></i>
             {%endif%}
+          </td>
+          <td> 
+            {%if disk.status != 'PASSED' and disk.status != 'OK'%}
+              {%if disk.pool%}
+                <form method="POST" action="/replace_disk/">
+                  <input type="hidden" name="node" value="{{node_name}}">
+                  <input type="hidden" name="serial_number" value="{{sn}}">
+                  <input type="hidden" name="step" value="offline_disk">
+                  <button type="submit" class="btn btn-primary btn-xs" onClick ="$('#processing').modal('show');"> Replace (swap out) this disk </button>
+                </form>
+              {%else%}
+                <button  class="btn btn-primary btn-xs" onClick ="alert('This disk is not part of any ZFS pool so you can go ahead and replace it safely');"> Replace (swap out) this disk </button>
+              {%endif%}
+            {%else%}
+              Healthy disk. <br>No replacement necessary.
+            {%endif%}
+          </td>
+          <td> Capacity : {{disk.capacity}}
+                <br>
+                {%if disk.rotational %}
+                  Type : SSD
+                {%else%}
+                  Type : Rotational
+                {%endif%}
+                <br>
+                Number of partitions : {{disk.partitions|length}}
+                <br>
+                SCSI bus address : {{disk.scsi_info}}
+                <br>
+                Name : {{disk.name}}
+                <br>
+                ID : {{disk.id}}
           </td>
         </tr>
       {%endif%}

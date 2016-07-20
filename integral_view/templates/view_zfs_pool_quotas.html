@@ -1,0 +1,109 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  ZFS pool quotas
+{%endblock%}
+
+{%block inside_content %}
+
+  {% if not pool %}
+    No information for the specified pool. Click <a href="/view_zfs_pools/"> here</a> to view all ZFS storage pools.
+  {%else %}
+
+    <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+      <div class="col-sm-9 form-group">
+        <form class="form-horizontal"> 
+          <label for="inputPassword" class="col-sm-2 control-label">View : </label>
+          <div class="col-sm-8">
+            <select class="form-control" onchange="$('.lightbox').show();location = this.options[this.selectedIndex].value;">
+              <option value="/view_zfs_pool?name={{pool.pool_name}}&view=basic" >Basic information and usage</option>
+              <option value="/view_zfs_pool?name={{pool.pool_name}}&view=components" >Disk components, read & write caches and hot spares</option>
+              <option value="/view_zfs_pool?name={{pool.pool_name}}&view=datasets_and_zvols">Filesystem datasets & block device volumes</option>        
+              <option value="/view_zfs_pool?name={{pool.pool_name}}&view=quotas" selected="selected">Pool quotas</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="col-sm-3 btn-group btn-group-sm pull-right"  style="border:0px solid">
+        <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"> Pool specific actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+        <ul class="dropdown-menu">
+          <li><a href="/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}"  title="Create a new file system dataset" > <i class="fa fa-plus fa-fw"></i>Create a new dataset</a> 
+          <li><a href="/create_zfs_zvol?pool={{pool.pool_name}}"  title="Create a new block device volume" > <i class="fa fa-plus fa-fw"></i>Create a new block device volume</a> 
+          <li class="divider"></li>
+          <li> <a href="/scrub_zfs_pool?name={{pool.pool_name}}"><i class="fa fa-lemon-o fa-fw" ></i>Initiate a scrub</a>
+          <li class="divider"></li>
+          <li><a href="/export_zfs_pool?pool_name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-cloud-download fa-fw" ></i>Export this pool</a>
+          <li><a href="/delete_zfs_pool?name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-trash-o fa-fw" ></i>Delete this pool</a>
+          <li class="divider"></li>
+          <li> <a href="/view_zfs_pools"><i class="fa fa-list fa-fw" ></i>Back to pool list</a>
+        </ul>
+      </div>
+    </div>
+
+    <hr/>
+
+    {% if not quotas.users and not quotas.groups%}
+      <p>No quotas appear to have been set for this pool. </p>
+    {%else %}
+      <div style="width:90%;position: relative; clear:both;margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+        <table  class="table table-striped">
+          <tr>
+            <th > Name </th>
+            <th > Type </th>
+            <th > Quota </th>
+            <th> Actions </th>
+            <th> 
+              <div class="btn-group btn-group-sm pull-right">
+              <a class="btn btn-primary btn-sm dropdown-toggle " data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw" ></i>&nbsp;Pool quota actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+              <ul class="dropdown-menu">
+                <li><a href="/set_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_type=user&pool_name={{pool.pool_name}}" title="Set a new user quota for this pool"><i class="fa fa-plus fa-fw" ></i>Add user quota</a></li>
+                <li><a href="/set_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_type=group&pool_name={{pool.pool_name}}" title="Set a new group quota for this pool"><i class="fa fa-plus fa-fw" ></i>Add group quota</a></li>
+              </ul>
+              </div>
+            </th>
+          </tr>
+          {%for un, q in quotas.users.items %}
+            <tr>
+              <td> {{un}} </td>
+              <td> User </td>
+              <td> {{q}} </td>
+              <td>
+                <a href="/remove_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_name={{un}}&ug_type=user&pool_name={{pool.pool_name}}" role="button" class="btn btn-danger btn-xs"> <i class="fa fa-trash fa-fw" ></i>&nbsp;Remove this quota</a>
+              </td>
+              <td>&nbsp;</td>
+            </tr>
+          {%endfor%}
+          {%for gn, q in quotas.groups.items %}
+            <tr>
+              <td> {{gn}} </td>
+              <td> Group </td>
+              <td> {{q}} </td>
+              <td>
+                <a href="/remove_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_name={{gn}}&ug_type=group&pool_name={{pool.pool_name}}" role="button" class="btn btn-danger btn-xs"> Remove this quota</a>
+              </td>
+              <td>&nbsp;</td>
+            </tr>
+          {%endfor%}
+        </table>
+      </div>
+    {%endif%}
+
+  {%endif%}
+  
+  <a href="/view_zfs_pools" role="button" class="btn btn-default btn-sm"> <i class="fa fa-list fa-fw" ></i> &nbsp;Back to pool list</a>
+
+{%endblock%}
+
+{%block help_header%}
+  View ZFS pool quota information
+{%endblock%}
+
+{%block help_body%}
+  <p> This screen allows you to view and configure pool level user and group quotas.
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}
