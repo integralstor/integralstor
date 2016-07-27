@@ -28,7 +28,7 @@ def view_services(request):
         return_dict['ack_message'] = 'Service status change initiated'
 
     services_dict = {}
-    services = [('network', 'Networking'), ('ntpd','NTP'), ('smb', 'CIFS - smb'), ('winbind', 'CIFS - winbind'), ('tgtd', 'ISCSI'), ('nfs', 'NFS'),('vsftpd','FTP')]
+    services = [('network', 'Networking'), ('ntpd','NTP'), ('smb', 'CIFS - smb'), ('winbind', 'CIFS - winbind'), ('tgtd', 'ISCSI'), ('nfs', 'NFS'),('vsftpd','FTP'),('shellinaboxd','Shell Access')]
     for service in services:
       services_dict[service[0]] = {} 
       services_dict[service[0]]['name'] =  service[1]

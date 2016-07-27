@@ -2,14 +2,18 @@
 
 {%block tab_items %}
   <li id="node_info_tab">
-    <a href="/view_system_info/">System Configuration</a>
+    <a href="/view_system_info/">System information</a>
   </li>
   <li id="email_tab">
-    <a href="/view_email_settings/">E-mail Settings</a>
+    <a href="/view_email_settings/">Email alerts</a>
   </li>
-  <li id="https_tab">
-    <a href="/view_https_mode/">IntegralView access mode</a>
+  {%if request.user.is_superuser%} 
+    <li id="reboot_tab"><a href="/reboot_or_shutdown?do=reboot">Reboot</a> </li>
+    <li id="shutdown_tab"><a href="/reboot_or_shutdown?do=shutdown">Shutdown</a> </li>
+  <li id="shell_tab">
+    <a href="/access_shell/">IntegralStor UNICell Shell access </a>
   </li>
+  {%endif%}
 {%endblock tab_items %}
 
 {% block menu_active %}

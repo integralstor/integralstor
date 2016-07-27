@@ -21,33 +21,6 @@ from integral_view.utils import iv_logging
 
 production = common.is_production()
 
-def dir_contents(request):
-  # Check if this path is #, if yes, then use the pool as the root dir, else use path passed
-  path = request.GET.get("id") if request.GET.get("id") != "#" else request.GET.get("pool_name")
-  first = request.GET.get("first")
-  dirs = os.listdir(path)
-  dir_dict_list = []
-  if not dirs or first:
-    if not os.listdir(path):
-      d_dict = {'id':path, 'text':"/",'icon':'fa fa-angle-right','children':False,'data':{'dir':path},'parent':"#"}
-    else:
-      d_dict = {'id':path, 'text':"/",'icon':'fa fa-angle-right','children':True,'data':{'dir':path},'parent':"#"}
-    dir_dict_list.append(d_dict)
-  if not first:
-    for d in dirs:
-      true = True
-      if os.path.isdir(path+"/"+d):
-        if first:
-          parent = "#"
-        else:
-          parent = path
-        if not os.listdir(path+"/"+d):
-          d_dict = {'id':path+"/"+d, 'text':d,'icon':'fa fa-angle-right','children':False,'data':{'dir':path+"/"+d},'parent':parent}
-        else:
-          d_dict = {'id':path+"/"+d, 'text':d,'icon':'fa fa-angle-right','children':True,'data':{'dir':path+"/"+d},'parent':parent}
-      print d_dict
-      dir_dict_list.append(d_dict)
-  return HttpResponse(json.dumps(dir_dict_list),mimetype='application/json')
 
 
 @login_required
@@ -417,8 +390,21 @@ def show(request, page, info = None):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-
-
+def shell_access(request):
+  return_dict = {}
+  try:
+    status,err = services_management.get_service_status(['shellinaboxd'])
+    if err:
+      raise Exception(err)
+    if status['status_str'] == "Running":
+      return django.shortcuts.render_to_response("shell_access.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    else:
+      raise Exception("Shell Service is not running. Start the service and visit the page again")
+      
+  except Exception, e:
+    return_dict['base_template'] = "admin_base.html"
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 '''
 This functionality is now in zfs_management so this is to be deprecated!!

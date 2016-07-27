@@ -1,0 +1,20 @@
+
+{% extends 'admin_base.html' %}
+
+{%block tab_header %}
+  Access UNICell Shell
+{%endblock%}
+
+{% block inside_content %}
+<iframe src="http://{{request.META.HTTP_HOST}}:4200" width="1000" height="600" frameBorder="0">
+</iframe>
+{% endblock %}
+
+{%block help_header%}
+Accessing the shell
+{%endblock%}
+
+{%block help_body%}
+<p> Shell gives us console access on the screen. </p>
+{%endblock%}
+
