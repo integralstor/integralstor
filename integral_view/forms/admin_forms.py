@@ -9,15 +9,13 @@ class _MultipleEmailField(forms.CharField):
     try:
       email = email.strip()
       t = parseaddr(email)
-      # This is because t[1] is the email address
-      if t[1]:
+      if t[0] or t[1]:
         if not '@' in t[1]:
-          return None, 'Error validating email address : %s. Check if your email host is correct'%str(e)
+          raise Exception('Invalid email address.')
         if not re.match('^[A-Za-z0-9._%+-]+@[A-Za-z0-9\.\-]+', email):
-          return None, 'Error validating email address : %s. Wrongly formatted email ?'%str(e)
-        return True,None
+          raise Exception('Invalid email address.')
       else:
-        return False,"Not valid email address. Enter a valid email address"
+        raise Exception('Invalid email address.')
     except Exception, e:
       return None, 'Error validating email address : %s'%str(e)
     else:

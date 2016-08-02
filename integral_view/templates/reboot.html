@@ -1,4 +1,4 @@
-{% extends 'admin_base.html' %}
+{% extends 'system_base.html' %}
 
 {% block tab_header %}
 Reboot the system
@@ -13,14 +13,14 @@ Reboot the system
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Are you sure you want to reboot ?</h4>
+        <h4 class="modal-title">Are you sure you want to reboot the system?</h4>
       </div>
       <div class="modal-body" id="timer_div">
-	<p>Doing this will stop all the services, disconnect all the users, will stop data copy, which could lead to instability of the system.</p>
-	<p> If you are sure, please click on Yes, else, close this popup, and nothing will happen.
+	      <p>A reboot will stop all the services, disconnect all the users and stop data transfers which could lead to data loss.</p>
+      	<p> If you are sure, please click on Yes, else, close this popup, and nothing will happen.
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default pull-left" id="no">Oops ! Dont do it. Close</button>
+        <button type="button" class="btn btn-default pull-left" id="no">No, do NOT reboot Close</button>
         <button type="button" class="btn btn-danger" id="yes">Yes, Reboot</button>
       </div>
     </div>

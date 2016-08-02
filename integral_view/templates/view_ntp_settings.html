@@ -8,7 +8,7 @@
 
   {%if not ntp_servers %}
     <p id="p-instructional-text"> You have not configured NTP.</p><br>
-    <a href="/configure_ntp_settings/" role="button" class="btn btn-primary btn-sm">Configure NTP settings</a>
+    <a href="/configure_ntp_settings/" role="button" class="btn btn-default btn-sm"><i class="fa fa-cog fa-fw"></i>Configure NTP settings</a>
 
   {%else%}
     <table class="table table-bordered" style="width:200px">
@@ -21,7 +21,7 @@
         </tr>
       {%endfor%}
     </table>
-    <a href="/configure_ntp_settings/" role="button" class="btn btn-primary btn-sm">Modify</a>
+    <a href="/configure_ntp_settings/" role="button" class="btn btn-default btn-sm"><i class="fa fa-cog fa-fw"></i>Modify</a>
 
   {%endif%}
 

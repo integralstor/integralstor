@@ -12,7 +12,8 @@
   <form action="/delete_local_user/" method="POST">
     <input type=hidden name="username" value="{{username}}">
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      <a href="/view_local_user/?username={{username}}&searchby=username" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;
+      <!--<a href="/view_local_user/?username={{username}}&searchby=username" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;-->
+      <a href="/view_local_users" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;
       <button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete </button>
     </div>
   </form>

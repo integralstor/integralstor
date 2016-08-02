@@ -6,26 +6,19 @@
 
 {% block inside_content %}
 
-  <table class="table table-bordered table-hover table-responsive" style="width:800px">
-    <thead>
-      <tr>
-        <th > Disk serial number </th>
-        <th > Disk details</th>
-        <th> S.M.A.R.T status </th>
-        <th> Disk replacement </th>
-      </tr>
-    </thead>
+  <h4> Data disks (rotating) </h4>
+  <table class="table table-striped table-responsive" style="width:800px">
+    <tr>
+      <th > Disk serial number </th>
+      <th > Disk details</th>
+      <th> S.M.A.R.T status </th>
+      <th> Disk replacement </th>
+    </tr>
     {%for sn, disk in disk_status.items %}
-      {%if disk.os_device %}
+      {%if not disk.os_device  and disk.rotational%}
         <tr>
-          <td> {{sn}}  (OS disk) </td>
+          <td> {{sn}}  (Data disk) </td>
           <td> Capacity : {{disk.capacity}}
-                <br>
-                {%if disk.rotational %}
-                  Type : SSD
-                {%else%}
-                  Type : Rotational
-                {%endif%}
                 <br>
                 Number of partitions : {{disk.partitions|length}}
                 <br>
@@ -43,12 +36,37 @@
               <i class="fa fa-remove red fa-2x"></i>
             {%endif%}
           </td>
-          <td> &nbsp; </td>
+          <td> 
+            {%if disk.status != 'PASSED' and disk.status != 'OK'%}
+              {%if disk.pool%}
+                <form method="POST" action="/replace_disk/">
+                  <input type="hidden" name="node" value="{{node_name}}">
+                  <input type="hidden" name="serial_number" value="{{sn}}">
+                  <input type="hidden" name="step" value="offline_disk">
+                  <button type="submit" class="btn btn-primary btn-xs" onClick ="$('#processing').modal('show');" title="Replace this disk with another"> <i class="fa fa-exchange fa-fw" ></i>&nbsp;Replace.. </button>
+                </form>
+              {%else%}
+                <button  class="btn btn-primary btn-xs" onClick ="alert('This disk is not part of any ZFS pool so you can go ahead and replace it safely');"> Replace (swap out) this disk </button>
+              {%endif%}
+            {%else%}
+              Healthy disk. <br>No replacement necessary.
+            {%endif%}
+          </td>
         </tr>
       {%endif%}
     {%endfor%}
+  </table>
+  <hr/>
+  <h4> Data disks (Flash)</h4>
+  <table class="table table-striped table-responsive" style="width:800px">
+    <tr>
+      <th > Disk serial number </th>
+      <th > Disk details</th>
+      <th> S.M.A.R.T status </th>
+      <th> Disk replacement </th>
+    </tr>
     {%for sn, disk in disk_status.items %}
-      {%if not disk.os_device %}
+      {%if not disk.os_device  and not disk.rotational%}
         <tr>
           <td> {{sn}}  (Data disk) </td>
           <td> Capacity : {{disk.capacity}}
@@ -82,7 +100,7 @@
                   <input type="hidden" name="node" value="{{node_name}}">
                   <input type="hidden" name="serial_number" value="{{sn}}">
                   <input type="hidden" name="step" value="offline_disk">
-                  <button type="submit" class="btn btn-primary btn-xs" onClick ="$('#processing').modal('show');"> Replace (swap out) this disk </button>
+                  <button type="submit" class="btn btn-primary btn-xs" onClick ="$('#processing').modal('show');" title="Replace this disk with another"> <i class="fa fa-exchange fa-fw" ></i>&nbsp;Replace.. </button>
                 </form>
               {%else%}
                 <button  class="btn btn-primary btn-xs" onClick ="alert('This disk is not part of any ZFS pool so you can go ahead and replace it safely');"> Replace (swap out) this disk </button>
@@ -91,6 +109,48 @@
               Healthy disk. <br>No replacement necessary.
             {%endif%}
           </td>
+        </tr>
+      {%endif%}
+    {%endfor%}
+  </table>
+  <hr/>
+  <h4> OS Disks </h4>
+  <table class="table table-striped table-responsive" style="width:800px">
+    <tr>
+      <th > Disk serial number </th>
+      <th > Disk details</th>
+      <th> S.M.A.R.T status </th>
+      <th> Disk replacement </th>
+    </tr>
+    {%for sn, disk in disk_status.items %}
+      {%if disk.os_device %}
+        <tr>
+          <td> {{sn}}  (OS disk) </td>
+          <td> Capacity : {{disk.capacity}}
+                <br>
+                {%if disk.rotational %}
+                  Type : SSD
+                {%else%}
+                  Type : Rotational
+                {%endif%}
+                <br>
+                Number of partitions : {{disk.partitions|length}}
+                <br>
+                SCSI bus address : {{disk.scsi_info}}
+                <br>
+                Name : {{disk.name}}
+                <br>
+                ID : {{disk.id}}
+          </td>
+          <td>
+            {{disk.status}} &nbsp;&nbsp;
+            {%if disk.status == 'PASSED' or disk.status == 'OK'%}
+              <i class="fa fa-check-circle green fa-2x"></i>
+            {%else%}
+              <i class="fa fa-remove red fa-2x"></i>
+            {%endif%}
+          </td>
+          <td> &nbsp; </td>
         </tr>
       {%endif%}
     {%endfor%}

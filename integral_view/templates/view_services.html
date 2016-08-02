@@ -31,10 +31,10 @@
               <form method='POST' action='/change_service_status/'>
                 {%if service.info.status_code == 0 %}
                   <input name='action' type='hidden' value='stop'>
-                    <button type="submit" class="btn btn-danger btn-xs cover-page">Stop </button>
+                    <button type="submit" class="btn btn-danger btn-xs cover-page"><i class="fa fa-stop-circle-o fa-fw"></i>&nbsp;Stop </button>
                 {%else%}
                   <input name='action' type='hidden' value='start'>
-                  <button type="submit" class="btn btn-success btn-xs cover-page">Start </button>
+                  <button type="submit" class="btn btn-default btn-xs cover-page"><i class="fa fa-play-circle-o fa-fw"></i>&nbsp;Start </button>
                 {%endif%}
                 <input name='service' type='hidden' value={{service.service}}>
               </form>

@@ -1,10 +1,43 @@
 
 {% extends 'system_base.html' %}
 {%block tab_header %}
-  System configuration
+  System information
+{%endblock%}
+
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click to modify Windows services settings" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a class="action-dropdown" href="/reload_manifest" role="button" class="cover-page"><i class="fa fa-refresh fa-fw"></i>&nbsp;Scan for hardware changes</a></li>
+      <li><a class="action-dropdown" href="/download_sys_info/" id="download_sys_info" class="cover-page" ><i class="fa fa-download fa-fw"></i>&nbsp;Download system configuration</a></li>
+      <li><a class="action-dropdown" href="/upload_sys_info/" id="upload_sys_info" class="cover-page" ><i class="fa fa-upload fa-fw"></i>&nbsp;Upload system configuration</a></li>
+    </ul>
+  </div>
 {%endblock%}
 
 {% block inside_content %}
+
+<script>
+  function startTime(milliseconds, h,m,s) {
+    var d = new Date();
+    d.setTime(milliseconds);
+    window.setInterval(function () {
+      d.setSeconds(d.getSeconds() + 1);
+      var h = d.getHours();
+      var m = d.getMinutes();
+      var s = d.getSeconds();
+      m = checkTime(m);
+      s = checkTime(s);
+      document.getElementById('time').innerHTML =
+      h + ":" + m + ":" + s;
+      }, 1000);
+  }
+  function checkTime(i) {
+    if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+    return i;
+  }
+</script>
+
   <table class="table table-bordered table-striped table-hover" style="width:60%">
     <tr>
       <th> CPU </th>
@@ -15,11 +48,30 @@
     <tr>
       <th> Memory </th>
       <td>
-        {{ node.memory.mem_total.value}} GB
+        {{ node.memory.mem_total.value|floatformat:2}} GB
+      </td>
+    </tr>
+    <tr>
+      <th> Operating system </th>
+      <td>
+        {{ node.os_version}} 
+      </td>
+    </tr>
+    <tr>
+      <th> ZFS </th>
+      <td>
+        {{ node.zfs_version}} 
+      </td>
+    </tr>
+    <tr>
+      <th> System date and time </th>
+      <td>
+        {{ date_str}} <span id="time"></span><script> startTime({{milliseconds}}, {{time.hour}}, {{time.minute}},{{time.second}});</script>
       </td>
     </tr>
   </table>
 
+  <!-- This info is in other tabs anyway so hiding it for now.. 
   <table class="table table-bordered table-striped table-hover" style="width:60%">
     <tr>
       <th colspan=3> Disks </th>
@@ -59,11 +111,7 @@
       </tr>
     {%endfor%}
   </table>
-  <div class="btn-group btn-group-sm" role="group" aria-label="...">
-    <a href="/reload_manifest" role="button" class="btn btn-primary cover-page">Scan for hardware changes</a>
-    <a href="/download_sys_info/" id="download_sys_info" role="button" class="btn btn-success cover-page" >Download Complete System Info</a>
-    <a href="/upload_sys_info/" id="upload_sys_info" role="button" class="btn btn-success cover-page" >Upload Complete System Info</a>
-  </div>
+  -->
 
 <script>
   $("#download_sys_info").on('click',function(){

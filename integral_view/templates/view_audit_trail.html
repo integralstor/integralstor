@@ -8,6 +8,22 @@
   {%endif%}
 {%endblock%}
 
+{%block global_actions %}
+    <div class="btn-group btn-group-sm pull-right"  >
+      <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+      {%if audit_list and not historical%}
+        <li><a class="action-dropdown" href="/rotate_log/audit_trail" ><i class="fa fa-rotate-right fa-fw"></i>&nbsp;Rotate audit logs</a></li>
+      {%elif not historical and not audit_list%}
+        <li><a class="action-dropdown" href="" >No log entries to rotate</a></li>
+      {%endif%}
+      {% if historical %}
+        <li><a class="action-dropdown" href="/view_rotated_log_list/audit_trail/" ><i class="fa fa-list fa-fw"></i>&nbsp;Back to log list</a></li>
+      {%endif%}
+      </ul>
+    </div>
+{%endblock%}
+
 {%block inside_content %}
 
   <div style="width:95%;position: relative; margin: 0px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
@@ -36,15 +52,6 @@
       {%endfor%}
     </table>
 
-    <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      {%if audit_list and not historical%}
-        <a href="/rotate_log/audit_trail" class="btn btn-primary">Rotate audit logs </a>
-      {%endif%}
-      <br>
-      {% if historical %}
-        <a href="/view_rotated_log_list/audit_trail/" role="button" class="btn btn-default">Back to log list</a>
-      {%endif%}
-    </div>
 
   </div>
 

@@ -517,7 +517,7 @@ a:focus {
   padding: 0;
 }
 .sidebar-menu > li > a {
-  padding: 12px 5px 12px 15px;
+  padding: 8px 5px 8px 15px;
   display: block;
 }
 .sidebar-menu > li > a > .fa,
@@ -2415,6 +2415,7 @@ a:focus {
   background: #f7f7f7;
 }
 /* NAV PILLS */
+/*
 .nav-pills > li > a {
   border-radius: 0;
   border-top: 3px solid transparent;
@@ -2433,6 +2434,7 @@ a:focus {
 .nav-pills > li.active > a {
   font-weight: 600;
 }
+*/
 /* NAV STACKED */
 .nav-stacked > li > a {
   border-radius: 0;

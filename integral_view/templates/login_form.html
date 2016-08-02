@@ -10,7 +10,7 @@
     <div class="col-md-offset-3 col-md-6 col-sm-offset-3 sol-sm-6 col-xs-12">
       <div class="loginbox">
         <div class="login-logo">
-          <img src="/static/images/istor.png" width="60px"><span style="color:white;margin:10px;">UNIcell Login</span>
+          &nbsp;
         </div>
         {%if session_active%}
           <div class="callout callout-danger">
@@ -25,7 +25,7 @@
             {% csrf_token %}
             <div class="form-group">
               <div class="form-group has-feedback">
-                <input type="text"  name="username" class="form-control" id="id_username" placeholder="Username" required> 
+                <input type="text"  name="username" class="form-control" id="id_username" placeholder="Username" required autofocus> 
                 <span class="fa fa-user form-control-feedback"></span>
                 {{ form.username.errors }}
               </div>
@@ -37,7 +37,7 @@
             </div>
             <div class="box-footer">
               <div class="form-group">
-                  <button type="submit" class="btn btn-primary cover-page"><strong>Login</strong></button>
+                  <button type="submit" class="btn btn-primary cover-page"><i class="fa fa-sign-in fa-fw "></i>&nbsp;<strong>Login</strong></button>
               </div>
             </div>
           </form>

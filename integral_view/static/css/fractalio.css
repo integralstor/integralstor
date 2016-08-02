@@ -565,3 +565,14 @@ top: 0;
 left: 0;
 background: rgba(0,0,0,0.8);
 }
+
+
+.action-dropdown {
+  font-size: 11px;
+}
+
+.btn-default {
+  background-color: #fff;
+  color: #444;
+  border-color: #ccc;
+}

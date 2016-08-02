@@ -17,7 +17,7 @@
       <tr>
         <th> VLAN ID:</th>
         <td>
-          <input type="text"  name="vlan_id" class="form-control" id="id_vlan_id" placeholder="Enter the VLAN ID" value={{form.vlan_id.value|default_if_none:""}}> 
+          <input type="text"  name="vlan_id" class="form-control" id="id_vlan_id" placeholder="Enter the VLAN ID" value="{{form.vlan_id.value|default_if_none:""}}"> 
         </td>
         <td> {{ form.vlan_id.errors }} </td>
       </tr>

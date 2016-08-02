@@ -1,0 +1,20 @@
+{% extends 'logged_in_base.html' %}
+
+{%block tab_items %}
+  <li id="view_zfs_snapshots_tab">
+    <a href="/view_zfs_snapshots/"> View snapshots</a>
+  </li>
+  <li id="schedule_zfs_snapshots_tab">
+    <a href="/schedule_zfs_snapshot/"> Schedule snapshots</a>
+  </li>
+  <li id="view_remote_replications_tab">
+    <a href="/view_remote_replications/" >Remote replication</a>
+  </li>
+{%endblock tab_items %}
+
+{% block menu_active %}
+  <script>
+    make_side_menu_active("replication_snapshots_menu")
+  </script>
+{% endblock %}
+

@@ -4,19 +4,26 @@
   Windows shares
 {%endblock%}
 
-{%block inside_content %}
+{%block global_actions %}
+    <a  class="btn btn-default btn-sm pull-right" href="/create_cifs_share" title="Create a new Windows share" style="color:#000"> <i class="fa fa-plus-square-o  fa-fw"></i>&nbsp;Create new share </a>
+{%endblock%}
 
+{%block inside_content %}
 
   {% if not shares_list %}
     No shares appear to have been created. <br><br>
   {%else %}
-    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+    <div style="width:100%; clear:both;padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
       <table class="table table-striped">
         <thead>
           <tr>
             <th> Share name </th>
             <th> Share path </th>
             <th> Description </th>
+<!--
+            <th> Read/write</td>
+            <th> Visibility</td>
+-->
             <th> &nbsp; </th>
           </tr>
         </thead>
@@ -25,16 +32,38 @@
             <td> {{d.name}} </td>
             <td> {{d.display_path}} </td>
             <td> {{d.comment}} </td>
+<!--
+            <td> 
+              {% if share.read_only %}
+                Readonly
+              {%else%}
+                Read/Write
+              {%endif%}
+            </td>
+            <td> 
+              {% if share.browseable %}
+                Browseable
+              {%else%}
+                Hidden
+              {%endif%}
+            </td>
+-->
             <td>
-              <a href="/view_cifs_share?access_mode=by_id&index={{d.share_id}}" role="button" class="btn btn-info btn-xs"> Details</a>
+              <div class="btn-group btn-group-xs" >
+                <a class="btn btn-default pull-left dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li ><a class="action-dropdown" href="/view_cifs_share?access_mode=by_id&index={{d.share_id}}"  title="View and configure this share" class="cover-page"> <i class="fa fa-cog fa-fw"></i>View and configure</a> 
+                  <li><a class="action-dropdown" href="/edit_cifs_share?share_id={{d.share_id}}"  title="Modify the settings for this share" > <i class="fa fa-cog fa-fw"></i>Modify share settings</a> 
+                  <li class="divider"></li>
+                  <li><a class="action-dropdown" href="/delete_cifs_share?share_id={{d.share_id}}&name={{d.name}}"  title="Remove this share" style="color:red"> <i class="fa fa-trash fa-fw"></i>Remove this share </a> 
+                </ul>
+              </div>
             </td>
           </tr>
         {%endfor%}
       </table>
     </div>
   {%endif%}
-  <p>
-  <a href="/create_cifs_share/" class="btn btn-primary btn-sm"> Create a Windows share </a>
 
 {%endblock%}
 

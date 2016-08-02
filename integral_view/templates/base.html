@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <link rel="icon" href="/static/images/favicon.ico">
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css" type="text/css" >
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css">
     <link rel="stylesheet" type="text/css" href="/static/css/AdminLTE.css">
@@ -17,23 +18,18 @@
     </title>
   </head>
   <body class="skin-purple">
-    <div class="wrapper">
-      <header class="main-header">
-        <a href="/dashboard/dashboard" class="logo">
-          <!-- Add the class icon to your logo image or logo icon to add the margining -->
-          <img src="/static/images/LOGO-transparent.png" height="45" width="45" alt="Fractalio Data" class="pull-left margin-left-40"/>
-        </a>
-        <!-- Header Navbar: style can be found in header.less -->
-        <nav class="navbar navbar-static-top" role="navigation">
-          <a href="http://fractalio.com" class="white margin-left-30 hidden-phone" style="line-height:3em"><b>IntegralStor UNICell </b><sub style="color:white">&nbsp;&nbsp;version {{version}}</sub></a>
-
-          <!--
-          <a href="/dashboard/cpu" class="white margin-left-30 hidden-phone">
-            <img src="/static/images/integralview-white.png" height="40" width="100" class="margin-top-5"/>
-          </a>
-          -->
-        </nav>
-      </header>
+    <div class="row" style="width:100%;margin:0 auto;border:0px solid;background-color:#000">
+      <div class="col-sm-2" style="background-color:#000000;min-height:50px;">
+        <img src="/static/images/LOGO-transparent.png" style="height:45px;width45px;margin-right:5px;" alt="Fractalio Data" class="pull-left margin-left-20"/>
+      </div>
+      <div class="col-sm-8 " style="padding-top:5px;background-color:#000">
+        <img src="/static/images/istor.png" style="width:50px;border:0px solid;>
+        <a href="http://fractalio.com" class="white margin-left-30 hidden-phone" style="line-height:3em"><span style="color:white"><b> &nbsp;&nbsp;UNICell </b></span><sub style="color:white">&nbsp;&nbsp;version {{version}}</sub></a>
+      </div>
+      <div class="col-sm-2 " style="background-color:#000">
+        &nbsp;
+      </div>
+    </div>
     <!-- end of top menu -->
     </div>
 

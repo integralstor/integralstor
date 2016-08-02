@@ -4,11 +4,24 @@
   Windows share details
 {%endblock%}
 
+
 {%block inside_content %}
+  <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+    <div class="col-sm-9 ">
+      <h5> Share configuration</h5>
+    </div>
+    <div class="col-sm-3  pull-right"  style="border:0px solid">
+      <a class="btn btn-default btn-sm pull-right dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Share actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+        <li><a class="action-dropdown" href="/view_cifs_shares" role="button" ><i class="fa fa-list fa-fw">&nbsp; </i>Back to share list</a></li>
+        <li><a class="action-dropdown" href="/edit_cifs_share?share_id={{share.share_id}}" ><i class="fa fa-cog fa-fw">&nbsp; </i>Modify settings</a></li>
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/delete_cifs_share?share_id={{share.share_id}}&name={{share.name}}" style="color:red"><i class="fa fa-trash fa-fw">&nbsp; </i>Remove this share</a></li>
+      </ul>
+    </div>
+  </div>
 
-  {{form.errors}}<p>
-
-  <table class="table table-bordered">
+  <table class="table table-striped" width="300px;">
     <tr>
       <th> Share name: </th>
       <td> {{ share.name }} </td>
@@ -22,7 +35,7 @@
       <td> {{ share.comment }} </td>
     </tr>
     <tr>
-      <th> Permissions </th>
+      <th> Writeable? </th>
       <td>
         {% if share.read_only %}
           Readonly
@@ -41,24 +54,9 @@
         {%endif%}
       </td>
     </tr>
-    <tr>
-      <th> Access control </th>
-      <td>
-        {% if share.guest_ok %}
-          Accessable to everyone (Guest ok)
-        {%else%}
-          Accessable only to {%if valid_users_list%}{%for user in valid_users_list%}{%if forloop.counter > 1%}, {%endif%}{{user.name}}{%if user.grp %}(Group) {%else%}(User){%endif%}{%endfor%}{%endif%}{{validusers}}
-        {%endif%}
-      </td>
-    </tr>
   </table>
-
-  <div class="btn-group btn-group-sm" role="group" aria-label="...">
-    <a href="/view_cifs_shares" role="button" class="btn btn-default">Share list</a>
-    <a href="/edit_cifs_share?share_id={{share.share_id}}" role="button" class="btn btn-primary">Modify</a>
-    <a href="/delete_cifs_share?share_id={{share.share_id}}&name={{share.name}}" role="button" class="btn btn-danger">Delete this share</a>
-  </div>
-
+  <hr>
+  {% include 'ace_management.html' %}
 
 {%endblock%}
 

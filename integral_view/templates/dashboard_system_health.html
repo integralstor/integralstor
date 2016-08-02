@@ -46,7 +46,7 @@
       {%endif%}
           <div class="box-body">
             <h5>
-              ZFS pools
+              ZFS pools status
               {% if num_bad_pools or num_degraded_pools %}
                 <i class="fa fa-exclamation-circle red fa-1x"></i>
               {%else%}
@@ -189,7 +189,7 @@
       <div class="box box-warning ">
     {%endif%}
         <div class="box-body">
-          <h5> Pool usage
+          <h5> ZFS Pool usage
             {% if not num_high_usage %}
                 <i class="fa fa-check-circle green fa-1x"></i>
               {%else%}

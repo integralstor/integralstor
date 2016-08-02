@@ -11,6 +11,7 @@ class ShareForm(forms.Form):
 class CreateShareForm(ShareForm):
 
   dataset = forms.CharField(required=True)
+  new_folder = forms.CharField(required=False)
 
   def __init__(self, *args, **kwargs):
     if kwargs:

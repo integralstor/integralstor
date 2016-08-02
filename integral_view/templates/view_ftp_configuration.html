@@ -4,9 +4,19 @@
   View FTP service configuration
 {% endblock %}
 
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click to modify Windows services settings" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a class="action-dropdown" href="/configure_ftp" role="button" ><i class="fa fa-cog fa-fw"></i>&nbsp;Modify configuration</a></li>
+      <li><a class="action-dropdown" href="/create_ftp_user_dirs" class="cover-page"><i class="fa fa-plus fa-fw"></i>&nbsp;Create FTP user directories</a></li>
+    </ul>
+  </div>
+{%endblock%}
+
 {% block inside_content %}
   {%if not config %}
-    There seems to be a problem in retrieving the FTP service configuration<br><br>
+    There seems to be a problem in retrieving the FTP service configuration. Has FTP been configured before?<br><br>
   {%else%}
     <table class="table" >
       <tr>
@@ -31,10 +41,6 @@
       {%endif%}
     </table>
   {%endif%}
-  <div class="btn-group btn-group-sm" role="group" aria-label="...">
-    <a href="/configure_ftp" role="button" class="btn btn-primary btn-sm">Modify configuration</a>
-    <a href="/create_ftp_user_dirs" role="button" class="btn btn-primary btn-sm  cover-page">Create FTP user directories</a>
-  </div>
 	
 {% endblock %}
 

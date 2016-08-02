@@ -1,0 +1,234 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  ZFS pool components
+{%endblock%}
+
+{%block inside_content %}
+
+  {% if not pool %}
+    No information for the specified pool. Click <a href="/view_zfs_pools/"> here</a> to view all ZFS storage pools.
+  {%else %}
+
+    <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+      <div class="col-sm-9 form-group">
+        <form class="form-horizontal"> 
+          <label for="inputPassword" class="col-sm-2 control-label">View : </label>
+          <div class="col-sm-8">
+            <select class="form-control" onchange="$('.lightbox').show();location = this.options[this.selectedIndex].value;">
+              <option value="/view_zfs_pool?name={{pool.pool_name}}&view=basic" >Basic information and usage</option>
+              <option value="/view_zfs_pool?name={{pool.pool_name}}&view=components" selected="selected">Disk components, read & write caches and hot spares</option>
+              <option value="/view_zfs_pool?name={{pool.pool_name}}&view=datasets_and_zvols" >Filesystem datasets & block device volumes</option>        
+              <option value="/view_zfs_pool?name={{pool.pool_name}}&view=quotas">Pool quotas</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="col-sm-3 btn-group btn-group-sm pull-right"  style="border:0px solid">
+        <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+        <ul class="dropdown-menu">
+          <li><a class="action-dropdown" href="/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}"  title="Create a new file system dataset" > <i class="fa fa-plus fa-fw"></i>Create a new dataset</a> 
+          <li><a class="action-dropdown" href="/create_zfs_zvol?pool={{pool.pool_name}}"  title="Create a new block device volume" > <i class="fa fa-plus fa-fw"></i>Create a new block device volume</a> 
+          <li class="divider"></li>
+          <li> <a class="action-dropdown" href="/scrub_zfs_pool?name={{pool.pool_name}}"><i class="fa fa-lemon-o fa-fw" ></i>Initiate a scrub</a>
+          <li class="divider"></li>
+          <li><a class="action-dropdown" href="/export_zfs_pool?pool_name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-cloud-download fa-fw" ></i>Export this pool</a>
+          <li><a class="action-dropdown" href="/delete_zfs_pool?name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-trash-o fa-fw" ></i>Delete this pool</a>
+          <li class="divider"></li>
+          <li> <a class="action-dropdown" href="/view_zfs_pools"><i class="fa fa-list fa-fw" ></i>Back to pool list</a>
+        </ul>
+      </div>
+    </div>
+
+    <hr/>
+
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="heading3">
+          <h5 class="panel-title">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse3" aria-expanded="true" aria-controls="collapse3">
+              Disk components <span class="caret"></span>
+             </a>
+          </h5>
+        </div>
+        <div id="collapse3" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading3">
+          <div class="panel-body">
+            <h5> Pool type : {{pool.config.pool.type.upper}}</h5>
+            <ul>
+              {%for child in pool.config.pool.root.children %}
+                <li> 
+                  {{child.name}} ({{child.type}}), State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
+                  {%if child.children %}
+                    <ul>
+                      {%for gr_child in child.children %}
+                        <li> {{gr_child.name}} ({{gr_child.type}}), State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
+                        {%if gr_child.children %}
+                          <ul>
+                            {%for gr_gr_child in gr_child.children %}
+                              <li> {{gr_gr_child.name}} ({{gr_gr_child.type}}), State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
+                            {%endfor%}
+                          </ul>
+                        {%endif%}
+                      {%endfor%}
+                    </ul>
+                  {%endif%}
+              {%endfor%}
+            </ul>
+            {%if can_expand_pool %}
+              <a href="/expand_zfs_pool?pool_name={{pool.pool_name}}" role="button" class="btn btn-default"><i class="fa fa-expand fa-fw"></i>&nbsp;Expand this pool</a>
+            {%endif%}
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="heading5">
+          <h5 class="panel-title">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse5" aria-expanded="true" aria-controls="collapse5">
+              Write cache <span class="caret"></span>
+            </a>
+          </h5>
+        </div>
+        <div id="collapse5" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading5">
+          <div class="panel-body">
+            {% if pool.config.logs %}
+              <b> Write cache components</b>
+              <ul>
+                {%for child in pool.config.logs.root.children %}
+                  <li> Name - {{child.name}}, Type - {{child.type}}
+                  {%if child.type == 'RAMDisk' and child.ramdisk_size %}, RAM Disk size - {{child.ramdisk_size}}MB {%endif%}
+                    , Status - State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
+i                   {%if child.children %}
+                      <ul>
+                        {%for gr_child in child.children %}
+                          <li> Name - {{gr_child.name}}, Type - {{gr_child.type}}, Status - State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
+                            {%if gr_child.children %}
+                              <ul>
+                                {%for gr_gr_child in gr_child.children %}
+                                  <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
+                                {%endfor%}
+                              </ul>
+                            {%endif%}
+                        {%endfor%}
+                      </ul>
+                    {%endif%}
+                {%endfor%}
+              </ul>
+              {% if pool.config.logs.root.children.0.type == 'RAMDisk' %}
+                <a href="/remove_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}&type=ramdisk" role="button" class="btn btn-danger btn-sm"> <i class="fa fa-trash fa-fw"></i>&nbsp;Remove the write cache RAMDisk device</a>
+              {%else%}
+                <a href="/remove_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}&type=flash" role="button" class="btn btn-danger btn-sm"> <i class="fa fa-trash fa-fw"></i>&nbsp;Remove the write cache flash device</a>
+              {%endif%}
+            {%else%}
+              <b>Write cache in use : </b> Disk<br><br>
+              <a href="/set_zfs_slog?pool={{pool.pool_name}}" role="button" class="btn btn-default btn-sm"><i class="fa fa-exchange fa-fw"></i> &nbsp;Change the write cache device</a>
+            {%endif%}
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="heading6">
+          <h5 class="panel-title">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse6" aria-expanded="true" aria-controls="collapse6">
+              Read cache <span class="caret"></span>
+            </a>
+          </h5>
+        </div>
+        <div id="collapse6" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading6">
+          <div class="panel-body">
+            {% if pool.config.cache %}
+              <b> Read cache components</b>
+              <ul>
+                {%for child in pool.config.cache.root.children %}
+                  <li> Name - {{child.name}}, Type - {{child.type}}, Status - State ({{child.status.state}}), Read ({{child.status.read}}), Write ({{child.status.write}}), Chksum ({{child.status.chksum}})
+                  {%if child.children %}
+                    <ul>
+                      {%for gr_child in child.children %}
+                        <li> Name - {{gr_child.name}}, Type - {{gr_child.type}}, Status - State ({{gr_child.status.state}}), Read ({{gr_child.status.read}}), Write ({{gr_child.status.write}}), Chksum ({{gr_child.status.chksum}})
+                        {%if gr_child.children %}
+                          <ul>
+                            {%for gr_gr_child in gr_child.children %}
+                              <li> Name - {{gr_gr_child.name}}, Type - {{gr_gr_child.type}}, Status - State ({{gr_gr_child.status.state}}), Read ({{gr_gr_child.status.read}}), Write ({{gr_gr_child.status.write}}), Chksum ({{gr_gr_child.status.chksum}})
+                            {%endfor%}
+                          </ul>
+                        {%endif%}
+                      {%endfor%}
+                    </ul>
+                  {%endif%}
+                {%endfor%}
+              </ul>
+              <a href="/remove_zfs_l2arc?pool={{pool.pool_name}}&device={{pool.config.cache.root.children.0.name}}" role="button" class="btn btn-danger btn-sm"> <i class="fa fa-trash fa-fw"></i>Remove the read cache device</a>
+            {%else%}
+              <b>Read cache in use : </b> RAM<br><br>
+              {%if num_free_disks_for_cache %}
+                <a href="/set_zfs_l2arc?pool={{pool.pool_name}}" role="button" class="btn btn-default btn-sm"> <i class="fa fa-exchange fa-fw"></i>&nbsp;Change the read cache device</a>
+              {%else%}
+                There are no unused flash drives to use as a read cache.
+              {%endif%}
+            {%endif%}
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="heading4">
+          <h5 class="panel-title">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse4" aria-expanded="true" aria-controls="collapse4">
+              Spare disks <span class="caret"></span>
+            </a>
+          </h5>
+        </div>
+        <div id="collapse4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading4">
+          <div class="panel-body">
+            {% if pool.config.spares %}
+              <table class="table table-bordered table-hover table-responsive" >
+                <th> Disk ID </th>
+                <th> Status </th>
+                {%for id, status in pool.config.spares.items%}
+                  <tr>
+                    <td> {{id}} </td>
+                    <td> {{status}} </td>
+                  </tr>
+                {%endfor%}
+              </table>
+            {%else%}
+              No spare disks assigned. <br><br>
+            {%endif%}
+            {% if not num_free_disks_for_spares  %}
+              There are currently no free disks to be added as spares.<br>
+            {%endif%}
+            <div class="btn-group btn-group-sm" role="group" aria-label="...">
+              {% if num_free_disks_for_spares  %}
+                <a href="/add_zfs_spares?pool_name={{pool.pool_name}}" role="button" class="btn btn-default " {% if not num_free_disks_for_spares  %} disabled {%endif%}><i class="fa fa-plus fa-fw"></i>&nbsp;Add spare drive(s)</a>
+              {%else%}
+                &nbsp;
+              {%endif%}
+              {% if pool.config.spares %}
+                <a href="/remove_zfs_spare?pool_name={{pool.pool_name}}" role="button" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i>&nbsp;Remove a spare disk</a>
+              {%endif%}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  {%endif%}
+
+  <a href="/view_zfs_pools" role="button" class="btn btn-default btn-sm"> <i class="fa fa-list fa-fw" ></i> &nbsp;Back to pool list</a>
+
+{%endblock%}
+
+{%block help_header%}
+  View ZFS pool components
+{%endblock%}
+
+{%block help_body%}
+  <p> This screen allows you to view and modify the ZFS pool structure, its read and write caches and its hot spares.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}

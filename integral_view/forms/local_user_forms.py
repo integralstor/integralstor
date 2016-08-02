@@ -7,6 +7,7 @@ class LocalUserForm(forms.Form):
   password = forms.CharField(widget=forms.PasswordInput())
   password_conf = forms.CharField(widget=forms.PasswordInput())
 
+  '''
   def __init__(self, *args, **kwargs):
     if kwargs:
       group_list = kwargs.pop("group_list")
@@ -18,6 +19,7 @@ class LocalUserForm(forms.Form):
         tup = (group['gid'], group['grpname'])
         ch.append(tup)   
     self.fields['gid'] =  forms.ChoiceField(widget=forms.Select, choices=ch, required=False)
+  '''
 
   def clean(self):
     cd = super(LocalUserForm, self).clean()
@@ -65,6 +67,20 @@ class EditLocalUserGroupMembershipForm(forms.Form):
         tup = (group['grpname'], group['grpname'])
         ch.append(tup)   
     self.fields["groups"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=ch,required=False )
+
+class ModifyGroupMembershipForm(forms.Form):
+  grpname = forms.CharField(widget=forms.HiddenInput)
+  def __init__(self, *args, **kwargs):
+    if kwargs:
+      user_list = kwargs.pop("user_list")
+    super(ModifyGroupMembershipForm, self).__init__(*args, **kwargs)
+
+    ch = []
+    if user_list:
+      for user in user_list:
+        tup = (user['username'], user['username'])
+        ch.append(tup)   
+    self.fields["users"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=ch,required=False )
 
 class PasswordChangeForm(forms.Form):
 

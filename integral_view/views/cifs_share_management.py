@@ -6,7 +6,7 @@ import integral_view
 
 from integral_view.forms import samba_shares_forms
 
-from integralstor_common import audit, networking,zfs
+from integralstor_common import audit, networking,zfs, acl
 from integralstor_common import cifs as cifs_common
 from integralstor_unicell import cifs as cifs_unicell
 from integralstor_unicell import local_users
@@ -47,6 +47,15 @@ def view_cifs_share(request):
   try:
     template = 'logged_in_error.html'
   
+    if not "error" in return_dict:
+      if "ack" in request.GET:
+        if request.GET["ack"] == "ace_deleted":
+          return_dict['ack_message'] = "ACL entry successfully removed"
+        elif request.GET["ack"] == "aces_added":
+          return_dict['ack_message'] = "ACL entries successfully added"
+        elif request.GET["ack"] == "aces_modified":
+          return_dict['ack_message'] = "ACL entries successfully modified"
+
     if request.method != "GET":
       raise Exception("Incorrect access method. Please use the menus")
   
@@ -66,16 +75,35 @@ def view_cifs_share(request):
     if not share:
       raise Exception('Specified share not found')
 
+    '''
     valid_users_list, err = cifs_common.load_valid_users_list(share["share_id"])
     if err:
       raise Exception(err)
     print valid_users_list
-    if not share:
-      raise Exception("Error retrieving share information for  %s" %share_name)
-
-    return_dict["share"] = share
     if valid_users_list:
         return_dict["valid_users_list"] = valid_users_list
+    '''
+
+    aces, err = acl.get_all_aces(share['path'])
+    if err:
+      raise Exception(err)
+    minimal_aces, err = acl.get_minimal_aces(aces)
+    if err:
+      raise Exception(err)
+    user_aces, err = acl.get_ug_aces(aces, None, 'user')
+    if err:
+      raise Exception(err)
+    group_aces, err = acl.get_ug_aces(aces, None, 'group')
+    if err:
+      raise Exception(err)
+
+    return_dict['aces'] = aces
+    return_dict['minimal_aces'] = minimal_aces
+    if user_aces:
+      return_dict['user_aces'] = user_aces
+    if group_aces:
+      return_dict['group_aces'] = group_aces
+    return_dict["share"] = share
     template = 'view_cifs_share.html'
   
     return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
@@ -107,9 +135,11 @@ def edit_cifs_share(request):
       share_dict, err = cifs_common.load_share_info("by_id", share_id)
       if err:
         raise Exception(err)
+      '''
       valid_users_list, err = cifs_common.load_valid_users_list(share_dict["share_id"])
       if err:
         raise Exception(err)
+      '''
   
       # Set initial form values
       initial = {}
@@ -124,12 +154,15 @@ def edit_cifs_share(request):
         initial["browseable"] = True
       else:
         initial["browseable"] = False
+      '''
       if share_dict["read_only"]:
         initial["read_only"] = True
       else:
         initial["read_only"] = False
+      '''
       initial["comment"] = share_dict["comment"]
   
+      '''
       if valid_users_list:
         vgl = []
         vul = []
@@ -140,8 +173,10 @@ def edit_cifs_share(request):
             vul.append(u["name"])
         initial["users"] = vul
         initial["groups"] = vgl
+      '''
   
-      form = samba_shares_forms.EditShareForm(initial = initial, user_list = user_list, group_list = group_list)
+      #form = samba_shares_forms.EditShareForm(initial = initial, user_list = user_list, group_list = group_list)
+      form = samba_shares_forms.EditShareForm(initial = initial)
   
       return_dict["form"] = form
       return django.shortcuts.render_to_response('edit_cifs_share.html', return_dict, context_instance=django.template.context.RequestContext(request))
@@ -149,7 +184,8 @@ def edit_cifs_share(request):
     else:
   
       # Shd be an save request
-      form = samba_shares_forms.EditShareForm(request.POST, user_list = user_list, group_list = group_list)
+      #form = samba_shares_forms.EditShareForm(request.POST, user_list = user_list, group_list = group_list)
+      form = samba_shares_forms.EditShareForm(request.POST)
       return_dict["form"] = form
       if form.is_valid():
         cd = form.cleaned_data
@@ -168,6 +204,7 @@ def edit_cifs_share(request):
           browseable = cd["browseable"]
         else:
           browseable = False
+        '''
         if "guest_ok" in cd:
           guest_ok = cd["guest_ok"]
         else:
@@ -180,8 +217,9 @@ def edit_cifs_share(request):
           groups = cd["groups"]
         else:
           groups = None
+        '''
         #logger.debug("Save share request, name %s path %s, comment %s, read_only %s, browseable %s, guest_ok %s, users %s, groups %s, vol %s"%(name, path, comment, read_only, browseable, guest_ok, users, groups))
-        ret, err = cifs_common.save_share(share_id, name, comment, guest_ok, read_only, path, browseable, users, groups)
+        ret, err = cifs_common.save_share(share_id, name, comment, False, read_only, path, browseable, None, None)
         if err:
           raise Exception(err)
         ret, err = cifs_unicell.generate_smb_conf()
@@ -244,12 +282,7 @@ def create_cifs_share(request):
 
   return_dict = {}
   try:
-    user_list, err = cifs_unicell.get_user_list()
-    if err:
-      raise Exception(err)
-    group_list, err = cifs_unicell.get_group_list()
-    if err:
-      raise Exception(err)
+
     pools, err = zfs.get_pools()
     if err:
       raise Exception('No ZFS pools available. Please create a pool and dataset before creating shares.')
@@ -258,33 +291,60 @@ def create_cifs_share(request):
     for pool in pools:
       for ds in pool["datasets"]:
         if ds['properties']['type']['value'] == 'filesystem':
-          ds_list.append({'name': ds["name"], 'mountpoint': ds["mountpoint"]})
+          ds_list.append((ds['properties']['mountpoint']['value'], ds["name"]))
+
     if not ds_list:
       raise Exception('No ZFS datasets available. Please create a dataset before creating shares.')
   
+    if 'dataset' in request.REQUEST:
+      dataset = request.REQUEST['dataset']
+    else:
+      dataset = ds_list[0][0]
+
+    if 'path' in request.REQUEST:
+      path = request.REQUEST['path']
+    else:
+      path = dataset
+
+    return_dict['path'] = path
+    return_dict["dataset"] = ds_list
+
     if request.method == "GET":
       #Return the form
+      initial = {}
+      initial['path'] = path
+      initial['dataset'] = dataset
+      initial['guest_ok'] = True
+      if 'name' in request.GET:
+        initial['name'] = request.GET['name']
 
-      form = samba_shares_forms.CreateShareForm(user_list = user_list, group_list = group_list, dataset_list = ds_list, initial = {'guest_ok': True})
+      #form = samba_shares_forms.CreateShareForm(user_list = user_list, group_list = group_list, dataset_list = ds_list, initial = {'guest_ok': True})
+      form = samba_shares_forms.CreateShareForm(dataset_list = ds_list, initial = initial)
       return_dict["form"] = form
 
       return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       #Form submission so create
       return_dict = {}
-      form = samba_shares_forms.CreateShareForm(request.POST, user_list = user_list, group_list = group_list, dataset_list = ds_list)
+      #form = samba_shares_forms.CreateShareForm(request.POST, user_list = user_list, group_list = group_list, dataset_list = ds_list)
+      form = samba_shares_forms.CreateShareForm(request.POST, dataset_list = ds_list)
       return_dict["form"] = form
       if form.is_valid():
         cd = form.cleaned_data
         name = cd["name"]
-        path = "%s"%cd["path"]
+        path = cd["path"]
         if not path:
-          return_dict["path_error"] = "Please choose a path."
+          return_dict["path_error"] = "Please select a dataset."
           return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
-        display_path = cd["path"]    
-        if not os.path.exists(display_path):
-          os.mkdir(display_path)
         os.chown(path,500,500)
+        if 'new_folder' in cd and cd['new_folder']:
+          try:
+            os.mkdir('%s/%s'%(cd['path'], cd['new_folder']))
+            audit_str = 'Created new directory "%s" in "%s"'%(cd['new_folder'], cd['path'])
+            audit.audit("create_dir", audit_str, request.META["REMOTE_ADDR"])
+          except Exception, e:
+            raise Exception('Error creating subfolder %s : %s'%(cd['new_folder'], str(e)))
+
         if "comment" in cd:
           comment = cd["comment"]
         else:
@@ -297,6 +357,8 @@ def create_cifs_share(request):
           browseable = cd["browseable"]
         else:
           browseable = None
+
+        '''
         if "guest_ok" in cd:
           guest_ok = cd["guest_ok"]
         else:
@@ -309,10 +371,12 @@ def create_cifs_share(request):
           groups = cd["groups"]
         else:
           groups = None
-        vol = "unicell"
+        '''
+
+        guest_ok = True
         #logger.debug("Create share request, name %s path %s, comment %s, read_only %s, browseable %s, guest_ok %s, users %s, groups %s, vol %s"%(name, path, comment, read_only, browseable, guest_ok, users, groups))
         #print '1'
-        ret, err = cifs_common.create_share(name, comment, guest_ok, read_only, display_path, display_path, browseable, users, groups,vol)
+        ret, err = cifs_common.create_share(name, comment, True, read_only, path, path, browseable, None, None, "unicell_novol")
         #print '2'
         if err:
           raise Exception(err)
@@ -481,5 +545,4 @@ def save_samba_server_settings(request):
     return_dict["error"] = 'Error modifying CIFS authentication settings'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
 

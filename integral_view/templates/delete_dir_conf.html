@@ -1,0 +1,34 @@
+{% extends 'shares_base.html' %}
+{%block tab_header %}
+Delete a directory
+{%endblock%}
+
+{%block inside_content %}
+  <br>
+
+  <p id="p-warning-text">Are you sure you want to delete the directory named "{{form.path.value}}"? </p>
+  <br>
+  <form action="" method="POST">
+    {{form.path}}
+    <div class="btn-group btn-group-sm" style="" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/dir_manager'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+Deleting a directory
+{%endblock%}
+
+{%block help_body%}
+<p>Confirming this operation results in the specified directory being deleted from the system and data in the directory being lost. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("dir_manager_tab")
+  </script>
+{% endblock %}
+
