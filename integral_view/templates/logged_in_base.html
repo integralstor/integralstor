@@ -23,10 +23,7 @@
         $.get('/refresh_alerts/',function(data){
           $.each(data,function(){
             var alerts = $.parseJSON(JSON.stringify(this));
-            $("#alert_icon").removeClass("white").addClass("yellow faa-flash animated");
-            $.each(alerts,function(key,value){
-              $("#alerts").append('<li><a href="/view_alerts/"><div class="pull-left"><i class="fa fa-exclamation-circle red bigger-140"></i></div><h4>'+value.message+'</h4><p>'+value.time+'</p></a></li>');
-            });
+            $("#alerts_icon").removeClass("white").addClass("yellow faa-flash animated");
           });
         });
       }
@@ -61,26 +58,22 @@
           <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
               <!-- User Account: style can be found in dropdown.less -->
-              <li class="dropdown messages-menu" id="alerts-dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                  <span>
-                    <i class="fa fa-exclamation-triangle white bigger-140" id="alert_icon"></i>
-                    &nbsp;Alerts
-                  </span>
-                </a>
-                <ul class="dropdown-menu" id="alerts_dropdown">
-                  <li>
-                    <!-- inner menu: contains the actual data -->
-                    <div style="position: relative; overflow: hidden; width: auto; height: 200px;" class="slimScrollDiv">
-                      <ul style="overflow: hidden; width: 100%; height: 200px;" class="menu" id="alerts">
-                      </ul>
-                      <div style="background: none repeat scroll 0% 0% rgb(0, 0, 0); width: 3px; position: absolute; top: 0px; opacity: 0.4; display: none; border-radius: 0px; z-index: 99; right: 1px; height: 131.148px;" class="slimScrollBar"></div><div style="width: 3px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 0px; background: none repeat scroll 0% 0% rgb(51, 51, 51); opacity: 0.2; z-index: 90; right: 1px;" class="slimScrollRail"></div>
-                      </div>
-                    </li>
-                    <li class="footer"><a href="/view_alerts/">See All Messages</a></li>
-                  </ul>
+                  <li >
+                    <a  href="/view_alerts" title="Click to view alerts">
+                      <i class="fa fa-exclamation-triangle white fa-lg" id="alerts_icon"></i>
+                    </a>
                   </li>
-                  <li><a href="{%url 'logout'%}" >Sign out</a></li>
+                  <li >
+                    <a href="#help" title="Click for help" data-toggle="modal">
+                      <i class="fa fa-question fa-lg"></i>
+                    </a>
+                  </li>
+                  <li >
+                    <a id="refresh_page" href="" title="Click to refresh this page">
+                      <i class="fa fa-refresh fa-lg"></i>
+                    </a>
+                  </li>
+                  <li class="pull-right"><a href="{%url 'logout'%}" title="Sign out"><i class="fa fa-sign-out fa-lg">&nbsp;</a></i></li>
                 </ul>
                 </div>
             </nav>
@@ -103,7 +96,6 @@
                   <i class="fa fa-dashboard"></i> <span>Dashboard</span>
                 </a>
               </li>
-              <hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #7d7676;">
               <li id="storage_menu">
                 <a href="/view_zfs_pools/">
                   <i class="fa fa-hdd-o"></i>
@@ -126,16 +118,9 @@
                 </a>
               </li>
               <hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #7d7676;">
-              <li id="system_menu">
-                <a href="/view_system_info/">
-                  <i class="fa fa-building"></i>
-                  <span>System</span>
-                </a>
-              </li>
-              <li id="services_menu">
-                <a href="/view_services/">
-                  <i class="fa fa-laptop"></i>
-                  <span>Services</span>
+              <li id="key_management_menu">
+                <a href="/download_ssh_keys/">
+                  <i class="fa fa-key"></i> Keys and Certificates
                 </a>
               </li>
               <li id="network_menu">
@@ -144,25 +129,32 @@
                   <span>Networking</span>
                 </a>
               </li>
+              <li id="services_menu">
+                <a href="/view_services/">
+                  <i class="fa fa-laptop"></i>
+                  <span>Services</span>
+                </a>
+              </li>
+              <li id="system_menu">
+                <a href="/view_system_info/">
+                  <i class="fa fa-building"></i>
+                  <span>System</span>
+                </a>
+              </li>
               <li id="users_menu">
                 <a href="/view_local_users/"> 
                   <i class="fa fa-users"></i> Users & groups
-                </a>
-              </li>
-              <li id="key_management_menu">
-                <a href="/download_ssh_keys/">
-                  <i class="fa fa-key"></i> Keys and Certificates
-                </a>
-              </li>
-              <li id="logging_menu">
-                <a href="/view_audit_trail/">
-                  <i class="fa fa-file"></i> Logs
                 </a>
               </li>
               <hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #7d7676;">
               <li id="admin_menu">
                 <a href="/change_admin_password/"> 
                   <i class="fa fa-cogs"></i> IntegralView settings
+                </a>
+              </li>
+              <li id="logging_menu">
+                <a href="/view_audit_trail/">
+                  <i class="fa fa-file"></i> Logs
                 </a>
               </li>
             </ul>
@@ -184,26 +176,37 @@
                   {%endblock tab_items %}
                   <!-- tab items - end -->
 
-                  {% include 'help_and_refresh.html' %}
+                  <!--{% include 'help_and_refresh.html' %}-->
                 </ul>
                 <div class="tab-content">
                   <div class="tab-pane active" id="content">
-                    <span class="bigger-120">
-                      <i class="fa fa-circle text-yellow"></i> 
-                      <span> 
+                    <div class="row" style="width:100%;margin:0 auto;border-top:0px solid #eee;padding-bottom:10px;border-bottom:1px solid #eee">
+                      <div class="col-sm-6" style="padding-left:0px;border:0px solid">
+                        <span class="bigger-120">
+                          <i class="fa fa-circle text-yellow"></i> 
+                          <span> 
 
-                        <!-- tab header - begin -->
+                            <!-- tab header - begin -->
 
-                        {% block tab_header %}
-                          Information
-                        {% endblock tab_header%}
+                            {% block tab_header %}
+                              Information
+                            {% endblock tab_header%}
 
-                        <!-- tab header - end -->
+                            <!-- tab header - end -->
 
-                      </span>
-                    </span>
+
+                          </span>
+                        </span>
+                      </div>
+                      <div class="col-sm-6 pull-right" style="border:0px solid">
+                        {% block global_actions %}
+                          &nbsp;
+                        {% endblock global_actions%}
+                      </div>
+                    </div>
+                    <div style="clear:both"></div>
+                    <br/>
                     <span class="white-space:pre-line"></span>
-                    <br><br>
                     {%block ack_message %}
                       <!-- ack message contents - begin -->
                       {% if ack_message %}
@@ -274,8 +277,8 @@
 
     <!-- /wrapper div -->
   </body>
-  <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.2.0/css/font-awesome.css">
-  <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.2.0/css/font-awesome-animation.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.6.3/css/font-awesome.css">
+  <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.6.3/css/font-awesome-animation.min.css">
   <link rel="stylesheet" type="text/css" href="/static/datatables/css/jquery.dataTables.css">
   <link rel="stylesheet" type="text/css" href="/static/datatables/css/dataTables.bootstrap.css">
   <link rel="stylesheet" type="text/css" href="/static/datatables/css/dataTables.responsive.css">

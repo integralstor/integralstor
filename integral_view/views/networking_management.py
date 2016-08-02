@@ -260,8 +260,8 @@ def create_vlan(request):
       return_dict['form'] = form
       if not form.is_valid():
         return django.shortcuts.render_to_response("create_vlan.html", return_dict, context_instance = django.template.context.RequestContext(request))
-      cd = form.cleaned_data
-      #print cd
+      #cd = form.cleaned_data
+      print cd
       result, err = networking.create_vlan(cd['base_interface'], cd['vlan_id'])
       if not result:
         if err:

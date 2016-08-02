@@ -282,14 +282,6 @@ def create_cifs_share(request):
 
   return_dict = {}
   try:
-    '''
-    user_list, err = cifs_unicell.get_user_list()
-    if err:
-      raise Exception(err)
-    group_list, err = cifs_unicell.get_group_list()
-    if err:
-      raise Exception(err)
-    '''
 
     pools, err = zfs.get_pools()
     if err:
@@ -299,7 +291,7 @@ def create_cifs_share(request):
     for pool in pools:
       for ds in pool["datasets"]:
         if ds['properties']['type']['value'] == 'filesystem':
-          ds_list.append((ds["name"], ds['properties']['mountpoint']['value']))
+          ds_list.append((ds['properties']['mountpoint']['value'], ds["name"]))
 
     if not ds_list:
       raise Exception('No ZFS datasets available. Please create a dataset before creating shares.')
@@ -312,7 +304,7 @@ def create_cifs_share(request):
     if 'path' in request.REQUEST:
       path = request.REQUEST['path']
     else:
-      path = '/'+ dataset
+      path = dataset
 
     return_dict['path'] = path
     return_dict["dataset"] = ds_list
@@ -345,6 +337,14 @@ def create_cifs_share(request):
           return_dict["path_error"] = "Please select a dataset."
           return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
         os.chown(path,500,500)
+        if 'new_folder' in cd and cd['new_folder']:
+          try:
+            os.mkdir('%s/%s'%(cd['path'], cd['new_folder']))
+            audit_str = 'Created new directory "%s" in "%s"'%(cd['new_folder'], cd['path'])
+            audit.audit("create_dir", audit_str, request.META["REMOTE_ADDR"])
+          except Exception, e:
+            raise Exception('Error creating subfolder %s : %s'%(cd['new_folder'], str(e)))
+
         if "comment" in cd:
           comment = cd["comment"]
         else:

@@ -18,6 +18,7 @@
 .content-header {
   background-color : #fff !important;
 }
-.active a {
-  border-left: 1px solid #fff;
-}
+#.active a {
+#  border-left: 1px solid #fff;
+#}
+

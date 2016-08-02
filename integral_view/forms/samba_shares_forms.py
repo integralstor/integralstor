@@ -31,6 +31,7 @@ class CreateShareForm(folder_management_forms.DirForm):
   comment = forms.CharField(required=False)
   browseable = forms.BooleanField(required=False,initial=True)
   read_only = forms.BooleanField(required=False)
+  new_folder = forms.CharField(required=False)
 
   def __init__(self, *args, **kwargs):
     if kwargs:

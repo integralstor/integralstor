@@ -4,6 +4,16 @@
   Windows shares authentication settings
 {%endblock%}
 
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click to modify Windows services settings" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a class="action-dropdown" href="/auth_server_settings?action=edit" ><i class="fa fa-cog fa-fw"></i>&nbsp;Modify authentication settings</a></li>
+      <li><a class="action-dropdown" href="/edit_auth_method"  ><i class="fa fa-exchange fa-fw"></i>&nbsp;Change authentication method</a></li>
+    </ul>
+  </div>
+{%endblock%}
+
 {% block inside_content %}
 
   {% if not samba_global_dict %}
@@ -67,10 +77,6 @@
           </td>
         </tr>
       </table>
-    </div>
-    <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      <a href="/auth_server_settings?action=edit" role="button" class="btn btn-primary" >Edit authentication settings</a>
-      <a href="/edit_auth_method" role="button" class="btn btn-primary" >Change authentication method</a>
     </div>
   {%endif%}
 

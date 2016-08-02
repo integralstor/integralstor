@@ -4,19 +4,22 @@
   NFS expoprts
 {%endblock%}
 
-{%block inside_content %}
+{%block global_actions %}
+    <a class="btn btn-default btn-sm pull-right"  href="/create_nfs_share" title="Create a new NFS export" style="color:#000"> <i class="fa fa-plus-square-o fa-fw "></i>&nbsp;Create new export </a>
+{%endblock%}
 
+{%block inside_content %}
 
   {% if not exports_list %}
     No NFS shares appear to have been created. 
   {%else %}
-    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+    <div class="table-responsive" style="clear:both;width:100%;padding:0px 5px 0px 5px;margin-left:00px;margin-right:20px;border:1px solid #f4f4f4;height:350px;-webkit-overflow-scrolling: touch;">
       <table class="table table-striped">
         <thead>
           <tr>
             <th> Path </th>
             <th> Client restrictions on </th>
-            <th> Details </th>
+            <th> Actions </th>
         </thead>
         {%for d in exports_list %}
           <tr>
@@ -27,15 +30,21 @@
               {%endfor%}
             </td>
             <td>
-              <a href="/view_nfs_share?path={{d.path}}" role="button" class="btn btn-info btn-xs"> Details</a>
+              <div class="btn-group btn-group-xs" >
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li><a class="action-dropdown" href="/view_nfs_share?path={{d.path}}"  title="View and configure this share" class="cover-page"> <i class="fa fa-cog fa-fw"></i>View and configure</a> 
+                  <li><a class="action-dropdown" href="/edit_nfs_share?path={{d.path}}"  title="Modify the settings for this share" > <i class="fa fa-cog fa-fw"></i>Modify export settings</a> 
+                  <li class="divider"></li>
+                  <li><a class="action-dropdown" href="/delete_nfs_share?path={{d.path}}"  title="Remove this share" style="color:red"> <i class="fa fa-trash fa-fw"></i>Remove this export </a> 
+                </ul>
+              </div>
             </td>
           </tr>
         {%endfor%}
       </table>
     </div>
   {%endif%}
-  <br><br>
-  <a href="/create_nfs_share/" class="btn btn-primary btn-sm"> Create NFS Share </a>
 
 {%endblock%}
 

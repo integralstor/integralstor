@@ -4,7 +4,22 @@
   Windows share details
 {%endblock%}
 
+
 {%block inside_content %}
+  <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+    <div class="col-sm-9 ">
+      <h5> Share configuration</h5>
+    </div>
+    <div class="col-sm-3  pull-right"  style="border:0px solid">
+      <a class="btn btn-default btn-sm pull-right dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Share actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+        <li><a class="action-dropdown" href="/view_cifs_shares" role="button" ><i class="fa fa-list fa-fw">&nbsp; </i>Back to share list</a></li>
+        <li><a class="action-dropdown" href="/edit_cifs_share?share_id={{share.share_id}}" ><i class="fa fa-cog fa-fw">&nbsp; </i>Modify settings</a></li>
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/delete_cifs_share?share_id={{share.share_id}}&name={{share.name}}" style="color:red"><i class="fa fa-trash fa-fw">&nbsp; </i>Remove this share</a></li>
+      </ul>
+    </div>
+  </div>
 
   <table class="table table-striped" width="300px;">
     <tr>
@@ -40,12 +55,7 @@
       </td>
     </tr>
   </table>
-  <div class="btn-group btn-group-sm" role="group" aria-label="...">
-    <a href="/view_cifs_shares" role="button" class="btn btn-default">Back to share list</a>
-    <a href="/edit_cifs_share?share_id={{share.share_id}}" role="button" class="btn btn-primary">Modify settings</a>
-    <a href="/delete_cifs_share?share_id={{share.share_id}}&name={{share.name}}" role="button" class="btn btn-danger">Remove this share</a>
-  </div>
-  <h4> Access control </h4>
+  <hr>
   {% include 'ace_management.html' %}
 
 {%endblock%}

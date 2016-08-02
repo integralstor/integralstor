@@ -4,6 +4,16 @@
   Directory manager
 {% endblock tab_header %}
 
+{%block global_actions %}
+        <a class="btn btn-default btn-sm pull-right dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Directory actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+        <ul class="dropdown-menu">
+          <li><a class="action-dropdown"  onClick="create_dir();" title="Create a new sub-directory under the selected directory"> <i class="fa fa-plus fa-fw"></i>&nbsp;Create subdirectory </a></li>
+          <li><a class="action-dropdown" onClick="dir_ownership_and_permissions();" title="View and modify ownership and permissions for the selected directory"> <i class="fa fa-cog fa-fw"></i>&nbsp;Ownership and permissions</a></li>
+          <li class="divider"></li>
+          <li><a class="action-dropdown" onClick="delete_dir();" style="color:red" title="Delete the selected directory"> <i class="fa fa-trash fa-fw"></i>&nbsp;Delete </a></li>
+        </ul>
+{% endblock global_actions %}
+
 {% block inside_content %}
     <form action="." class="form-horizontal" method="GET"> 
       <div class="col-sm-8 form-group">
@@ -20,29 +30,20 @@
     </div>
 
     <b> Browse and select a directory below :</b>
-    <section style="width:100%;height:200px;border:0px solid;min-height:200px;margin:5px;">
-      <div id="pathdiv" style="overflow:auto;float:left;border:1px solid #f4f4f4;padding:5px 5px 5px 5px;min-width:40%;height:200px;min-height:200px;"> </div>
-      <div id="detailsdiv" style="overflow:auto;border:1px solid #f4f4f4;padding:5px;min-height:200px;height:200px;min-width:48%;"> Please select a directory on the left pane.</div>
+    <section style="width:100%;height:250px;border:0px solid;min-height:250px;margin:5px;">
+      <div id="pathdiv" style="overflow:auto;float:left;border:1px solid #f4f4f4;padding:5px 5px 5px 5px;min-width:40%;height:250px;min-height:250px;"> </div>
+      <div id="detailsdiv" style="overflow:auto;border:1px solid #f4f4f4;padding:5px;min-height:250px;height:250px;min-width:48%;"> Please select a directory in the left pane to view its contents.</div>
     </section>
     <br>
 
     <div class="row" style="width:100%;margin:0 auto;border:0px solid">
-      <div class="col-sm-9 form-group" style="border:0px solid">
+      <div class="col-sm-12 form-group" style="border:0px solid">
         <form class="form-horizontal"> 
           <label class="col-sm-3 control-label" style="border:0px solid">Selected directory : </label>
           <div class="col-sm-9" style="border:0px solid">
             <input type="text" name="path" class="form-control" id="id_path" readonly value="{{form.path.value|default_if_none:""}}"> <br/>
           </div>
         </form>
-      </div>
-      <div class="col-sm-3 btn-group btn-group-sm "  style="border:0px solid">
-        <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Directory actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
-        <ul class="dropdown-menu">
-          <li><a  onClick="create_dir();" title="Create a new sub-directory under the selected directory"> <i class="fa fa-plus fa-fw"></i>&nbsp;Create subdirectory </a></li>
-          <li><a onClick="dir_ownership_and_permissions();" title="View and modify ownership and permissions for the selected directory"> <i class="fa fa-cog fa-fw"></i>&nbsp;Ownership and permissions</a></li>
-          <li class="divider"></li>
-          <li><a onClick="delete_dir();" style="color:red" title="Delete the selected directory"> <i class="fa fa-trash fa-fw"></i>&nbsp;Delete </a></li>
-        </ul>
       </div>
     </div>
   </form>

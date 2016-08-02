@@ -4,6 +4,20 @@
   NFS export details
 {%endblock%}
 
+{%block global_actions %}
+  <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+    <div class="col-sm-3  pull-right"  style="border:0px solid">
+      <a class="btn btn-default btn-sm pull-right dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+        <li><a class="action-dropdown" href="/view_nfs_shares" ><i class="fa fa-list fa-fw">&nbsp; </i>NFS Shares list</a>
+        <li><a class="action-dropdown" href="/edit_nfs_share?path={{share_info.path}}"><i class="fa fa-cog fa-fw">&nbsp; </i>Modify</a>
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/delete_nfs_share?path={{share_info.path}}" style="color:red"><i class="fa fa-trash fa-fw">&nbsp; </i>Delete this NFS share</a>
+      </ul>
+    </div>
+  </div>
+{%endblock%}
+
 {% block inside_content %}
   <p style="color:red;"> {{form.errors}}</p>
 
@@ -67,11 +81,6 @@
     {%endif%}
   </table>
 
-  <div class="btn-group btn-group-sm" role="group" aria-label="...">
-    <a href="/view_nfs_shares" role="button" class="btn btn-default">NFS Shares list</a>
-    <a href="/edit_nfs_share?path={{share_info.path}}" role="button" class="btn btn-primary">Modify</a>
-    <a href="/delete_nfs_share?path={{share_info.path}}" role="button" class="btn btn-danger">Delete this NFS share</a>
-  </div>
 
 {%endblock%}
 

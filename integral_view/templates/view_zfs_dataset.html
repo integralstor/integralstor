@@ -7,15 +7,9 @@
     ZFS block device volume details
   {%endif%}
 {%endblock%}
-
-{% block inside_content %}
-
-  {% if not properties %}
-    No information for the specified dataset. 
-  {%else %}
-
-    <div class="btn-group btn-group-sm pull-right"  style="margin:15px;border:0px solid">
-      <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"> {%if properties.type.value == 'filesystem'%} Dataset {%elif properties.type.value == 'volume'%} Block device volume {%endif%} specific actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+{%block global_actions %}
+    <div class="btn-group btn-group-sm pull-right"  >
+      <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
       <ul class="dropdown-menu">
         {% if "disabled" in replication_status %}
       	  <li><a href="/replicate_zfs_dataset?dataset_name={{name}}"><i class="fa fa-copy fa-fw"></i>&nbsp;Enable async replication</a></li>
@@ -38,6 +32,14 @@
 
       </ul>
     </div>
+{%endblock%}
+
+{% block inside_content %}
+
+  {% if not properties %}
+    No information for the specified dataset. 
+  {%else %}
+
     <div style="width:100%; clear:both;margin: 5px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
 
       {%if properties.type.value == 'filesystem'%}
@@ -128,7 +130,9 @@
       </div>
       <br/><br/>
       -->
+      <hr>
       <a href="/view_zfs_pool?name={{pool}}&view=datasets_and_zvols" role="button" class="btn btn-sm btn-default cover-page"><i class="fa fa-list fa-fw" ></i>&nbsp;Back to pool details</a>
+      <br>
 
     </div>
   {%endif%}

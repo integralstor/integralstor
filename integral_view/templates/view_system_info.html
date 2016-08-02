@@ -4,6 +4,17 @@
   System information
 {%endblock%}
 
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click to modify Windows services settings" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a class="action-dropdown" href="/reload_manifest" role="button" class="cover-page"><i class="fa fa-refresh fa-fw"></i>&nbsp;Scan for hardware changes</a></li>
+      <li><a class="action-dropdown" href="/download_sys_info/" id="download_sys_info" class="cover-page" ><i class="fa fa-download fa-fw"></i>&nbsp;Download system configuration</a></li>
+      <li><a class="action-dropdown" href="/upload_sys_info/" id="upload_sys_info" class="cover-page" ><i class="fa fa-upload fa-fw"></i>&nbsp;Upload system configuration</a></li>
+    </ul>
+  </div>
+{%endblock%}
+
 {% block inside_content %}
 
 <script>
@@ -37,7 +48,7 @@
     <tr>
       <th> Memory </th>
       <td>
-        {{ node.memory.mem_total.value}} GB
+        {{ node.memory.mem_total.value|floatformat:2}} GB
       </td>
     </tr>
     <tr>
@@ -101,11 +112,6 @@
     {%endfor%}
   </table>
   -->
-  <div class="btn-group btn-group-sm" role="group" aria-label="...">
-    <a href="/reload_manifest" role="button" class="btn btn-primary cover-page">Scan for hardware changes</a>
-    <a href="/download_sys_info/" id="download_sys_info" role="button" class="btn btn-success cover-page" >Download system information</a>
-    <a href="/upload_sys_info/" id="upload_sys_info" role="button" class="btn btn-success cover-page" >Upload system information</a>
-  </div>
 
 <script>
   $("#download_sys_info").on('click',function(){

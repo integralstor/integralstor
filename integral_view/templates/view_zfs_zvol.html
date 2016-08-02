@@ -11,17 +11,17 @@
   {%else %}
 
     <div class="btn-group btn-group-sm pull-right"  style="margin:15px;border:0px solid">
-      <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"> {%if properties.type.value == 'filesystem'%} Dataset {%elif properties.type.value == 'volume'%} Block device volume {%endif%} specific actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> {%if properties.type.value == 'filesystem'%} Dataset {%elif properties.type.value == 'volume'%} Block device volume {%endif%} specific actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
       <ul class="dropdown-menu">
         {% if "disabled" in replication_status %}
-      	  <li><a href="/replicate_zfs_dataset?dataset_name={{name}}"><i class="fa fa-copy fa-fw"></i>&nbsp;Enable async replication</a></li>
+      	  <li><a class="action-dropdown" href="/replicate_zfs_dataset?dataset_name={{name}}"><i class="fa fa-copy fa-fw"></i>&nbsp;Enable async replication</a></li>
         {% else %}
-      	  <li><a href="/replicate_zfs_dataset?dataset_name={{name}}"><i class="fa fa-copy fa-fw"></i>&nbsp;Modify/Disable async replication</a></li>
+      	  <li><a class="action-dropdown" href="/replicate_zfs_dataset?dataset_name={{name}}"><i class="fa fa-copy fa-fw"></i>&nbsp;Modify/Disable async replication</a></li>
       	{% endif %}
         <li class="divider"></li>
-        <li><a href="/delete_zfs_dataset?name={{name}}&type=zvol&pool_name={{pool}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Delete this block device volume  </a></li>
+        <li><a class="action-dropdown" href="/delete_zfs_dataset?name={{name}}&type=zvol&pool_name={{pool}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Delete this block device volume  </a></li>
         <li class="divider"></li>
-        <li> <a href="/view_zfs_pool?name={{pool}}&view=datasets_and_zvols"><i class="fa fa-list fa-fw" ></i>Back to pool details</a>
+        <li> <a class="action-dropdown" href="/view_zfs_pool?name={{pool}}&view=datasets_and_zvols"><i class="fa fa-list fa-fw" ></i>Back to pool details</a>
 
       </ul>
     </div>
@@ -78,14 +78,6 @@
       <br>
       <a href="/view_zfs_pool?name={{pool}}&view=datasets_and_zvols" role="button" class="btn btn-sm btn-default cover-page"><i class="fa fa-list fa-fw" ></i>&nbsp;Back to pool details</a>
 
-      <!--
-      <p>
-      <div class="btn-group btn-group-sm" role="group" aria-label="...">
-        <a href="/view_zfs_pool?name={{pool}}" role="button" class="btn btn-default cover-page">Back to pool details</a>
-        <a href="/delete_zfs_dataset?name={{name}}&type=zvol&pool_name={{pool}}" role="button" class="btn btn-danger btn-sm"> Delete this block device volume</a>
-      </div>
-      </p>
-      -->
 
     </div>
   {%endif%}

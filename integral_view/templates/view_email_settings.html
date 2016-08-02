@@ -16,7 +16,7 @@
 
   {% if email_not_configured %}
     <p id="p-instructional-text" class="text-red"> Email settings have not been configured. </p><br>
-    <a href="/configure_email_settings/" role="button" class="btn btn-primary btn-sm">Configure email settings</a>
+    <a href="/configure_email_settings/" role="button" class="btn btn-default btn-sm"><i class="fa fa-cog fa-fw"></i>&nbsp;Configure email settings</a>
   {% else %}
     <table class="table table-bordered">
       <tr>
@@ -55,7 +55,7 @@
       </tr>
     </table>
 
-    <a href="/configure_email_settings/" role="button" class="btn btn-primary btn-sm">Modify</a>
+    <a href="/configure_email_settings/" role="button" class="btn btn-default btn-sm"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify</a>
 
   {%endif%}
 

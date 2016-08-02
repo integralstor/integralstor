@@ -5,67 +5,66 @@
 {% endblock  %}
 
 {% block inside_content %}
-<table class="table" style="width:800px">
   <form action="/upload_ssh_host_key" method="POST" enctype="multipart/form-data" class="form-horizontal">
-    <tr>
-     <th> Select User :</th>
-      <td>
-       <select name="user" id="id_user" class="form-control">
-        {% for user in users %}
-         <option value="{{user.username}}" {% if user.username == selected_user%} selected="selected" {% endif %}>{{user.username}}</option>
-        {%endfor%}
-       </select>
-      </td>
-    </tr>
-    <tr>
-     <th><label for="upload_file">IP address of host</label></th>
-      <td>
-       <input id="ip" type="text" name="ip" class="form-control">
-      </td> 
-    </tr>
-    <tr> 
-     <th><label for="upload_file">Host's SSH public key</label></th>
-      <td>
-       <input id="upload_file"  type="file" name="pub_key" class="fileinput"/>
-      </td>
-    </tr> 
-    <tr>
-     <td>
-       <input type="submit" class="btn btn-primary btn-sm" value="Upload key">
-     </td>
-    </tr>
+    <table class="table" style="width:800px">
+      <tr>
+        <th> Select User :</th>
+        <td>
+          <select name="user" id="id_user" class="form-control">
+            {% for user in users %}
+              <option value="{{user.username}}" {% if user.username == selected_user%} selected="selected" {% endif %}>{{user.username}}</option>
+            {%endfor%}
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <th><label for="upload_file">IP address of host</label></th>
+        <td>
+          <input id="ip" type="text" name="ip" class="form-control">
+        </td> 
+      </tr>
+      <tr> 
+      <th><label for="upload_file">Browse to select the key file</label></th>
+        <td>
+          <input id="upload_file"  type="file" name="pub_key" class="fileinput"/ style="border:0px" >
+        </td>
+      </tr> 
+    </table>
+    <button type="submit" class="btn btn-default cover-page"><i class="fa fa-upload fa-fw"></i>&nbsp;Upload</button>
   </form>
-</table>
-<table class="table">
-  <thead>
-    <tr>
-      <td> Key </td>
-      <td> Delete </td>
-    </tr>
-  </thead>
-  <tbody>
-    {% for key in hosts_keys %}    
-      <form action="/upload_ssh_host_key/" method="POST" class="form-horizontal">      
+  {%if hosts_keys %}
+    <table class="table">
+      <thead>
         <tr>
-          <td >
-            <input type="text" value="{{selected_user}}" name="selected_user" readonly class="form-control" style="display:none"/>
-            <input type="text" value="{{key}}" name="authorized_key" readonly class="form-control" style="display:none"/>
-            <textarea cols=100 rows=4 readonly> {{key}} </textarea>
-          </td>
-          <td><button class="btn btn-danger">Remove Access </button></td>
+          <td> Key </td>
+          <td> Delete </td>
         </tr>
-      </form>
-    {% endfor %}
-  </tbody>
-</table>
-      <script>
+      </thead>
+      <tbody>
+        {% for key in hosts_keys %}    
+          <form action="/upload_ssh_host_key/" method="POST" class="form-horizontal">      
+            <tr>
+              <td >
+                <input type="text" value="{{selected_user}}" name="selected_user" readonly class="form-control" style="display:none"/>
+                <input type="text" value="{{key}}" name="authorized_key" readonly class="form-control" style="display:none"/>
+                <textarea cols=100 rows=4 readonly> {{key}} </textarea>
+              </td>
+              <td><button class="btn btn-danger">Remove Access </button></td>
+            </tr>
+          </form>
+        {% endfor %}
+      </tbody>
+    </table>
+  {%endif%}
 
+  <script>
   	document.getElementById("id_user").onchange = function () {
     	var user = $("#id_user").val()
     	location.href = "/upload_ssh_host_keys/?user="+user
   	}
-      </script>
+  </script>
 {% endblock %}
+
 {% block tab_active %}
   <script>
    make_tab_active("upload_ssh_host_key_tab")

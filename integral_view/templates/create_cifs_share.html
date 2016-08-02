@@ -7,38 +7,54 @@
 
 {%block inside_content %}
 
-{{form.path.value}}
   <form id="share_form" class="form-horizontal" role="form" name="create_form" action="" method="post">
-    <table  class="table " style="width:800px">
+    <table  class="table" style="border:0px solid;width:100%">
       <tr>
-        <th> Share name:</th>
+        <th style="word-wrap: break-word; max-width: 50px;"> Share name:</th>
         <td>
           <input type="text"  name="name" class="form-control" id="id_name" placeholder="Share name" value="{{form.name.value|default_if_none:""}}"> 
         </td>
         <td> {{ form.name.errors }} </td>
+        <td> &nbsp;</td>
       </tr>
       <tr>
         <th> Select underlying ZFS dataset :</th>
         <td>
-          <select id = "id_dataset" name="dataset" class="form-control" onchange="change_path(this);this.form.submit()">
+          <select id = "id_dataset" name="dataset" class="form-control" onchange="change_dataset(this);this.form.submit()">
             {% for choice in dataset %}
-      		    <option value="{{choice.0}}" onclick="option_selected(this)" {%if form.initial.dataset == choice.0%} selected="selected" {%endif%}>{{choice.0}}</option>
+      		    <option value="{{choice.0}}" onclick="option_selected(this)" {%if form.initial.dataset == choice.0%} selected="selected" {%endif%}>{{choice.1}}</option>
             {%endfor%}
           </select>
         </td>
-        <td>&nbsp;</td>
         <td> {{ form.dataset.errors }} </td>
+        <td>&nbsp;</td>
       </tr>
       <tr>
         <th> Select a directory :</th>
         <td>
           <input type="text" name="path" class="form-control" id="id_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value="{{form.path.value|default_if_none:""}}"> <br/>
         </td>
-        <td>
-          <a href="#" role="button" class="btn btn-primary btn-xs" onClick="displayTree();return false;"> Browse...</a>
-          <div id="pathdiv" style="display:inline"> </div>
-        </td>
         <td> {{ form.path.errors }} </td>
+        <td rowspan=4>
+          <a href="#" role="button" class="btn btn-primary btn-xs" onClick="displayTree();return false;"> Browse...</a>
+          <div id="pathdiv" style="min-height:200px;height:200px;min-width:200px;width:300px;overflow:auto;display:block;border:0px solid"> </div>
+        </td>
+      </tr>
+      <tr>
+        <th style="word-wrap: break-word; max-width: 50px;">Create a new sub-directory under the selected directory:</th>
+        <td>
+          <input type="text"  name="new_folder" class="form-control" id="id_new_folder" onkeyup="copyText();" placeholder="Enter new directory name" value={{form.new_folder.value|default_if_none:""}}> 
+        </td>
+        <td> {{ form.new_folder.errors }} </td>
+        <td> &nbsp;</td>
+      </tr>
+      <tr>
+        <th> Final share path</th>
+        <td>
+          <input type="text" name="final_path" class="form-control" id="id_final_path" readonly value="{{form.path.value|default_if_none:""}}"> <br>
+        </td>
+        <td> &nbsp;</td>
+        <td> &nbsp; </td>
       </tr>
       <!--
       <tr>
@@ -50,6 +66,7 @@
               {%endfor%}
             </select> 
         </td>
+        <td> &nbsp;</td>
         <td> {{ form.path.errors }} </td>
       </tr>
 
@@ -58,6 +75,7 @@
         <td>
 		      <input id="val_dataset" name="dataset" readonly class="form-control"/>
         </td>
+        <td> &nbsp;</td>
         <td> {{ form.dataset.errors }} </td>
       </tr>
       <tr>
@@ -67,6 +85,7 @@
           <a href="#" role="button" class="btn btn-primary btn-xs" onClick="displayTree();return false;"> Browse..</a>
            <div id="pathdiv" style="display:inline"> </div>
         </td>
+        <td> &nbsp;</td>
         <td> {{ form.path.errors }} </td>
       </tr>
       <tr>
@@ -74,6 +93,7 @@
         <td>
           <input type="text"  name="new_folder" class="form-control" id="new_folder" placeholder="Create a new folder">
         </td>
+        <td> &nbsp;</td>
       </tr>
       <tr>
         <th> Final Path</th>
@@ -92,16 +112,19 @@
           <input type="text"  name="comment" class="form-control" id="id_comment" placeholder="Description of this share" value="{{form.comment.value|default_if_none:""}}"> 
         </td>
         <td> {{ form.comment.errors }} </td>
+        <td> &nbsp;</td>
       </tr>
       <tr>
         <th> Readonly:</th>
         <td> {{ form.read_only }} </td>
         <td> {{ form.read_only.errors }} </td>
+        <td> &nbsp;</td>
       </tr>
       <tr>
         <th> Visible:</th>
         <td> {{ form.browseable }} </td>
         <td> {{ form.browseable.errors }} </td>
+        <td> &nbsp;</td>
       </tr>
 
       <!--
@@ -157,8 +180,15 @@
   </form>
   <script src="/static/jstree/dist/jstree.js"></script>
   <script>
-    function change_path(sel){
-      document.getElementById('id_path').value = "/"+sel.value;
+    var selected_path = '';
+    var e = document.getElementById("id_dataset")
+    if (document.forms["create_form"].elements["path"].value == '') {
+      document.forms["create_form"].elements["path"].value = e.options[e.selectedIndex].value;
+      document.forms["create_form"].elements["final_path"].value = e.options[e.selectedIndex].value;
+    }
+
+    function change_dataset(sel){
+      document.getElementById('id_path').value = sel.value;
       $("#share_form").attr("method", "get");
     };
     function displayTree() {
@@ -168,16 +198,17 @@
         'data' : {
           'url' : function (node) {
             return node.id === '#' ? 
-              '/dir_contents?first=1&dir=/' : 
+              '/dir_contents?first=1' : 
               '/dir_contents'; 
           },
           'data' : function (node) {
             var e = document.getElementById("id_dataset")
-            if (node.data) {              //return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
-              return {'dir' : node.data['dir'] , 'id':node.id, "from": "dataset", "dataset_name": e.value};
+            var ds_name = e.options[e.selectedIndex].text;
+            if (node.data) {              
+              return {'dir' : node.data['dir'] , 'id':node.id, "from": "dataset", "dataset_name": ds_name};
             }
             else
-              return { 'dir' : node.text , 'id':node.id, "from": "dataset", "dataset_name": e.value};
+              return { 'dir' : node.text , 'id':node.id, "from": "dataset", "dataset_name": ds_name};
           }
         }
       }
@@ -186,15 +217,23 @@
         $('#pathdiv').on('changed.jstree', function (e, data) {
           var i, j, r = [];
           var ds_elem = document.getElementById("id_dataset");
-          var ds_value = ds_elem.options[ds_elem.selectedIndex].value;
+          var ds_name = ds_elem.options[ds_elem.selectedIndex].text;
           r = data.instance.get_node(data.selected[0]).text;
           rfp = data.instance.get_node(data.selected[0]).data["dir"];
-          //alert(rfp);
-          location.href = location.pathname+"?path="+rfp+"&dataset="+ds_value
-          document.getElementById("pathdiv").style.display = "none";
+          var name_elem = document.getElementById("id_name");
+          var name_value = name_elem.value;
+          $('.lightbox').show();
+          location.href = location.pathname+"?path="+rfp+"&dataset="+ds_name+"&name="+name_value
         })
         .jstree();
       });
+    }
+    function copyText() {
+      if (selected_path == '') {
+        selected_path = document.forms["share_form"].elements["path"].value;
+      }
+      folder_val = $("#id_new_folder").val();
+      document.forms["create_form"].elements["final_path"].value = selected_path+'/'+folder_val;
     }
   </script>
 

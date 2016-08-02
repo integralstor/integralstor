@@ -7,6 +7,8 @@ from integralstor_unicell import nfs
 
 import integral_view
 from integral_view.forms import nfs_shares_forms
+
+import os
   
 def view_nfs_shares(request):
   return_dict = {}
@@ -140,7 +142,7 @@ def edit_nfs_share(request):
       audit.audit("edit_nfs_share", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_nfs_shares?ack=saved')
   except Exception, e:
-    return_dict['base_template'] = "networking_base.html"
+    return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'Modify a NFS share '
     return_dict['tab'] = 'view_nfs_shares_tab'
     return_dict["error"] = 'Error modifying a NFS share'
@@ -162,27 +164,50 @@ def create_nfs_share(request):
     if not ds_list:
       raise Exception('No ZFS datasets available. Please create a dataset before creating shares.')
 
+    if 'dataset' in request.REQUEST:
+      dataset = request.REQUEST['dataset']
+    else:
+      dataset = ds_list[0]['mountpoint']
+
+    if 'path' in request.REQUEST:
+      path = request.REQUEST['path']
+    else:
+      path = dataset
+
+    return_dict['path'] = path
+    return_dict["dataset"] = ds_list
+
     if request.method == "GET":
       #Return the conf page
-      form = nfs_shares_forms.CreateShareForm(dataset_list = ds_list)
+      initial = {}
+      initial['path'] = path
+      initial['dataset'] = dataset
+      form = nfs_shares_forms.CreateShareForm(initial=initial, dataset_list = ds_list)
       return_dict['form'] = form
       return django.shortcuts.render_to_response("create_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       form = nfs_shares_forms.CreateShareForm(request.POST, dataset_list = ds_list)
-      path = request.POST.get("path")
       return_dict['form'] = form
       if not form.is_valid():
         return django.shortcuts.render_to_response("create_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
+      if 'new_folder' in cd and cd['new_folder']:
+        try:
+          os.mkdir('%s/%s'%(cd['path'], cd['new_folder']))
+          audit_str = 'Created new directory "%s" in "%s"'%(cd['new_folder'], cd['path'])
+          audit.audit("create_dir", audit_str, request.META["REMOTE_ADDR"])
+          cd['path'] = '%s/%s'%(cd['path'], cd['new_folder'])
+        except Exception, e:
+          raise Exception('Error creating subfolder %s : %s'%(cd['new_folder'], str(e)))
       result, err = nfs.save_share(cd, True)
       if err:
         raise Exception(err)
  
-      audit_str = "Created NFS share %s"%path
+      audit_str = "Created NFS share %s"%cd['path']
       audit.audit("create_nfs_share", audit_str, request.META["REMOTE_ADDR"])
       return django.http.HttpResponseRedirect('/view_nfs_shares?ack=created')
   except Exception, e:
-    return_dict['base_template'] = "networking_base.html"
+    return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'Create a NFS share '
     return_dict['tab'] = 'view_nfs_shares_tab'
     return_dict["error"] = 'Error creating a NFS share'

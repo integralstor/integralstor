@@ -2,6 +2,21 @@
 {%block tab_header %}
   NIC bond details
 {%endblock%}
+{%block global_actions %}
+    <div class="btn-group btn-group-sm pull-right"  >
+      <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+        <li><a class="action-dropdown" href="/view_interfaces/" role="button" > <i class="fa fa-list fa-fw" ></i>&nbsp;Back to interface list</a></li>
+        <li><a class="action-dropdown" href="/edit_interface_address?name={{name}}" ><i class="fa fa-cog fa-fw" ></i>&nbsp;Modify bond address..</a></li>
+        {%if nic.up_status == 'up' %}
+          <li><a class="action-dropdown" href="/set_interface_state?name={{name}}&state=down" style="color:red"><i class="fa fa-stop-circle-o fa-fw" ></i>&nbsp;Bring down this bond</a></li>
+        {%else %}
+          <li><a class="action-dropdown" href="/set_interface_state?name={{name}}&state=up" ><i class="fa fa-stop-play-o fa-fw" ></i>&nbsp;Bring up this bond</a></li>
+        {%endif%}
+          <li><a class="action-dropdown" href="/remove_bond?name={{name}}" role="button" style="color:red"><i class="fa fa-trash fa-fw" ></i>&nbsp;Remove this bond</a></li>
+      </ul>
+    </div>
+{%endblock%}
 
 {%block inside_content%}
 
@@ -73,16 +88,6 @@
           <td> {{bond.speed}} </td>
         </tr>
       </table>
-      <div class="btn-group btn-group-sm" role="group" aria-label="...">
-        <a href="/view_interfaces/" role="button" class="btn btn-default"> Back to interface list</a>
-        <a href="/edit_interface_address?name={{name}}" role="button" class="btn btn-primary">Edit bond address..</a>
-        {%if nic.up_status == 'up' %}
-          <a href="/set_interface_state?name={{name}}&state=down" role="button" class="btn btn-danger">Bring down this bond</a>
-        {%else %}
-          <a href="/set_interface_state?name={{name}}&state=up" role="button" class="btn btn-success">Bring up this bond</a>
-        {%endif%}
-          <a href="/remove_bond?name={{name}}" role="button" class="btn btn-danger">Remove this bond</a>
-      </div>
     </div>
   {%endif%}
 

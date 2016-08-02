@@ -25,17 +25,17 @@
         </form>
       </div>
       <div class="col-sm-3 btn-group btn-group-sm pull-right"  style="border:0px solid">
-        <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"> Pool specific actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+        <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
         <ul class="dropdown-menu">
-          <li><a href="/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}"  title="Create a new file system dataset" > <i class="fa fa-plus fa-fw"></i>Create a new dataset</a> 
-          <li><a href="/create_zfs_zvol?pool={{pool.pool_name}}"  title="Create a new block device volume" > <i class="fa fa-plus fa-fw"></i>Create a new block device volume</a> 
+          <li><a class="action-dropdown" href="/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}"  title="Create a new file system dataset" > <i class="fa fa-plus fa-fw"></i>Create a new dataset</a> 
+          <li><a class="action-dropdown" href="/create_zfs_zvol?pool={{pool.pool_name}}"  title="Create a new block device volume" > <i class="fa fa-plus fa-fw"></i>Create a new block device volume</a> 
           <li class="divider"></li>
-          <li> <a href="/scrub_zfs_pool?name={{pool.pool_name}}"><i class="fa fa-lemon-o fa-fw" ></i>Initiate a scrub</a>
+          <li> <a class="action-dropdown" href="/scrub_zfs_pool?name={{pool.pool_name}}"><i class="fa fa-lemon-o fa-fw" ></i>Initiate a scrub</a>
           <li class="divider"></li>
-          <li><a href="/export_zfs_pool?pool_name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-cloud-download fa-fw" ></i>Export this pool</a>
-          <li><a href="/delete_zfs_pool?name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-trash-o fa-fw" ></i>Delete this pool</a>
+          <li><a class="action-dropdown" href="/export_zfs_pool?pool_name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-cloud-download fa-fw" ></i>Export this pool</a>
+          <li><a class="action-dropdown" href="/delete_zfs_pool?name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-trash-o fa-fw" ></i>Delete this pool</a>
           <li class="divider"></li>
-          <li> <a href="/view_zfs_pools"><i class="fa fa-list fa-fw" ></i>Back to pool list</a>
+          <li> <a class="action-dropdown" href="/view_zfs_pools"><i class="fa fa-list fa-fw" ></i>Back to pool list</a>
         </ul>
       </div>
     </div>
@@ -76,7 +76,7 @@
               {%endfor%}
             </ul>
             {%if can_expand_pool %}
-              <a href="/expand_zfs_pool?pool_name={{pool.pool_name}}" role="button" class="btn btn-info">Expand this pool</a>
+              <a href="/expand_zfs_pool?pool_name={{pool.pool_name}}" role="button" class="btn btn-default"><i class="fa fa-expand fa-fw"></i>&nbsp;Expand this pool</a>
             {%endif%}
           </div>
         </div>
@@ -115,13 +115,13 @@ i                   {%if child.children %}
                 {%endfor%}
               </ul>
               {% if pool.config.logs.root.children.0.type == 'RAMDisk' %}
-                <a href="/remove_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}&type=ramdisk" role="button" class="btn btn-danger btn-sm"> Remove the write cache RAMDisk device</a>
+                <a href="/remove_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}&type=ramdisk" role="button" class="btn btn-danger btn-sm"> <i class="fa fa-trash fa-fw"></i>&nbsp;Remove the write cache RAMDisk device</a>
               {%else%}
-                <a href="/remove_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}&type=flash" role="button" class="btn btn-danger btn-sm"> Remove the write cache flash device</a>
+                <a href="/remove_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}&type=flash" role="button" class="btn btn-danger btn-sm"> <i class="fa fa-trash fa-fw"></i>&nbsp;Remove the write cache flash device</a>
               {%endif%}
             {%else%}
               <b>Write cache in use : </b> Disk<br><br>
-              <a href="/set_zfs_slog?pool={{pool.pool_name}}" role="button" class="btn btn-primary btn-sm"> Change the write cache device</a>
+              <a href="/set_zfs_slog?pool={{pool.pool_name}}" role="button" class="btn btn-default btn-sm"><i class="fa fa-exchange fa-fw"></i> &nbsp;Change the write cache device</a>
             {%endif%}
           </div>
         </div>
@@ -158,11 +158,11 @@ i                   {%if child.children %}
                   {%endif%}
                 {%endfor%}
               </ul>
-              <a href="/remove_zfs_l2arc?pool={{pool.pool_name}}&device={{pool.config.cache.root.children.0.name}}" role="button" class="btn btn-danger btn-sm"> Remove the read cache device</a>
+              <a href="/remove_zfs_l2arc?pool={{pool.pool_name}}&device={{pool.config.cache.root.children.0.name}}" role="button" class="btn btn-danger btn-sm"> <i class="fa fa-trash fa-fw"></i>Remove the read cache device</a>
             {%else%}
               <b>Read cache in use : </b> RAM<br><br>
               {%if num_free_disks_for_cache %}
-                <a href="/set_zfs_l2arc?pool={{pool.pool_name}}" role="button" class="btn btn-primary btn-sm"> Change the read cache device</a>
+                <a href="/set_zfs_l2arc?pool={{pool.pool_name}}" role="button" class="btn btn-default btn-sm"> <i class="fa fa-exchange fa-fw"></i>&nbsp;Change the read cache device</a>
               {%else%}
                 There are no unused flash drives to use as a read cache.
               {%endif%}
@@ -199,12 +199,12 @@ i                   {%if child.children %}
             {%endif%}
             <div class="btn-group btn-group-sm" role="group" aria-label="...">
               {% if num_free_disks_for_spares  %}
-                <a href="/add_zfs_spares?pool_name={{pool.pool_name}}" role="button" class="btn btn-primary " {% if not num_free_disks_for_spares  %} disabled {%endif%}>Add spare drive(s)</a>
+                <a href="/add_zfs_spares?pool_name={{pool.pool_name}}" role="button" class="btn btn-default " {% if not num_free_disks_for_spares  %} disabled {%endif%}><i class="fa fa-plus fa-fw"></i>&nbsp;Add spare drive(s)</a>
               {%else%}
                 &nbsp;
               {%endif%}
               {% if pool.config.spares %}
-                <a href="/remove_zfs_spare?pool_name={{pool.pool_name}}" role="button" class="btn btn-danger">Remove a spare disk</a>
+                <a href="/remove_zfs_spare?pool_name={{pool.pool_name}}" role="button" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i>&nbsp;Remove a spare disk</a>
               {%endif%}
             </div>
           </div>

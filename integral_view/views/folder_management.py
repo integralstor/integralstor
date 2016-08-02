@@ -11,6 +11,30 @@ from integralstor_unicell import cifs as cifs_unicell, local_users, nfs
 
 from integral_view.forms import zfs_forms,common_forms
 
+def _has_subdirs(full_path):
+  subdirs = False
+  try:
+    contents = os.listdir(full_path)
+    for content in contents:
+      if os.path.isdir('%s/%s'%(full_path, content)):
+        subdirs = True
+  except Exception, e:
+    return False, 'Error checking for subdirs : %s'%str(e)
+  else:
+    return subdirs, None
+
+def _get_subdirs(full_path):
+  subdirs = []
+  try:
+    contents = os.listdir(full_path)
+    for content in contents:
+      if os.path.isdir('%s/%s'%(full_path, content)):
+        subdirs.append(content)
+  except Exception, e:
+    return None, 'Error getting subdirs : %s'%str(e)
+  else:
+    return subdirs, None
+
 def dir_contents(request):
   dir_dict_list = []
   first = request.GET.get("first")
@@ -24,7 +48,10 @@ def dir_contents(request):
       dirs = os.listdir(mnt_pnt)
       for dir in dirs:
         if os.path.isdir('%s/%s'%(mnt_pnt, dir)):
-          subdirs = os.listdir('%s/%s'%(mnt_pnt, dir))
+          subdirs, err = _has_subdirs('%s/%s'%(mnt_pnt, dir))
+          if err:
+            raise Exception(err)
+          #subdirs = os.listdir('%s/%s'%(mnt_pnt, dir))
           if subdirs:
             d_dict = {'id':'%s/%s'%(mnt_pnt,dir), 'text':dir,'icon':'fa fa-angle-right','children':True,'data':{'dir':'%s/%s'%(mnt_pnt, dir)},'parent':"#"}
           else:
@@ -45,7 +72,10 @@ def dir_contents(request):
       for ds in p["datasets"]:
         if ds['properties']['type']['value'] == 'filesystem':
           mnt_pnt = ds['properties']['mountpoint']['value']
-          subdirs = os.listdir(mnt_pnt)
+          #subdirs = os.listdir(mnt_pnt)
+          subdirs, err = _has_subdirs(mnt_pnt)
+          if err:
+            raise Exception(err)
           name = os.path.basename(mnt_pnt)
           if subdirs:
             d_dict = {'id':mnt_pnt, 'text':name,'icon':'fa fa-angle-right','children':True,'data':{'dir':mnt_pnt},'parent':"#"}
@@ -64,12 +94,25 @@ def dir_contents(request):
       true = True
       if os.path.isdir(path+"/"+d):
         parent = path
-        subdirs = os.listdir('%s/%s'%(path, d))
+        subdirs, err = _has_subdirs('%s/%s'%(path, d))
+        if err:
+          raise Exception(err)
+        '''
+        contents = os.listdir('%s/%s'%(path, d))
+        subdirs = False
+        for content in contents:
+          if os.path.isdir('%s/%s/%s'%(path,d, content)):
+            subdirs = True
+            break
+        '''
+        #print 'subdirs ', subdirs
         if subdirs:
+          #print 'yes'
           d_dict = {'id':path+"/"+d, 'text':d,'icon':'fa fa-angle-right','children':True,'data':{'dir':path+"/"+d},'parent':parent}
         else:
+          #print 'no'
           d_dict = {'id':path+"/"+d, 'text':d,'icon':'fa','children':False,'data':{'dir':path+"/"+d},'parent':parent}
-      dir_dict_list.append(d_dict)
+      	dir_dict_list.append(d_dict)
   return HttpResponse(json.dumps(dir_dict_list),mimetype='application/json')
 
   '''
@@ -526,7 +569,17 @@ def get_dir_listing(request):
       raise Exception('No directory specified')
 
     path = request.GET['path']
-    subdirs = os.listdir(path)
+    contents = os.listdir(path)
+    subdirs, err = _get_subdirs(path)
+    if err:
+      raise Exception(err)
+    '''
+    subdirs = []
+    for content in contents:
+      if os.path.isdir('%s/%s'%(path, content)):
+        subdirs.append(content)
+    '''
+    
 
     files = (file for file in os.listdir(path)
       if os.path.isfile(os.path.join(path, file)))
@@ -535,14 +588,14 @@ def get_dir_listing(request):
     resp += '<table class="table table-striped">'
     resp += '<tr><th>Type</th><th>Name</th><th>Size</th><th>Modified at<th></tr>'
     for file in files:
+      print 'file', file
       size = os.path.getsize('%s/%s'%(path, file))
       mtime = time.ctime(os.path.getmtime('%s/%s'%(path,file)))
       resp += '<tr><td><i class="fa fa-file-o" aria-hidden="true"></i></td><td>%s</td><td>%s</td><td>%s</td></tr>'%(file, size, mtime)
-    print 'a'
     for d in subdirs:
+      print 'dir ', d
       mtime = time.ctime(os.path.getmtime('%s/%s'%(path,d)))
       resp += '<tr><td><i class="fa fa-folder" aria-hidden="true"></i></td><td>%s</td><td>&nbsp;</td><td>%s</td></tr>'%(d,mtime)
-    print 'a'
     resp += '</table>'
     #resp += '</body></html>'
     print 'resp ', resp
