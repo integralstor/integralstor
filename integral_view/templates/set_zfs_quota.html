@@ -44,7 +44,7 @@
     </table>
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       {% if path_type == 'pool' %}
-        <a href="/view_zfs_pool?name={{form.path.value}}" role="button" class="btn btn-default cover-page"> Cancel</a>&nbsp;&nbsp;
+        <a href="/view_zfs_pool?name={{form.path.value}}&view=quotas" role="button" class="btn btn-default cover-page"> Cancel</a>&nbsp;&nbsp;
       {%else%}
         <a href="/view_zfs_dataset?name={{form.path.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
       {%endif%}

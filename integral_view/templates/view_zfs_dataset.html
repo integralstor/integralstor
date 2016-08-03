@@ -18,7 +18,7 @@
       	{% endif %}
         <li><a href="/edit_zfs_dataset?name={{name}}&pool_name={{pool}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Change {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} properties</a> </li>
         {%if properties.type.value == 'filesystem'%}
-          <li><a href="/dir_manager?path={{properties.mountpoint.value}}&dataset={{name}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Change ownership and permissions</a></li>
+          <li><a href="/view_dir_ownership_permissions?path={{properties.mountpoint.value}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Change ownership and permissions</a></li>
         {%endif%}
         <li class="divider"></li>
         {%if properties.type.value == 'filesystem'%}

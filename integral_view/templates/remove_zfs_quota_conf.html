@@ -19,7 +19,7 @@
       {%if path_type == 'dataset'%}
         <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_dataset?name={{path}}'"> &nbsp;&nbsp;
       {%else%}
-        <input type="button" class="btn btn-default cover-page" value="Cancel" onClick="window.location='/view_zfs_pool?name={{path}}'"> &nbsp;&nbsp;
+        <input type="button" class="btn btn-default cover-page" value="Cancel" onClick="window.location='/view_zfs_pool?name={{path}}&view=quotas'"> &nbsp;&nbsp;
       {%endif%}
       <button type="submit" class="btn btn-danger cover-page" >Confirm and remove</button>
     </div>

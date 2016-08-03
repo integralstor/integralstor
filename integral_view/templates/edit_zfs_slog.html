@@ -53,7 +53,7 @@
         <td> {{ form.disk.errors }} </td>
       </tr>
       <tr id="ramdisk_size_row" style="display:none">
-        <th> Ramdisk size (in GB) :</th>
+        <th> RAMdisk size (in GB) :</th>
         <td>
           <input type="text"  name="ramdisk_size" class="form-control" id="id_ramdisk_size" placeholder="Enter the size of the RAM Disk in Gigabytes" /> 
         </td>
@@ -62,7 +62,7 @@
     </table>
 
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      <a href="/view_zfs_pool/?name={{form.pool.value}}" role="button" class="btn btn-default cover-page"> Cancel</a>&nbsp;&nbsp;
+      <a href="/view_zfs_pool/?name={{form.pool.value}}&view=components" role="button" class="btn btn-default cover-page"> Cancel</a>&nbsp;&nbsp;
       <button type="submit" class="btn btn-primary cover-page">Save</button>
     </div>
   </form>

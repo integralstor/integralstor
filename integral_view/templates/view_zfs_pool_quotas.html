@@ -27,6 +27,9 @@
       <div class="col-sm-3 btn-group btn-group-sm pull-right"  style="border:0px solid">
         <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
         <ul class="dropdown-menu">
+          <li><a class="action-dropdown" href="/set_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_type=user&pool_name={{pool.pool_name}}" title="Set a new user quota for this pool"><i class="fa fa-plus fa-fw" ></i>Add user quota</a></li>
+          <li><a class="action-dropdown" href="/set_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_type=group&pool_name={{pool.pool_name}}" title="Set a new group quota for this pool"><i class="fa fa-plus fa-fw" ></i>Add group quota</a></li>
+          <li class="divider"></li>
           <li><a class="action-dropdown" href="/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}"  title="Create a new file system dataset" > <i class="fa fa-plus fa-fw"></i>Create a new dataset</a> 
           <li><a class="action-dropdown" href="/create_zfs_zvol?pool={{pool.pool_name}}"  title="Create a new block device volume" > <i class="fa fa-plus fa-fw"></i>Create a new block device volume</a> 
           <li class="divider"></li>
@@ -52,15 +55,6 @@
             <th > Type </th>
             <th > Quota </th>
             <th> Actions </th>
-            <th> 
-              <div class="btn-group btn-group-sm pull-right">
-              <a class="btn btn-default btn-sm dropdown-toggle " data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw" ></i>&nbsp;Pool quota actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
-              <ul class="dropdown-menu">
-                <li><a class="action-dropdown" href="/set_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_type=user&pool_name={{pool.pool_name}}" title="Set a new user quota for this pool"><i class="fa fa-plus fa-fw" ></i>Add user quota</a></li>
-                <li><a class="action-dropdown" href="/set_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_type=group&pool_name={{pool.pool_name}}" title="Set a new group quota for this pool"><i class="fa fa-plus fa-fw" ></i>Add group quota</a></li>
-              </ul>
-              </div>
-            </th>
           </tr>
           {%for un, q in quotas.users.items %}
             <tr>
@@ -70,7 +64,6 @@
               <td>
                 <a href="/remove_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_name={{un}}&ug_type=user&pool_name={{pool.pool_name}}" role="button" class="btn btn-danger btn-xs"> <i class="fa fa-trash fa-fw" ></i>&nbsp;Remove this quota</a>
               </td>
-              <td>&nbsp;</td>
             </tr>
           {%endfor%}
           {%for gn, q in quotas.groups.items %}
@@ -81,7 +74,6 @@
               <td>
                 <a href="/remove_zfs_quota?path={{pool.pool_name}}&path_type=pool&ug_name={{gn}}&ug_type=group&pool_name={{pool.pool_name}}" role="button" class="btn btn-danger btn-xs"> <i class="fa fa-trash fa-fw"></i>Remove this quota</a>
               </td>
-              <td>&nbsp;</td>
             </tr>
           {%endfor%}
         </table>
