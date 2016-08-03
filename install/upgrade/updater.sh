@@ -33,4 +33,3 @@ EOF
 echo "Databases update successful."
 
 echo "IntegralStor UNICell has been successfully updated. System is Going to Restart now..."
-reboot
