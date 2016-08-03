@@ -15,7 +15,7 @@ import integralstor_unicell
 from integralstor_unicell import system_info
 
 import integralstor_common
-from integralstor_common import audit, mail, common, certificates, nginx,command
+from integralstor_common import audit, mail, common, certificates, nginx,command, scheduler_utils
 
 
 def login(request):
@@ -333,10 +333,16 @@ def edit_https_mode(request):
           raise Exception(err)
       audit_str = "Changed the IntegralView access mode to '%s'"%change_to
       audit.audit("set_https_mode", audit_str, request.META["REMOTE_ADDR"])
-
-      os.system('echo service nginx restart | at now + 1 minute')
  
-      return django.http.HttpResponseRedirect('/view_https_mode?ack=set_to_%s'%change_to)
+    redirect_url = "https://" if change_to == "secure" else "http://"
+    redirect_url = redirect_url + request.META["HTTP_HOST"] + "/view_https_mode?ack=set_to_%s"%change_to
+    db_path,err = common.get_db_path()
+    if err:
+      raise Exception(err)
+    restart , err = scheduler_utils.schedule_a_job(db_path,"Chaging IntegralView access mode",[{'Restarting Web Server':'service nginx restart'}])
+    if err:
+      raise Exception(err)
+    return django.http.HttpResponseRedirect(redirect_url)
 
   except Exception, e:
     return_dict['base_template'] = "admin_base.html"
