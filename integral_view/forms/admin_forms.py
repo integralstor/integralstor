@@ -17,9 +17,9 @@ class _MultipleEmailField(forms.CharField):
       else:
         raise Exception('Invalid email address.')
     except Exception, e:
-      return None, 'Error validating email address : %s'%str(e)
+      return False, 'Error validating email address : %s'%str(e)
     else:
-      return ret, None
+      return True, None
 
     
   def clean(self, value):

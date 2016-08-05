@@ -275,11 +275,9 @@ def edit_local_user_group_membership(request):
 def create_local_user(request):
   return_dict = {}
   try:
-    '''
     group_list,err = local_users.get_local_groups()
     if err:
       raise Exception(err)
-    '''
     if request.method == "GET":
       #Return the form
       #form = local_user_forms.LocalUserForm(group_list = group_list)
@@ -303,8 +301,10 @@ def create_local_user(request):
                 
         audit_str = "Created a local user %s"%cd["username"]
         audit.audit("create_local_user", audit_str, request.META["REMOTE_ADDR"])
-        #url = '/view_local_users?ack=created'
-        url = '/edit_local_user_group_membership/?username=%s&ack=created'%cd['username']
+        if group_list:
+          url = '/edit_local_user_group_membership/?username=%s&ack=created'%cd['username']
+        else:
+          url = '/view_local_users?ack=created'
         return django.http.HttpResponseRedirect(url)
       else:
         return_dict["form"] = form

@@ -331,19 +331,23 @@ def create_cifs_share(request):
       return_dict["form"] = form
       if form.is_valid():
         cd = form.cleaned_data
+        print cd
         name = cd["name"]
         path = cd["path"]
         if not path:
           return_dict["path_error"] = "Please select a dataset."
           return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
-        os.chown(path,500,500)
         if 'new_folder' in cd and cd['new_folder']:
           try:
-            os.mkdir('%s/%s'%(cd['path'], cd['new_folder']))
+            path = '%s/%s'%(cd['path'], cd['new_folder'])
+            print path
+            os.mkdir(path)
+            print 'a'
             audit_str = 'Created new directory "%s" in "%s"'%(cd['new_folder'], cd['path'])
             audit.audit("create_dir", audit_str, request.META["REMOTE_ADDR"])
           except Exception, e:
             raise Exception('Error creating subfolder %s : %s'%(cd['new_folder'], str(e)))
+        os.chown(path,500,500)
 
         if "comment" in cd:
           comment = cd["comment"]
