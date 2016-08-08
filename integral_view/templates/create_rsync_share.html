@@ -102,9 +102,6 @@
     $("#id_dataset").change(function(){
       location.reload();
     });
-    var dataset_path = $("#id_dataset").val()
-    $("#display_path_text").text(dataset_path)
-    $("#id_path").val(dataset_path)
     function displayTree() {
       document.getElementById("pathdiv").style.display = "block";
       $('#pathdiv').jstree({ 'core' : {
@@ -116,14 +113,14 @@
               '/dir_contents'; 
           },
           'data' : function (node) {
-            var e = document.getElementById("id_dataset");
-            if (node.data) {
-              return {'dir' : node.data['dir'] , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
+            var e = document.getElementById("id_dataset")
+            var ds_name = e.options[e.selectedIndex].text;
+            if (node.data) {              
+              return {'dir' : node.data['dir'] , 'id':node.id, "from": "dataset", "dataset_name": ds_name};
             }
             else
-              return { 'dir' : node.text , 'id':node.id, "pool_name": e.options[e.selectedIndex].value};
+              return { 'dir' : node.text , 'id':node.id, "from": "dataset", "dataset_name": ds_name};
             }
-            
           }
           
         }
@@ -131,12 +128,14 @@
       $(function () {
         $('#pathdiv').on('changed.jstree', function (e, data) {
           var i, j, r = [];
+          var ds_elem = document.getElementById("id_dataset");
+          var ds_name = ds_elem.options[ds_elem.selectedIndex].text;
           r = data.instance.get_node(data.selected[0]).text;
           rfp = data.instance.get_node(data.selected[0]).data["dir"];
-          document.forms["create_form"].elements["path"].value = rfp;
-          document.forms["create_form"].elements["display_path"].value = rfp;
-          document.getElementById("pathdiv").style.display = "none";
-          $("#new_folder").trigger('input')
+          var name_elem = document.getElementById("id_name");
+          var name_value = name_elem.value;
+          $('.lightbox').show();
+          location.href = location.pathname+"?path="+rfp+"&dataset="+ds_name+"&name="+name_value
         })
         .jstree();
       });
