@@ -228,12 +228,12 @@ def download_sys_info(request):
       zf = zipfile.ZipFile(zf_name, 'w')
       abs_src = os.path.abspath(display_name)
       for dirname, subdirs, files in os.walk(display_name):
-        if not "logs" in dirname:
-          for filename in files:
+        if not( ("logs" in dirname) or ("ntp" in dirname) or ("rc_local" in dirname) or ("samba" in dirname) or ("status" in dirname)):
+          for filename in files: 
             absname = os.path.abspath(os.path.join(dirname, filename))
             arcname = absname[len(abs_src) + 1:]
             zf.write(absname, arcname)
-      logs = {'smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf','nfs':'/etc/exports','ftp':'/etc/vsftpd/vsftpd.conf'}
+      logs = {'smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf','nfs':'/etc/exports','ftp':'/etc/vsftpd/vsftpd.conf','master.status':display_name+"/status/master.status",'master.manifest':display_name+"/status/master.manifest"}
       for key,value in logs.iteritems():
           if os.path.isfile(value):
             zf.write(value, key)
@@ -264,11 +264,15 @@ def upload_sys_info(request):
   try:
     if request.method == "POST" :
       status,path = handle_uploaded_file(request.FILES['file_field'])
+      display_name, err = common.get_config_dir()
+      if err:
+        raise Exception(err)
       if path:
         zip = zipfile.ZipFile(path,'r')
         data = zip.namelist()
         move = zip.extractall("/tmp/upload/")
-        logs = {'smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf','nfs':'/etc/exports','ftp':'/etc/vsftpd/vsftpd.conf'}
+       # logs = {'smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf','nfs':'/etc/exports','ftp':'/etc/vsftpd/vsftpd.conf'}
+        logs = {'smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf','nfs':'/etc/exports','ftp':'/etc/vsftpd/vsftpd.conf','master.status':display_name+"/status/master.status",'master.manifest':display_name+"/status/master.manifest"}
         for key,value in logs.iteritems():
           if key and os.path.isfile("/tmp/upload/"+key):
             copy_file_and_overwrite("/tmp/upload/"+key,value)
