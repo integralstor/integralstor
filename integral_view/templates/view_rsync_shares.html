@@ -48,8 +48,13 @@
               {%endif%}
             </td>
             <td>
-              <a href="/edit_rsync_share?name={{share.name}}" role="button" class="btn btn-info btn-xs"> Edit</a>
-              <a href="/delete_rsync_share?name={{share.name}}" role="button" class="btn btn-danger btn-xs"> Delete</a>
+              <div class="btn-group btn-group-xs" >
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li> <a href="/edit_rsync_share?name={{share.name}}" role="button" class="action-dropdown" title="Edit the RSync Share"><i class="fa fa-edit"></i> Edit</a> </li>
+                  <li> <a href="/delete_rsync_share?name={{share.name}}" role="button" class="action-dropdown" title="Delete the RSync Share"> <i class="fa fa-remove"></i>  Delete</a> </li>
+                 </ul>
+             
             </td>
           </tr>
         {%endfor%}

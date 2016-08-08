@@ -136,6 +136,7 @@
           var name_value = name_elem.value;
           $('.lightbox').show();
           location.href = location.pathname+"?path="+rfp+"&dataset="+ds_name+"&name="+name_value
+          $("#new_folder").trigger('input');
         })
         .jstree();
       });
@@ -146,12 +147,15 @@
     }
     $("#new_folder").on('input',function(){
       var final_path = $("#id_display_path").val()
+      var ds_elem = document.getElementById("id_dataset");
+      var ds_name = ds_elem.options[ds_elem.selectedIndex].text;
       if (final_path === ""){
-        $("#id_path").val(dataset_path+"/"+$(this).val())
-        $("#display_path_text").text(dataset_path+"/"+$(this).val())
+        $("#id_path").val("/"+ds_name+"/"+$(this).val())
+        $("#display_path_text").text("/"+ds_name+"/"+$(this).val())
       }
       else{
         $("#id_path").val(final_path+"/"+$(this).val())
+        alert(final_path);
         $("#display_path_text").text(final_path+"/"+$(this).val())
       }
     });
