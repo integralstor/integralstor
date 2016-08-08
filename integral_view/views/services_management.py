@@ -77,7 +77,7 @@ def change_service_status(request):
         raise Exception(err)
 
     audit_str = "Service status change of %s initiated to %s state."%(service, action)
-    audit.audit("change_service_status", audit_str, request.META["REMOTE_ADDR"])
+    audit.audit("change_service_status", audit_str, request.META)
 
     out, err = services_management.change_service_status(service, action)
     if err:
@@ -127,7 +127,7 @@ def start_ftp_service(request):
       d, err = _change_service_status('vsftpd','start')
       if not d:
         audit_str += 'Request failed.'
-        audit.audit("change_service_status", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("change_service_status", audit_str, request.META)
         if err:
           raise Exception(err)
         else:
@@ -138,7 +138,7 @@ def start_ftp_service(request):
       else:
         audit_str += 'Request failed.'
         return django.http.HttpResponseRedirect('/view_services?&ack=start_fail')
-      audit.audit("change_service_status", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("change_service_status", audit_str, request.META)
   except Exception, e:
     return_dict['base_template'] = "services_base.html"
     return_dict["page_title"] = 'Start FTP service'

@@ -187,7 +187,7 @@ def edit_local_user_gid(request):
             raise Exception("Error saving user information")
   
         audit_str = "Modified local user's primary group %s"%cd["username"]
-        audit.audit("modify_local_user_gid", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("modify_local_user_gid", audit_str, request.META)
   
         return django.http.HttpResponseRedirect('/view_local_user?username=%s&searchby=username&ack=gid_changed'%cd["username"])
   
@@ -257,7 +257,7 @@ def edit_local_user_group_membership(request):
             raise Exception("Error saving user's group membership information")
   
         audit_str = "Modified local user group membership information %s"%cd["username"]
-        audit.audit("modify_local_user_grp_membership", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("modify_local_user_grp_membership", audit_str, request.META)
   
         return django.http.HttpResponseRedirect('/view_local_user?username=%s&searchby=username&ack=groups_changed'%cd["username"])
   
@@ -300,7 +300,7 @@ def create_local_user(request):
             raise Exception("Error creating the local user.")
                 
         audit_str = "Created a local user %s"%cd["username"]
-        audit.audit("create_local_user", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("create_local_user", audit_str, request.META)
         if group_list:
           url = '/edit_local_user_group_membership/?username=%s&ack=created'%cd['username']
         else:
@@ -342,7 +342,7 @@ def create_local_group(request):
           else:
             raise Exception("Error creating the local group.")
         audit_str = "Created a local group %s"%cd["grpname"]
-        audit.audit("create_local_group", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("create_local_group", audit_str, request.META)
         #url = '/view_local_groups?ack=created'
         url = '/modify_group_membership?grpname=%s&ack=created'%cd['grpname']
         return django.http.HttpResponseRedirect(url)
@@ -387,7 +387,7 @@ def delete_local_group(request):
         else:
           raise Exception('Error deleting group')
       audit_str = "Deleted a local group %s"%request.POST["grpname"]
-      audit.audit("delete_local_group", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("delete_local_group", audit_str, request.META)
       url = '/view_local_groups?ack=deleted'
       return django.http.HttpResponseRedirect(url)
   except Exception, e:
@@ -419,7 +419,7 @@ def delete_local_user(request):
         else:
           raise Exception('Error deleting local user')
       audit_str = "Deleted a local user %s"%request.POST["username"]
-      audit.audit("delete_local_user", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("delete_local_user", audit_str, request.META)
       url = '/view_local_users?ack=deleted'
       return django.http.HttpResponseRedirect(url)
   except Exception, e:
@@ -458,7 +458,7 @@ def change_local_user_password(request):
             raise Exception("Error changing the local user password")
   
         audit_str = "Changed password for local user %s"%cd["username"]
-        audit.audit("change_local_user_password", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("change_local_user_password", audit_str, request.META)
         return django.http.HttpResponseRedirect('/view_local_users?ack=changed_password')
       else:
         return_dict["form"] = form
@@ -546,7 +546,7 @@ def modify_group_membership(request):
         if err:
           raise Exception('Error setting group membership: %s'%err)
         #assert False
-        audit.audit("set_group_membership", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("set_group_membership", audit_str, request.META)
         url = '/view_local_group?grpname=%s&searchby=grpname&ack=set_membership'%cd['grpname']
         return django.http.HttpResponseRedirect(url)
       else:

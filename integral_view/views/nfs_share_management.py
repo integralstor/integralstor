@@ -85,7 +85,7 @@ def delete_nfs_share(request):
         raise Exception(err)
  
       audit_str = "Deleted NFS share %s"%path
-      audit.audit("delete_nfs_share", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("delete_nfs_share", audit_str, request.META)
       return django.http.HttpResponseRedirect('/view_nfs_shares?ack=deleted')
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
@@ -139,7 +139,7 @@ def edit_nfs_share(request):
         raise Exception(err)
  
       audit_str = "Edited NFS share %s"%path
-      audit.audit("edit_nfs_share", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("edit_nfs_share", audit_str, request.META)
       return django.http.HttpResponseRedirect('/view_nfs_shares?ack=saved')
   except Exception, e:
     return_dict['base_template'] = "shares_base.html"
@@ -195,7 +195,7 @@ def create_nfs_share(request):
         try:
           os.mkdir('%s/%s'%(cd['path'], cd['new_folder']))
           audit_str = 'Created new directory "%s" in "%s"'%(cd['new_folder'], cd['path'])
-          audit.audit("create_dir", audit_str, request.META["REMOTE_ADDR"])
+          audit.audit("create_dir", audit_str, request.META)
           cd['path'] = '%s/%s'%(cd['path'], cd['new_folder'])
         except Exception, e:
           raise Exception('Error creating subfolder %s : %s'%(cd['new_folder'], str(e)))
@@ -204,7 +204,7 @@ def create_nfs_share(request):
         raise Exception(err)
  
       audit_str = "Created NFS share %s"%cd['path']
-      audit.audit("create_nfs_share", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("create_nfs_share", audit_str, request.META)
       return django.http.HttpResponseRedirect('/view_nfs_shares?ack=created')
   except Exception, e:
     return_dict['base_template'] = "shares_base.html"

@@ -50,7 +50,7 @@ def delete_ssl_certificate(request):
         raise Exception(err)
  
       audit_str = "Deleted SSL certificate name '%s'"%name
-      audit.audit("delete_certificate", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("delete_certificate", audit_str, request.META)
       return django.http.HttpResponseRedirect('/view_ssl_certificates?ack=deleted')
   except Exception, e:
     return_dict['base_template'] = "system_base.html"
@@ -79,7 +79,7 @@ def create_self_signed_ssl_certificate(request):
         raise Exception(err)
  
       audit_str = "Created a self signed SSL certificate named %s"%cd['name']
-      audit.audit("create_self_signed_certificate", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("create_self_signed_certificate", audit_str, request.META)
       return django.http.HttpResponseRedirect('/view_ssl_certificates?ack=created_self_signed_cert')
   except Exception, e:
     return_dict['base_template'] = "system_base.html"
@@ -108,7 +108,7 @@ def upload_ssl_certificate(request):
         raise Exception(err)
  
       audit_str = "Uploaded a SSL certificate named %s"%cd['name']
-      audit.audit("upload_certificate", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("upload_certificate", audit_str, request.META)
       return django.http.HttpResponseRedirect('/view_ssl_certificates?ack=uploaded_cert')
   except Exception, e:
     return_dict['base_template'] = "system_base.html"

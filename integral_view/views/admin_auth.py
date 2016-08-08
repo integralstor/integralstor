@@ -130,7 +130,7 @@ def change_admin_password(request):
               return_dict['ack_message'] = 'Password changed sucessful.'
               iv_logging.info("Admin password change request successful.")
               audit_str = "Changed admin password"
-              audit.audit("modify_admin_password", audit_str, request.META["REMOTE_ADDR"])
+              audit.audit("modify_admin_password", audit_str, request.META)
             else:
   	          return_dict['error'] = 'New passwords do not match'
         # else invalid form or error so existing form data to return_dict and 
@@ -332,7 +332,7 @@ def edit_https_mode(request):
         if err:
           raise Exception(err)
       audit_str = "Changed the IntegralView access mode to '%s'"%change_to
-      audit.audit("set_https_mode", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("set_https_mode", audit_str, request.META)
  
     redirect_url = "https://" if change_to == "secure" else "http://"
     redirect_url = redirect_url + request.META["HTTP_HOST"] + "/view_https_mode?ack=set_to_%s"%change_to
@@ -368,7 +368,7 @@ def reboot_or_shutdown(request):
     else:
       if 'conf' not in request.POST:
         raise Exception('Unknown action. Please use the menus')
-      audit.audit('reboot_shutdown', 'System %s initiated'%do, request.META["REMOTE_ADDR"])
+      audit.audit('reboot_shutdown', 'System %s initiated'%do, request.META)
       if do == 'reboot':
         command.execute_with_rc('shutdown -r +%d'%minutes_to_wait)
       elif do == 'shutdown':
@@ -561,7 +561,7 @@ def reset_to_factory_defaults(request):
         scl = system_info.load_system_config()
         d = gluster_commands.create_factory_defaults_reset_file(scl, vil)
         if not "error" in d:
-          audit.audit("factory_defaults_reset_start", "Scheduled reset of the system to factory defaults.",  request.META["REMOTE_ADDR"])
+          audit.audit("factory_defaults_reset_start", "Scheduled reset of the system to factory defaults.",  request.META)
           return django.http.HttpResponseRedirect('/show/batch_start_conf/%s'%d["file_name"])
         else:
           return_dict["error"] = "Error initiating a reset to system factory defaults : %s"%d["error"]

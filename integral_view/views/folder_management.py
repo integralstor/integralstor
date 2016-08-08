@@ -229,7 +229,7 @@ def add_aces(request):
         audit_str += ', for CIFS share %s'%share_name
       else:
         audit_str += ', for path %s'%path
-      audit.audit("add_aces", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("add_aces", audit_str, request.META)
       if for_share:
         return django.http.HttpResponseRedirect('/view_cifs_share?access_mode=by_id&index=%s&ack=aces_added'%share_index)
       else:
@@ -380,7 +380,7 @@ def edit_aces(request):
         audit_str = 'Modified ACL entries for CIFS share %s: '%share_name
       else:
         audit_str = 'Modified ACL entries for directory %s: '%path
-      audit.audit("edit_aces", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("edit_aces", audit_str, request.META)
       if for_share:
         return django.http.HttpResponseRedirect('/view_cifs_share?access_mode=by_id&index=%s&ack=aces_modified'%share_index)
       else:
@@ -442,7 +442,7 @@ def delete_ace(request):
         audit_str = "Removed ACL entry %s (%s) for CIFS share %s"%(name, type, share_name)
       else:
         audit_str = "Removed ACL entry %s (%s) for directory %s"%(name, type, path)
-      audit.audit("delete_ace", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("delete_ace", audit_str, request.META)
       if for_share:
         return django.http.HttpResponseRedirect('/view_cifs_share?access_mode=by_id&index=%s&ack=ace_deleted'%share_index)
       else:
@@ -491,7 +491,7 @@ def create_dir(request):
         os.makedirs(directory)
         os.chown(directory, 500, 500)
         audit_str = "Created new directory '%s' in '%s'" %(dir_name, path)
-        audit.audit("create_dir", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("create_dir", audit_str, request.META)
         return django.http.HttpResponseRedirect('/dir_manager/?ack=created_dir')
       else:
         return_dict['form'] = form
@@ -549,7 +549,7 @@ def delete_dir(request):
               
         shutil.rmtree(path,ignore_errors=True)
         audit_str = "Deleted directory '%s'" %path
-        audit.audit("delete_dir", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("delete_dir", audit_str, request.META)
 
         return django.http.HttpResponseRedirect('/dir_manager/?ack=deleted_dir')
       else:
@@ -855,7 +855,7 @@ def modify_dir_owner(request):
         user_name = pwd.getpwuid(int(cd['uid']))[0]
         group_name = grp.getgrgid(int(cd['gid']))[0]
         audit_str = "Set owner user to %s and owner group to %s for directory %s"%(user_name, group_name, cd["path"])
-        audit.audit("modify_dir_owner", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("modify_dir_owner", audit_str, request.META)
         return django.http.HttpResponseRedirect('/view_dir_ownership_permissions?path=%s&ack=modified_ownership'%cd['path'])
       else:
         return django.shortcuts.render_to_response('modify_dir_ownership.html', return_dict, context_instance=django.template.context.RequestContext(request))
@@ -973,7 +973,7 @@ def modify_dir_permissions(request):
         if not os.path.exists(directory):
           os.makedirs(directory)
           audit_str = "Creating %s" %directory
-          audit.audit("modify_dir_owner_permissions", audit_str, request.META["REMOTE_ADDR"])
+          audit.audit("modify_dir_owner_permissions", audit_str, request.META)
       elif request.POST.get("action") == "delete_folder":
         delete = "false"
         if len(path.split("/")) > 2:
@@ -994,7 +994,7 @@ def modify_dir_permissions(request):
           print delete
           #shutil.rmtree(path,ignore_errors=True)
           audit_str = "Deleting directory %s" %path
-          audit.audit("modify_dir_owner_permissions", audit_str, request.META["REMOTE_ADDR"])
+          audit.audit("modify_dir_owner_permissions", audit_str, request.META)
         else:
           raise Exception("Cannot delete folder. It is either a dataset of a share")
       else:
@@ -1010,7 +1010,7 @@ def modify_dir_permissions(request):
               raise Exception("Error setting directory ownership/permissions.")
   
           audit_str = "Modified directory ownsership/permissions for %s"%cd["path"]
-          audit.audit("modify_dir_owner_permissions", audit_str, request.META["REMOTE_ADDR"])
+          audit.audit("modify_dir_owner_permissions", audit_str, request.META)
   
       return django.http.HttpResponseRedirect('/modify_dir_permissions/?ack=set_permissions')
   

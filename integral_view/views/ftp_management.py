@@ -80,7 +80,7 @@ def configure_ftp(request):
         audit_str = audit_str + ' SSL enabled with certificate %s'%cd['cert_name']
       else:
         audit_str = audit_str + ' SSL disabled.'
-      ret, err = audit.audit("update_ftp_config", audit_str, request.META["REMOTE_ADDR"])
+      ret, err = audit.audit("update_ftp_config", audit_str, request.META)
       return django.http.HttpResponseRedirect('/view_ftp_configuration?ack=saved')
   except Exception, e:
     return_dict['base_template'] = "services_base.html"
@@ -106,7 +106,7 @@ def create_ftp_user_dirs(request):
     if err:
       raise Exception(err)
     
-    audit.audit("create_ftp_dir", 'Created FTP user directories', request.META["REMOTE_ADDR"])
+    audit.audit("create_ftp_dir", 'Created FTP user directories', request.META)
     return django.http.HttpResponseRedirect('/view_ftp_configuration?ack=dirs_created')
   
   except Exception, e:

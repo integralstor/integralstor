@@ -227,7 +227,7 @@ def edit_cifs_share(request):
           raise Exception(err)
   
         audit_str = "Modified share %s"%cd["name"]
-        audit.audit("modify_cifs_share", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("modify_cifs_share", audit_str, request.META)
   
         return django.http.HttpResponseRedirect('/view_cifs_share?access_mode=by_id&index=%s&ack=saved'%cd["share_id"])
   
@@ -267,7 +267,7 @@ def delete_cifs_share(request):
         raise Exception(err)
   
       audit_str = "Deleted CIFS share %s"%name
-      audit.audit("delete_cifs_share", audit_str, request.META["REMOTE_ADDR"])
+      audit.audit("delete_cifs_share", audit_str, request.META)
       return django.http.HttpResponseRedirect('/view_cifs_shares?ack=deleted')
   except Exception, e:
     return_dict['base_template'] = "shares_base.html"
@@ -344,7 +344,7 @@ def create_cifs_share(request):
             os.mkdir(path)
             print 'a'
             audit_str = 'Created new directory "%s" in "%s"'%(cd['new_folder'], cd['path'])
-            audit.audit("create_dir", audit_str, request.META["REMOTE_ADDR"])
+            audit.audit("create_dir", audit_str, request.META)
           except Exception, e:
             raise Exception('Error creating subfolder %s : %s'%(cd['new_folder'], str(e)))
         os.chown(path,500,500)
@@ -390,7 +390,7 @@ def create_cifs_share(request):
           raise Exception(err)
   
         audit_str = "Created Samba share %s"%name
-        audit.audit("create_cifs_share", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("create_cifs_share", audit_str, request.META)
         return django.http.HttpResponseRedirect('/view_cifs_shares?ack=created')
       else:
         return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
@@ -536,7 +536,7 @@ def save_samba_server_settings(request):
   
     #print '7'
     audit_str = "Modified share authentication settings"
-    audit.audit("modify_samba_settings", audit_str, request.META["REMOTE_ADDR"])
+    audit.audit("modify_samba_settings", audit_str, request.META)
     return_dict["form"] = form
     return_dict["ack_message"] = "Information successfully updated"
     #print '8'

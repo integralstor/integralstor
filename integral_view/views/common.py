@@ -477,7 +477,7 @@ def set_file_owner_and_permissions(request):
             raise Exception("Error setting directory ownership/permissions.")
   
         audit_str = "Modified directory ownsership/permissions for %s"%cd["path"]
-        audit.audit("modify_dir_owner_permissions", audit_str, request.META["REMOTE_ADDR"])
+        audit.audit("modify_dir_owner_permissions", audit_str, request.META)
   
         return django.http.HttpResponseRedirect('/view_zfs_pools?ack=set_permissions')
   
