@@ -189,6 +189,7 @@
 
     function change_dataset(sel){
       document.getElementById('id_path').value = sel.value;
+      $('.lightbox').show();
       $("#share_form").attr("method", "get");
     };
     function displayTree() {

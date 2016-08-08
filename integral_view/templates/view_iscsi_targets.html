@@ -4,6 +4,10 @@
   ISCSI targets
 {%endblock%}
 
+{%block global_actions %}
+    <a  class="btn btn-default btn-sm pull-right" href="/create_iscsi_target/" title="Create a new Windows share" style="color:#000"> <i class="fa fa-plus-square-o  fa-fw"></i>&nbsp;Create new target </a>
+{%endblock%}
+
 {% block inside_content %}
 
   {% if not target_list %}
@@ -30,15 +34,24 @@
             {%endfor%}
           </td>
           <td>
-            <a href="/view_iscsi_target?name={{target.iqn}}" role="button" class="btn btn-info btn-xs"> View details</a>
+            <div class="btn-group btn-group-xs" >
+              <a class="btn btn-default pull-left dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+              <ul class="dropdown-menu">
+                <li ><a class="action-dropdown" href="/view_iscsi_target?name={{target.iqn}}"  title="View and configure this target" class="cover-page"> <i class="fa fa-cog fa-fw"></i>View and configure</a> 
+                <li ><a class="action-dropdown" href="/create_iscsi_lun?target_name={{target.iqn}}"  title="Add a LUN to this target" class="cover-page"> <i class="fa fa-plus fa-fw"></i>Add a LUN</a> 
+                <li ><a class="action-dropdown" href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=incoming"  title="Add initiator authentication to this target" class="cover-page"> <i class="fa fa-plus fa-fw"></i>Add initiator authentication</a> 
+                <li ><a class="action-dropdown" href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=outgoing"  title="Add target authentication to this target" class="cover-page"> <i class="fa fa-plus fa-fw"></i>Add target authentication</a> 
+                <li ><a class="action-dropdown" href="/add_iscsi_acl?target_name={{target.iqn}}"  title="Add an ACL to this target" class="cover-page"> <i class="fa fa-plus fa-fw"></i>Add an ACL</a> 
+                <li class="divider"></li>
+                <li ><a class="action-dropdown" href="/delete_iscsi_target?target_name={{target.iqn}}"  title="Remove this target" class="cover-page" style="color:red"> <i class="fa fa-trash fa-fw"></i>Remove this target</a> 
+              </ul>
+            </div>
           </td>
         </tr>
       {%endfor%}
     </table>
     <br>
   {%endif%}
-  <p>
-  <a href="/create_iscsi_target/" class="btn btn-primary btn-sm"> Create an ISCSI Target </a>
 
 {%endblock%}
 

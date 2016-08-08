@@ -4,6 +4,24 @@
   ISCSI target details
 {%endblock%}
 
+{%block global_actions %}
+  <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+    <div class="col-sm-3  pull-right"  style="border:0px solid">
+      <a class="btn btn-default btn-sm pull-right dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+        <li><a class="action-dropdown" href="/create_iscsi_lun?target_name={{target.iqn}}" role="button" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add a LUN</a></li>
+        <li><a class="action-dropdown" href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=incoming" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add an initiator authentication user</a></li>
+        <li><a class="action-dropdown" href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=outgoing" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add a target authentication user</a></li>
+        <li><a class="action-dropdown" href="/add_iscsi_acl?target_name={{target.iqn}}" role="button" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add an ACL</a></li>
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/delete_iscsi_target?target_name={{target.iqn}}" style="color:red"><i class="fa fa-trash fa-fw"></i>&nbsp;Delete this ISCSI target</a></li>
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/view_iscsi_targets" role="button" > <i class="fa fa-list fa-fw"></i>&nbsp;Back to targets list</a></li>
+      </ul>
+    </div>
+  </div>
+{%endblock%}
+
 {% block inside_content %}
 
   <h5> Target details :</h5>
@@ -90,21 +108,6 @@
       </tr>
     {%endfor%}
   </table>
-  <hr>
-
-  <p>
-  <div class="btn-group btn-group-sm" role="group" aria-label="...">
-    <a href="/create_iscsi_lun?target_name={{target.iqn}}" role="button" class="btn btn-primary btn-sm"> Add a LUN</a>
-    <a href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=incoming" role="button" class="btn btn-primary"> Add an initiator authentication user</a>
-    <a href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=outgoing" role="button" class="btn btn-primary"> Add a target authentication user</a>
-    <a href="/add_iscsi_acl?target_name={{target.iqn}}" role="button" class="btn btn-primary btn-sm"> Add an ACL</a>
-  </div><br><br>
-  <div class="btn-group btn-group-sm" role="group" aria-label="...">
-    <a href="/view_iscsi_targets" role="button" class="btn btn-default"> Back to targets list</a>
-    <a href="/delete_iscsi_target?target_name={{target.iqn}}" role="button" class="btn btn-danger">Delete this ISCSI target</a>
-  </div>
-  </p>
- <br> <br>
 
 {%endblock%}
 

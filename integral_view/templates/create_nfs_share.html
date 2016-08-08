@@ -102,7 +102,8 @@
 
     function change_dataset(sel){
       document.getElementById('id_path').value = "/"+sel.value;
-      $("#share_form").attr("method", "get");
+      $('.lightbox').show();
+      $("#create_form").attr("method", "get");
     };
     function displayTree() {
       document.getElementById("pathdiv").style.display = "block";

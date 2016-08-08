@@ -5,6 +5,10 @@
   RSync Shares
 {%endblock%}
 
+{%block global_actions %}
+    <a  class="btn btn-default btn-sm pull-right" href="/create_rsync_share/" title="Create a new rsync share" style="color:#000"> <i class="fa fa-plus-square-o  fa-fw"></i>&nbsp;Create new share </a>
+{%endblock%}
+
 {% block inside_content %}
 
   {% if not shares %}
@@ -51,8 +55,8 @@
               <div class="btn-group btn-group-xs" >
                 <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                 <ul class="dropdown-menu">
-                  <li> <a href="/edit_rsync_share?name={{share.name}}" role="button" class="action-dropdown" title="Edit the RSync Share"><i class="fa fa-edit"></i> Edit</a> </li>
-                  <li> <a href="/delete_rsync_share?name={{share.name}}" role="button" class="action-dropdown" title="Delete the RSync Share"> <i class="fa fa-remove"></i>  Delete</a> </li>
+                  <li> <a href="/edit_rsync_share?name={{share.name}}" role="button" class="action-dropdown" title="Edit the RSync Share"><i class="fa fa-edit fa-fw"></i> Edit</a> </li>
+                  <li> <a href="/delete_rsync_share?name={{share.name}}" role="button" class="action-dropdown" title="Delete the RSync Share" style="color:red"> <i class="fa fa-trash fa-fw"></i>  Delete</a> </li>
                  </ul>
              
             </td>
@@ -62,11 +66,6 @@
     </div>
     <br>
   {%endif%}
-  <br />
-  <br />
-  <p>
-    <a href="/create_rsync_share/" role="button" class="btn btn-primary btn-sm"> Create RSync Share</a>
-  </p>
 
 
 {%endblock%}
