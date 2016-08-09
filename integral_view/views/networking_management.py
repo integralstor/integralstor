@@ -213,11 +213,13 @@ def edit_interface_address(request):
       result, err = networking.restart_networking()
       if err:
         raise Exception(err)
-      audit_str = 'Changed the address of %s. New values are IP : %s, netmask: %s'%(cd['name'], cd['ip'], cd['netmask']) 
-      if 'default_gateway' in cd:
-        audit_str += ', default gateway : %s'%cd['default_gateway']
+      ip, err = networking.get_ip_info(common.convert_unicode_to_string(cd['name']))
+      if err:
+        raise Exception(err)
+      audit_str = 'Changed the address of %s. New values are IP : %s, netmask: %s'%(cd['name'], ip['ipaddr'], ip['netmask']) 
+      if 'default_gateway' in ip:
+        audit_str += ', default gateway : %s'%ip['default_gateway']
       audit.audit("edit_interface_address", audit_str, request.META)
-                
       return django.http.HttpResponseRedirect('/view_nic?name=%s&result=addr_changed'%(name))
   except Exception, e:
     return_dict['base_template'] = "networking_base.html"
