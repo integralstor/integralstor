@@ -4,34 +4,39 @@
   ZFS pool/dataset snapshots
 {%endblock%}
 
+{%block global_actions %}
+    <a class="btn btn-default btn-sm pull-right"  href="/create_zfs_snapshot" title="Create a new snapshot" style="color:#000"> <i class="fa fa-plus-square-o fa-fw "></i>&nbsp;Create snapshot </a>
+{%endblock%}
+
 {%block inside_content %}
 
-  <div style="width:850px;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+  <div style="width:100%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
 
 
     {%if form%}
-      <form id="view_form" name="view_form" action="/view_zfs_snapshots/" method="post">
-        <table class="table table-responsive ">
-          <tr>
-            <th style="text-align:right;vertical-align:middle"> Filter by target :</th>
-            <td>
-              <select name="name" id="name_select" class="form-control">
-                {% for choice in form.name.field.choices %}
-                  <option value="{{choice.0}}" {%if choice.0 == form.initial.name %} selected="selected"{%endif%}>{{choice.1}}</option>
-                {%endfor%}
-              </select>
-            </td>
-            <td> {{ form.name.errors }} </td>
-            <td style="text-align:right;vertical-align:middle">
-              <a class="btn btn-default btn-sm" href="/create_zfs_snapshot"> <i class="fa fa-plus-square-o fa-fw "></i> Create snapshot</a>
-            </td>
-          </tr>
-        </table>
+      <form class="form-horizontal"> 
+        <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+          <div class="col-sm-2">
+            &nbsp;
+          </div>
+          <label class="col-sm-2 control-label" style="vertical-align:center"> Filter by target :</label>
+          <div class="col-sm-6">
+            <select name="name" id="name_select" class="form-control">
+              {% for choice in form.name.field.choices %}
+                <option value="{{choice.0}}" {%if choice.0 == form.initial.name %} selected="selected"{%endif%}>{{choice.1}}</option>
+              {%endfor%}
+            </select>
+          </div>
+          <div class="col-sm-2">
+            &nbsp;
+          </div>
+        </div>
       </form>
     {%endif%}
+    <br><br>
 
     {% if not snap_list %}
-      No ZFS snapshots appear to have been created.<br /> <br /> 
+      <span style="display:table;margin:0 auto;border:0px solid;text-align:center">No ZFS snapshots appear to have been created for the selected target.<br><br></span>
     {%else %}
       <table  class="table table-bordered table-striped table-responsive">
         <tr>
@@ -52,8 +57,8 @@
             <td>{{d.used}}</td>
             <td>{{d.refer}}</td>
             <td >
-              <div class="btn-group btn-group-xs">
-                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw" ></i> &nbsp;Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+              <div class="btn-group btn-group-xs pull-right">
+                <a class="btn btn-default dropdown-toggle " data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw" ></i> &nbsp;Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                 <ul class="dropdown-menu">
                   <li><a class="action-dropdown" href="/rename_zfs_snapshot?snapshot_name={{d.snapshot_name}}&ds_name={{d.dataset}}" title="Rename this snapshot"><i class="fa fa-pencil fa-fw"></i> Rename</a></li>
                   <li class="divider"></li>
