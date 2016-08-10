@@ -48,6 +48,11 @@ chmod 755 /root/unicell_iso/isolinux/isolinux.cfg
 chmod +x /root/unicell_iso/isolinux/isolinux.cfg
 
 ### Creating ISO with all the files containing Directory ###
+#cp /root/tar_files/integralstor_unicell.tar.gz /tmp
+#cd /tmp
+#tar xzf integralstor_unicell.tar.gz
+#cat /tmp/integralstor_unicell/version > /root/unicell_iso/version 
+
 cd /root/unicell_iso
 
 echo "Creating ISO... "
@@ -62,9 +67,9 @@ mkisofs -r -R -J -T -v -no-emul-boot \
     -c isolinux/boot.cat \
     -x "lost+found" \
     --joliet-long \
-    -o /tmp/IntegralSTOR_UNICell_final_v1.0.iso .
+    -o /tmp/IntegralSTOR_UNICell_final_vm_master.iso .
 
 umount /mnt
 echo
-echo "ISO Created!! Find it in /tmp/IntegralSTOR_UNICell_final_v1.0.iso"
+echo "ISO Created!! Find it in /tmp/IntegralSTOR_UNICell_final_vm_master.iso"
 echo
