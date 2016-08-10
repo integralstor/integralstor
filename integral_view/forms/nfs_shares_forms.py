@@ -7,6 +7,11 @@ class ShareForm(forms.Form):
   readonly = forms.BooleanField(required=False)
   root_squash = forms.BooleanField(required=False)
   all_squash = forms.BooleanField(required=False)
+  def clean(self):
+    cd = super(ShareForm, self).clean()
+    if len(cd['path'].split()) > 1:
+      self._errors["path"] = self.error_class(["The export path cannot contain whitespaces"])
+    return cd
 
 class CreateShareForm(ShareForm):
 

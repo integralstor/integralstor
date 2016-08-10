@@ -309,11 +309,11 @@ def create_cifs_share(request):
     return_dict['path'] = path
     return_dict["dataset"] = ds_list
 
+    initial = {}
+    initial['path'] = path
+    initial['dataset'] = dataset
     if request.method == "GET":
       #Return the form
-      initial = {}
-      initial['path'] = path
-      initial['dataset'] = dataset
       initial['guest_ok'] = True
       if 'name' in request.GET:
         initial['name'] = request.GET['name']
@@ -327,7 +327,7 @@ def create_cifs_share(request):
       #Form submission so create
       return_dict = {}
       #form = samba_shares_forms.CreateShareForm(request.POST, user_list = user_list, group_list = group_list, dataset_list = ds_list)
-      form = samba_shares_forms.CreateShareForm(request.POST, dataset_list = ds_list)
+      form = samba_shares_forms.CreateShareForm(request.POST, initial = initial, dataset_list = ds_list)
       return_dict["form"] = form
       if form.is_valid():
         cd = form.cleaned_data

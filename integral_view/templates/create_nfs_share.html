@@ -30,7 +30,7 @@
       <tr>
         <th> Selected export path:</th>
         <td>
-          <input type="text" name="path" class="form-control" id="id_path" placeholder="Click button to browse.." readonly value={{form.path.value|default_if_none:""}}> <br>
+          <input type="text" name="path" class="form-control" id="id_path" placeholder="Click button to browse.." readonly value="{{form.path.value|default_if_none:""}}"> <br>
         </td>
         <td> {{ form.path.errors }} </td>
         <td rowspan=7>
@@ -101,7 +101,10 @@
     }
 
     function change_dataset(sel){
-      document.getElementById('id_path').value = "/"+sel.value;
+      if (sel.value[0] != '/')
+        document.getElementById('id_path').value = '/' + sel.value;
+      else
+        document.getElementById('id_path').value = sel.value;
       $('.lightbox').show();
       $("#create_form").attr("method", "get");
     };
@@ -133,7 +136,7 @@
         $('#pathdiv').on('changed.jstree', function (e, data) {
           var i, j, r = [];
           var ds_elem = document.getElementById("id_dataset");
-          var ds_name = ds_elem.options[ds_elem.selectedIndex].text;
+          var ds_name = ds_elem.options[ds_elem.selectedIndex].value;
           r = data.instance.get_node(data.selected[0]).text;
           rfp = data.instance.get_node(data.selected[0]).data["dir"];
           $('.lightbox').show();

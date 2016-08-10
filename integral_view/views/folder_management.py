@@ -45,7 +45,12 @@ def dir_contents(request):
         raise Exception('No dataset supplied')        
       ds_name = request.GET['dataset_name']
       mnt_pnt = '/%s'%ds_name
-      dirs = os.listdir(mnt_pnt)
+      dirs = []
+      if os.path.isdir(mnt_pnt):
+        dirs = os.listdir(mnt_pnt)
+      if not dirs:
+        d_dict = {'id':mnt_pnt, 'text':'/','icon':'fa','children':False,'data':{'dir':mnt_pnt},'parent':"#"}
+        dir_dict_list.append(d_dict)
       for dir in dirs:
         if os.path.isdir('%s/%s'%(mnt_pnt, dir)):
           subdirs, err = _has_subdirs('%s/%s'%(mnt_pnt, dir))
@@ -588,17 +593,17 @@ def get_dir_listing(request):
     resp += '<table class="table table-striped">'
     resp += '<tr><th>Type</th><th>Name</th><th>Size</th><th>Modified at<th></tr>'
     for file in files:
-      print 'file', file
+      #print 'file', file
       size = os.path.getsize('%s/%s'%(path, file))
       mtime = time.ctime(os.path.getmtime('%s/%s'%(path,file)))
       resp += '<tr><td><i class="fa fa-file-o" aria-hidden="true"></i></td><td>%s</td><td>%s</td><td>%s</td></tr>'%(file, size, mtime)
     for d in subdirs:
-      print 'dir ', d
+      #print 'dir ', d
       mtime = time.ctime(os.path.getmtime('%s/%s'%(path,d)))
       resp += '<tr><td><i class="fa fa-folder" aria-hidden="true"></i></td><td>%s</td><td>&nbsp;</td><td>%s</td></tr>'%(d,mtime)
     resp += '</table>'
     #resp += '</body></html>'
-    print 'resp ', resp
+    #print 'resp ', resp
     return HttpResponse(resp,mimetype='text/html')
   except Exception, e:
     print str(e)
@@ -633,7 +638,7 @@ def dir_manager(request):
       #print pool['pool_name']
       pool_list.append(pool['pool_name'])
     if not pool_list:
-      raise Exception('No ZFS pools available. Please create a pools before creating shares.')
+      raise Exception('No ZFS pools available. Please create a pool and dataset before using the directory manager.')
 
 
     form = folder_management_forms.DirManagerForm1(initial = initial, pool_list = pool_list)
@@ -642,7 +647,7 @@ def dir_manager(request):
   except Exception, e:
     return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'Directory manager'
-    return_dict['tab'] = 'dir_permissions_tab'
+    return_dict['tab'] = 'dir_manager_tab'
     return_dict["error"] = 'Error loading directory manager'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))

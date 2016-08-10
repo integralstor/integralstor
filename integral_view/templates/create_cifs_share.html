@@ -7,6 +7,7 @@
 
 {%block inside_content %}
 
+{{form.initial.dataset}}
   <form id="share_form" class="form-horizontal" role="form" name="create_form" action="" method="post">
     <table  class="table" style="border:0px solid;width:100%">
       <tr>
@@ -188,7 +189,10 @@
     }
 
     function change_dataset(sel){
-      document.getElementById('id_path').value = sel.value;
+      if (sel.value[0] != '/')
+        document.getElementById('id_path').value = '/' + sel.value;
+      else
+        document.getElementById('id_path').value = sel.value;
       $('.lightbox').show();
       $("#share_form").attr("method", "get");
     };
@@ -218,7 +222,7 @@
         $('#pathdiv').on('changed.jstree', function (e, data) {
           var i, j, r = [];
           var ds_elem = document.getElementById("id_dataset");
-          var ds_name = ds_elem.options[ds_elem.selectedIndex].text;
+          var ds_name = ds_elem.options[ds_elem.selectedIndex].value;
           r = data.instance.get_node(data.selected[0]).text;
           rfp = data.instance.get_node(data.selected[0]).data["dir"];
           var name_elem = document.getElementById("id_name");
