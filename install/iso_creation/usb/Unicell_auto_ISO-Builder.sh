@@ -62,9 +62,9 @@ mkisofs -r -R -J -T -v -no-emul-boot \
     -c isolinux/boot.cat \
     -x "lost+found" \
     --joliet-long \
-    -o /tmp/IntegralSTOR_UNICell_final_usb_v1.0.iso .
+    -o /tmp/IntegralSTOR_UNICell_final_acl_usb.iso .
 
 umount /mnt
 echo
-echo "ISO Created!! Find it in /tmp/IntegralSTOR_UNICell_final_usb_v1.0.iso"
+echo "ISO Created!! Find it in /tmp/IntegralSTOR_UNICell_final_master_usb.iso"
 echo
