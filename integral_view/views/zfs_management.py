@@ -1495,7 +1495,7 @@ def schedule_zfs_snapshot(request):
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Schedule a ZFS snapshot'
-    return_dict['tab'] = 'scheduled_snapshots_tab'
+    return_dict['tab'] = 'view_zfs_pools_tab'
     return_dict["error"] = 'Error scheduling ZFS snapshot'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
