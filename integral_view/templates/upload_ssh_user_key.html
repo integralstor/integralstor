@@ -8,13 +8,9 @@
   <form action="/upload_ssh_user_key" method="POST" enctype="multipart/form-data" class="form-horizontal">
     <table class="table" style="width:800px">
       <tr>
-        <th> Select User :</th>
+        <th> Selected User :</th>
         <td>
-          <select name="user" id="id_user" class="form-control">
-            {% for user in users %}
-              <option value="{{user.username}}" {% if user.username == selected_user%} selected="selected" {% endif %}>{{user.username}}</option>
-            {%endfor%}
-          </select>
+        <input type="text" name="user" readonly class="form-control" value="{{selected_user}}">
         </td>
       </tr>
       <tr>
@@ -28,41 +24,11 @@
   </form>
   <br>
 
-  {%if authorized_keys %}
-    <table class="table">
-      <thead>
-        <tr>
-          <td> Key </td>
-          <td> Delete </td>
-        </tr>
-      </thead>
-      <tbody>
-        {% for key in authorized_keys %}    
-          <form action="/upload_ssh_user_key/" method="POST" class="form-horizontal">      
-            <tr>
-              <td >
-                <input type="text" value="{{selected_user}}" name="selected_user" readonly class="form-control" style="display:none"/>
-                <input type="text" value="{{key}}" name="authorized_key" readonly class="form-control" style="display:none"/>
-                <textarea cols=100 rows=4 readonly> {{key}} </textarea>
-              </td>
-              <td><button class="btn btn-danger">Remove Access </button></td>
-            </tr>
-          </form>
-        {% endfor %}
-      </tbody>
-    </table>
-  {%endif%}
 
-  <script>
-    document.getElementById("id_user").onchange = function () {
-      var user = $("#id_user").val()
-      location.href = "/upload_ssh_user_keys/?user="+user
-    }
-  </script>
 {% endblock %}
 
 {% block tab_active %}
   <script>
-   make_tab_active("upload_ssh_user_key_tab")
+   make_tab_active("download_ssh_keys_tab")
   </script>
 {% endblock %}
