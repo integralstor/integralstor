@@ -403,7 +403,9 @@ def shell_access(request):
       
   except Exception, e:
     return_dict['base_template'] = "system_base.html"
+    return_dict["page_title"] = 'Shell Access'
     return_dict['tab'] = 'shell_tab'
+    return_dict["error"] = 'Error loading Shell, Check the service'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
