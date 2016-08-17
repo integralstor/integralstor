@@ -576,3 +576,15 @@ background: rgba(0,0,0,0.8);
   color: #444;
   border-color: #ccc;
 }
+.required{
+  color:#3c8dbc;
+}
+.table >  tbody > tr > th,
+.table-bordered >  tbody > tr > th,
+.table-striped >  tbody > tr > th,
+.table-bordered >  tr > th,
+.table-striped >  tr > th,
+.table >  tr > th
+{
+  vertical-align:middle;
+}

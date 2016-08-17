@@ -7,11 +7,10 @@
 
 {%block inside_content %}
 
-{{form.initial.dataset}}
   <form id="share_form" class="form-horizontal" role="form" name="create_form" action="" method="post">
     <table  class="table" style="border:0px solid;width:100%">
       <tr>
-        <th style="word-wrap: break-word; max-width: 50px;"> Share name:</th>
+        <th style="word-wrap: break-word; max-width: 50px;"> Share name {%if form.fields.name.required %}<sup class="required"></sup>{%endif%}</th>
         <td>
           <input type="text"  name="name" class="form-control" id="id_name" placeholder="Share name" value="{{form.name.value|default_if_none:""}}"> 
         </td>
@@ -19,7 +18,7 @@
         <td> &nbsp;</td>
       </tr>
       <tr>
-        <th> Select underlying ZFS dataset :</th>
+        <th> Select underlying ZFS dataset {%if form.fields.dataset.required %}<sup class="required"></sup>{%endif%}</th>
         <td>
           <select id = "id_dataset" name="dataset" class="form-control" onchange="change_dataset(this);this.form.submit()">
             {% for choice in dataset %}
@@ -31,7 +30,7 @@
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <th> Select a directory :</th>
+        <th> Selected directory {%if form.fields.path.required %}<sup class="required"></sup>{%endif%}</th>
         <td>
           <input type="text" name="path" class="form-control" id="id_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value="{{form.path.value|default_if_none:""}}"> <br/>
         </td>
@@ -42,7 +41,7 @@
         </td>
       </tr>
       <tr>
-        <th style="word-wrap: break-word; max-width: 50px;">Create a new sub-directory under the selected directory:</th>
+        <th style="word-wrap: break-word; max-width: 50px;">Create a new sub-directory under the selected directory {%if form.fields.new_folder.required %}<sup class="required"></sup>{%endif%}</th>
         <td>
           <input type="text"  name="new_folder" class="form-control" id="id_new_folder" onkeyup="copyText();" placeholder="Enter new directory name" value={{form.new_folder.value|default_if_none:""}}> 
         </td>
@@ -50,7 +49,7 @@
         <td> &nbsp;</td>
       </tr>
       <tr>
-        <th> Final share path</th>
+        <th> Final share path <sup class="required"></sup></th>
         <td>
           <input type="text" name="final_path" class="form-control" id="id_final_path" readonly value="{{form.path.value|default_if_none:""}}"> <br>
         </td>
@@ -108,7 +107,7 @@
 
 
       <tr>
-        <th> Description:</th>
+        <th> Description{%if form.fields.comment.required %}<sup class="required"></sup>{%endif%}</th>
         <td>
           <input type="text"  name="comment" class="form-control" id="id_comment" placeholder="Description of this share" value="{{form.comment.value|default_if_none:""}}"> 
         </td>
@@ -116,13 +115,13 @@
         <td> &nbsp;</td>
       </tr>
       <tr>
-        <th> Readonly:</th>
+        <th> Readonly {%if form.fields.read_only.required %}<sup class="required"></sup>{%endif%}</th>
         <td> {{ form.read_only }} </td>
         <td> {{ form.read_only.errors }} </td>
         <td> &nbsp;</td>
       </tr>
       <tr>
-        <th> Visible:</th>
+        <th> Visible{%if form.fields.browseable.required %}<sup class="required"></sup>{%endif%}</th>
         <td> {{ form.browseable }} </td>
         <td> {{ form.browseable.errors }} </td>
         <td> &nbsp;</td>
