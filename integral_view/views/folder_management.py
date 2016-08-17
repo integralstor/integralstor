@@ -451,7 +451,7 @@ def delete_ace(request):
       if for_share:
         return django.http.HttpResponseRedirect('/view_cifs_share?access_mode=by_id&index=%s&ack=ace_deleted'%share_index)
       else:
-        return django.http.HttpResponseRedirect('/dir_manager?ack=ace_deleted')
+        return django.http.HttpResponseRedirect('/view_dir_ownership_permissions?path=%s&ack=ace_deleted'%path)
   except Exception, e:
     return_dict["page_title"] = 'Delete an ACL entry'
     return_dict["error"] = 'Error deleting an ACL entry'
