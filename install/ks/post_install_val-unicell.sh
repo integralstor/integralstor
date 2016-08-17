@@ -61,7 +61,7 @@ ip=$(ifconfig | awk -F':' '/inet addr/&&!/127.0.0.1/{split($2,_," ");print _[1]}
 STRING=$(ifconfig | grep eth0 | head -1 | awk '{print $5}' | awk -F ':' '{print tolower($5 $6)}')
 hnpart="unicell-"$STRING
 name="$hnpart.integralstor.lan"
-grep $ip /etc/hosts >>/tmp/tmp_hosts || echo "No Host's IP is Set"
+#grep $ip /etc/hosts >>/tmp/tmp_hosts || echo "No Host's IP is Set"
 grep $name /etc/hosts >>/tmp/tmp_hosts || echo "No Host's NAME is Set"
 grep $hnpart /etc/hosts >>/tmp/tmp_hosts || echo "No Host's HNPART is Set"
 echo "######################	Hosts End				######################"
@@ -84,7 +84,7 @@ for path in $DIR_LIST; do
     fi
 done
 
-FILE_LIST="/opt/integralstor/ramdisks.conf /opt/integralstor/platform /var/log/integralstor/integralstor_unicell/integral_view.log /opt/integralstor/integralstor_common.tar.gz /opt/integralstor/integralstor_unicell.tar.gz /etc/init/start-ttys.conf /etc/init/integralstor_unicell_menu.conf /etc/nginx/sites-enabled/integral_view_nginx.conf /etc/uwsgi/vassals/integral_view_uwsgi.ini /etc/init.d/ramdisk /etc/vsftpd/vsftpd.conf /etc/modprobe.d/zfs.conf /etc/sysconfig/shellinaboxd /etc/nsswitch.conf /etc/nginx/sites-enabled/integral_view_nginx.conf /etc/xinetd.d/rsync /etc/uwsgi/vassals/integral_view_uwsgi.ini /etc/init.d/uwsgi /etc/init.d/ramdisk /etc/modprobe.d/zfs.conf /etc/init.d/zfs /etc/zfs/zed.d/zed.rc /etc/vsftpd/vsftpd.conf"
+FILE_LIST="/opt/integralstor/ramdisks.conf /opt/integralstor/platform /var/log/integralstor/integralstor_unicell/integral_view.log /etc/init/start-ttys.conf /etc/init/integralstor_unicell_menu.conf /etc/nginx/sites-enabled/integral_view_nginx.conf /etc/uwsgi/vassals/integral_view_uwsgi.ini /etc/init.d/ramdisk /etc/vsftpd/vsftpd.conf /etc/modprobe.d/zfs.conf /etc/sysconfig/shellinaboxd /etc/nsswitch.conf /etc/nginx/sites-enabled/integral_view_nginx.conf /etc/xinetd.d/rsync /etc/uwsgi/vassals/integral_view_uwsgi.ini /etc/init.d/uwsgi /etc/init.d/ramdisk /etc/modprobe.d/zfs.conf /etc/zfs/zed.d/zed.rc /etc/vsftpd/vsftpd.conf"
 
 for path in $FILE_LIST; do
     if [[ ! -e "$path" ]]; then
