@@ -1,4 +1,4 @@
-#!/usr/sh
+#!/bin/bash
 
 ### Prepare the env ###
 echo "Clearing ISO Directory..."
