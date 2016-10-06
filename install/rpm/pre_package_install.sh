@@ -23,7 +23,7 @@ PACKAGE_LIST="salt-master salt-minion python-pip ypbind ypserv ntp uwsgi nginx k
 for pkg in $PACKAGE_LIST; do
     if ! rpm -qa | grep $pkg ; then
 	echo "$pkg is not found, installing locally..."
-        rpm -Uvh $pkg 
+        yum localinstall $pkg 
 	echo "...Done." 
     fi
 done
