@@ -1,0 +1,5 @@
+[fractalio]
+enabled=0
+name= Fractalio - Base
+baseurl=file:///opt/integralstor/integralstor_unicell_rpms
+gpgcheck=0
