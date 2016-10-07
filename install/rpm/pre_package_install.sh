@@ -1,8 +1,10 @@
 #!bin/bash
 
+echo "Switching to working directory..."
 cd /opt/integralstor
 tar xzf integralstor_unicell_rpms.tar.gz
 
+echo "Creating and Enabling fractalio repository..."
 cat << EOF > /etc/yum.repos.d/fractalio.repo
 [fractalio]
 enabled=0
