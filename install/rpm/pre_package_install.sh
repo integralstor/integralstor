@@ -23,7 +23,7 @@ PACKAGE_LIST="salt-master salt-minion python-pip ypbind ypserv ntp uwsgi nginx k
 for pkg in $PACKAGE_LIST; do
     if ! rpm -qa | grep $pkg ; then
 	echo "$pkg is not found, installing locally..."
-        yum localinstall $pkg 
+        yes | yum install $pkg 
 	echo "...Done." 
     fi
 done
@@ -98,3 +98,5 @@ rm -rf /opt/integralstor/integralstor_unicell_*
 echo "Successfully installed Non RPM installs."
 
 echo "Intiating Integralstor_unicell RPM..."
+
+yum-config-manager --disable "*"
