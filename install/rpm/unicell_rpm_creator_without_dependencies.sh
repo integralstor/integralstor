@@ -152,7 +152,7 @@ cp -rf /tmp/unicell_rpm/integralstor_unicell /tmp/unicell_rpm/integralstor_unice
 
 # NOW MOVE THE /tmp/unicell_rpm/integralstor_unicell-1.0/ to where ?
 cd /tmp/unicell_rpm/
-tar -cvzf integralstor_unicell-1.0.tar.gz integralstor_unicell-1.0/
+tar -cvzf integralstor_unicell-1.0.tar.gz integralstor-unicell-1.0/
 cp -rf /tmp/unicell_rpm/integralstor_unicell-1.0/ ~/rpmbuild/SOURCES/
 cp -rf /tmp/unicell_rpm/integralstor_unicell-1.0.tar.gz ~/rpmbuild/SOURCES/
 # INSERT THE .spec FILE INTO ~/rpmbuild/SPECS/
