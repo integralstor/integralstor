@@ -1,2 +1,2 @@
 # UNICell
-UNICell is the single node (non-scaleout) flavor of the IntegralStor range of linux based storage systems. It is currently based on CentOS and uses ZFS as its on disk filesystem for user data. It also comes with an easy to use web based interface for administration.
+UNICell is the single node (non-scaleout) flavor of the IntegralStor range of linux based unified storage systems. It is currently based on CentOS and uses ZFS as its on disk filesystem for user data. It also comes with an easy to use web based interface for administration that allows you to easily setup and manage many advanced storage functionalities. Reporting, alerting and auditing are build in! It provides both file (NAS) and block storage along with other access protocols.
