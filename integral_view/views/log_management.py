@@ -29,6 +29,26 @@ def view_alerts(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+def view_hardware_logs(request):
+  return_dict = {}
+  try:
+    hw_platform, err = common.get_hardware_platform()
+    if hw_platform:
+      return_dict['hw_platform'] = hw_platform
+      if hw_platform == 'dell':
+        from integralstor_common.platforms import dell
+        logs_dict, err = dell.get_alert_logs()
+        if logs_dict:
+          return_dict['logs_dict'] = logs_dict
+    return django.shortcuts.render_to_response('view_hardware_logs.html', return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception, e:
+    return_dict['base_template'] = "logging_base.html"
+    return_dict["page_title"] = 'Hardware logs'
+    return_dict['tab'] = 'view_hardware_logs_tab'
+    return_dict["error"] = 'Error loading hardware logs'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 def view_audit_trail(request):
   return_dict = {}
   try:

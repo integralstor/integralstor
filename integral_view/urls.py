@@ -10,7 +10,7 @@ from integral_view.views.pki_management  import view_ssl_certificates, delete_ss
 
 from integral_view.views.common import show, dashboard,shell_access
 
-from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level,download_sys_info,upload_sys_info, refresh_alerts, raise_alert, internal_audit, view_alerts, view_audit_trail
+from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level,download_sys_info,upload_sys_info, refresh_alerts, raise_alert, internal_audit, view_alerts, view_audit_trail, view_hardware_logs
 
 from integral_view.views.cifs_share_management import view_cifs_shares, create_cifs_share, samba_server_settings, save_samba_server_settings, view_cifs_share, edit_cifs_share, delete_cifs_share, edit_auth_method 
 
@@ -20,7 +20,7 @@ from integral_view.views.local_user_management import view_local_users, create_l
 
 from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share, create_nfs_share, edit_nfs_share
 
-from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog, remove_zfs_slog, scrub_zfs_pool, create_zfs_zvol, view_zfs_zvol, replace_disk, import_all_zfs_pools, add_zfs_spares, remove_zfs_spare, expand_zfs_pool, remove_zfs_quota, set_zfs_quota, export_zfs_pool, import_zfs_pool, schedule_zfs_snapshot, set_zfs_l2arc, remove_zfs_l2arc,replicate_zfs_dataset, view_disks,view_remote_replications
+from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog, remove_zfs_slog, scrub_zfs_pool, create_zfs_zvol, view_zfs_zvol, replace_disk, import_all_zfs_pools, add_zfs_spares, remove_zfs_spare, expand_zfs_pool, remove_zfs_quota, set_zfs_quota, export_zfs_pool, import_zfs_pool, schedule_zfs_snapshot, set_zfs_l2arc, remove_zfs_l2arc,replicate_zfs_dataset, view_disks,view_remote_replications, identify_disk
 
 #from zfs.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, edit_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, set_zfs_slog
 
@@ -68,6 +68,7 @@ urlpatterns = patterns('',
     url(r'^configure_email_settings/', login_required(configure_email_settings)),
     url(r'^reset_to_factory_defaults/', login_required(reset_to_factory_defaults)),
     url(r'^view_alerts/', login_required(view_alerts)),
+    url(r'^view_hardware_logs/', login_required(view_hardware_logs)),
     url(r'^view_audit_trail/', login_required(view_audit_trail)),
     url(r'^configure_ntp_settings/', login_required(configure_ntp_settings)),
     url(r'^view_ntp_settings/', login_required(view_ntp_settings)),
@@ -143,6 +144,7 @@ urlpatterns = patterns('',
     url(r'^remove_zfs_slog/', login_required(remove_zfs_slog)),
     url(r'^remove_zfs_l2arc/', login_required(remove_zfs_l2arc)),
     url(r'^view_disks/', login_required(view_disks)),
+    url(r'^identify_disk/', login_required(identify_disk)),
     url(r'^view_zfs_pool/', login_required(view_zfs_pool)),
     url(r'^create_zfs_pool/', login_required(create_zfs_pool)),
     url(r'^expand_zfs_pool/', login_required(expand_zfs_pool)),

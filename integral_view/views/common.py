@@ -68,18 +68,19 @@ def dashboard(request,page):
     return_dict['num_bad_disks'] = num_bad_disks
     return_dict['disks_ok'] = disks_ok
         
-    num_sensors = len(node['ipmi_status'])
-    num_bad_sensors = 0
-    ipmi_ok = True
-    for sensor in node['ipmi_status']:
-      if sensor['status'] in ['ok', 'nr', 'na']:
-        continue
-      else:
-        num_bad_sensors += 1
-        ipmi_ok = False
-    return_dict['num_sensors'] = num_sensors
-    return_dict['num_bad_sensors'] = num_bad_sensors
-    return_dict['ipmi_ok'] = ipmi_ok
+    if 'ipmi_status' in node:
+      num_sensors = len(node['ipmi_status'])
+      num_bad_sensors = 0
+      ipmi_ok = True
+      for sensor in node['ipmi_status']:
+        if sensor['status'] in ['ok', 'nr', 'na']:
+          continue
+        else:
+          num_bad_sensors += 1
+          ipmi_ok = False
+      return_dict['num_sensors'] = num_sensors
+      return_dict['num_bad_sensors'] = num_bad_sensors
+      return_dict['ipmi_ok'] = ipmi_ok
 
     services_list =  ['winbind', 'smb', 'nfs', 'tgtd', 'ntpd', 'vsftpd']
     num_services = len(services_list)
@@ -198,14 +199,23 @@ def dashboard(request,page):
       return_dict['tab'] = 'system_health_tab'
       return_dict["error"] = 'Error loading system health data'
       template = "dashboard_system_health.html"
+      hw_platform, err = common.get_hardware_platform()
+      if hw_platform:
+        return_dict['hw_platform'] = hw_platform
+        if hw_platform == 'dell':
+          from integralstor_common.platforms import dell
+          idrac_url, err = dell.get_idrac_addr()
+          if idrac_url:
+            return_dict['idrac_url'] = idrac_url
     # Hardware
     elif page == "hardware":
       return_dict["page_title"] = 'Hardware status'
       return_dict['tab'] = 'hardware_tab'
       return_dict["error"] = 'Error loading hardware status'
       d = {}
-      d['ipmi_status'] = si[info]['ipmi_status']
-      return_dict['hardware_status'] =  d
+      if 'ipmi_status' in si[info]:
+        d['ipmi_status'] = si[info]['ipmi_status']
+        return_dict['hardware_status'] =  d
       return_dict['node_name'] = info
       template = "view_hardware_status.html"
     # Memory
@@ -310,9 +320,6 @@ def dashboard(request,page):
       return_dict["page_title"] = 'Hard drives status'
       return_dict['tab'] = 'disk_tab'
       return_dict["error"] = 'Error loading hard drives status'
-      platform,err = common.get_hardware_platform()
-      if not err:
-        return_dict['hardware'] = platform
       return_dict['node'] = si[info]
       return_dict["disk_status"] = si[info]['disks']
       #print si[info]['disks']

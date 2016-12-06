@@ -6,6 +6,13 @@
 
 {% block inside_content %}
 
+  {%if hw_platform%}
+    {%if hw_platform == 'dell' and idrac_url %}
+      <div class="row" style="width:98%;margin:0 auto">
+        <a href="{{idrac_url}}" target=_new> <h5>Click here to view detailed hardware status</h5></a>
+      </div>
+    {%endif%}
+  {%endif%}
   <div class="row" style="width:98%;margin:0 auto">
     <div class="col-md-4">
       {%if disks_ok %}
@@ -249,8 +256,8 @@
           <table class="table table-bordered table-hover table-responsive">
             <thead>
               <tr>
-                <th colspan=1> Component Type </th>
-                <th colspan=3> Component Detail </th>
+                <!--<th colspan=1> Component Type </th>-->
+                <th colspan=3> Parameter </th>
                 <th colspan=5> Status </th>
               </tr>
             </thead>
@@ -258,7 +265,7 @@
             </tr>
             {%for ipmi in node.ipmi_status%}
               <tr>
-                <td colspan=1> {{ipmi.component_name}} </td>
+                <!--<td colspan=1> {{ipmi.component_name}} </td>-->
                 <td colspan=3> {{ipmi.parameter_name}} </td>
                 <td colspan=2> {{ipmi.reading}} </td>
                 <td colspan=2> 

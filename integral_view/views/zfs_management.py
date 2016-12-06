@@ -14,25 +14,60 @@ from integral_view.forms import zfs_forms,common_forms
 def view_disks(request):
   return_dict = {}
   try:
+    if "ack" in request.GET:
+      if request.GET["ack"] == "blink":
+        return_dict['ack_message'] = "Disk identification LED successfully activated"
+      elif request.GET["ack"] == "unblink":
+        return_dict['ack_message'] = "Disk identification LED successfully de-activated"
     si, err = system_info.load_system_config()
     if err:
       raise Exception(err)
     if not si:
       raise Exception('Error loading system configuration')
+    hw_platform, err = common.get_hardware_platform()
+    if hw_platform:
+      return_dict['hw_platform'] = hw_platform
+      if hw_platform == 'dell':
+        from integralstor_common.platforms import dell
+        idrac_url, err = dell.get_idrac_addr()
+        if idrac_url:
+          return_dict['idrac_url'] = idrac_url
     return_dict['node'] = si[si.keys()[0]]
     return_dict['system_info'] = si
-    platform,err = common.get_hardware_platform()
-    if not err:
-      return_dict['hardware'] = platform
     return_dict["disk_status"] = si[si.keys()[0]]['disks']
     return_dict['node_name'] = si.keys()[0]
-    template = "view_disks_status.html"
     return django.shortcuts.render_to_response('view_disks.html', return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Disks'
     return_dict['tab'] = 'view_disks_tab'
     return_dict["error"] = 'Error loading disk information'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def identify_disk(request):
+  return_dict = {}
+  try:
+    if 'hw_platform' not in request.REQUEST or request.REQUEST['hw_platform'] != 'dell':
+      raise Exception('Unknown hardware platform so cannot toggle identification LED')
+    if 'action' not in request.REQUEST or request.REQUEST['action'] not in ['blink', 'unblink']:
+      raise Exception('Unknown action specified so cannot toggle identification LED')
+    if request.REQUEST['hw_platform'] == 'dell':
+      action = request.REQUEST['action']
+      channel = request.REQUEST['channel']
+      enclosure_id = request.REQUEST['enclosure_id']
+      target_id = request.REQUEST['target_id']
+      from integralstor_common.platforms import dell
+      result, err = dell.blink_unblink_disk(action, 0, channel, enclosure_id, target_id)
+      if not result:
+        raise Exception(err)
+      return django.http.HttpResponseRedirect('/view_disks?ack=%s'%action)
+
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Disks'
+    return_dict['tab'] = 'view_disks_tab'
+    return_dict["error"] = 'Error toggling disk identification'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
