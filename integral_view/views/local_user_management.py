@@ -292,7 +292,7 @@ def create_local_user(request):
       if form.is_valid():
         cd = form.cleaned_data
         #ret, err = local_users.create_local_user(cd["username"], cd["name"], cd["password"], cd['gid'])
-        ret, err = local_users.create_local_user(cd["username"], cd["name"], cd["password"], 500)
+        ret, err = local_users.create_local_user(cd["username"], cd["name"], cd["password"], 1000)
         if not ret:
           if err:
             raise Exception(err)

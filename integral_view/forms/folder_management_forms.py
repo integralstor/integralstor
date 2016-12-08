@@ -99,7 +99,7 @@ class ModifyOwnershipForm(DirForm):
       for group in group_list:
         tup = (group['gid'], group['grpname'])
         ch.append(tup)   
-    ch.append((500, 'integralstor'))
+    ch.append((1000, 'integralstor'))
     self.fields['gid'] =  forms.ChoiceField(widget=forms.Select, choices=ch, required=False)
 
     ch = []
@@ -107,7 +107,7 @@ class ModifyOwnershipForm(DirForm):
       for user in user_list:
         tup = (user['uid'], user['username'])
         ch.append(tup)   
-    ch.append((500, 'integralstor'))
+    ch.append((1000, 'integralstor'))
     self.fields['uid'] =  forms.ChoiceField(widget=forms.Select, choices=ch, required=False)
 
 class SetFileOwnerAndPermissionsForm(forms.Form):

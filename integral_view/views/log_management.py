@@ -207,6 +207,47 @@ def download_sys_log(request):
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
   
+def download_hardware_logs(request):
+  return_dict = {}
+  try:
+  
+    hw_platform, err = common.get_hardware_platform()
+    if not hw_platform or hw_platform != 'dell':
+      raise Exception('Unknown hardware platform')
+    if hw_platform == 'dell':
+      from integralstor_common.platforms import dell
+      logs_dict, err = dell.get_alert_logs()
+      if err:
+        raise Exception(err)
+      if not logs_dict:
+        raise Exception('No logs detected!')
+
+      try:
+        response = django.http.HttpResponse()
+        response['Content-disposition'] = 'attachment; filename=hardware_logs.txt'
+        response['Content-type'] = 'text/plain'
+        for timestamp, log_list in logs_dict.items():
+          for log in log_list:
+            response.write('Time : %s\n'%log['date_time'])
+            response.write('Severity : %s\n'%log['Severity'])
+            response.write('Description : %s\n'%log['description'])
+            response.write('\n')
+            response.flush()
+      except Exception as e:
+        raise Exception(e)
+  
+      return response
+  
+    # either a get or an invalid form so send back form
+    return_dict['form'] = form
+    return django.shortcuts.render_to_response('download_sys_log_form.html', return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception, e:
+    return_dict['base_template'] = "logging_base.html"
+    return_dict["page_title"] = 'Download system logs'
+    return_dict['tab'] = 'view_hardware_logs_tab'
+    return_dict["error"] = 'Error downloading hardware logs'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
   
 def rotate_log(request, log_type=None):
   return_dict = {}
@@ -383,6 +424,7 @@ def view_rotated_log_file(request, log_type):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def refresh_alerts(request, random=None):
   try:
     from datetime import datetime
@@ -407,7 +449,7 @@ def refresh_alerts(request, random=None):
       if not alerts_list:
         raise Exception('Error loading alerts')
       new_alerts = json.dumps([dict(alert=pn) for pn in alerts_list])
-      return django.http.HttpResponse(new_alerts, mimetype='application/json')
+      return django.http.HttpResponse(new_alerts, content_type=='application/json')
     else:
       clss = "btn btn-default btn-sm"
       message = "View alerts"

@@ -21,7 +21,26 @@ from integral_view.utils import iv_logging
 
 production = common.is_production()
 
-
+@login_required
+def view_backup(request):
+  return_dict = {}
+  try:
+    host = request.META['HTTP_HOST']
+    if ':' in host:
+      col_pos = host.find(':')
+      if col_pos:
+        host = host[:col_pos]
+    url = '%s:55414'%host
+    return_dict['url'] = url
+    return django.shortcuts.render_to_response("view_backup.html", return_dict, context_instance = django.template.context.RequestContext(request))
+    
+  except Exception, e:
+    return_dict['base_template'] = "backup_base.html"
+    return_dict["page_title"] = 'Data backup'
+    return_dict['tab'] = 'view_backup_tab'
+    return_dict["error"] = 'Error loading backup URL'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 @login_required
 def dashboard(request,page):
@@ -363,7 +382,7 @@ def show(request, page, info = None):
 
     if page == "dir_contents":
       #CHANGE THIS TO SHOW LOCAL DIR LISTINGS!!
-      return django.http.HttpResponse(dir_list,mimetype='application/json')
+      return django.http.HttpResponse(dir_list,content_type=='application/json')
 
     elif page == "integral_view_log_level":
 

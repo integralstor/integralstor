@@ -4,7 +4,7 @@ import logging
 class SystemLogsForm(forms.Form):
   """ Form to get the info about which system log to download"""
 
-  ch = [('boot','Boot log'), ('dmesg', 'Dmesg log'), ('message', 'Message log'),('smb', 'Samba logs'),('winbind', 'Samba Winbind logs'),('ctdb', 'CTDB logs')]
+  ch = [('boot','Boot log'), ('dmesg', 'Dmesg log'), ('message', 'Message log'),('smb', 'Samba logs'),('winbind', 'Samba Winbind logs')]
   sys_log_type = forms.ChoiceField(choices=ch)
   hostname = forms.CharField(widget=forms.HiddenInput)
 

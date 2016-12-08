@@ -4,6 +4,16 @@
   Hardware logs
 {%endblock%}
 
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right">
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      {%if logs_dict%}
+        <li><a class="action-dropdown" href="/download_hardware_logs" ><i class="fa fa-download fa-fw"></i>&nbsp;Download hardware logs</a></li>
+      {%endif%}
+    </ul>
+  </div>
+{%endblock%}
 
 {% block inside_content %}
 

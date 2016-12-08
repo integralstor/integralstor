@@ -26,7 +26,7 @@ def create_rsync_share(request):
       path = request.POST.get("path")
       if not os.path.exists(path):
         os.mkdir(path)
-      os.chown(path,500,500)
+      os.chown(path,1000,1000)
       return_dict['form'] = form
       if not form.is_valid():
         return django.shortcuts.render_to_response("create_rsync_share.html", return_dict, context_instance = django.template.context.RequestContext(request))

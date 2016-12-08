@@ -347,7 +347,7 @@ def create_cifs_share(request):
             audit.audit("create_dir", audit_str, request.META)
           except Exception, e:
             raise Exception('Error creating subfolder %s : %s'%(cd['new_folder'], str(e)))
-        os.chown(path,500,500)
+        os.chown(path,1000,1000)
 
         if "comment" in cd:
           comment = cd["comment"]

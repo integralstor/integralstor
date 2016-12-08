@@ -8,9 +8,9 @@ from integral_view.views.admin_auth  import login, logout, change_admin_password
 
 from integral_view.views.pki_management  import view_ssl_certificates, delete_ssl_certificate, create_self_signed_ssl_certificate, upload_ssl_certificate, download_ssh_keys, upload_ssh_user_key,upload_ssh_host_key
 
-from integral_view.views.common import show, dashboard,shell_access
+from integral_view.views.common import show, dashboard,shell_access, view_backup
 
-from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level,download_sys_info,upload_sys_info, refresh_alerts, raise_alert, internal_audit, view_alerts, view_audit_trail, view_hardware_logs
+from integral_view.views.log_management import  download_sys_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level,download_sys_info,upload_sys_info, refresh_alerts, raise_alert, internal_audit, view_alerts, view_audit_trail, view_hardware_logs, download_hardware_logs
 
 from integral_view.views.cifs_share_management import view_cifs_shares, create_cifs_share, samba_server_settings, save_samba_server_settings, view_cifs_share, edit_cifs_share, delete_cifs_share, edit_auth_method 
 
@@ -131,6 +131,7 @@ urlpatterns = patterns('',
     url(r'^remove_zfs_spare/', login_required(remove_zfs_spare)),
     url(r'^set_zfs_quota/', login_required(set_zfs_quota)),
     url(r'^remove_zfs_quota/', login_required(remove_zfs_quota)),
+    url(r'^view_backup/', login_required(view_backup)),
     url(r'^view_zfs_snapshots/', login_required(view_zfs_snapshots)),
     url(r'^create_zfs_snapshot/', login_required(create_zfs_snapshot)),
     url(r'^import_all_zfs_pools/', login_required(import_all_zfs_pools)),
@@ -175,6 +176,7 @@ urlpatterns = patterns('',
     url(r'^refresh_alerts/([0-9_]*)', login_required(refresh_alerts)),
     url(r'^logout/', logout,name="logout"),
     url(r'^download_sys_log/', login_required(download_sys_log)),
+    url(r'^download_hardware_logs/', login_required(download_hardware_logs)),
     url(r'^download_sys_info/', login_required(download_sys_info)),
     url(r'^upload_sys_info/', login_required(upload_sys_info)),
     url(r'^rotate_log_list/', login_required(rotate_log)),
