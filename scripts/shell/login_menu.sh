@@ -123,7 +123,7 @@ generate_manifest_and_status(){
 
 
 goto_shell() {
-  su -l fractalio
+  su -l integralstor
   pause
 }
 
