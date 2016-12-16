@@ -1,7 +1,11 @@
 {% extends 'snapshot_replication_base.html' %}
 
 {%block tab_header %}
-  ZFS dataset/volume replication
+  ZFS replication
+{%endblock%}
+
+{%block global_actions %}
+  <a class="btn btn-default btn-sm pull-right" href="/replicate_zfs_dataset/"  title="Configure a new replication for a dataset" style="color:#000"> <i class="fa fa-plus-square-o  fa-fw"></i>&nbsp;Configure new replication </a>
 {%endblock%}
 
 {% block inside_content %}
@@ -10,9 +14,10 @@
     <table id="remote_replications_list" class="table table-stripped" style="width:800px;">
       <thead>
         <tr>
-          <td> Source Dataset</td>
+          <td> Source dataset</td>
           <td> Destination IP </td>
-          <td> Destination Pool </td>
+          <td> Destination pool </td>
+          <td>Schedule</td>
           <td></td>
         </tr>
       </thead>
@@ -22,7 +27,16 @@
             <td> {{replication.dataset}} </td>
             <td> {{replication.ip}} </td>
             <td> {{replication.dest}} </td>
-            <td> <a href="/replicate_zfs_dataset/?dataset_name={{replication.dataset}}" class="btn btn-info btn-sm">Modify Replication Status </a>
+            <td> {{replication.schedule_description}} </td>
+            <td> 
+              <div class="btn-group btn-group-xs pull-right" >
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for pool specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li> <a class="action-dropdown" href="/replicate_zfs_dataset/?dataset_name={{replication.dataset}}" title="Modify the parameters for this replication"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify Replication Status </a></li>
+                  <li class="divider"></li>
+                  <li><a class="action-dropdown" href="/cancel_zfs_replication?dataset={{replication.dataset}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Cancel this replication </a></li>
+                </ul>
+              </div>
           </tr>
         {% endfor %}
       </tbody>
@@ -33,5 +47,4 @@
   <br />
   <br />
   <br />
-  <a href="/replicate_zfs_dataset/" role="button" class="btn btn-primary btn-sm"> Enable dataset replication </a>
 {% endblock %}

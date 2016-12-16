@@ -706,9 +706,9 @@ def view_dir_ownership_permissions(request):
     
     return django.shortcuts.render_to_response('dir_ownership_permissions.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    return_dict['base_template'] = "storage_base.html"
+    return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'Directory manager'
-    return_dict['tab'] = 'dir_permissions_tab'
+    return_dict['tab'] = 'dir_manager_tab'
     return_dict["error"] = 'Error loading directory ownership and permissions'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))

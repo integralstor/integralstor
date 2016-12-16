@@ -31,9 +31,9 @@
   {%endif%}
   <hr>
   
-  <h4> Scheduled storage tasks </h4>
+  <h4> Scheduled tasks </h4>
   {% if not cron_list %}
-    No scheduled tasks appear to have been created.
+    No tasks appear to have been scheduled.
   {%else %}
     <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
       <table class="table table-striped">
@@ -47,9 +47,9 @@
         </thead>
         {%for d in cron_list %}
           <tr>
-            <td> {{d.comment}} </td>
+            <td> {{d.job.comment}} </td>
             <td>
-              {{d.minute}} {{d.hour}} {{d.day}} {{d.month}} {{d.dow}}
+              {{d.schedule_description}}
             </td>
             <td>
               <form action="/download_cron_log" method="POST">
@@ -61,7 +61,7 @@
             <td>
               <form action="/remove_cron_job" method="POST">
                 {% csrf_token %}
-                <input type="text" value="{{d.comment}}" name="cron_name" style="display:none;" />
+                <input type="text" value="{{d.job.comment}}" name="cron_name" style="display:none;" />
                 <button class="btn btn-xs btn-danger pull-right">Remove job</button>
               </form>
             </td>

@@ -19,7 +19,7 @@
     <p > The system has detected a new disk with serial number {{inserted_disk_serial_number}} on node  {{node}}. If this is correct, please continue and it will replace the disk with serial number {{serial_number}}. </p><br>
 
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      <input type="button" class="btn btn-default " value="Cancel" onClick="window.location='/show/disk_status'"> &nbsp;&nbsp; 
+      <input type="button" class="btn btn-default " value="Cancel" onClick="window.location='/view_disks'"> &nbsp;&nbsp; 
       <button type="submit" class="btn btn-primary cover-page" >Confirm and proceed >></button>
     </div>
   </form>
@@ -36,6 +36,6 @@
 
 {% block tab_active %}
   <script>
-    make_tab_active("view_zfs_pools_tab")
+    make_tab_active("view_disks_tab")
   </script>
 {% endblock %}

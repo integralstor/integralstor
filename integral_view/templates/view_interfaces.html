@@ -119,11 +119,13 @@
                 <ul class="dropdown-menu">
                   <li><a href="/view_bond?name={{name}}" role="button" > <i class="fa fa-cog fa-fw"></i>&nbsp;View details and configure</a></li>
                   <li><a href="/edit_interface_address?name={{name}}" ><i class="fa fa-exchange fa-fw"></i>&nbsp;Edit bond address..</a></li>
+                  <!--
                   {%if d.up_status == 'up' %}
                     <li><a href="/set_interface_state?name={{name}}&state=down" style="color:red"><i class="fa fa-stop-circle fa-fw" ></i>&nbsp;Bring down this bond</a></li>
                   {%else %}
                     <li><a href="/set_interface_state?name={{name}}&state=up" ><i class="fa fa-play-circle fa-fw"></i>&nbsp;Bring up this bond</a></li>
                   {%endif%}
+                  -->
                     <li><a href="/remove_bond?name={{name}}" role="button" style="color:red"><i class="fa fa-trash fa-fw"></i>&nbsp;Remove this bond</a></li>
                 </ul>
               </div>

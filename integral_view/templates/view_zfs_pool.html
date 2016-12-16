@@ -89,6 +89,7 @@
                   <tr><th> Pool dedup ratio</th> <td>{{pool.usage.dedupratio.value}}{{pool.usage.dedupratio.unit}}<td></tr>
                 {%endif%}
                 <tr><th> Pool fragmentation percentage</th> <td>{{pool.usage.fragmentation.value}}{{pool.usage.fragmentation.unit}}<td></tr>
+                <tr><th> Pool autoexpand </th> <td>{%if pool.usage.autoexpand%} Enabled {%else%} Disabled{%endif%}<td></tr>
               </table>
           </div>
         </div>

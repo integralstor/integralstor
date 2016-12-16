@@ -2,7 +2,7 @@ import django, django.template
 
 import integralstor_common
 import integralstor_unicell
-from integralstor_common import zfs, audit, ramdisk,file_processing, common, command,db
+from integralstor_common import zfs, audit, ramdisk,file_processing, common, command,db, disks
 from integralstor_common import scheduler_utils, manifest_status,ssh
 from integralstor_common import cifs as common_cifs
 from integralstor_unicell import nfs,local_users, iscsi_stgt, system_info
@@ -236,6 +236,18 @@ def view_remote_replications(request):
     replications,err = db.read_multiple_rows(db_path,cmd)
     if err: 
       raise Exception(err)
+    #print replications
+    cron_jobs,err = scheduler_utils.get_all_cron_jobs()
+    if err:
+      raise Exception(err)
+    for replication in replications:
+      #print replication
+      cron_comment = 'Replication for %s-%s'%(replication['dataset'].split('/')[0],replication['dataset'].split('/')[1])
+      for cron in cron_jobs:
+        #print cron
+        if cron['job'].comment == cron_comment:
+          replication['schedule_description'] = cron['schedule_description']
+          break
     return_dict["replications"] = replications
     return django.shortcuts.render_to_response('view_remote_replications.html',return_dict,context_instance=django.template.context.RequestContext(request))
   except Exception as e:
@@ -249,32 +261,49 @@ def view_remote_replications(request):
 
 def replicate_zfs_dataset(request):
   return_dict = {}
-  if request.method == "GET":
-    dataset = request.GET.get('dataset_name')
-    if dataset:
-      cmd = "select * from dataset_repl where dataset='%s'"%str(dataset)
-      db_path,err = common.get_db_path()
-      status,err = db.read_single_row(db_path,cmd)
-      if not err:
-        if not status:
-          return_dict["replication_status"] = "disabled"
-        else:
-          return_dict["replication_status"] = "enabled"
+  try:
+    if "ack" in request.GET:
+      if request.GET["ack"] == "cancelled":
+        return_dict['ack_message'] = 'Selected replication successfully cancelled.'
+
+    if request.method == "GET":
+      dataset = request.GET.get('dataset_name')
+      if dataset:
+        cmd = "select * from dataset_repl where dataset='%s'"%str(dataset)
+        db_path,err = common.get_db_path()
+        status,err = db.read_single_row(db_path,cmd)
+        if err:
+          raise Exception(err)
+        if status:
+          return_dict['action'] = 'update'
           return_dict["ip"] = status["ip"]
           return_dict["dest"] = status["dest"]
-      return_dict['dataset'] = dataset
-    else:
-      datasets = []
-      pools,err = zfs.get_all_datasets_and_pools()
-      if err:
-        raise Exception(err)
-      for pool in pools:
-        if "/" in pool:
-          datasets.append(pool)
-      return_dict["datasets"] = datasets
-    return django.shortcuts.render_to_response('replicate_zfs_dataset.html',return_dict,context_instance=django.template.context.RequestContext(request))
-  elif request.method == "POST":
-    try:
+        else:
+          return_dict['action'] = 'create'
+        return_dict['dataset'] = dataset
+        cron_jobs,err = scheduler_utils.get_all_cron_jobs()
+        if err:
+          raise Exception(err)
+        cron_comment = 'Replication for %s-%s'%(dataset.split('/')[0],dataset.split('/')[1])
+        schedule_description = "Not scheduled"
+        for cron in cron_jobs:
+          #print cron
+          if cron['job'].comment == cron_comment:
+            schedule_description = cron['schedule_description']
+            break
+        return_dict['schedule_description'] = schedule_description
+      else:
+        datasets = []
+        pools,err = zfs.get_all_datasets_and_pools()
+        if err:
+          raise Exception(err)
+        for pool in pools:
+          if "/" in pool:
+            datasets.append(pool)
+        return_dict["datasets"] = datasets
+      return django.shortcuts.render_to_response('replicate_zfs_dataset.html',return_dict,context_instance=django.template.context.RequestContext(request))
+
+    elif request.method == "POST":
       dataset = request.POST.get('dataset')
       scheduler = request.POST.get('scheduler')
       schedule = scheduler.split()
@@ -283,13 +312,15 @@ def replicate_zfs_dataset(request):
       username = "replicator"
       replication_status = request.POST.get('replication_status')
       action = request.POST.get('action')
-      if (not host_ip) and (not dest_pool):
-        raise Exception("Data Incomplete.")
+      if (not host_ip) or (not dest_pool) or (not action) or (not dataset):
+        raise Exception("Incomplete request.")
       comment = "Replication for %s-%s"%(dataset.split("/")[0],dataset.split("/")[1])
 
       if action == "update":
         cmd = "update dataset_repl set dataset='%s',ip='%s',user='%s',dest='%s' where dataset='%s'"%(dataset,host_ip,username,dest_pool,dataset)
         db_path,err = common.get_db_path()
+        if err:
+          raise Exception(err)
         status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
         if err:
           raise Exception(err)
@@ -300,7 +331,7 @@ def replicate_zfs_dataset(request):
         if err:
           raise Exception(err)
          
-      elif action == "start": 
+      elif action == "create": 
         cmd = "insert into dataset_repl (dataset,ip,user,dest) values ('%s','%s','%s','%s')"%(dataset,host_ip,username,dest_pool)
         db_path,err = common.get_db_path()
         status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
@@ -309,25 +340,44 @@ def replicate_zfs_dataset(request):
         schedule,err = scheduler_utils.create_cron(comment,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4],"/usr/bin/python -c 'from integralstor_common import zfs; zfs.schedule_remote_replication("'"%s"'","'"%s"'","'"%s"'","'"%s"'")'"%(dataset,host_ip,username,dest_pool))
         if err:
           raise Exception(err)
-
-      elif action == "stop":
-        cmd = "delete from dataset_repl where dataset='%s'"%dataset
-        db_path,err = common.get_db_path()
-        status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
-        cron_remove,err = scheduler_utils.delete_cron_with_comment(comment)
-        if err:
-          raise Exception(err)
-
       else:
         raise Exception("Malformed request. Please use the menus")
       return django.http.HttpResponseRedirect('replicate_zfs_pool/?dataset_name='+dataset)
-    except Exception as e:
-      return_dict['base_template'] = "storage_base.html"
-      return_dict["page_title"] = 'Setting ZFS quota'
-      return_dict['tab'] = 'view_zfs_pools_tab'
-      return_dict["error"] = 'Error setting ZFS quota'
-      return_dict["error_details"] = str(e)
-      return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception as e:
+    return_dict['base_template'] = "snapshot_replication_base.html"
+    return_dict["page_title"] = 'Configure ZFS replication'
+    return_dict['tab'] = 'view_remote_replications_tab'
+    return_dict["error"] = 'Error configuring ZFS replication'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def cancel_zfs_replication(request):
+  return_dict = {}
+  try:
+    if 'dataset' not in request.REQUEST:
+      raise Exception('Invalid request. Please use the menus.')
+    dataset = request.REQUEST['dataset']
+    return_dict['dataset'] = dataset
+
+    if request.method == "GET":
+      return django.shortcuts.render_to_response("cancel_zfs_replication_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    else:
+      comment = "Replication for %s-%s"%(dataset.split("/")[0],dataset.split("/")[1])
+      cmd = "delete from dataset_repl where dataset='%s'"%dataset
+      db_path,err = common.get_db_path()
+      if err:
+        raise Exception(err)
+      cron_remove,err = scheduler_utils.delete_cron_with_comment(comment)
+      if err:
+        raise Exception(err)
+      return django.http.HttpResponseRedirect('/view_remote_replications?ack=cancelled')
+  except Exception as e:
+    return_dict['base_template'] = "snapshot_replication_base.html"
+    return_dict["page_title"] = 'Cancel ZFS replication'
+    return_dict['tab'] = 'view_remote_replications_tab'
+    return_dict["error"] = 'Error cancelling ZFS replication'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def set_zfs_quota(request):
   return_dict = {}
@@ -1640,7 +1690,7 @@ def replace_disk(request):
           raise Exception("Unknown node. Please use the menus")
         elif "step" not in request.POST :
           raise Exception("Incomplete request. Please use the menus")
-        elif request.POST["step"] not in ["offline_disk", "scan_for_new_disk", "online_new_disk"]:
+        elif request.POST["step"] not in ["replace_method", "select_replacement_disk", "offline_disk", "scan_for_new_disk", "online_new_disk"]:
           raise Exception("Incomplete request. Please use the menus")
         else:
           step = request.POST["step"]
@@ -1653,6 +1703,22 @@ def replace_disk(request):
             #zpool offline pool disk
             #send a screen asking them to replace the disk
   
+            if 'replacement_method' not in request.POST or request.POST['replacement_method'] not in ['use_existing_disk','swap_out_disk']:
+              raise Exception('Invalid request')
+            return_dict['replacement_method'] = request.POST['replacement_method']
+            if request.POST['replacement_method'] == 'use_existing_disk':
+              #Then we should have landed here after already selecting the new disk so get and record the new disk details
+              if 'new_serial_number' not in request.POST:
+                raise Exception('Incomplete request. Please try again')
+              new_serial_number = request.POST['new_serial_number']
+              all_disks, err = disks.get_disk_info_all()
+              if new_serial_number not in all_disks:
+                raise Exception('Invalid disk selection')
+              #print new_serial_number
+              #print all_disks[new_serial_number]['id']
+              return_dict['new_serial_number'] = new_serial_number
+              return_dict['new_id'] = all_disks[new_serial_number]['id']
+      
             pool = None
             if serial_number in si[node]["disks"]:
               disk = si[node]["disks"][serial_number]
@@ -1665,48 +1731,55 @@ def replace_disk(request):
               cmd_to_run = 'zpool offline %s %s'%(pool, disk_id)
               #print 'Running %s'%cmd_to_run
               #assert False
-              if use_salt:
-                #issue a zpool offline pool disk-id using salt
-                client = salt.client.LocalClient()
-                rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
-                if rc:
-                  for node, ret in rc.items():
-                    #print ret
-                    if ret["retcode"] != 0:
-                      error = "Error bringing the disk with serial number %s offline on %s : "%(serial_number, node)
-                      if "stderr" in ret:
-                        error += ret["stderr"]
-                      raise Exception(error)
-                #print rc
-              else:
-                (ret, rc), err = command.execute_with_rc(cmd_to_run)
-                if err:
-                  raise Exception(err)
-                #print ret
-                if rc != 0:
-                  err = "Error bringing the disk with serial number %s offline  : "%(serial_number)
-                  tl, er = command.get_output_list(ret)
-                  if er:
-                    raise Exception(er)
-                  if tl:
-                    err = ','.join(tl)
-                  tl, er = command.get_error_list(ret)
-                  if er:
-                    raise Exception(er)
-                  if tl:
-                    err = err + ','.join(tl)
-                  raise Exception(err)  
-              #if disk_status == "Disk Missing":
-              #  #Issue a reboot now, wait for a couple of seconds for it to shutdown and then redirect to the template to wait for reboot..
-              #  pass
+              ret, err = command.get_command_output(cmd_to_run)
+              if err:
+                raise Exception(err)
+              '''
+              (ret, rc), err = command.execute_with_rc(cmd_to_run)
+              if err:
+                raise Exception(err)
+              #print ret
+              if rc != 0:
+                err = "Error bringing the disk with serial number %s offline  : "%(serial_number)
+                tl, er = command.get_output_list(ret)
+                if er:
+                  raise Exception(er)
+                if tl:
+                  err = ','.join(tl)
+                tl, er = command.get_error_list(ret)
+                if er:
+                  raise Exception(er)
+                if tl:
+                  err = err + ','.join(tl)
+                raise Exception(err)  
+              '''
               audit_str = "Replace disk - Disk with serial number %s brought offline"%serial_number
               audit.audit("replace_disk_offline_disk", audit_str, request.META)
               return_dict["serial_number"] = serial_number
               return_dict["node"] = node
               return_dict["pool"] = pool
               return_dict["old_id"] = disk_id
-              template = "replace_disk_prompt.html"
+              template = "replace_disk_offlined_conf.html"
   
+          elif step == "replace_method":
+            return_dict["node"] = node
+            return_dict["serial_number"] = serial_number
+            template = "replace_disk_method.html"
+
+          elif step == "select_replacement_disk":
+            if 'replacement_method' not in request.POST or request.POST['replacement_method'] not in ['use_existing_disk','swap_out_disk']:
+              raise Exception('Invalid request')
+            return_dict['replacement_method'] = request.POST['replacement_method']
+            return_dict["node"] = node
+            return_dict["serial_number"] = serial_number
+            free_disks, err = zfs.get_free_disks()
+            if err:
+              raise Exception(err)
+            if not free_disks:
+              raise Exception('There are no unused disks presently')
+            return_dict['free_disks'] = free_disks
+            template = "replace_disk_choose_disk.html"
+
           elif step == "scan_for_new_disk":
   
             #they have replaced the disk so scan for the new disk
@@ -1720,19 +1793,12 @@ def replace_disk(request):
             return_dict["old_id"] = old_id
             old_disks = si[node]["disks"].keys()
             result = False
-            if use_salt:
-              client = salt.client.LocalClient()
-              rc = client.cmd(node, 'integralstor.disk_info_and_status')
-              if rc and node in rc:
-                result = True
-                new_disks = rc[node]
-            else:
-              rc, err = manifest_status.disk_info_and_status()
-              if err:
-                raise Exception(err)
-              if rc:
-                result = True
-                new_disks = rc
+            rc, err = manifest_status.disk_info_and_status()
+            if err:
+              raise Exception(err)
+            if rc:
+              result = True
+              new_disks = rc
             if result:
               #print '1'
               if new_disks:
@@ -1741,7 +1807,7 @@ def replace_disk(request):
                 for disk in new_disks.keys():
                   #print disk
                   if disk not in old_disks:
-                    #print '3'
+                    #print 'new disk : ', disk
                     return_dict["inserted_disk_serial_number"] = disk
                     return_dict["new_id"] = new_disks[disk]["id"]
                     break
@@ -1763,7 +1829,7 @@ def replace_disk(request):
               raise Exception(err)
             cmd_list = []
             cmd_list.append({'Replace old disk':'zpool replace -f %s %s %s'%(pool, old_id, new_id)})
-            cmd_list.append({'Online the new disk':'zpool online %s %s'%(pool, new_id)})
+            cmd_list.append({'Online the new disk':'zpool online -e %s %s'%(pool, new_id)})
             cmd_list.append({'Regenerate the system configuration':'%s/generate_manifest.py'%common_python_scripts_path})
             ret, err = scheduler_utils.schedule_a_job(db_path,'Disk replacement',cmd_list,retries=0)
             if err:
@@ -1776,177 +1842,6 @@ def replace_disk(request):
             return_dict["old_serial_number"] = serial_number
             return_dict["new_serial_number"] = new_serial_number
             template = "replace_disk_success.html"
-            '''
-            python_scripts_path, err = common.get_python_scripts_path()
-            if err:
-              raise Exception(err)
-            common_python_scripts_path, err = common.get_common_python_scripts_path()
-            if err:
-              raise Exception(err)
-            #they have confirmed the new disk serial number
-            #get the id of the disk and
-            #zpool replace poolname old disk new disk
-            #zpool clear poolname to clear old errors
-            #return a result screen
-            pool = request.POST["pool"]
-            old_id = request.POST["old_id"]
-            new_id = request.POST["new_id"]
-            new_serial_number = request.POST["new_serial_number"]
-            cmd_to_run = "zpool replace -f %s %s %s"%(pool, old_id, new_id)
-            if use_salt:
-              #print 'Running %s'%cmd_to_run
-              client = salt.client.LocalClient()
-              rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
-              if rc:
-                #print rc
-                for node, ret in rc.items():
-                  #print ret
-                  if ret["retcode"] != 0:
-                    error = "Error replacing the disk on %s : "%(node)
-                    if "stderr" in ret:
-                      error += ret["stderr"]
-                    rc = client.cmd(node, 'cmd.run', ['zpool online %s %s'%(pool, old_id)])
-                    raise Exception(error) 
-              else:
-                raise Exception("Error replacing the disk on %s : "%(node))
-            else:
-                (ret, rc), err = command.execute_with_rc(cmd_to_run)
-                if err:
-                  raise Exception(err)
-                #print ret
-                if rc != 0:
-                  err = "Error replacing the disk  : "
-                  tl, er = command.get_output_list(ret)
-                  if er:
-                    raise Exception(er)
-                  if tl:
-                    err = ','.join(tl)
-                  tl, er = command.get_error_list(ret)
-                  if er:
-                    raise Exception(er)
-                  if tl:
-                    err = err + ','.join(tl)
-                  raise Exception(err)
-            '''
-            '''
-            cmd_to_run = "zpool set autoexpand=on %s"%pool
-            if use_salt:
-              print 'Running %s'%cmd_to_run
-              rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
-              if rc:
-                for node, ret in rc.items():
-                  #print ret
-                  if ret["retcode"] != 0:
-                    error = "Error setting pool autoexpand on %s : "%(node)
-                    if "stderr" in ret:
-                      error += ret["stderr"]
-                    return_dict["error"] = error
-                    return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-              print rc
-            else:
-              (ret, rc), err = command.execute_with_rc(cmd_to_run)
-              if err:
-                raise Exception(err)
-              #print ret
-              if rc != 0:
-                err = "Error setting pool autoexpand on %s : "%(node)
-                tl, er = command.get_output_list(ret)
-                if er:
-                  raise Exception(er)
-                if tl:
-                  err = ','.join(tl)
-                tl, er = command.get_error_list(ret)
-                if er:
-                  raise Exception(er)
-                if tl:
-                  err = err + ','.join(tl)
-                return_dict["error"] = err
-                return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-            if new_serial_number in si[node]["disks"]:
-              disk = si[node]["disks"][new_serial_number]
-              disk_id = disk["id"]
-            '''
-            '''
-            cmd_to_run = 'zpool online %s %s'%(pool, new_id)
-            if use_salt:
-              #print 'Running %s'%cmd_to_run
-              rc = client.cmd(node, 'cmd.run_all', [cmd_to_run])
-              if rc:
-                #print rc
-                for node, ret in rc.items():
-                  #print ret
-                  if ret["retcode"] != 0:
-                    error = "Error bringing the new disk online on %s : "%(node)
-                    if "stderr" in ret:
-                      error += ret["stderr"]
-                    raise Exception(error)
-              else:
-                raise Exception("Error bringing the new disk online on %s : "%(node))
-            else:
-              (ret, rc), err = command.execute_with_rc(cmd_to_run)
-              if err:
-                raise Exception(err)
-              #print ret
-              if rc != 0:
-                err = "Error bringing the new disk online  : "
-                tl, er = command.get_output_list(ret)
-                if er:
-                  raise Exception(er)
-                if tl:
-                  err = ','.join(tl)
-                tl, er = command.get_error_list(ret)
-                if er:
-                  raise Exception(er)
-                if tl:
-                  err = err + ','.join(tl)
-                raise Exception(err)
-            (ret, rc), err = command.execute_with_rc('%s/generate_manifest.py'%common_python_scripts_path)
-            if err:
-              raise Exception(err)
-            #print ret
-            if rc != 0:
-              err = ""
-              tl, er = command.get_output_list(ret)
-              if er:
-                raise Exception(er)
-              if tl:
-                err = ','.join(tl)
-              tl, er = command.get_error_list(ret)
-              if er:
-                raise Exception(er)
-              if tl:
-                err = err + ','.join(tl)
-              raise Exception("Could not regenrate the new hardware configuration. Error generating manifest. %s"%err)
-              #print ret
-            else:
-              (ret, rc), err = command.execute_with_rc('%s/generate_status.py'%common_python_scripts_path)
-              if err:
-                raise Exception(err)
-              if rc != 0:
-                err = ""
-                tl, er = command.get_output_list(ret)
-                if er:
-                  raise Exception(er)
-                if tl:
-                  err = ','.join(tl)
-                tl, er = command.get_error_list(ret)
-                if er:
-                  raise Exception(er)
-                if tl:
-                  err = err + ','.join(tl)
-                raise Exception("Could not regenrate the new hardware configuration. Error generating status. %s"%err)
-                #print ret
-              si, err = system_info.load_system_config()
-              if err:
-                raise Exception(err)
-              audit_str = "Replace disk - Disk with serial number %s successfully replaced by new disk with serial number %s"%(serial_number, new_serial_number)
-              audit.audit("replace_disk_replaced_disk", audit_str, request.META)
-              return_dict["node"] = node
-              return_dict["old_serial_number"] = serial_number
-              return_dict["new_serial_number"] = new_serial_number
-              template = "replace_disk_success.html"
-  
-          '''
           return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
           
       else:
@@ -1961,10 +1856,10 @@ def replace_disk(request):
           template = "replace_disk_conf.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    return_dict['base_template'] = "dashboard_base.html"
-    return_dict["page_title"] = 'Replace a hard drive'
-    return_dict['tab'] = 'disks_tab'
-    return_dict["error"] = 'Error replacing hard drive'
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Replace a disk in a ZFS pool'
+    return_dict['tab'] = 'view_zfs_pools_tab'
+    return_dict["error"] = 'Error replacing a disk in a ZFS pool'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 

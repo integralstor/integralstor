@@ -1,0 +1,32 @@
+{% extends 'snapshot_replication_base.html' %}
+
+{%block tab_header %}
+  Cancel ZFS replication - confirmation
+{%endblock%}
+
+{% block inside_content %}
+
+  <p id="p-warning-text">Are you sure you want to cancel the replication for dataset "{{dataset}}"? </p>
+  <form action="/cancel_zfs_replication/" method="POST">
+    <input type=hidden name="dataset" value="{{dataset}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_remote_replications'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger cover-page" ">Confirm and delete</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Cancel a ZFS remote replication 
+{%endblock%}
+
+{%block help_body%}
+  This screen is a confirmation to ensure that you actually want to cancel the selected ZFS remote replication.
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_remote_replications_tab")
+{% endblock %}
+

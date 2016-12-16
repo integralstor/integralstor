@@ -1,7 +1,16 @@
 {% extends 'snapshot_replication_base.html' %}
 
 {%block tab_header %}
-  ZFS dataset/volume replication
+  ZFS replication
+{%endblock%}
+
+{%block global_actions %}
+    <div class="btn-group btn-group-sm pull-right"  >
+      <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+        <li><a class="action-dropdown" href="/view_remote_replications/" ><i class="fa fa-list fa-fw"></i>&nbsp;Back to replications list</a></li>
+      </ul>
+    </div>
 {%endblock%}
 
 {% block inside_content %}
@@ -19,53 +28,52 @@
         </td>
       </tr>
     </table>
-    <button class="btn btn-primary btn-sm" id="replication_status">Change replication status </button>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_remote_replications" role="button" class="btn btn-default"> Cancel</a>
+      <button class="btn btn-primary btn-sm" id="id_configure_replication">Configure replication </button>
+    </div>
   {%else %}
     <form class="form-horizontal" role="form" name="schedule_replication" action="" method="post">
+      <input type="hidden" name="action" value={{action}}">
       <table  class="table " style="width:800px">
         <tr>
-          <th> Replication Status</th>
-          <td> 
-            <strong>{{replication_status|title}}  </strong>
-            <input type="text"  name="replication_status" class="form-control" id="id_replication_status" placeholder="Replication Status" value="{{replication_status}}" style="display:none;"> 
+          <th> Replicated dataset</th>
+          <td>
+            {{dataset}}
+            <input type="hidden"  name="dataset" class="form-control" id="id_dataset" placeholder="{{dataset}}" value="{{dataset}}" readonly > 
           </td>
         </tr>
         <tr>
-          <th> Destination pool name</th>
+          <th> Current replication schedule</th>
           <td>
-            <input type="text"  name="dest_pool" class="form-control" id="id_dest_pool" placeholder="Destination Pool Name" value="{{dest}}" required> 
+            {{schedule_description}}
           </td>
         </tr>
         <tr>
-          <th> Destination IP</th>
+          <th> Destination IntegralSTOR UNICell IP</th>
           <td>
-            <input type="text"  name="ip" class="form-control" id="id_dest_ip" placeholder="Destination IP" value="{{ip}}" required> 
+            <input type="text"  name="ip" class="form-control" id="id_dest_ip" placeholder="Enter the destination IP" value="{{ip}}" required> 
           </td>
         </tr>
         <tr>
-          <th> Selected Dataset</th>
+          <th> Destination IntegralSTOR UNICell pool name</th>
           <td>
-            <input type="text"  name="dataset" class="form-control" id="id_dataset" placeholder="{{dataset}}" value="{{dataset}}" readonly > 
+            <input type="text"  name="dest_pool" class="form-control" id="id_dest_pool" placeholder="Enter the destination pool name" value="{{dest}}" required> 
           </td>
         </tr>
         <tr>
-          <th> Time to run replication </th>
+          <th> Select new replication schedule</th>
           <td>
-            <div id="scheduler" class="form-control">
-	    </div>
-              <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select time from time selector" type="text" required readonly>
+            <div id="scheduler" class="form-control" style="border:0px ">
+	          </div>
+            <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select time from time selector" type="hidden" required readonly>
           </td>
         </tr>
       </table>
       <input type="text"  name="action" class="form-control" id="id_action" readonly style="display:none;"> 
       <div class="btn-group btn-group-sm" role="group" aria-label="...">
         <a href="/view_remote_replications" role="button" class="btn btn-default"> Cancel</a>
-        {% if "disabled" in replication_status %}
-          <button type="submit" class="btn btn-primary" id="start">Start Replication</button>
-        {% else %}
-          <button type="submit" class="btn btn-info" id="update">Update Replication</button>
-          <button type="submit" class="btn btn-danger" id="stop">Stop Replication</button>
-        {% endif %}
+        <button type="submit" class="btn btn-primary" id="start">Configure Replication</button>
       </div>
     </form>
   {% endif %}
@@ -87,7 +95,7 @@
 	})
   </script>
   <script>
-    $("#replication_status").click(function(){
+    $("#id_configure_replication").click(function(){
       window.location = "/replicate_zfs_dataset/?dataset_name="+$("#id_datasets option:selected").text() 
    });
   </script>

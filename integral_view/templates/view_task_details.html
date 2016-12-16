@@ -4,13 +4,24 @@
   {{task_name}}
 {% endblock %}
 
+{%block global_actions %}
+    <div class="btn-group btn-group-sm pull-right"  >
+      <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+        <li><a class="action-dropdown" href="/view_background_tasks/" ><i class="fa fa-list fa-fw"></i>&nbsp;Back to tasks list</a></li>
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/remove_background_task?task_id={{task_id}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Remove this task </a></li>
+      </ul>
+    </div>
+{%endblock%}
+
 {% block inside_content %}
-  {%for task in tasks %}
-    <div class="panel box {%if task.return_code == '0' %} box-success {%else%} box-danger{%endif%}">
+  {%for command in commands %}
+    <div class="panel box {%if command.return_code == '0' %} box-success {%else%} box-danger{%endif%}">
       <div class="box-header with-border">
         <h5 class="box-title">
           <a class="" aria-expanded="true" data-toggle="collapse" data-parent="#accordion" href="#pool_{{forloop.counter}}">
-            {{task.name}}
+            {{command.name}}
           </a> 
         </h5>
       </div>
@@ -20,25 +31,25 @@
             <tbody>
               <tr>
                 <td colspan=1> Command </td>
-                <td> {{task.command}} </td>
+                <td> {{command.command}} </td>
               </tr>
               <tr>
                 <td colspan=1> Status </td>
-                <td> {{task.status}} </td>
+                <td> {{command.status}} </td>
               </tr>
               <tr>
                 <td colspan=1> Retries </td>
-                <td> {{task.retries}} </td>
+                <td> {%if command.retries == -2 %} Infinite {%else %}{{command.retries}}{%endif%} </td>
               </tr>
               <tr>
                 <td colspan=1> Output </td>
                 <td> 
-                  {% if task.output != "None" %}
-                    {{task.output|linebreaksbr}} 
+                  {% if command.output != "None" %}
+                    {{command.output|linebreaksbr}} 
                     <br />
                   {% endif %}
-                  {% if task.errors != "None" %}
-                    {{task.errors|linebreaksbr}} 
+                  {% if command.errors != "None" %}
+                    {{command.errors|linebreaksbr}} 
                   {% endif %}
                 </td>
               </tr>

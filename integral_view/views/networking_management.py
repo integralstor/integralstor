@@ -344,8 +344,8 @@ def create_bond(request):
         continue
       if 'slave_to' in iface and iface['slave_to']:
         continue
-      if 'eth' not in if_name:
-        continue
+      #if 'eth' not in if_name:
+      #  continue
       if_list.append(if_name)
     if request.method == "GET":
       form = networking_forms.CreateBondForm(interfaces = if_list, existing_bonds = existing_bonds)

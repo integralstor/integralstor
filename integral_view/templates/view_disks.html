@@ -56,10 +56,10 @@
                   <input type="hidden" name="node" value="{{node_name}}">
                   <input type="hidden" name="serial_number" value="{{sn}}">
                   <input type="hidden" name="step" value="offline_disk">
-                  <button type="submit" class="btn btn-primary btn-xs" onClick ="$('#processing').modal('show');" title="Replace this disk with another"> <i class="fa fa-exchange fa-fw" ></i>&nbsp;Replace.. </button>
+                  <button type="submit" class="btn btn-primary btn-xs" onClick ="$('#processing').modal('show');" title="Replace this disk with another"> <i class="fa fa-exchange fa-fw" ></i>&nbsp;Replace disk </button>
                 </form>
               {%else%}
-                <button  class="btn btn-primary btn-xs" onClick ="alert('This disk is not part of any ZFS pool so you can go ahead and replace it safely');"> Replace (swap out) this disk </button>
+                <button  class="btn btn-primary btn-xs" onClick ="alert('This disk is not part of any ZFS pool so you can go ahead and replace it safely');"> <i class="fa fa-exchange fa-fw" ></i>&nbsp;Replace disk </button>
               {%endif%}
             {%else%}
               Healthy disk. <br>No replacement necessary.
@@ -132,10 +132,10 @@
                   <input type="hidden" name="node" value="{{node_name}}">
                   <input type="hidden" name="serial_number" value="{{sn}}">
                   <input type="hidden" name="step" value="offline_disk">
-                  <button type="submit" class="btn btn-primary btn-xs" onClick ="$('#processing').modal('show');" title="Replace this disk with another"> <i class="fa fa-exchange fa-fw" ></i>&nbsp;Replace.. </button>
+                  <button type="submit" class="btn btn-primary btn-xs" onClick ="$('#processing').modal('show');" title="Replace this disk with another"> <i class="fa fa-exchange fa-fw" ></i>&nbsp;Replace disk </button>
                 </form>
               {%else%}
-                <button  class="btn btn-primary btn-xs" onClick ="alert('This disk is not part of any ZFS pool so you can go ahead and replace it safely');"> Replace (swap out) this disk </button>
+                <button  class="btn btn-primary btn-xs" onClick ="alert('This disk is not part of any ZFS pool so you can go ahead and replace it safely');"> <i class="fa fa-exchange fa-fw" ></i>&nbsp;Replace disk </button>
               {%endif%}
             {%else%}
               Healthy disk. <br>No replacement necessary.
