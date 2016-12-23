@@ -12,11 +12,11 @@ update_ntp_date(){
   echo
   echo
   echo 'Stopping NTP service..'
-  service ntpd stop
+  systemctl stop ntpd
   echo 'Synchronizing date..'
   ntpdate -b $server
   echo 'Starting NTP service..'
-  service ntpd start
+  systemctl start ntpd
   pause
 }
 
@@ -26,7 +26,7 @@ winbind_restart(){
   echo
   read -p "That this could cause a short data access disruption! Proceed (y/n) : " input
   case $input in
-    y)echo "Restarting Windows winbind service... ";service winbind restart;pause;;
+    y)echo "Restarting Windows winbind service... ";systemctl restart winbind;pause;;
   esac
 }
 
@@ -36,7 +36,7 @@ smb_restart(){
   echo
   read -p "That this could cause a short data access disruption! Proceed (y/n) : " input
   case $input in
-    y)echo "Restarting Windows smb service... ";service smb restart;pause;;
+    y)echo "Restarting Windows smb service... ";systemctl restart smb;pause;;
   esac
 }
 
@@ -46,7 +46,7 @@ ntpd_restart(){
   echo
   read -p "That this could cause a short data access disruption! Proceed (y/n) : " input
   case $input in
-    y)echo "Restarting time service... ";service ntpd restart;pause;;
+    y)echo "Restarting time service... ";systemctl restart ntpd;pause;;
   esac
 }
 
@@ -56,7 +56,7 @@ integralview_restart(){
   echo
   read -p "This could cause a short disruption in access to IntegralView. Proceed (y/n)? : " input
   case $input in
-    y)echo "Restarting IntegralView services... ";service uwsgi restart;service nginx restart;pause;;
+    y)echo "Restarting IntegralView services... ";systemctl restart uwsginew;systemctl restart nginx;pause;;
   esac
 }
 
@@ -66,7 +66,7 @@ restart_iscsi(){
   echo
   read -p "This could cause a short disruption in access to iscsi. Proceed (y/n)? : " input
   case $input in
-    y)echo "Restarting iscsi services... ";service tgtd restart;pause;;
+    y)echo "Restarting iscsi services... ";systemctl restart tgtd;pause;;
   esac
 }
 
@@ -76,7 +76,7 @@ restart_vsftpd(){
   echo
   read -p "This could cause a short disruption in access to FTP. Proceed (y/n)? : " input
   case $input in
-    y)echo "Restarting ftp services... ";service vsftpd restart;pause;;
+    y)echo "Restarting ftp services... ";systemctl restart vsftpd;pause;;
   esac
 }
 
@@ -86,7 +86,7 @@ restart_shellinabox(){
   echo
   read -p "This could cause a short disruption in shell access in UI. Proceed (y/n)? : " input
   case $input in
-    y)echo "Restarting shell services... ";service shellinaboxd restart;pause;;
+    y)echo "Restarting shell services... ";systemctl restart shellinaboxd;pause;;
   esac
 }
 
@@ -96,7 +96,7 @@ restart_nfs(){
   echo
   read -p "This could cause a short disruption in access to NFS data. Proceed (y/n)? : " input
   case $input in
-    y)echo "Restarting nfs services... ";service nfs restart;pause;;
+    y)echo "Restarting nfs services... ";systemctl restart nfs;pause;;
   esac
 }
 
