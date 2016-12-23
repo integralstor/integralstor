@@ -144,7 +144,7 @@ def dir_contents(request):
         else:
           d_dict = {'id':path+"/"+d, 'text':d,'icon':'fa','False':True,'data':{'dir':path+"/"+d},'parent':parent}
       dir_dict_list.append(d_dict)
-  return HttpResponse(json.dumps(dir_dict_list),content_type=='application/json')
+  return HttpResponse(json.dumps(dir_dict_list),content_type='application/json')
   '''
 
 def add_aces(request):
@@ -604,10 +604,10 @@ def get_dir_listing(request):
     resp += '</table>'
     #resp += '</body></html>'
     #print 'resp ', resp
-    return HttpResponse(resp,content_type=='text/html')
+    return HttpResponse(resp,content_type='text/html')
   except Exception, e:
     print str(e)
-    return HttpResponse('Error processing request : %s'%str(e),content_type=='text/html')
+    return HttpResponse('Error processing request : %s'%str(e),content_type='text/html')
 
 def dir_manager(request):
   return_dict = {}

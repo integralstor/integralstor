@@ -27,21 +27,9 @@ def view_services(request):
       else:
         return_dict['ack_message'] = 'Service status change initiated'
 
-    services_dict = {}
-    services = [('network', 'Networking'), ('ntpd','NTP'), ('smb', 'CIFS - smb'), ('winbind', 'CIFS - winbind'), ('tgtd', 'ISCSI'), ('nfs', 'NFS'),('vsftpd','FTP'),('shellinaboxd','Shell Access')]
-    for service in services:
-      services_dict[service[0]] = {} 
-      services_dict[service[0]]['name'] =  service[1]
-      services_dict[service[0]]['service'] =  service[0]
-      sd, err = services_management.get_service_status(service)
-      if not sd:
-        if err:
-          services_dict[service[0]]['err'] = err
-        else:
-          services_dict[service[0]]['err'] = 'Error retrieving status'
-      services_dict[service[0]]['info'] = sd
-
-    return_dict["services"] = services_dict
+    return_dict["services"], err = services_management.get_sysd_services_status ()
+    if err:
+      raise Exception(err)
     return django.shortcuts.render_to_response('view_services.html', return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "services_base.html"

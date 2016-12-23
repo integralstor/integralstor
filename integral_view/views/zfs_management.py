@@ -229,6 +229,13 @@ def view_zfs_pool(request):
 def view_remote_replications(request):
   return_dict = {}
   try:
+    if "ack" in request.GET:
+      if request.GET["ack"] == "cancelled":
+        return_dict['ack_message'] = 'Selected replication successfully cancelled.'
+      elif request.GET["ack"] == "created":
+        return_dict['ack_message'] = 'Replication successfully scheduled.'
+      elif request.GET["ack"] == "updated":
+        return_dict['ack_message'] = 'Selected replication parameters successfully updated.'
     db_path,err = common.get_db_path()
     if err:
       raise Exception(err)
@@ -262,9 +269,6 @@ def view_remote_replications(request):
 def replicate_zfs_dataset(request):
   return_dict = {}
   try:
-    if "ack" in request.GET:
-      if request.GET["ack"] == "cancelled":
-        return_dict['ack_message'] = 'Selected replication successfully cancelled.'
 
     if request.method == "GET":
       dataset = request.GET.get('dataset_name')
@@ -312,6 +316,7 @@ def replicate_zfs_dataset(request):
       username = "replicator"
       replication_status = request.POST.get('replication_status')
       action = request.POST.get('action')
+      #print action
       if (not host_ip) or (not dest_pool) or (not action) or (not dataset):
         raise Exception("Incomplete request.")
       comment = "Replication for %s-%s"%(dataset.split("/")[0],dataset.split("/")[1])
@@ -330,7 +335,7 @@ def replicate_zfs_dataset(request):
         schedule,err = scheduler_utils.create_cron(comment,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4],"/usr/bin/python -c 'from integralstor_common import zfs; zfs.schedule_remote_replication("'"%s"'","'"%s"'","'"%s"'","'"%s"'")'"%(dataset,host_ip,username,dest_pool))
         if err:
           raise Exception(err)
-         
+        return django.http.HttpResponseRedirect('/view_remote_replications?ack=updated')
       elif action == "create": 
         cmd = "insert into dataset_repl (dataset,ip,user,dest) values ('%s','%s','%s','%s')"%(dataset,host_ip,username,dest_pool)
         db_path,err = common.get_db_path()
@@ -340,9 +345,9 @@ def replicate_zfs_dataset(request):
         schedule,err = scheduler_utils.create_cron(comment,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4],"/usr/bin/python -c 'from integralstor_common import zfs; zfs.schedule_remote_replication("'"%s"'","'"%s"'","'"%s"'","'"%s"'")'"%(dataset,host_ip,username,dest_pool))
         if err:
           raise Exception(err)
+        return django.http.HttpResponseRedirect('/view_remote_replications?ack=created')
       else:
         raise Exception("Malformed request. Please use the menus")
-      return django.http.HttpResponseRedirect('replicate_zfs_pool/?dataset_name='+dataset)
   except Exception as e:
     return_dict['base_template'] = "snapshot_replication_base.html"
     return_dict["page_title"] = 'Configure ZFS replication'
@@ -365,6 +370,9 @@ def cancel_zfs_replication(request):
       comment = "Replication for %s-%s"%(dataset.split("/")[0],dataset.split("/")[1])
       cmd = "delete from dataset_repl where dataset='%s'"%dataset
       db_path,err = common.get_db_path()
+      if err:
+        raise Exception(err)
+      ret, err = db.execute_iud(db_path, [[cmd]])
       if err:
         raise Exception(err)
       cron_remove,err = scheduler_utils.delete_cron_with_comment(comment)

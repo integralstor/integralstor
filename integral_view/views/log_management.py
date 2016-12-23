@@ -508,7 +508,7 @@ def refresh_alerts(request, random=None):
       if not alerts_list:
         raise Exception('Error loading alerts')
       new_alerts = json.dumps([dict(alert=pn) for pn in alerts_list])
-      return django.http.HttpResponse(new_alerts, content_type=='application/json')
+      return django.http.HttpResponse(new_alerts, content_type='application/json')
     else:
       clss = "btn btn-default btn-sm"
       message = "View alerts"

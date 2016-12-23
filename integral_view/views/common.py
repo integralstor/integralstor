@@ -56,6 +56,7 @@ def dashboard(request,page):
 
     node = si[si.keys()[0]]
     return_dict['node'] = node
+    #print node.keys()
 
     #By default show error page
     template = "logged_in_error.html"
@@ -75,17 +76,29 @@ def dashboard(request,page):
       raise Exception(err)
 
     num_bad_disks = 0
+    num_hw_raid_bad_disks = "N.A"
+    num_hw_raid_ctrl_disks = 0
+    num_smart_ctrl_disks = 0
     num_disks = len(node['disks'])
     disks_ok = True
+    disks_hw_ok = "N.A"
     for sn, disk in node['disks'].items():
-      if disk['status'] == 'PASSED' or disk['status'] == 'OK':
-        pass
+      if 'status' in disk and (disk['status'] == 'PASSED' or disk['status'] == 'OK'):
+        num_smart_ctrl_disks += 1
+      elif disk['hw_raid']:
+	# TODO: Handle errors/failures of disks controlled by HW Raid 
+        num_hw_raid_ctrl_disks += 1        
+        disks_hw_ok = "N.A" # Default set status N.A
       else:
         num_bad_disks += 1
         disks_ok = False
     return_dict['num_disks'] = num_disks
     return_dict['num_bad_disks'] = num_bad_disks
     return_dict['disks_ok'] = disks_ok
+    #return_dict['disks_hw_ok'] = disks_hw_ok
+    return_dict['num_hw_raid_bad_disks'] = num_hw_raid_bad_disks
+    return_dict['num_hw_raid_ctrl_disks'] = num_hw_raid_ctrl_disks
+    return_dict['num_smart_ctrl_disks'] = num_smart_ctrl_disks
         
     if 'ipmi_status' in node:
       num_sensors = len(node['ipmi_status'])
@@ -101,30 +114,41 @@ def dashboard(request,page):
       return_dict['num_bad_sensors'] = num_bad_sensors
       return_dict['ipmi_ok'] = ipmi_ok
 
-    services_list =  ['winbind', 'smb', 'nfs', 'tgtd', 'ntpd', 'vsftpd']
-    num_services = len(services_list)
-    num_bad_services = 0
-    services_ok = True
-    for service in services_list:
-      output_list, err = command.get_command_output('service %s status'%service, False)
-      if err:
-        raise Exception(err)
-      service_ok = False
-      for line in output_list:
-        if 'is running' in line:
-          service_ok = True
-          break
-      if not service_ok:
-        num_bad_services += 1
-        services_ok = False
+    #services_list =  ['winbind', 'smb', 'nfs', 'tgtd', 'ntpd', 'vsftpd']
 
+    services_dict, err = services_management.get_sysd_services_status ()
+    if err:
+      raise Exception (err)
+    num_services = len (services_dict)
+    num_failed_services = 0
+    num_active_services = 0
+    num_inactive_services = 0
+    services_ok = True
+ 
+    if services_dict:
+      #service = services_dict.keys ()
+      for service in services_dict.keys ():
+        if services_dict[service]["info"]["status_str"] == "Active":
+          num_active_services += 1
+        elif services_dict[service]["info"]["status_str"] == "Inactive":
+          num_inactive_services += 1
+        elif services_dict[service]["info"]["status_str"] == "Failed":
+          num_failed_services += 1
+          services_ok = False
+        elif services_dict[service]["info"]["status_str"] == "Unknown":
+          num_failed_services += 1
+          services_ok = False
+      return_dict['num_services'] = num_services
+      return_dict['num_active_services'] = num_active_services
+      return_dict['num_inactive_services'] = num_inactive_services
+      return_dict['num_failed_services'] = num_failed_services
+      return_dict['services_ok'] = services_ok
+    else:
+      raise Exception ('Fetched services status list is empty')
+    
     pools, err = zfs.get_pools()
     if err:
       raise Exception(err)
-
-    return_dict['num_services'] = num_services
-    return_dict['num_bad_services'] = num_bad_services
-    return_dict['services_ok'] = services_ok
 
     info = si.keys()[0]
     num_pools = len(pools)
@@ -297,6 +321,17 @@ def dashboard(request,page):
         return_dict['services_status']['ntp'] = ntp[info]
         return_dict['services_status']['ftp'] = ftp[info]
       else:
+        """
+        services_list, err = services_management.get_sysd_services_status ()
+        if err:
+          raise Exception (err)
+        if services_list:
+          #for service in services_list:
+          return_dict['services_status'] = services_list  
+        else:
+          raise Exception ('Fetched services status list is empty')
+        """      
+        
         out_list, err = command.get_command_output('service winbind status', False)
         if err:
           raise Exception(err)
@@ -332,7 +367,8 @@ def dashboard(request,page):
           raise Exception(err)
         if out_list:
           return_dict['services_status']['ftp'] = ' '.join(out_list)
-          
+        
+  
       template = "view_services_status.html"
     # Disks
     elif page == "disks":
@@ -360,7 +396,7 @@ def dashboard(request,page):
     return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "dashboard_base.html"
-    return_dict["error_details"] = str(e)
+    return_dict["error_details"] = e
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
   

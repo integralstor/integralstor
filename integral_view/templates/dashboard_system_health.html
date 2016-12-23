@@ -37,10 +37,22 @@
                 <td>{{num_disks}}</td>
               </tr>
               <tr>
+                <td>Number of drives monitored by S.M.A.R.T: </td>
+                <td>{{num_smart_ctrl_disks}}</td>
+              </tr>
+              <tr>
+                <td>Number of drives controlled by hardware raid: </td>
+                <td>{{num_hw_raid_ctrl_disks}}</td>
+              </tr>
+              <tr>
                 <td>Hard drives with S.M.A.R.T errors : </td>
                 <td>{{num_bad_disks}}</td>
               </tr>
-            </table>
+              <tr>
+                <td>Hard drives with errors (controlled by hardware raid) : </td>
+                <td>{{num_hw_raid_bad_disks}}</td>
+              </tr>
+             </table>
           </div>
         </div>
     </div>
@@ -177,8 +189,16 @@
                 <td>{{num_services}}</td>
               </tr>
               <tr>
-                <td> Services not running : </td>
-                <td>{{num_bad_services}}</td>
+                <td> Services active : </td>
+                <td>{{num_active_services}}</td>
+              </tr> 
+              <tr>
+                <td> Services loaded but inactive : </td>
+                <td>{{num_inactive_services}}</td>
+              </tr> 
+              <tr>
+                <td> Services failed : </td>
+                <td>{{num_failed_services}}</td>
               </tr>
             </table>
           </div>

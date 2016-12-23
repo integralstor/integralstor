@@ -24,6 +24,7 @@ CREATE TABLE "scheduler_tasks" (
     "node" varchar(200),
     "deleteble" boolean NOT NULL DEFAULT 'no',
     "execute_after" integer
+, user_name VARCHAR(100) NOT NULL DEFAULT 'root')
 );
 
 

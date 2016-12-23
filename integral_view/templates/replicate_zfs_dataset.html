@@ -34,7 +34,7 @@
     </div>
   {%else %}
     <form class="form-horizontal" role="form" name="schedule_replication" action="" method="post">
-      <input type="hidden" name="action" value={{action}}">
+      <input type="hidden" name="action" value="{{action}}">
       <table  class="table " style="width:800px">
         <tr>
           <th> Replicated dataset</th>
@@ -70,7 +70,6 @@
           </td>
         </tr>
       </table>
-      <input type="text"  name="action" class="form-control" id="id_action" readonly style="display:none;"> 
       <div class="btn-group btn-group-sm" role="group" aria-label="...">
         <a href="/view_remote_replications" role="button" class="btn btn-default"> Cancel</a>
         <button type="submit" class="btn btn-primary" id="start">Configure Replication</button>
