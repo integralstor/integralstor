@@ -12,7 +12,7 @@
     <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
       <table  class="table table-bordered">
         <tr>
-          <th > Service name </th>
+          <th> Service name </th>
           <th> Service status </th>
           <th> Action </th>
           <th> Details </th>
@@ -22,26 +22,35 @@
             <td> {{service.name}} </td>
             <td  style="max-width:150px;word-wrap: break-word">
               {%if service.info %}
-                {{service.info.status_str}}
+                {{service.info.status.status_str}}
               {%else%}
                 Error
               {%endif%}
             </td>
             <td>
               <form method='POST' action='/change_service_status/'>
-                {%if service.info.status_code == 0 %}
+                {%if service.info.status.status_str != 'Inactive' %}
                   <input name='action' type='hidden' value='stop'>
-                    <button type="submit" class="btn btn-danger btn-xs cover-page"><i class="fa fa-stop-circle-o fa-fw"></i>&nbsp;Stop </button>
+                  <button type="submit" class="btn btn-danger btn-xs cover-page"><i class="fa fa-stop-circle-o fa-fw"></i>&nbsp;Stop&nbsp;&nbsp;&nbsp;&nbsp; </button>
                 {%else%}
                   <input name='action' type='hidden' value='start'>
-                  <button type="submit" class="btn btn-default btn-xs cover-page"><i class="fa fa-play-circle-o fa-fw"></i>&nbsp;Start </button>
+                  <button type="submit" class="btn btn-default btn-xs cover-page"><i class="fa fa-play-circle-o fa-fw"></i>&nbsp;Start&nbsp;&nbsp;&nbsp;&nbsp;</button>
                 {%endif%}
+		<br /><br />
+                <button type="submit" value="restart" class="btn btn-default btn-xs cover-page"><i class="fa fa-play-circle-o fa-fw"></i>&nbsp;Restart </button>
+		<br /><br />	
+	<!--	{%if service.info.is_enabled.status_str == 'Enabled' %}
+                  <button type="submit" value="enable" class="btn btn-danger btn-xs cover-page"><i class="fa fa-stop-circle-o fa-fw"></i>&nbsp;Disable </button>
+		{%endif%}
+                {%if service.info.is_enabled.status_str == 'Disabled' %}
+                  <button type="submit" value="disable" class="btn btn-default btn-xs cover-page"><i class="fa fa-play-circle-o fa-fw"></i>&nbsp;Enable </button>
+                {%endif%}-->
                 <input name='service' type='hidden' value={{service.service}}>
               </form>
             </td>
             <td  style="max-width:200px;word-wrap: break-word">
               {%if service.info %}
-                {{service.info.output_str}}
+                {{service.info.status.output_str}}
               {%elif service.err%}
                 {{service.err}}
               {%endif%}

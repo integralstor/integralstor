@@ -9,13 +9,9 @@ from integralstor_common import scheduler_utils, common, command, zfs
 def view_scheduled_jobs(request):
   return_dict = {}
   try:
-    cron_jobs,err = scheduler_utils.get_all_cron_jobs()
+    cron_jobs,err = scheduler_utils.get_cron_tasks()
     if err:
       raise Exception(err)
-    snapshot_schedules, err = zfs.get_all_snapshot_schedules()
-    if err:
-      raise Exception(err)
-    return_dict["snapshot_schedules"] = snapshot_schedules
     return_dict["cron_list"] = cron_jobs
     return django.shortcuts.render_to_response("view_cron_jobs.html", return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
@@ -47,13 +43,23 @@ def download_cron_log(request):
     return response
 
 def remove_cron_job(request):
+  return_dict = {}
   try:
     cron_name = request.POST.get('cron_name')
-    delete,err = scheduler_utils.delete_cron_with_comment(cron_name)
+    # TOFIX
+    # removing a cron job doesn't remove the relevant entry from remote_replications table 
+    #cmd = "select * from remote_replications where cron_task_id=%s"%cron_name
+    #replication,err = db.read_single_row(db_path,cmd)
+    #if err:
+    #  raise Exception(err)
+    #if replication:
+      
+
+    delete,err = scheduler_utils.remove_cron(int(cron_name))
     if err:
       raise Exception(err)
     if delete:
-      return django.http.HttpResponseRedirect("/list_cron_jobs")
+      return django.http.HttpResponseRedirect("/view_scheduled_jobs")
     else:
       raise Exception('Error deleting a scheduled job')
   except Exception, e:
@@ -67,12 +73,14 @@ def remove_cron_job(request):
 
 def view_background_tasks(request):
   return_dict = {}
-  db_path = settings.DATABASES["default"]["NAME"]
   try:
     if "ack" in request.GET:
       if request.GET["ack"] == "deleted":
         return_dict['ack_message'] = "Background task successfully removed"
-    return_dict["back_jobs"] = scheduler_utils.get_background_jobs(db_path)[0]
+    tasks, err = scheduler_utils.get_tasks()
+    if err:
+      raise Exception(err)
+    return_dict["tasks"] = tasks
     return django.shortcuts.render_to_response("view_background_tasks.html", return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "scheduler_base.html"
@@ -101,32 +109,38 @@ def remove_background_task(request):
 
 def view_task_details(request,task_id):
   return_dict = {}
-  db_path = settings.DATABASES["default"]["NAME"]
   try:
-    task_name,err = scheduler_utils.get_background_job(db_path,int(task_id))
-    return_dict['task_id'] = task_id
-    details,err = scheduler_utils.get_task_commands(db_path,int(task_id))
-    status = ""
-    if details[0]['retries'] == -2:
-      # This code always updates the 0th element of the command list. This is assuming that we will only have one long running command.
-      if os.path.isfile("/tmp/%d.log"%int(task_id)):
-        lines,err = command.get_command_output("wc -l /tmp/%d.log"%int(task_id))
-        no_of_lines = lines[0].split()[0]
-        #print no_of_lines
-        if int(no_of_lines) <= 41:
-          # This code always updates the 0th element of the command list. This is assuming that we will only have one long running command.
-          with open('/tmp/%d.log'%int(task_id)) as output:
-            status = status + ''.join(output.readlines())
-        else:
-          first,err = command.get_command_output("head -n 5 /tmp/%d.log"%int(task_id))
-          last,err = command.get_command_output("tail -n 20 /tmp/%d.log"%int(task_id))
-          status = status + '\n'.join(first)
-          status = status + "\n.... \n ....\n"
-          status = status + '\n'.join(last)
+    task,err = scheduler_utils.get_task(int(task_id))
+    if err:
+      raise Exception(err)
+    return_dict['task'] = task
+    subtasks,err = scheduler_utils.get_subtasks(int(task_id))
+    if err:
+      raise Exception(err)
+    return_dict["subtasks"] = subtasks
+    #print subtasks, err
+    task_output = ""
+    if os.path.isfile("/tmp/%d.log"%int(task_id)):
+      lines,err = command.get_command_output("wc -l /tmp/%d.log"%int(task_id))
+      no_of_lines = lines[0].split()[0]
+      #print no_of_lines
+      if int(no_of_lines) <= 41:
+        # This code always updates the 0th element of the command list. This is assuming that we will only have one long running command.
+        with open('/tmp/%d.log'%int(task_id)) as output:
+          task_output = task_output + ''.join(output.readlines())
+      else:
+        first,err = command.get_command_output("head -n 5 /tmp/%d.log"%int(task_id), shell=True)
+        if err:
+          print err
+        last,err = command.get_command_output("tail -n 20 /tmp/%d.log"%int(task_id), shell=True)
+        if err:
+          print err
+        #print last
+        task_output = task_output + '\n'.join(first)
+        task_output = task_output + "\n.... \n ....\n"
+        task_output = task_output + '\n'.join(last)
+    return_dict['task_output'] = task_output
         
-    details[0]['output'] = status
-    return_dict["task_name"] = task_name[0]["task_name"]
-    return_dict["commands"] = details
     return django.shortcuts.render_to_response("view_task_details.html", return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "scheduler_base.html"

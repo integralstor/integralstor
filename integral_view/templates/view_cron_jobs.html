@@ -6,30 +6,6 @@
 
 {%block inside_content %}
 
-  <h4> Scheduled snapshots</h4>
-  {% if snapshot_schedules %}
-    <table class="table table-bordered" style="width:400px">
-      <tr>
-        <th> Pool/dataset name </th>
-        <th> Schedule </th>
-      </tr>
-      {%for name, ss in snapshot_schedules.items %}
-        <tr>            
-          <td> {{name}} </td>
-          <td>
-            {% if ss.frequent %} Every 15 minutes,  {%endif%}
-            {% if ss.hourly %} Hourly,  {%endif%}
-            {% if ss.daily %} Daily,  {%endif%}
-            {% if ss.weekly %} Weekly,  {%endif%}
-            {% if ss.monthly %} Monthly {%endif%}
-          </td>
-        </tr>            
-      {%endfor%}
-    </table>
-  {%else%}
-    No ZFS snapshots have been scheduled.
-  {%endif%}
-  <hr>
   
   <h4> Scheduled tasks </h4>
   {% if not cron_list %}
@@ -39,22 +15,22 @@
       <table class="table table-striped">
         <thead>
           <tr>
-            <th> Job Name </th>
-            <th> Time </th>
+            <th> Task Description </th>
+            <th> Frequency </th>
             <th> &nbsp; </th>
             <th> &nbsp; </th>
           </tr>
         </thead>
         {%for d in cron_list %}
           <tr>
-            <td> {{d.job.comment}} </td>
+            <td> {{d.description}} </td>
             <td>
               {{d.schedule_description}}
             </td>
             <td>
               <form action="/download_cron_log" method="POST">
                 {% csrf_token %}
-                <input type="text" value="{{d.comment}}" name="cron_name" style="display:none;" />
+                <input type="text" value="{{d.job.comment}}" name="cron_name" style="display:none;" />
                 <button class="btn btn-xs btn-success pull-right">Download log</button>
               </form>
             </td>

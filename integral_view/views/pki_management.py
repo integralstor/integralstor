@@ -139,7 +139,7 @@ def upload_ssh_user_key(request):
       else:
         authorized_key = request.FILES.get('pub_key')
         user = request.POST.get('user')
-        with open('/%s/authorized_keys'%(pki._get_ssh_dir(user)), 'wb+') as destination:
+        with open('/%s/authorized_keys'%(pki._get_ssh_dir(user)), 'ab') as destination:
             for chunk in authorized_key.chunks():
                 destination.write(chunk)
         perm,err = pki.ssh_dir_permissions(user)
@@ -171,7 +171,7 @@ def upload_ssh_host_key(request):
         user =  request.POST.get("selected_user")
         key =  request.POST.get("authorized_key")
         files = open((pki._get_known_hosts(user)), 'r').readlines()
-        authorized_keys = open(pki._get_known_hosts(user),'w')
+        authorized_keys = open(pki._get_known_hosts(user),'ab')
         for file in files:
           if key.strip() != file.strip():
             authorized_keys.write(file)
@@ -188,7 +188,7 @@ def upload_ssh_host_key(request):
         with open("/tmp/hosts_file",'r') as key:
           data = key.read()
         print data
-        with open(hosts_file,'wb+') as key:
+        with open(hosts_file,'ab') as key:
           key.write(ip+" "+data)
         perm,err = pki.ssh_dir_permissions(user)
         if err:

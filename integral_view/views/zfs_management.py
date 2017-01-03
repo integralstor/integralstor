@@ -236,118 +236,78 @@ def view_remote_replications(request):
         return_dict['ack_message'] = 'Replication successfully scheduled.'
       elif request.GET["ack"] == "updated":
         return_dict['ack_message'] = 'Selected replication parameters successfully updated.'
+
     db_path,err = common.get_db_path()
     if err:
       raise Exception(err)
-    cmd = "select * from dataset_repl"
+    cmd = "select * from remote_replications"
     replications,err = db.read_multiple_rows(db_path,cmd)
     if err: 
       raise Exception(err)
-    #print replications
-    cron_jobs,err = scheduler_utils.get_all_cron_jobs()
-    if err:
-      raise Exception(err)
-    for replication in replications:
-      #print replication
-      cron_comment = 'Replication for %s-%s'%(replication['dataset'].split('/')[0],replication['dataset'].split('/')[1])
-      for cron in cron_jobs:
-        #print cron
-        if cron['job'].comment == cron_comment:
-          replication['schedule_description'] = cron['schedule_description']
-          break
-    return_dict["replications"] = replications
+
+    if replications is not None:
+      #print 'replications - ', replications
+      for replication in replications:
+        cron_tasks, err = scheduler_utils.get_cron_tasks(replication['cron_task_id'])
+        #print cron_tasks
+        if err: 
+          raise Exception(err)
+        if not cron_tasks:
+          raise Exception('Specified replication schedule not found')
+        replication['schedule_description'] = cron_tasks[0]['schedule_description']
+        replication['description'] = cron_tasks[0]['description']
+      return_dict["replications"] = replications
     return django.shortcuts.render_to_response('view_remote_replications.html',return_dict,context_instance=django.template.context.RequestContext(request))
   except Exception as e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'View Remote Replication'
     return_dict['tab'] = 'view_remote_replications_tab'
-    return_dict["error"] = 'Error retreiving replication information'
+    return_dict["error"] = 'Error retreiving replication informat'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
     
-
-def replicate_zfs_dataset(request):
+def create_remote_replication(request):
   return_dict = {}
   try:
 
     if request.method == "GET":
-      dataset = request.GET.get('dataset_name')
-      if dataset:
-        cmd = "select * from dataset_repl where dataset='%s'"%str(dataset)
-        db_path,err = common.get_db_path()
-        status,err = db.read_single_row(db_path,cmd)
-        if err:
-          raise Exception(err)
-        if status:
-          return_dict['action'] = 'update'
-          return_dict["ip"] = status["ip"]
-          return_dict["dest"] = status["dest"]
-        else:
-          return_dict['action'] = 'create'
-        return_dict['dataset'] = dataset
-        cron_jobs,err = scheduler_utils.get_all_cron_jobs()
-        if err:
-          raise Exception(err)
-        cron_comment = 'Replication for %s-%s'%(dataset.split('/')[0],dataset.split('/')[1])
-        schedule_description = "Not scheduled"
-        for cron in cron_jobs:
-          #print cron
-          if cron['job'].comment == cron_comment:
-            schedule_description = cron['schedule_description']
-            break
-        return_dict['schedule_description'] = schedule_description
-      else:
-        datasets = []
-        pools,err = zfs.get_all_datasets_and_pools()
-        if err:
-          raise Exception(err)
-        for pool in pools:
-          if "/" in pool:
-            datasets.append(pool)
-        return_dict["datasets"] = datasets
-      return django.shortcuts.render_to_response('replicate_zfs_dataset.html',return_dict,context_instance=django.template.context.RequestContext(request))
+      datasets = []
+      pools,err = zfs.get_all_datasets_and_pools()
+      if err:
+        raise Exception(err)
+      for pool in pools:
+        if "/" in pool:
+          datasets.append(pool)
+      return_dict["datasets"] = datasets
+      return django.shortcuts.render_to_response('modify_remote_replication.html',return_dict,context_instance=django.template.context.RequestContext(request))
 
     elif request.method == "POST":
-      dataset = request.POST.get('dataset')
+      source_dataset = request.POST.get('source_dataset')
       scheduler = request.POST.get('scheduler')
       schedule = scheduler.split()
-      host_ip = request.POST.get('ip')
-      dest_pool = request.POST.get('dest_pool')
-      username = "replicator"
-      replication_status = request.POST.get('replication_status')
-      action = request.POST.get('action')
-      #print action
-      if (not host_ip) or (not dest_pool) or (not action) or (not dataset):
-        raise Exception("Incomplete request.")
-      comment = "Replication for %s-%s"%(dataset.split("/")[0],dataset.split("/")[1])
+      destination_ip = request.POST.get('destination_ip')
+      destination_pool = request.POST.get('destination_pool')
+      destination_username = "replicator"
 
-      if action == "update":
-        cmd = "update dataset_repl set dataset='%s',ip='%s',user='%s',dest='%s' where dataset='%s'"%(dataset,host_ip,username,dest_pool,dataset)
-        db_path,err = common.get_db_path()
-        if err:
-          raise Exception(err)
-        status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
-        if err:
-          raise Exception(err)
-        cron_remove,err = scheduler_utils.delete_cron_with_comment(comment)
-        if err:
-          raise Exception(err)
-        schedule,err = scheduler_utils.create_cron(comment,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4],"/usr/bin/python -c 'from integralstor_common import zfs; zfs.schedule_remote_replication("'"%s"'","'"%s"'","'"%s"'","'"%s"'")'"%(dataset,host_ip,username,dest_pool))
-        if err:
-          raise Exception(err)
-        return django.http.HttpResponseRedirect('/view_remote_replications?ack=updated')
-      elif action == "create": 
-        cmd = "insert into dataset_repl (dataset,ip,user,dest) values ('%s','%s','%s','%s')"%(dataset,host_ip,username,dest_pool)
-        db_path,err = common.get_db_path()
-        status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
-        if err:
-          raise Exception(err)
-        schedule,err = scheduler_utils.create_cron(comment,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4],"/usr/bin/python -c 'from integralstor_common import zfs; zfs.schedule_remote_replication("'"%s"'","'"%s"'","'"%s"'","'"%s"'")'"%(dataset,host_ip,username,dest_pool))
-        if err:
-          raise Exception(err)
-        return django.http.HttpResponseRedirect('/view_remote_replications?ack=created')
-      else:
-        raise Exception("Malformed request. Please use the menus")
+      if (not destination_ip) or (not destination_pool) or (not source_dataset):
+        raise Exception("Incomplete request.")
+
+      description = 'Replication of %s to pool %s on machine %s'%(source_dataset, destination_pool, destination_ip)
+
+      db_path,err = common.get_db_path()
+      if err:
+        raise Exception(err)
+
+      cmd = "/usr/bin/python -c 'from integralstor_common import zfs; zfs.schedule_remote_replication("'"%s"'", "'"%s"'","'"%s"'","'"%s"'","'"%s"'")'"%(description, source_dataset, destination_ip, destination_username, destination_pool)
+      #print cmd
+      cron_task_id, err = scheduler_utils.add_cron_task(cmd, description,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4])
+      if err:
+        raise Exception(err)
+      cmd = "insert into remote_replications (source_dataset,destination_ip,destination_user_name,destination_pool, cron_task_id) values ('%s','%s','%s','%s', '%d')"%(source_dataset, destination_ip, destination_username, destination_pool, cron_task_id)
+      status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
+      if err:
+        raise Exception(err)
+      return django.http.HttpResponseRedirect('/view_remote_replications?ack=created')
   except Exception as e:
     return_dict['base_template'] = "snapshot_replication_base.html"
     return_dict["page_title"] = 'Configure ZFS replication'
@@ -356,26 +316,103 @@ def replicate_zfs_dataset(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def cancel_zfs_replication(request):
+def modify_remote_replication(request):
   return_dict = {}
   try:
-    if 'dataset' not in request.REQUEST:
+
+    if 'remote_replication_id' not in request.REQUEST:
       raise Exception('Invalid request. Please use the menus.')
-    dataset = request.REQUEST['dataset']
-    return_dict['dataset'] = dataset
+    remote_replication_id = request.REQUEST['remote_replication_id']
+    db_path,err = common.get_db_path()
+    if err:
+      raise Exception(err)
+    if request.method == "GET":
+      cmd = "select * from remote_replications where remote_replication_id=%s"%remote_replication_id
+      replication,err = db.read_single_row(db_path,cmd)
+      if err: 
+        raise Exception(err)
+      if not replication:
+        raise Exception('Specified replication definition not found')
+
+      crons, err = scheduler_utils.get_cron_tasks(replication['cron_task_id'])
+      if err:
+        raise Exception(err)
+      if not crons:
+        raise Exception('Specified replication schedule definition not found')
+      replication['schedule_description'] = crons[0]['schedule_description']
+      return_dict['replication'] = replication
+      return django.shortcuts.render_to_response('modify_remote_replication.html',return_dict,context_instance=django.template.context.RequestContext(request))
+
+    elif request.method == "POST":
+      if ('remote_replication_id' not in request.POST) or ('scheduler' not in request.POST):
+        raise Exception("Incomplete request.")
+      remote_replication_id = request.POST.get('remote_replication_id')
+      scheduler = request.POST.get('scheduler')
+      schedule = scheduler.split()
+
+      cmd = "select * from remote_replications where remote_replication_id=%s"%remote_replication_id
+      replication,err = db.read_single_row(db_path,cmd)
+      if err: 
+        raise Exception(err)
+      if not replication:
+        raise Exception('Specified replication definition not found')
+
+
+      description = 'Replication of %s to pool %s on machine %s'%(replication['source_dataset'], replication['destination_pool'], replication['destination_ip'])
+
+      cmd = "/usr/bin/python -c 'from integralstor_common import zfs; zfs.schedule_remote_replication("'"%s"'", "'"%s"'","'"%s"'","'"%s"'","'"%s"'")'"%(description, replication['source_dataset'], replication['destination_ip'], replication['destination_user_name'], replication['destination_pool'])
+      #print cmd
+      new_cron_task_id, err = scheduler_utils.add_cron_task(cmd, description,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4])
+      if err:
+        raise Exception(err)
+      cmd = "update remote_replications set cron_task_id='%d' where remote_replication_id='%s'"%(new_cron_task_id, remote_replication_id)
+      status,err = db.execute_iud(db_path,[[cmd],],get_rowid=True)
+      if err:
+        raise Exception(err)
+      cron_remove,err = scheduler_utils.remove_cron(int(replication['cron_task_id']))
+      if err:
+        raise Exception(err)
+      return django.http.HttpResponseRedirect('/view_remote_replications?ack=updated')
+  except Exception as e:
+    return_dict['base_template'] = "snapshot_replication_base.html"
+    return_dict["page_title"] = 'Configure ZFS replication'
+    return_dict['tab'] = 'view_remote_replications_tab'
+    return_dict["error"] = 'Error configuring ZFS replication'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def remove_remote_replication(request):
+  return_dict = {}
+  try:
+    if 'remote_replication_id' not in request.REQUEST:
+      raise Exception('Invalid request. Please use the menus.')
+    remote_replication_id = request.REQUEST['remote_replication_id']
+    return_dict['remote_replication_id'] = remote_replication_id
 
     if request.method == "GET":
-      return django.shortcuts.render_to_response("cancel_zfs_replication_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
-    else:
-      comment = "Replication for %s-%s"%(dataset.split("/")[0],dataset.split("/")[1])
-      cmd = "delete from dataset_repl where dataset='%s'"%dataset
       db_path,err = common.get_db_path()
       if err:
         raise Exception(err)
+      cmd = "select * from remote_replications where remote_replication_id=%s"%remote_replication_id
+      replication,err = db.read_single_row(db_path,cmd)
+      if err: 
+        raise Exception(err)
+      if not replication:
+        raise Exception('Specified remote replication definition not found')
+      return_dict['replication'] = replication
+      return django.shortcuts.render_to_response("cancel_zfs_replication_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    else:
+      if 'cron_task_id' not in request.REQUEST:
+        raise Exception('Invalid request. Please use the menus.')
+      db_path,err = common.get_db_path()
+      if err:
+        raise Exception(err)
+      cmd = "delete from remote_replications where remote_replication_id='%s'"%remote_replication_id
       ret, err = db.execute_iud(db_path, [[cmd]])
       if err:
         raise Exception(err)
-      cron_remove,err = scheduler_utils.delete_cron_with_comment(comment)
+      cron_remove,err = scheduler_utils.remove_cron(int(request.REQUEST['cron_task_id']))
       if err:
         raise Exception(err)
       return django.http.HttpResponseRedirect('/view_remote_replications?ack=cancelled')
@@ -1534,6 +1571,25 @@ def rename_zfs_snapshot(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+def view_zfs_snapshot_schedules(request):
+  return_dict = {}
+  try:
+    if "ack" in request.GET:
+      if request.GET["ack"] == "scheduled":
+        return_dict['ack_message'] = "ZFS snapshot schedule successfully modified"
+    snapshot_schedules, err = zfs.get_all_snapshot_schedules()
+    if err:
+      raise Exception(err)
+    return_dict["snapshot_schedules"] = snapshot_schedules
+    return django.shortcuts.render_to_response("view_zfs_snapshot_schedules.html", return_dict, context_instance = django.template.context.RequestContext(request))
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'ZFS snapshot schedules'
+    return_dict['tab'] = 'zfs_snapshots_schedule_tab'
+    return_dict["error"] = 'Error retrieving ZFS snapshot schedules'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 def schedule_zfs_snapshot(request):
   return_dict = {}
   try:
@@ -1584,7 +1640,7 @@ def schedule_zfs_snapshot(request):
         raise Exception(err)
  
       audit.audit("schedule_zfs_snapshot", audit_str, request.META)
-      return django.http.HttpResponseRedirect('/view_zfs_snapshots?ack=scheduled')
+      return django.http.HttpResponseRedirect('/view_zfs_snapshot_schedules?ack=scheduled')
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Schedule a ZFS snapshot'
@@ -1839,7 +1895,7 @@ def replace_disk(request):
             cmd_list.append({'Replace old disk':'zpool replace -f %s %s %s'%(pool, old_id, new_id)})
             cmd_list.append({'Online the new disk':'zpool online -e %s %s'%(pool, new_id)})
             cmd_list.append({'Regenerate the system configuration':'%s/generate_manifest.py'%common_python_scripts_path})
-            ret, err = scheduler_utils.schedule_a_job(db_path,'Disk replacement',cmd_list,retries=0)
+            ret, err = scheduler_utils.add_task('Disk replacement',cmd_list,sub_task_id = '1', attempts = 1)
             if err:
               raise Exception(err)
             if not ret:

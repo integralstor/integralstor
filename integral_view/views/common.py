@@ -128,14 +128,14 @@ def dashboard(request,page):
     if services_dict:
       #service = services_dict.keys ()
       for service in services_dict.keys ():
-        if services_dict[service]["info"]["status_str"] == "Active":
+        if services_dict[service]["info"]["status"]["status_str"] == "Active":
           num_active_services += 1
-        elif services_dict[service]["info"]["status_str"] == "Inactive":
+        elif services_dict[service]["info"]["status"]["status_str"] == "Inactive":
           num_inactive_services += 1
-        elif services_dict[service]["info"]["status_str"] == "Failed":
+        elif services_dict[service]["info"]["status"]["status_str"] == "Failed":
           num_failed_services += 1
           services_ok = False
-        elif services_dict[service]["info"]["status_str"] == "Unknown":
+        elif services_dict[service]["info"]["status"]["status_str"] == "Unknown State":
           num_failed_services += 1
           services_ok = False
       return_dict['num_services'] = num_services

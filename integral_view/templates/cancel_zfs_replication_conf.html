@@ -6,9 +6,10 @@
 
 {% block inside_content %}
 
-  <p id="p-warning-text">Are you sure you want to cancel the replication for dataset "{{dataset}}"? </p>
-  <form action="/cancel_zfs_replication/" method="POST">
-    <input type=hidden name="dataset" value="{{dataset}}">
+  <p id="p-warning-text">Are you sure you want to cancel the replication of "{{replication.source_dataset}} to pool "{{replication.destination_pool}}" on "{{replication.destination_ip}}"? </p>
+  <form action="/remove_remote_replication/" method="POST">
+    <input type=hidden name="remote_replication_id" value="{{replication.remote_replication_id}}">
+    <input type=hidden name="cron_task_id" value="{{replication.cron_task_id}}">
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_remote_replications'"> &nbsp;&nbsp;
       <button type="submit" class="btn btn-danger cover-page" ">Confirm and delete</button>

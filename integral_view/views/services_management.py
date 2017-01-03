@@ -46,7 +46,7 @@ def change_service_status(request):
       raise Exception("Invalid request. Please use the menus")
     if 'service' not in request.POST:
       raise Exception("Invalid request. Please use the menus")
-    if 'action' not in request.POST or request.POST['action'] not in ['start', 'stop']:
+    if 'action' not in request.POST or request.POST['action'] not in ['start', 'stop','restart','enable','disable']:
       raise Exception("Invalid request. Please use the menus")
 
     service = request.POST['service']

@@ -1,40 +1,192 @@
-
-
-### Table for creating the scheduler 
-
-CREATE TABLE "scheduler_commands" (
-    "command_id" integer NOT NULL PRIMARY KEY,
+CREATE TABLE "email_config" (
+"id" integer NOT NULL PRIMARY KEY,
+"server" varchar(40) NOT NULL,
+"port" integer NOT NULL,
+"username" varchar(40) NOT NULL,
+"pswd" varchar(40) NOT NULL,
+"tls" bool NOT NULL,
+"email_alerts" bool NOT NULL,
+"rcpt_list" varchar(400) NOT NULL
+, "email_audit" bool NOT NULL DEFAULT '0', "email_quota" bool NOT NULL DEFAULT '0');
+CREATE TABLE "samba_auth" (
+"id" INTEGER NOT NULL PRIMARY KEY,
+"realm" VARCHAR(60) NOT NULL,
+"workgroup" VARCHAR(60) NOT NULL,
+"password_server" VARCHAR(60) NOT NULL,
+"ad_schema_mode" VARCHAR(60) NOT NULL,
+"netbios_name" VARCHAR(60) NOT NULL,
+"security" VARCHAR(60) NOT NULL,
+"id_map_min" INTEGER NOT NULL,
+"id_map_max" INTEGER NOT NULL,
+"include_homes_section" BOOL NOT NULL
+);
+CREATE TABLE "samba_valid_users" (
+id INTEGER NOT NULL PRIMARY KEY,
+share_id INTEGER NOT NULL,
+grp bool NOT NULL,
+name VARCHAR(40) NOT NULL
+);
+CREATE TABLE "samba_shares" (
+share_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+name varchar(100) NOT NULL UNIQUE,
+vol varchar(40) NOT NULL,
+path varchar(100) NOT NULL,
+display_path varchar(140) NOT NULL,
+comment varchar(100),
+read_only bool not null,
+guest_ok bool not null,
+browseable bool not null
+);
+CREATE TABLE "iscsi_volumes" (
+"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+"vol_name" VARCHAR(40) NOT NULL
+);
+CREATE TABLE "iscsi_initiators" (
+"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+"initiators" VARCHAR2(80) NOT NULL,
+"auth_network" VARCHAR2(80) NOT NULL,
+"comment" VARCHAR2(100)
+);
+CREATE TABLE "iscsi_auth_access_groups" (
+"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+"name" VARCHAR(40)
+);
+CREATE TABLE "iscsi_auth_access_users" (
+"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+"auth_access_group_id" INTEGER NOT NULL,
+"user" VARCHAR(40) NOT NULL,
+"secret" VARCHAR(40) NOT NULL
+);
+CREATE TABLE "iscsi_targets" (
+"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+"vol_name" VARCHAR2(40) NOT NULL,
+"target_name" VARCHAR2(40) NOT NULL,
+"lun_size" INTEGER NOT NULL,
+"target_alias" VARCHAR2(100),
+"auth_method" VARCHAR2(20) NOT NULL,
+"queue_depth" INTEGER NOT NULL,
+"auth_group_id" INTEGER,
+"init_group_id" INTEGER NOT NULL
+);
+CREATE TABLE "iscsi_global_target_conf" (
+"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+base_name VARCHAR2(80) NOT NULL,
+discovery_auth_method VARCHAR2(40),
+discovery_auth_group INTEGER,
+io_timeout INTEGER,
+nop_in_interval INTEGER,
+max_sessions INTEGER,
+max_connections INTEGER,
+max_presend_r2t INTEGER,
+max_outstanding_r2t INTEGER,
+first_burst_length INTEGER,
+max_burst_length INTEGER,
+max_receive_data_segment_length INTEGER,
+default_time_to_wait INTEGER,
+default_time_to_retain INTEGER
+);
+CREATE TABLE "global_params" (
+id INTEGER NOT NULL PRIMARY KEY,
+logging_level INTEGER NOT NULL
+);
+CREATE TABLE "samba_global_ad" (
+"id" INTEGER NOT NULL PRIMARY KEY,
+"realm" VARCHAR(60) NOT NULL,
+"password_server" VARCHAR(60) NOT NULL,
+"ad_schema_mode" VARCHAR(60) NOT NULL,
+"id_map_min" INTEGER NOT NULL,
+"id_map_max" INTEGER NOT NULL
+, password_server_ip VARCHAR(60) NOT NULL default "0.0.0.0");
+CREATE TABLE "samba_global_common" (
+"id" INTEGER NOT NULL PRIMARY KEY,
+"security" VARCHAR(60) NOT NULL,
+"workgroup" VARCHAR(60) NOT NULL,
+"netbios_name" VARCHAR(60) NOT NULL,
+"include_homes_section" BOOL NOT NULL
+);
+CREATE TABLE "admin_alerts" (
+user varchar(60) NOT NULL PRIMARY KEY,
+last_refresh_time DATETIME NOT NULL
+);
+CREATE TABLE "auth_permission" (
+    "id" integer NOT NULL PRIMARY KEY,
+    "name" varchar(50) NOT NULL,
+    "content_type_id" integer NOT NULL,
+    "codename" varchar(100) NOT NULL,
+    UNIQUE ("content_type_id", "codename")
+);
+CREATE TABLE "auth_group_permissions" (
+    "id" integer NOT NULL PRIMARY KEY,
+    "group_id" integer NOT NULL,
+    "permission_id" integer NOT NULL REFERENCES "auth_permission" ("id"),
+    UNIQUE ("group_id", "permission_id")
+);
+CREATE TABLE "auth_group" (
+    "id" integer NOT NULL PRIMARY KEY,
+    "name" varchar(80) NOT NULL UNIQUE
+);
+CREATE TABLE "auth_user_groups" (
+    "id" integer NOT NULL PRIMARY KEY,
+    "user_id" integer NOT NULL,
+    "group_id" integer NOT NULL REFERENCES "auth_group" ("id"),
+    UNIQUE ("user_id", "group_id")
+);
+CREATE TABLE "auth_user_user_permissions" (
+    "id" integer NOT NULL PRIMARY KEY,
+    "user_id" integer NOT NULL,
+    "permission_id" integer NOT NULL REFERENCES "auth_permission" ("id"),
+    UNIQUE ("user_id", "permission_id")
+);
+CREATE TABLE "auth_user" (
+    "id" integer NOT NULL PRIMARY KEY,
+    "password" varchar(128) NOT NULL,
+    "last_login" datetime NOT NULL,
+    "is_superuser" bool NOT NULL,
+    "username" varchar(30) NOT NULL UNIQUE,
+    "first_name" varchar(30) NOT NULL,
+    "last_name" varchar(30) NOT NULL,
+    "email" varchar(75) NOT NULL,
+    "is_staff" bool NOT NULL,
+    "is_active" bool NOT NULL,
+    "date_joined" datetime NOT NULL
+);
+CREATE TABLE "django_content_type" (
+    "id" integer NOT NULL PRIMARY KEY,
     "name" varchar(100) NOT NULL,
-    "command"  varchar(400) NOT NULL,
-    "task_ref_id" integer NOT NULL,
-    "status" varchar(100),
-    "return_code" varchar(10),
-    "output" text,
-    "errors" text,
-    "retries" integer NOT NULL,
-    FOREIGN KEY(task_ref_id) REFERENCES scheduler_tasks(task_id)
+    "app_label" varchar(100) NOT NULL,
+    "model" varchar(100) NOT NULL,
+    UNIQUE ("app_label", "model")
 );
-
-CREATE TABLE "scheduler_tasks" (
-    "task_id" integer NOT NULL PRIMARY KEY,
-    "task_name" varchar(200) NOT NULL,
-    "create_time" datetime NOT NULL,
-    "initiate_time" datetime NOT NULL,
-    "status" varchar(50) NOT NULL,
-    "node" varchar(200),
-    "deleteble" boolean NOT NULL DEFAULT 'no',
-    "execute_after" integer
-, user_name VARCHAR(100) NOT NULL DEFAULT 'root')
+CREATE TABLE "django_session" (
+    "session_key" varchar(40) NOT NULL PRIMARY KEY,
+    "session_data" text NOT NULL,
+    "expire_date" datetime NOT NULL
 );
-
-
-CREATE TABLE "dataset_repl" (
-	"dataset" varchar(100) NOT NULL,
-	"ip" varchar(100) NOT NULL,
-	"user" varchar(100) NOT NULL,
-	"dest" varchar(100) NOT NULL
+CREATE TABLE "django_site" (
+    "id" integer NOT NULL PRIMARY KEY,
+    "domain" varchar(100) NOT NULL,
+    "name" varchar(50) NOT NULL
 );
-
+CREATE TABLE "django_admin_log" (
+    "id" integer NOT NULL PRIMARY KEY,
+    "action_time" datetime NOT NULL,
+    "user_id" integer NOT NULL REFERENCES "auth_user" ("id"),
+    "content_type_id" integer REFERENCES "django_content_type" ("id"),
+    "object_id" text,
+    "object_repr" varchar(200) NOT NULL,
+    "action_flag" smallint unsigned NOT NULL,
+    "change_message" text NOT NULL
+);
+CREATE INDEX "auth_permission_37ef4eb4" ON "auth_permission" ("content_type_id");
+CREATE INDEX "auth_group_permissions_5f412f9a" ON "auth_group_permissions" ("group_id");
+CREATE INDEX "auth_group_permissions_83d7f98b" ON "auth_group_permissions" ("permission_id");
+CREATE INDEX "auth_user_groups_6340c63c" ON "auth_user_groups" ("user_id");
+CREATE INDEX "auth_user_groups_5f412f9a" ON "auth_user_groups" ("group_id");
+CREATE INDEX "auth_user_user_permissions_6340c63c" ON "auth_user_user_permissions" ("user_id");
+CREATE INDEX "auth_user_user_permissions_83d7f98b" ON "auth_user_user_permissions" ("permission_id");
+CREATE INDEX "django_session_b7b81f0c" ON "django_session" ("expire_date");
+CREATE INDEX "django_admin_log_6340c63c" ON "django_admin_log" ("user_id");
+CREATE INDEX "django_admin_log_37ef4eb4" ON "django_admin_log" ("content_type_id");
 CREATE TABLE "rsync_shares" (
         "name" varchar(200) NOT NULL,
         "path" varchar(200) NOT NULL,
@@ -44,4 +196,45 @@ CREATE TABLE "rsync_shares" (
         "uid" varchar(200) NOT NULL,
         "gid" varchar(200) NOT NULL
 );
-
+CREATE TABLE "cron_tasks" (
+    "cron_task_id" integer NOT NULL PRIMARY KEY,
+    "description" varchar(200) NOT NULL,
+    "command" varchar(200) NOT NULL
+);
+CREATE TABLE "subtasks" (
+    "subtask_id" integer NOT NULL PRIMARY KEY,
+    "description" varchar(100) NOT NULL,
+    "command"  varchar(400) NOT NULL,
+    "task_id" integer NOT NULL,
+    "status" varchar(100) NOT NULL DEFAULT 'queued',
+    "return_code" varchar(10),
+    FOREIGN KEY(task_id) REFERENCES tasks(task_id)
+);
+CREATE TABLE "tasks" (
+    "task_id" integer NOT NULL PRIMARY KEY,
+    "description" varchar(200) NOT NULL,
+    "task_type_id" integer NOT NULL,
+    "node" varchar(200) NOT NULL,
+    "run_as_user_name" VARCHAR(100) NOT NULL DEFAULT 'root',
+    "attempts" integer NOT NULL,
+    "cron_task_id" integer NOT NULL,
+    "retry_interval" integer NOT NULL DEFAULT 1,
+    "create_time" datetime NOT NULL,
+    "initiate_time" datetime NOT NULL,
+    "last_run_time" datetime,
+    "status" varchar(50) NOT NULL DEFAULT 'queued',
+    FOREIGN KEY(task_type_id) REFERENCES task_types(task_type_id)
+);
+CREATE TABLE "task_types" (
+    "task_type_id" integer NOT NULL PRIMARY KEY,
+    "description" varchar(200) NOT NULL
+);
+CREATE TABLE "remote_replications" (
+  "remote_replication_id" integer NOT NULL PRIMARY KEY,
+  "source_dataset" varchar(100) NOT NULL,
+  "destination_ip" varchar(100) NOT NULL,
+  "destination_user_name" varchar(100) NOT NULL,
+  "destination_pool" varchar(100) NOT NULL,
+  "cron_task_id" NOT NULL,
+  FOREIGN KEY(cron_task_id) REFERENCES cron_tasks(cron_task_id)
+);

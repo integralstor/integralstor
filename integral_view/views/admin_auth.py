@@ -339,7 +339,7 @@ def edit_https_mode(request):
     db_path,err = common.get_db_path()
     if err:
       raise Exception(err)
-    restart , err = scheduler_utils.schedule_a_job(db_path,"Chaging IntegralView access mode",[{'Restarting Web Server':'service nginx restart'}])
+    restart , err = scheduler_utils.add_task('Chaging IntegralView access mode',[{'Restarting Web Server':'service nginx restart'}], 2)
     if err:
       raise Exception(err)
     return django.http.HttpResponseRedirect(redirect_url)

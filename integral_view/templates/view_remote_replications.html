@@ -1,11 +1,11 @@
 {% extends 'snapshot_replication_base.html' %}
 
 {%block tab_header %}
-  ZFS replication
+  Remote replication
 {%endblock%}
 
 {%block global_actions %}
-  <a class="btn btn-default btn-sm pull-right" href="/replicate_zfs_dataset/"  title="Configure a new replication for a dataset" style="color:#000"> <i class="fa fa-plus-square-o  fa-fw"></i>&nbsp;Configure new replication </a>
+  <a class="btn btn-default btn-sm pull-right" href="/create_remote_replication/"  title="Schedule a new remote replication for a dataset" style="color:#000"> <i class="fa fa-plus-square-o  fa-fw"></i>&nbsp;Schedule new replication </a>
 {%endblock%}
 
 {% block inside_content %}
@@ -14,27 +14,29 @@
     <table id="remote_replications_list" class="table table-stripped" style="width:800px;">
       <thead>
         <tr>
-          <td> Source dataset</td>
-          <td> Destination IP </td>
-          <td> Destination pool </td>
-          <td>Schedule</td>
-          <td></td>
+          <th> Description </th>
+          <th> Source dataset</th>
+          <th> Destination IP </th>
+          <th> Destination pool </th>
+          <th> Schedule</th>
+          <th> Actions</th>
         </tr>
       </thead>
       <tbody> 
         {% for replication in replications %}
           <tr>
-            <td> {{replication.dataset}} </td>
-            <td> {{replication.ip}} </td>
-            <td> {{replication.dest}} </td>
+            <td> {{replication.description}} </td>
+            <td> {{replication.source_dataset}} </td>
+            <td> {{replication.destination_ip}} </td>
+            <td> {{replication.destination_pool}} </td>
             <td> {{replication.schedule_description}} </td>
             <td> 
               <div class="btn-group btn-group-xs pull-right" >
                 <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for pool specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                 <ul class="dropdown-menu">
-                  <li> <a class="action-dropdown" href="/replicate_zfs_dataset/?dataset_name={{replication.dataset}}" title="Modify the parameters for this replication"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify Replication Status </a></li>
+                  <li> <a class="action-dropdown" href="/modify_remote_replication/?remote_replication_id={{replication.remote_replication_id}}" title="Modify the parameters for this replication"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify replication settings </a></li>
                   <li class="divider"></li>
-                  <li><a class="action-dropdown" href="/cancel_zfs_replication?dataset={{replication.dataset}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Cancel this replication </a></li>
+                  <li><a class="action-dropdown" href="/remove_remote_replication?remote_replication_id={{replication.remote_replication_id}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Cancel this replication </a></li>
                 </ul>
               </div>
           </tr>
