@@ -124,13 +124,14 @@ def view_task_details(request,task_id):
     if err:
       raise Exception(err)
     log_dir = '%s/task_logs'%log_path
-    if os.path.isfile("%s/%d.log"%(log_dir, int(task_id))):
-      lines,err = command.get_command_output("wc -l /tmp/%d.log"%int(task_id))
+    log_file_path = '%s/%d.log'%(log_dir, int(task_id))
+    if os.path.isfile(log_file_path):
+      lines,err = command.get_command_output("wc -l %s"%log_file_path)
       no_of_lines = lines[0].split()[0]
       #print no_of_lines
       if int(no_of_lines) <= 41:
         # This code always updates the 0th element of the command list. This is assuming that we will only have one long running command.
-        with open('/tmp/%d.log'%int(task_id)) as output:
+        with open(log_file_path) as output:
           task_output = task_output + ''.join(output.readlines())
       else:
         first,err = command.get_command_output("head -n 5 /tmp/%d.log"%int(task_id), shell=True)
