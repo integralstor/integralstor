@@ -120,7 +120,11 @@ def view_task_details(request,task_id):
     return_dict["subtasks"] = subtasks
     #print subtasks, err
     task_output = ""
-    if os.path.isfile("/tmp/%d.log"%int(task_id)):
+    log_path, err = common.get_log_folder_path()
+    if err:
+      raise Exception(err)
+    log_dir = '%s/task_logs'%log_path
+    if os.path.isfile("%s/%d.log"%(log_dir, int(task_id))):
       lines,err = command.get_command_output("wc -l /tmp/%d.log"%int(task_id))
       no_of_lines = lines[0].split()[0]
       #print no_of_lines
