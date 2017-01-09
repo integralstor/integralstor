@@ -127,8 +127,11 @@ def upload_ssh_user_key(request):
       # This works for user deleting the key files. This should be moved to a new function in itself
       authorized_key = request.POST.get('authorized_key',None)
       if authorized_key:
+	description = ""
         user =  request.POST.get("selected_user")
         key =  request.POST.get("authorized_key")
+	description = "%s" %(user)
+	audit.audit ("remove_ssh_user_key", description, request.META)
         files = open((pki._get_authorized_file(user)), 'r').readlines()
         authorized_keys = open(pki._get_authorized_file(user),'w')
         for file in files:
@@ -137,8 +140,12 @@ def upload_ssh_user_key(request):
         ack_message = "key_deleted"
       # This works for user uploading new keys
       else:
+	desscription = ""
         authorized_key = request.FILES.get('pub_key')
         user = request.POST.get('user')
+	description = "%s  %s" %(user, authorized_key)
+	audit.audit ("upload_ssh_user_key", description, request.META)
+
         with open('/%s/authorized_keys'%(pki._get_ssh_dir(user)), 'ab') as destination:
             for chunk in authorized_key.chunks():
                 destination.write(chunk)
@@ -170,8 +177,11 @@ def upload_ssh_host_key(request):
       if authorized_key:
         user =  request.POST.get("selected_user")
         key =  request.POST.get("authorized_key")
+	description = "%s" %(user)
+	audit.audit ("remove_ssh_host_key", description, request.META)
+
         files = open((pki._get_known_hosts(user)), 'r').readlines()
-        authorized_keys = open(pki._get_known_hosts(user),'ab')
+        authorized_keys = open(pki._get_known_hosts(user),'w')
         for file in files:
           if key.strip() != file.strip():
             authorized_keys.write(file)
@@ -180,6 +190,9 @@ def upload_ssh_host_key(request):
         authorized_key = request.FILES.get('pub_key')
         ip = request.POST.get('ip')
         user = request.POST.get('user','replicator')
+	description = "%s %s  %s" %(user, ip, authorized_key)
+	audit.audit ("upload_ssh_host_key", description, request.META)
+
         hosts_file = pki._get_known_hosts(user)
         print hosts_file
         with open("/tmp/hosts_file", 'wb+') as destination:

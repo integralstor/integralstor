@@ -300,6 +300,9 @@ def create_remote_replication(request):
 
       cmd = "/usr/bin/python -c 'from integralstor_common import zfs; zfs.schedule_remote_replication("'"%s"'", "'"%s"'","'"%s"'","'"%s"'","'"%s"'")'"%(description, source_dataset, destination_ip, destination_username, destination_pool)
       #print cmd
+
+      audit.audit("create_remote_replication", description, request.META)
+
       cron_task_id, err = scheduler_utils.add_cron_task(cmd, description,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4])
       if err:
         raise Exception(err)
@@ -359,6 +362,8 @@ def modify_remote_replication(request):
 
 
       description = 'Replication of %s to pool %s on machine %s'%(replication['source_dataset'], replication['destination_pool'], replication['destination_ip'])
+      audit_str = "%s. Schedule: %s %s %s %s %s" %(description,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4])
+      audit.audit("modify_remote_replication", audit_str, request.META)
 
       cmd = "/usr/bin/python -c 'from integralstor_common import zfs; zfs.schedule_remote_replication("'"%s"'", "'"%s"'","'"%s"'","'"%s"'","'"%s"'")'"%(description, replication['source_dataset'], replication['destination_ip'], replication['destination_user_name'], replication['destination_pool'])
       #print cmd
@@ -408,6 +413,14 @@ def remove_remote_replication(request):
       db_path,err = common.get_db_path()
       if err:
         raise Exception(err)
+      task_description, err = db.get_task_description (db_path, "cron_tasks", "cron_task_id", int(request.REQUEST['cron_task_id']), get_status = False)
+      if err:
+        task_description = err
+      elif task_description is None:
+        task_description = "No description found for task with cron_task_id %d" %(request.REQUEST['cron_task_id'])
+      print "\ntask_descr: ", task_description
+      audit.audit("remove_remote_replication", task_description, request.META)
+
       cmd = "delete from remote_replications where remote_replication_id='%s'"%remote_replication_id
       ret, err = db.execute_iud(db_path, [[cmd]])
       if err:
@@ -1895,7 +1908,7 @@ def replace_disk(request):
             cmd_list.append({'Replace old disk':'zpool replace -f %s %s %s'%(pool, old_id, new_id)})
             cmd_list.append({'Online the new disk':'zpool online -e %s %s'%(pool, new_id)})
             cmd_list.append({'Regenerate the system configuration':'%s/generate_manifest.py'%common_python_scripts_path})
-            ret, err = scheduler_utils.add_task('Disk replacement',cmd_list,sub_task_id = '1', attempts = 1)
+            ret, err = scheduler_utils.add_task('Disk replacement',cmd_list,task_type_id = 1, attempts = 1)
             if err:
               raise Exception(err)
             if not ret:

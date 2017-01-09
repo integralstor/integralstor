@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 import django.http 
 
 import os, os.path
-from integralstor_common import scheduler_utils, common, command, zfs
+from integralstor_common import scheduler_utils, common, command, zfs, db, audit
 
 def view_scheduled_jobs(request):
   return_dict = {}
@@ -95,6 +95,18 @@ def remove_background_task(request):
   try:
     if 'task_id' not in request.REQUEST:
       raise Exception('Invalid request. Please use the menus.')
+    
+    db_path, err = common.get_db_path ()
+    if err:
+      raise Exception (err)
+    task_description, err = db.get_task_description (db_path, "tasks", "task_id", int(request.REQUEST['task_id']), get_status = True)
+    if err:
+      task_description = err
+    elif task_description is None:
+      task_description = "No description found for task with task_id %d" %(request.REQUEST['task_id'])	
+
+    audit.audit("remove_background_task", task_description, request.META)
+
     ret, err = scheduler_utils.remove_task(request.REQUEST['task_id'])
     if err:
       raise Exception(err)
@@ -134,10 +146,10 @@ def view_task_details(request,task_id):
         with open(log_file_path) as output:
           task_output = task_output + ''.join(output.readlines())
       else:
-        first,err = command.get_command_output("head -n 5 /tmp/%d.log"%int(task_id), shell=True)
+        first,err = command.get_command_output("head -n 5 %s"%log_file_path, shell=True)
         if err:
           print err
-        last,err = command.get_command_output("tail -n 20 /tmp/%d.log"%int(task_id), shell=True)
+        last,err = command.get_command_output("tail -n 20 %s"%log_file_path, shell=True)
         if err:
           print err
         #print last
@@ -152,6 +164,6 @@ def view_task_details(request,task_id):
     return_dict["page_title"] = 'Background jobs'
     return_dict['tab'] = 'view_background_tasks_tab'
     return_dict["error"] = 'Error retriving background task details'
-    return_dict["error_details"] = str(e)
+    return_dict["error_details"] = e
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
