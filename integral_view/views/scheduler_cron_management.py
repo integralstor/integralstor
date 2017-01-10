@@ -96,20 +96,16 @@ def remove_background_task(request):
     if 'task_id' not in request.REQUEST:
       raise Exception('Invalid request. Please use the menus.')
     
-    db_path, err = common.get_db_path ()
+    task, err = scheduler_utils.get_task(request.REQUEST['task_id'])
     if err:
-      raise Exception (err)
-    task_description, err = db.get_task_description (db_path, "tasks", "task_id", int(request.REQUEST['task_id']), get_status = True)
-    if err:
-      task_description = err
-    elif task_description is None:
-      task_description = "No description found for task with task_id %d" %(request.REQUEST['task_id'])	
+      raise Exception(err)
 
-    audit.audit("remove_background_task", task_description, request.META)
 
     ret, err = scheduler_utils.remove_task(request.REQUEST['task_id'])
     if err:
       raise Exception(err)
+
+    audit.audit("remove_background_task", task['description'], request.META)
     return django.http.HttpResponseRedirect('/view_background_tasks?ack=deleted')
   except Exception, e:
     return_dict['base_template'] = "scheduler_base.html"
