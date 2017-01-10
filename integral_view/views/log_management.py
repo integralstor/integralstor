@@ -174,9 +174,8 @@ def download_log(request):
         cd = form.cleaned_data
         log_type = cd['log_type']
   
+        response = django.http.HttpResponse()
         if log_type in ['alerts', 'audit', 'hardware']:
-          response = django.http.HttpResponse()
-          response['Content-type'] = 'text/plain'
           if log_type == 'alerts':
             response['Content-disposition'] = 'attachment; filename=alerts_log.txt'
             all_alerts, err = alerts.load_alerts()
@@ -217,16 +216,13 @@ def download_log(request):
                   response.flush()
             else:
               raise Exception('Unknown platform')
-          else:
+        else:
   
             fn = {'boot':'/var/log/boot.log', 'dmesg':'/var/log/dmesg', 'message':'/var/log/messages', 'smb':'/var/log/smblog.vfs', 'winbind':'/var/log/samba/log.winbindd','ctdb':'/var/log/log.ctdb'}
             dn = {'boot':'boot.log', 'dmesg':'dmesg', 'message':'messages','smb':'samba_logs','winbind':'winbind_logs','ctdb':'ctdb_logs'}
   
             file_name = fn[log_type]
             display_name = dn[log_type]
-  
-            import os
-
   
             zf_name = '%s.zip'%display_name
       
@@ -237,18 +233,14 @@ def download_log(request):
             except Exception as e:
               raise Exception("Error compressing remote log file : %s"%str(e))
   
-            try:
-              response = django.http.HttpResponse()
-              response['Content-disposition'] = 'attachment; filename=%s.zip'%(display_name)
-              response['Content-type'] = 'application/x-compressed'
-              with open(zf_name, 'rb') as f:
+            response['Content-disposition'] = 'attachment; filename=%s.zip'%(display_name)
+            response['Content-type'] = 'application/x-compressed'
+            with open(zf_name, 'rb') as f:
+              byte = f.read(1)
+              while byte:
+                response.write(byte)
                 byte = f.read(1)
-                while byte:
-                  response.write(byte)
-                  byte = f.read(1)
-              response.flush()
-            except Exception as e:
-              return None
+            response.flush()
   
         return response
   

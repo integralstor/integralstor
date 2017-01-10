@@ -92,7 +92,7 @@ def logout(request):
     # Clear the session if the user has been logged in anywhere else.
     sessions = Session.objects.all()
     for s in sessions:
-     if s.get_decoded() and (s.get_decoded()['_auth_user_id'] == request.user.id or not s.get_decoded()):
+      if (s.get_decoded() and int(s.get_decoded()['_auth_user_id']) == request.user.id) or not s.get_decoded():
         s.delete()
     django.contrib.auth.logout(request)
     return django.http.HttpResponseRedirect('/login/')
