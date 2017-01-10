@@ -17,7 +17,7 @@
 
 {% block inside_content %}
   {%for subtask in subtasks %}
-    <div class="panel box {%if command.return_code == '0' %} box-success {%else%} box-danger{%endif%}">
+    <div class="panel box {%if subtask.return_code == '0' %} box-success {%else%} box-danger{%endif%}">
       <div class="box-header with-border">
         <h5 class="box-title">
           <a class="" aria-expanded="true" data-toggle="collapse" data-parent="#accordion" href="#pool_{{forloop.counter}}">
