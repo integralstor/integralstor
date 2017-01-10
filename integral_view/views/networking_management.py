@@ -364,7 +364,24 @@ def create_bond(request):
           raise Exception(err)
         else:
           raise Exception('Bond creation failed!')
- 
+      python_scripts_path, err = common.get_python_scripts_path()
+      if err:
+        raise Exception(err)
+      common_python_scripts_path, err = common.get_common_python_scripts_path()
+      if err:
+        raise Exception(err)
+      status_path, err = common.get_system_status_path()
+      if err:
+        raise Exception(err)
+
+      ret, err = command.get_command_output("python %s/generate_manifest.py %s"%(common_python_scripts_path, status_path))
+      if err:
+        raise Exception(err)
+
+      ret, err = command.get_command_output("python %s/generate_status.py %s"%(common_python_scripts_path, status_path))
+      if err:
+        raise Exception(err)
+
       audit_str = "Created a network bond named %s with slaves %s"%(cd['name'], ','.join(cd['slaves']))
       audit.audit("create_bond", audit_str, request.META)
       return django.http.HttpResponseRedirect('/view_interfaces?ack=created_bond')
@@ -396,7 +413,25 @@ def remove_bond(request):
           raise Exception("Error removing bond")
         else:
           raise Exception(err)
- 
+
+      python_scripts_path, err = common.get_python_scripts_path()
+      if err:
+        raise Exception(err)
+      common_python_scripts_path, err = common.get_common_python_scripts_path()
+      if err:
+        raise Exception(err)
+      status_path, err = common.get_system_status_path()
+      if err:
+        raise Exception(err)
+
+      ret, err = command.get_command_output("python %s/generate_manifest.py %s"%(common_python_scripts_path, status_path))
+      if err:
+        raise Exception(err)
+
+      ret, err = command.get_command_output("python %s/generate_status.py %s"%(common_python_scripts_path, status_path))
+      if err:
+        raise Exception(err)
+
       audit_str = "Removed network bond %s"%(name)
       audit.audit("remove_bond", audit_str, request.META)
       return django.http.HttpResponseRedirect('/view_interfaces?ack=removed_bond')
