@@ -287,8 +287,7 @@ def create_remote_replication(request):
       if err:
         raise Exception(err)
 
-
-      status, err = remote_replication.add_remote_replication(source_dataset,destination_ip,destination_username,destination_pool, cron_task_id)
+      remote_replication_id, err = remote_replication.add_remote_replication(source_dataset,destination_ip,destination_username,destination_pool, cron_task_id)
       if err:
         raise Exception(err)
 
@@ -383,11 +382,12 @@ def remove_remote_replication(request):
       return_dict['replication'] = replications[0]
       return django.shortcuts.render_to_response("cancel_zfs_replication_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
     else:
-      ret, err = remote_replication.delete_remote_replication(remote_replication_id)
+
+      cron_remove,err = scheduler_utils.remove_cron(int(request.REQUEST['cron_task_id']))
       if err:
         raise Exception(err)
 
-      cron_remove,err = scheduler_utils.remove_cron(int(request.REQUEST['cron_task_id']))
+      ret, err = remote_replication.delete_remote_replication(remote_replication_id)
       if err:
         raise Exception(err)
       audit.audit("remove_remote_replication", replications[0]['description'], request.META)
