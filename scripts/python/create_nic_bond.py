@@ -52,7 +52,7 @@ def create_bond ():
         is_ok = True
         print ("\nSelecetd slaves: %s") %slaves
         confirm = raw_input ("\t- Confirm selected slaves (y/n)? ")
-        if confirm in ["n", "N"]:
+        if confirm.lower () in ["n"]:
           is_ok = False
     
     print "\n"

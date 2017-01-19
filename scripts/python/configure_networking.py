@@ -164,31 +164,14 @@ def configure_interface():
         if not valid_input:
           print "Invalid value. Please try again."
       print
+
       if restart:
-        init_type, err = common.get_init_type ()
-        if err:
-          raise Exception (err)
-
-        if init_type not in ['systemd', 'init']:
-          raise Exception ("No Systemd or Init found.")
-        elif (init_type == 'systemd'):
-          ret, err = networking.restart_networking ()
-          if not ret:
-            if err:
-              raise Exception (err)
-            else:
-              raise Exception ("Couldn't restart.")
-
-        elif (init_type == 'init'):
-          (r, rc), err = command.execute_with_rc('service network restart')
+        ret, err = networking.restart_networking ()
+        if not ret:
           if err:
-            raise Exception(err)
-          if rc == 0:
-            print "Network service restarted succesfully."
+            raise Exception (err)
           else:
-            print "Error restarting network services."
-            raw_input('Press enter to return to the main menu')
-            return -1
+            raise Exception ("Couldn't restart.")
 
         use_salt, err = common.use_salt()
         if err:
