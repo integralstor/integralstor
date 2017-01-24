@@ -16,35 +16,35 @@ primary_last_snapshot=""
 secondary_last=""
 secondary_last_snapshot=""
 
-primary_snapshot () {
-  primary_last=$(sudo zfs list -t snapshot -o name -s creation | grep $source | tail -1)
-  primary_initial=$(sudo zfs list -t snapshot -o name -s creation | grep $source | head -1)
+get_primary_snapshot () {
+  primary_last=$(sudo zfs list -t snapshot -o name -s creation | grep $source | grep remote_repl_snap | tail -1)
+  primary_initial=$(sudo zfs list -t snapshot -o name -s creation | grep $source | grep remote_repl_snap | head -1)
 
   #Get the snapshot names. The Hack. Needs a better code.
   IFS=’@’ read -a primary_initial_snapshot <<< "${primary_initial}"
   echo "Earliest source snapshot : $source@${primary_initial_snapshot[1]}"
   IFS=’@’ read -a primary_last_snapshot <<< "${primary_last}"
-  echo "Latest source snapshot: $source@${primary_last_snapshot[1]}"
+  echo "Latest source remote replication snapshot: $source@${primary_last_snapshot[1]}"
 } 
-secondary_snapshot () {
+get_secondary_snapshot () {
 
   #Last successful snapshot from destination server
   # Sort by creation date so that you always get the latest snapshot by date and not name
-  secondary_last=$(ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "sudo zfs list -t snapshot -o name -s creation | grep $destination/$source_dataset | tail -1")
+  secondary_last=$(ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "sudo zfs list -t snapshot -o name -s creation | grep $destination/$source_dataset | grep remote_repl_snap | tail -1")
   IFS=’@’ read -a secondary_last_snapshot <<< "${secondary_last}"
   if [[ -z "${secondary_last_snapshot[1]}" ]]; then
-    echo "No snapshots found on the destination."
+    echo "No remote replication snapshots found on the destination."
   else
-    echo "Latest destination snapshot: $source@${secondary_last_snapshot[1]}"
+    echo "Latest destination remote replication snapshot: $source@${secondary_last_snapshot[1]}"
   fi
 }
 
-primary_snapshot
-secondary_snapshot
+get_primary_snapshot
+get_secondary_snapshot
 
 if [[ -z "${secondary_last_snapshot[1]}" ]]; then
   # Sync the initial snapshot
-  echo "No snapshots on the destination so performing a complete send of the earliest source snapshot $source@${primary_initial_snapshot[1]}"
+  echo "No remote replication snapshots on the destination so performing a complete send of the earliest source snapshot $source@${primary_initial_snapshot[1]}"
   sudo zfs send -v $source@${primary_initial_snapshot[1]} | ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "sudo zfs receive -Fdv $destination"
   #sudo zfs send -v $source@${primary_initial_snapshot[1]} | mbuffer -s 128k -m 1G 2>/dev/null | ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "mbuffer -s 128k -m 1G | sudo zfs receive -Fdv $destination"
   rc=$?
@@ -53,7 +53,7 @@ if [[ -z "${secondary_last_snapshot[1]}" ]]; then
 else
   #Secondary snapshot is not none
   if [ "${secondary_last_snapshot[1]}" != "${primary_last_snapshot[1]}" ]; then
-    echo "The destination has some snapshots already so performing a differential send from $source@${secondary_last_snapshot[1]} to $source@${primary_last_snapshot[1]}"
+    echo "The destination has some remote replication snapshots already so performing a differential send from $source@${secondary_last_snapshot[1]} to $source@${primary_last_snapshot[1]}"
     #If the destination and the source last snapshots are the not the same, then incremental sync of snapshots
     #echo "${secondary_last_snapshot} ${primary_last_snapshot}"
     sudo zfs send -vI $source@${secondary_last_snapshot[1]} $source@${primary_last_snapshot[1]} |  ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "sudo zfs receive -Fdv $destination"
