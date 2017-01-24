@@ -103,8 +103,8 @@
       {%endif%}
       <hr>
 
-      <h5> Async Replication Status : {{replication_status|title}} </h5>
       <!--
+      <h5> Async Replication Status : {{replication_status|title}} </h5>
       {% if "disabled" in replication_status %}
     	  <a href="/replicate_zfs_dataset?dataset_name={{name}}" role="button" class="btn btn-info btn-sm">Enable replication on this dataset</a>
       {% else %}
