@@ -76,22 +76,32 @@ def dashboard(request,page):
       raise Exception(err)
 
     num_bad_disks = 0
-    num_hw_raid_bad_disks = "N.A"
+    num_hw_raid_bad_disks = 0
     num_hw_raid_ctrl_disks = 0
     num_smart_ctrl_disks = 0
     num_disks = len(node['disks'])
     disks_ok = True
     disks_hw_ok = "N.A"
     for sn, disk in node['disks'].items():
-      if 'status' in disk and (disk['status'] == 'PASSED' or disk['status'] == 'OK'):
-        num_smart_ctrl_disks += 1
-      elif disk['hw_raid']:
-	# TODO: Handle errors/failures of disks controlled by HW Raid 
-        num_hw_raid_ctrl_disks += 1        
-        disks_hw_ok = "N.A" # Default set status N.A
-      else:
-        num_bad_disks += 1
-        disks_ok = False
+      if 'status' in disk:
+        if 'hw_raid' in disk:
+          if not disk['hw_raid']:
+            num_smart_ctrl_disks += 1
+            if (disk['status'].upper() not in  ['PASSED', 'OK']):
+              num_bad_disks += 1
+              disks_ok = False
+          else:
+            num_hw_raid_ctrl_disks += 1        
+            if (disk['status'].upper() != 'OK'):
+              num_hw_raid_bad_disks += 1
+              disks_ok = False
+        else:
+          #Assume its a non raid disk
+          num_smart_ctrl_disks += 1
+          if (disk['status'].upper() not in  ['PASSED', 'OK']):
+            num_bad_disks += 1
+            disks_ok = False
+
     return_dict['num_disks'] = num_disks
     return_dict['num_bad_disks'] = num_bad_disks
     return_dict['disks_ok'] = disks_ok
