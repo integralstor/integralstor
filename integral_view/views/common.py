@@ -87,18 +87,18 @@ def dashboard(request,page):
         if 'hw_raid' in disk:
           if not disk['hw_raid']:
             num_smart_ctrl_disks += 1
-            if (disk['status'].upper() not in  ['PASSED', 'OK']):
+            if (disk['status'] is not None and disk['status'].upper() not in  ['PASSED', 'OK']):
               num_bad_disks += 1
               disks_ok = False
           else:
             num_hw_raid_ctrl_disks += 1        
-            if (disk['status'].upper() != 'OK'):
+            if (disk['status'] is not None and disk['status'].upper() != 'OK'):
               num_hw_raid_bad_disks += 1
               disks_ok = False
         else:
           #Assume its a non raid disk
           num_smart_ctrl_disks += 1
-          if (disk['status'].upper() not in  ['PASSED', 'OK']):
+          if (disk['status'] is not None and disk['status'].upper() not in  ['PASSED', 'OK']):
             num_bad_disks += 1
             disks_ok = False
 
