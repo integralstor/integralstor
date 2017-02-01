@@ -81,9 +81,11 @@
                 </div>
               </div>
               <table class="table table-bordered table-hover table-responsive" style="width:800px">
-                <tr><th> Pool size </th> <td>{{pool.usage.size.value}}{{pool.usage.size.unit}}<td></tr>
-                <tr><th> Pool usage </th> <td>{{pool.usage.allocated.value}}{{pool.usage.allocated.unit}}<td></tr>
-                <tr><th> Pool used percentage </th> <td>{{pool.usage.capacity.value}}{{pool.usage.capacity.unit}}<td></tr>
+                <tr><th> Space available for data </th> <td>{{pool.usage.available_for_data.value}}{{pool.usage.available_for_data.unit}}<td></tr>
+                <tr><th> Space consumed by data </th> <td>{{pool.usage.used_by_data.value}}{{pool.usage.used_by_data.unit}}<td></tr>
+                <tr><th> Raw space from all data disks </th> <td>{{pool.usage.size.value}}{{pool.usage.size.unit}}<td></tr>
+                <tr><th> Space consumed by data & metadata </th> <td>{{pool.usage.allocated.value}}{{pool.usage.allocated.unit}}<td></tr>
+                <tr><th> Space consumed percentage </th> <td>{{pool.usage.capacity.value}}{{pool.usage.capacity.unit}}<td></tr>
                 <tr><th> Pool dedup </th> <td>{{pool.usage.dedup}}<td></tr>
                 {%if pool.usage.dedup == 'on'%}
                   <tr><th> Pool dedup ratio</th> <td>{{pool.usage.dedupratio.value}}{{pool.usage.dedupratio.unit}}<td></tr>
