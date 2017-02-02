@@ -139,7 +139,7 @@ class CreatePoolForm(forms.Form):
         if cd['pool_type'] == 'raid10':
           multiplier = 2
         else :
-          multiplier = cd['num_raid_disks']
+          multiplier = int(cd['num_raid_disks'])
         if (stripe_width * multiplier) > num_disks:
           self._errors["stripe_width"] = self.error_class(["The number of disks with the stripe width and RAID disks combination exceeds the number of available disks. Only %d disks available"%num_disks])
     return cd
