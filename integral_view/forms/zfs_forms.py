@@ -117,6 +117,7 @@ class CreatePoolForm(forms.Form):
           max_stripe_width = num_free_disks/2
           stripes = []
           i = 2
+          #stripes.append((2, 2))
           while i <= max_stripe_width:
             stripes.append(('%d'%i, '%d'%i))
             i += 1
@@ -134,11 +135,12 @@ class CreatePoolForm(forms.Form):
       if cd['pool_type'] in ['raid10', 'raid50', 'raid60']:
         if ('stripe_width' not in cd) or (not cd['stripe_width']):
           self._errors["stripe_width"] = self.error_class(["Stripe width is required for the specified type of pool"])
+        stripe_width = int(cd['stripe_width'])
         if cd['pool_type'] == 'raid10':
           multiplier = 2
         else :
-          multiplier = cd['num_raid_disks']
-        if cd['stripe_width']*multiplier > num_disks:
+          multiplier = int(cd['num_raid_disks'])
+        if (stripe_width * multiplier) > num_disks:
           self._errors["stripe_width"] = self.error_class(["The number of disks with the stripe width and RAID disks combination exceeds the number of available disks. Only %d disks available"%num_disks])
     return cd
 

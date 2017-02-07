@@ -206,7 +206,11 @@
                 <i class="fa fa-remove red fa-2x"></i>
               {%endif%}
             {%else%}
-              <br>(<i>No S.M.A.R.T status for hardware RAID disks.</i>)
+              {%if disk.status.lower == 'ok'%}
+                <i class="fa fa-check green fa-2x"></i>
+              {%else%}
+                <i class="fa fa-remove red fa-2x"></i>
+              {%endif%}<br/>
             {%endif%}
           </td>
           {%if hw_platform%}
