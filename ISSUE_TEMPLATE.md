@@ -22,6 +22,8 @@ UNICell Version                  |
 
 ### Describe the problem you're observing
 
+### Describe the expected behaviour
+
 ### Describe how to reproduce the problem
 
 ### Include any warning/errors/backtraces from the system logs
