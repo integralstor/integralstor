@@ -56,7 +56,8 @@ else
     echo "The destination has some remote replication snapshots already so performing a differential send from $source@${secondary_last_snapshot[1]} to $source@${primary_last_snapshot[1]}"
     #If the destination and the source last snapshots are the not the same, then incremental sync of snapshots
     #echo "${secondary_last_snapshot} ${primary_last_snapshot}"
-    sudo zfs send -vI $source@${secondary_last_snapshot[1]} $source@${primary_last_snapshot[1]} |  ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "sudo zfs receive -Fdv $destination"
+    sudo zfs send -vI $source@${secondary_last_snapshot[1]} $source@${primary_last_snapshot[1]} | mbuffer -s 128k -m 512M 2>/dev/null|  gzip | ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "gunzip | mbuffer -s 128k -m 512M | sudo zfs receive -Fdv $destination"
+    #sudo zfs send -vI $source@${secondary_last_snapshot[1]} $source@${primary_last_snapshot[1]} |  ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "sudo zfs receive -Fdv $destination"
     #sudo zfs send -vI $source@${secondary_last_snapshot[1]} $source@${primary_last_snapshot[1]} | mbuffer -s 128k -m 1G 2>/dev/null | ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "mbuffer -s 128k -m 1G | sudo zfs receive -Fdv $destination"
     rc=$?
     echo "Return code from the differential send command : $rc"

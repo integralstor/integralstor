@@ -340,9 +340,8 @@ def create_cifs_share(request):
         if 'new_folder' in cd and cd['new_folder']:
           try:
             path = '%s/%s'%(cd['path'], cd['new_folder'])
-            print path
+            #print path
             os.mkdir(path)
-            print 'a'
             audit_str = 'Created new directory "%s" in "%s"'%(cd['new_folder'], cd['path'])
             audit.audit("create_dir", audit_str, request.META)
           except Exception, e:
