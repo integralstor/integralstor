@@ -276,13 +276,19 @@ def create_remote_replication(request):
       if (not destination_ip) or (not destination_pool) or (not source_dataset):
         raise Exception("Incomplete request.")
 
+      existing_repl, err = remote_replication.get_remote_replications_with (source_dataset, destination_ip, destination_pool)
+      print existing_repl
+      if err:
+        raise Exception (err)
+      if existing_repl:
+        raise Exception ("A replication schedule already exists with matching entires/options.")
 
       py_scripts_path, err = common.get_python_scripts_path()
       if err:
         raise Exception(err)
 
       cmd = '%s/add_remote_replication_task.py %s %s %s %s'%(py_scripts_path, source_dataset, destination_ip, destination_username, destination_pool)
-      description = 'Replication of %s to pool %s on machine %s.'%(source_dataset, destination_pool, destination_ip)
+      description = 'Replication of %s to pool %s on machine %s'%(source_dataset, destination_pool, destination_ip)
       cron_task_id, err = scheduler_utils.add_cron_task(cmd, description,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4])
       if err:
         raise Exception(err)

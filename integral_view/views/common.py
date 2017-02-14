@@ -45,7 +45,12 @@ def view_backup(request):
 @login_required
 def dashboard(request,page):
   return_dict = {}
+  
   try:
+    return_dict["page_title"] = 'Overall system health'
+    return_dict['tab'] = 'system_health_tab'
+    return_dict["error"] = 'Error loading system health data'
+
     if request.method != 'GET':
       raise Exception('Invalid access method. Please use the menus')
     si, err = system_info.load_system_config()
@@ -88,7 +93,7 @@ def dashboard(request,page):
           if not disk['hw_raid']:
             num_smart_ctrl_disks += 1
             if (disk['status'] is not None and disk['status'].upper() not in  ['PASSED', 'OK']):
-              num_bad_disks += 1
+              num_bad_disks += 1 
               disks_ok = False
           else:
             num_hw_raid_ctrl_disks += 1        
@@ -406,6 +411,7 @@ def dashboard(request,page):
     return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "dashboard_base.html"
+    
     return_dict["error_details"] = e
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
