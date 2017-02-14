@@ -14,7 +14,7 @@ from integral_view.views.log_management import  download_log, rotate_log, view_r
 
 from integral_view.views.cifs_share_management import view_cifs_shares, create_cifs_share, samba_server_settings, save_samba_server_settings, view_cifs_share, edit_cifs_share, delete_cifs_share, edit_auth_method 
 
-from integral_view.views.folder_management import delete_ace, add_aces, edit_aces, modify_dir_permissions, create_dir, delete_dir, dir_manager, modify_dir_owner, get_dir_listing, view_dir_ownership_permissions, dir_contents
+from integral_view.views.folder_management import delete_ace, add_aces, edit_aces, modify_dir_permissions, create_dir, delete_dir, dir_manager, modify_dir_owner, get_dir_listing, view_dir_ownership_permissions, dir_contents, modify_sticky_bit
 
 from integral_view.views.local_user_management import view_local_users, create_local_user, change_local_user_password, delete_local_user, view_local_user, edit_local_user_gid, view_local_groups, edit_local_user_group_membership, view_local_group, create_local_group, delete_local_group, modify_group_membership
 
@@ -80,6 +80,7 @@ urlpatterns = patterns('',
     url(r'^get_dir_listing/', login_required(get_dir_listing)),
     url(r'^delete_dir/', login_required(delete_dir)),
     url(r'^modify_dir_owner/', login_required(modify_dir_owner)),
+    url(r'^modify_sticky_bit/', login_required(modify_sticky_bit)),
     url(r'^dir_manager/', login_required(dir_manager)),
     url(r'^edit_aces/', login_required(edit_aces)),
     url(r'^view_services/', login_required(view_services)),

@@ -11,6 +11,16 @@ from integralstor_unicell import cifs as cifs_unicell, local_users, nfs
 
 from integral_view.forms import zfs_forms,common_forms
 
+def _sticky_bit_enabled(path):
+  sticky_bit = False
+  try:
+    s = os.stat(path)
+    sticky_bit = ((s.st_mode & stat.S_ISVTX) == stat.S_ISVTX)
+  except Exception, e:
+    return False, 'Error checking for sticky bit for folder %s : %s'%(path, str(e))
+  else:
+    return sticky_bit, None
+    
 def _has_subdirs(full_path):
   subdirs = False
   try:
@@ -509,6 +519,63 @@ def create_dir(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+def modify_sticky_bit(request):
+  return_dict = {}
+  try:
+
+    if 'path' not in request.REQUEST:
+      raise Exception('Invalid request. Please use the menus.')
+    path = request.REQUEST['path']
+
+    sticky_bit_enabled, err = _sticky_bit_enabled(path)
+    if err:
+      raise Exception(err)
+
+    if request.method == "GET":
+      initial = {}
+      initial['path'] = path
+      initial['sticky_bit_enabled'] = sticky_bit_enabled
+      form = folder_management_forms.ModifyStickyBitForm(initial=initial)
+      return_dict["form"] = form
+      return django.shortcuts.render_to_response('modify_sticky_bit.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    else:
+      form = folder_management_forms.ModifyStickyBitForm(request.POST)
+      return_dict["form"] = form
+      if form.is_valid():
+        cd = form.cleaned_data
+        s = os.stat(path)
+        if cd['sticky_bit_enabled']:
+          audit_str = 'Enabled sticky bit '
+          if cd['recursive']:
+            audit_str += 'recursively '
+            for root, dirs, files in os.walk(path):  
+              for target in dirs:  
+                os.chmod('%s/%s'%(root,target), (s.st_mode | stat.S_ISVTX))
+          os.chmod(path, (s.st_mode | stat.S_ISVTX))
+          audit_str += 'for path %s'%path
+          #print audit_str
+        else:
+          audit_str = 'Disabled sticky bit '
+          if cd['recursive']:
+            audit_str += 'recursively '
+            for root, dirs, files in os.walk(path):  
+              for target in dirs:  
+                os.chmod('%s/%s'%(root,target), (s.st_mode & ~stat.S_ISVTX))
+          os.chmod(path, (s.st_mode & ~stat.S_ISVTX))
+          audit_str += 'for path %s'%path
+          #print audit_str
+        audit.audit("modify_dir_sticky_bit", audit_str, request.META)
+        return django.http.HttpResponseRedirect('/view_dir_ownership_permissions?path=%s&ack=modified_sticky_bit'%cd['path'])
+      else:
+        return django.shortcuts.render_to_response('modify_dir_ownership.html', return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Modify directory sticky bit settings'
+    return_dict['tab'] = 'dir_permissions_tab'
+    return_dict["error"] = 'Error modifying directory sticky bit settings'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 def delete_dir(request):
   return_dict = {}
   try:
@@ -665,6 +732,8 @@ def view_dir_ownership_permissions(request):
           return_dict['ack_message'] = "ACL entries successfully modified"
         elif request.GET["ack"] == "modified_ownership":
           return_dict['ack_message'] = "Directory ownership successfully modified"
+        elif request.GET["ack"] == "modified_sticky_bit":
+          return_dict['ack_message'] = "Directory sticky bit settings successfully modified"
 
     if 'path' not in request.REQUEST:
       raise Exception('No directory specified. Please use the menus.')
@@ -681,8 +750,12 @@ def view_dir_ownership_permissions(request):
     gid = stat_info.st_gid
     username = pwd.getpwuid(uid)[0]
     grpname = grp.getgrgid(gid)[0]
+    sticky_bit_enabled, err = _sticky_bit_enabled(path)
+    if err:
+      raise Exception(err)
     return_dict["user_name"] = username
     return_dict["grp_name"] = grpname
+    return_dict["sticky_bit_enabled"] = sticky_bit_enabled
 
     aces, err = acl.get_all_aces(path)
     if err:

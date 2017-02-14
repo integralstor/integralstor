@@ -61,6 +61,10 @@ class CreateDirForm(forms.Form):
 class DirForm(forms.Form):
   path = forms.CharField(widget=forms.HiddenInput)
 
+class ModifyStickyBitForm(DirForm):
+  recursive = forms.BooleanField(required=False)
+  sticky_bit_enabled = forms.BooleanField(required=False)
+
 class DirManagerForm(DirForm):
   def __init__(self, *args, **kwargs):
     if kwargs:
@@ -145,3 +149,5 @@ class SetFileOwnerAndPermissionsForm(forms.Form):
         tup = (user['uid'], user['username'])
         ch.append(tup)   
     self.fields['uid'] =  forms.ChoiceField(widget=forms.Select, choices=ch, required=False)
+
+
