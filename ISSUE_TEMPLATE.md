@@ -18,7 +18,7 @@ Distribution Name       |
 Distribution Version    | 
 Linux Kernel                 | 
 Architecture                 | 
-UNICell Version                  | 
+IntegralSTOR Version                  | 
 
 ### Describe the problem you're observing
 
