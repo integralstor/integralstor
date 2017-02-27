@@ -4,78 +4,223 @@ echo ">>> Inside post script <<<"
 
 echo "Disabling selinux..."
 sed -i 's/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+echo "Disabling selinux...Done"
 echo "Disabling all repositories..."
-yum-config-manager --disable "*"
+yum-config-manager --disable "*" 
 
-service iptables stop
-service ip6tables stop
-chkconfig iptables off
-chkconfig ip6tables off
+systemctl stop firewalld
+systemctl disable firewalld
+systemctl stop ip6tables
+systemctl disable ip6tables
 
-echo "***	Started pre package execution	***"
 echo "Switching to working directory..."
+echo ""
 cd /opt/integralstor
-echo "Started installing Non rpm installs..."
+echo "Started installing NON-RPM installs..."
+echo ""
 tar xzf integralstor_unicell_tar_installs.tar.gz
 
 if [[ -d "integralstor_unicell_tar_installs" ]]; then
     cd /opt/integralstor/integralstor_unicell_tar_installs
 
+    echo "Installing sysstat..."
     cd sysstat-11.0.5
     ./configure --prefix=/usr
     make
     make install
+    if [ $? -ne 0 ]; then
+	echo ""
+        echo "CRITICAL:'sysstat' installation Failed!"
+        exit 1
+    else
+	echo ""
+        echo "Installing sysstat...Done."
+	echo "********************************"
+    fi
     sleep 1
     cd /opt/integralstor/integralstor_unicell_tar_installs
     rm -rf sysstat-11.0.5
 
+    echo "Installing setuptools..."
     cd /opt/integralstor/integralstor_unicell_tar_installs
     tar xzf setuptools-11.3.1.tar.gz
     cd setuptools-11.3.1
     python setup.py install
+    if [ $? -ne 0 ]; then
+	echo ""
+        echo "CRITICAL:'setuptools' installation Failed!"
+        exit 1
+    else
+	echo ""
+        echo "Installing setuptools...Done."
+	echo "********************************"
+    fi
     sleep 1
     cd /opt/integralstor/integralstor_unicell_tar_installs
     rm -rf setuptools-11.3.1.tar.gz
 
+    echo "Installing uwsgi..."
     cd /opt/integralstor/integralstor_unicell_tar_installs
     tar xzf uwsgi-2.0.9.tar.gz
     cd uwsgi-2.0.9
     python setup.py install
+    if [ $? -ne 0 ]; then
+	echo ""
+        echo "CRITICAL:'uwsgi' installation Failed!"
+        exit 1
+    else
+	echo ""
+        echo "Installing uwsgi...Done."
+	echo "********************************"
+    fi
     sleep 1
     cd /opt/integralstor/integralstor_unicell_tar_installs
     rm -rf uwsgi-2.0.9.tar.gz
 
+    echo "Installing netifaces..."
     cd /opt/integralstor/integralstor_unicell_tar_installs
     tar xzf netifaces-0.10.4.tar.gz
     cd netifaces-0.10.4
     python setup.py install
+    if [ $? -ne 0 ]; then
+	echo ""
+        echo "CRITICAL:'netifaces' installation Failed!"
+        exit 1
+    else
+	echo ""
+        echo "Installing netifaces...Done."
+	echo "********************************"
+    fi
     sleep 1
     cd /opt/integralstor/integralstor_unicell_tar_installs
     rm -rf netifaces-0.10.4.tar.gz
 
+    echo "Installing six..."
+    cd /opt/integralstor/integralstor_unicell_tar_installs
+    tar xzf six-1.10.0.tar.gz
+    cd six-1.10.0
+    python setup.py install
+    if [ $? -ne 0 ]; then
+	echo ""
+        echo "CRITICAL:'six' installation Failed!"
+        exit 1
+    else
+	echo ""
+        echo "Installing six...Done."
+	echo "********************************"
+    fi
+    sleep 1
+    cd /opt/integralstor/integralstor_unicell_tar_installs
+    rm -rf six-1.10.0.tar.gz
+    
+    echo "Installing python-dateutil..."
     cd /opt/integralstor/integralstor_unicell_tar_installs
     tar xzf python-dateutil-2.4.2.tar.gz
     cd python-dateutil-2.4.2
     python setup.py install
+    if [ $? -ne 0 ]; then
+	echo ""
+        echo "CRITICAL:'python-dateutil' installation Failed!"
+        exit 1
+    else
+	echo ""
+        echo "Installing python-dateutil...Done."
+	echo "********************************"
+    fi
     sleep 1
     cd /opt/integralstor/integralstor_unicell_tar_installs
     rm -rf python-dateutil-2.4.2.tar.gz
 
+    echo "Installing python-crontab..."
     cd /opt/integralstor/integralstor_unicell_tar_installs
     tar xzf python-crontab-1.9.3.tar.gz
     cd python-crontab-1.9.3
     python setup.py install
+    if [ $? -ne 0 ]; then
+	echo ""
+        echo "CRITICAL:'python-crontab' installation Failed!"
+        exit 1
+    else
+	echo ""
+        echo "Installing python-crontab...Done."
+	echo "********************************"
+    fi
     sleep 1
     cd /opt/integralstor/integralstor_unicell_tar_installs
     rm -rf python-crontab-1.9.3.tar.gz
 
+    echo "Installing mbuffer..."
+    cd /opt/integralstor/integralstor_unicell_tar_installs
+    tar xzf mbuffer-20161115.tgz
+    cd mbuffer-20161115
+    ./configure
+    make && make install
+    if [ $? -ne 0 ]; then
+	echo ""
+        echo "CRITICAL:'mbuffer' installation Failed!"
+        exit 1
+    else
+	echo ""
+        echo "Installing mbuffer...Done."
+	echo "********************************"
+    fi
+    sleep 1
+    cd /opt/integralstor/integralstor_unicell_tar_installs
+    rm -rf mbuffer-20161115.tgz
+
+    echo "Installing zfs-auto-snapdhot..."
     cd /opt/integralstor/integralstor_unicell_tar_installs
     tar xzf zfs-auto-snapshot.tar.gz
     cd zfs-auto-snapshot
     make install
+    if [ $? -ne 0 ]; then
+	echo ""
+        echo "CRITICAL:'zfs-auto-snapdhot' installation Failed!"
+        exit 1
+    else
+	echo ""
+        echo "Installing zfs-auto-snapshot...Done."
+	echo "********************************"
+    fi
     sleep 1
     cd /opt/integralstor/integralstor_unicell_tar_installs
     rm -rf zfs-auto-snapshot.tar.gz
+
+    echo "Installing Django..."
+    cd /opt/integralstor/integralstor_unicell_tar_installs
+    tar xzf Django-1.8.16.tar.gz
+    cd Django-1.8.16
+    python setup.py install
+    if [ $? -ne 0 ]; then
+	echo ""
+        echo "CRITICAL:'Djhango' installation Failed!"
+        exit 1
+    else
+	echo ""
+        echo "Installing Django...Done."
+	echo "********************************"
+    fi
+    sleep 1
+    cd /opt/integralstor/integralstor_unicell_tar_installs
+    rm -rf Django-1.8.16.tar.gz
+
+    echo "Installing cron_descriptor..."
+    cd /opt/integralstor/integralstor_unicell_tar_installs
+    tar xzf cron_descriptor-1.2.6.tar.gz
+    cd cron_descriptor-1.2.6
+    python setup.py install
+    if [ $? -ne 0 ]; then
+	echo ""
+        echo "CRITICAL:'cron_descripter' installation Failed!"
+        exit 1
+    else
+	echo ""
+        echo "Installing cron_descriptor...done."
+	echo "********************************"
+    fi
+    sleep 1
+    cd /opt/integralstor/integralstor_unicell_tar_installs
+    rm -rf cron_descriptor-1.2.6.tar.gz
 
 else
     echo "'integralstor_unicell_tar_installs' Directory Does Not Exist so exiting..."
@@ -83,119 +228,98 @@ else
 fi
 
 if [ $? -ne 0 ]; then
-    echo "CRITICAL: Non RPM installation Failed!"
+    echo "CRITICAL: NON-RPM installation Failed!"
     exit 1
 else
-    echo "Successfully installed Non RPM installs."
+    echo "Successfully installed NON-RPM installs."
+    echo ""
 fi
-
-cd /opt/integralstor
-rm -rf /opt/integralstor/integralstor_unicell_*
    
 sleep 2
 
-echo "***	Started post install operations	***"
+echo "***	Started post install operations		***"
+echo ""
 
 ### Adding a user and group called integralstor. ###
-groupadd integralstor -g 500
-useradd integralstor -g 500
-groupadd replicator -g 501
-useradd replicator -g 501
+groupadd integralstor -g 1000
+useradd integralstor -g 1000
+groupadd replicator -g 1001
+useradd replicator -g 1001
 echo "integralstor123" | passwd --stdin integralstor
 echo "replicator123" | passwd --stdin replicator
 echo "integralstor    ALL=(ALL)    ALL" >> /etc/sudoers
-echo "replicator    ALL=(ALL)    NOPASSWD: /sbin/zfs" >> /etc/sudoers
-#echo "AllowUsers replicator integralstor" >> /etc/ssh/sshd_config #root is allowed temp. untill fixes for replicator.
+echo "replicator    ALL=(ALL)    NOPASSWD: /usr/sbin/zfs" >> /etc/sudoers
 
 ### Network interface configuration  ###
-ACTIVE_INTERFACES=`ifconfig | awk -vRS= -vFS="\n" '{ if ( $0 ~ /inet\ addr:/ ) { print }}' | sed 's/[ \t].*//;/^\(lo\|\)$/d'`
-for IF in $ACTIVE_INTERFACES
-do
-echo "Configuring $IF to be static address" >> /root/post_install.log 2>&1
-rm -f /etc/sysconfig/network-scripts/ifcfg-$IF
-cat >> /etc/sysconfig/network-scripts/ifcfg-$IF <<EOF
-DEVICE=$IF
-HWADDR=`ifconfig $IF | grep HWaddr | awk '{print $5}'`
-ONBOOT=yes
-BOOTPROTO=none
-IPADDR=`ifconfig $IF |awk 'BEGIN {FS = "[: ]+"} ; /inet addr/{print $4}'`
-NETMASK=`ifconfig $IF |awk 'BEGIN {FS = "[: ]+"} ; /inet addr/{print $8}'`
-EOF
-GATEWAY_IP=`netstat -nr | awk '{ if ($4 ~/UG/) print; }' | awk -v CUR_IF=$IF '$NF==CUR_IF {print $2};'`
-# The variable $GATEWAY_IP might be empty if all/some subgroup of interface(s) connect to the same network subnet or if some interface(s) has
-# an unspecified/no gateway.
-if [ ! -z "$GATEWAY_IP" ]
-then
-cat >> /etc/sysconfig/network-scripts/ifcfg-$IF <<EOF
-GATEWAY=$GATEWAY_IP
-EOF
-fi
-cat >> /etc/sysconfig/network-scripts/ifcfg-$IF <<EOF
-TYPE=Ethernet
-NM_CONTROLLED=no
-USERCTL=no
-PEERDNS=yes
-IPV6INIT=no
-EOF
-done
+sed -i 's/BOOTPROTO=dhcp/BOOTPROTO=none/' /etc/sysconfig/network-scripts/ifcfg-eno*
+sed -i 's/BOOTPROTO=dhcp/BOOTPROTO=none/' /etc/sysconfig/network-scripts/ifcfg-enp*
+sed -i 's/BOOTPROTO=dhcp/BOOTPROTO=none/' /etc/sysconfig/network-scripts/ifcfg-em*
+sed -i 's/ONBOOT=no/ONBOOT=yes/' /etc/sysconfig/network-scripts/ifcfg-eno*
+sed -i 's/ONBOOT=no/ONBOOT=yes/' /etc/sysconfig/network-scripts/ifcfg-enp*
+sed -i 's/ONBOOT=no/ONBOOT=yes/' /etc/sysconfig/network-scripts/ifcfg-em*
+sed -i 's/NM_CONTROLLED=yes/NM_CONTROLLED=no/' /etc/sysconfig/network-scripts/ifcfg-eno*
+sed -i 's/NM_CONTROLLED=yes/NM_CONTROLLED=no/' /etc/sysconfig/network-scripts/ifcfg-enp*
+sed -i 's/NM_CONTROLLED=yes/NM_CONTROLLED=no/' /etc/sysconfig/network-scripts/ifcfg-em*
+sed -i 's/USERCTL=yes/ONBOOT=no/' /etc/sysconfig/network-scripts/ifcfg-eno*
+sed -i 's/USERCTL=yes/ONBOOT=no/' /etc/sysconfig/network-scripts/ifcfg-enp*
+sed -i 's/USERCTL=yes/ONBOOT=no/' /etc/sysconfig/network-scripts/ifcfg-em*
+sed -i 's/PEERDNS=no/PEERDNS=yes/' /etc/sysconfig/network-scripts/ifcfg-eno*
+sed -i 's/PEERDNS=no/PEERDNS=yes/' /etc/sysconfig/network-scripts/ifcfg-enp*
+sed -i 's/PEERDNS=no/PEERDNS=yes/' /etc/sysconfig/network-scripts/ifcfg-em*
+sed -i 's/IPV6INIT=yes/IPV6INIT=no/' /etc/sysconfig/network-scripts/ifcfg-eno*
+sed -i 's/IPV6INIT=yes/IPV6INIT=no/' /etc/sysconfig/network-scripts/ifcfg-enp*
+sed -i 's/IPV6INIT=yes/IPV6INIT=no/' /etc/sysconfig/network-scripts/ifcfg-em*
 
-
-### Setting hostname ###
-STRING=$(ifconfig | grep eth0 | head -1 | awk '{print $5}' | awk -F ':' '{print tolower($5 $6)}')
-hnpart="unicell-"$STRING
-hostname="$hnpart.integralstor.lan"
-echo "Hostname will be : " $hostname ; echo
-echo "HOSTNAME=$hostname" > /etc/sysconfig/network
+#Do not want network manager to add DNS servers received from DHCP to /etc/resolv.conf
+sed -i '/\[main\]/a dns=none' /etc/NetworkManager/NetworkManager.conf
 echo "NETWORKING=yes" >> /etc/sysconfig/network
-# Editing /etc/hosts
-ip=$(ifconfig | awk -F':' '/inet addr/&&!/127.0.0.1/{split($2,_," ");print _[1]}')
-echo "$ip $hnpart $hostname" >> /etc/hosts
-
-### Disabling BOOTPROTO for all interfaces ###
-INTERFACES="eth0 eth1 eth2 eth3"
-for IF in $INTERFACES
-do
-sed -i 's/BOOTPROTO=dhcp/BOOTPROTO=none/' /etc/sysconfig/network-scripts/ifcfg-$IF
-done
+echo "127.0.0.1   localhost   localhost.localdomain   localhost4    localhost4.localdomain4" > /etc/hosts
 
 ### SSHD configuration ###
-/etc/init.d/sshd stop
+systemctl stop sshd
 sed '' /etc/ssh/sshd_config > /etc/ssh/original_sshd_config
 sed '/#PermitRootLogin/a PermitRootLogin no' /etc/ssh/sshd_config > /etc/ssh/temp_file
-#echo 'AllowUsers integralstor' >> /etc/ssh/temp_file
 sed -e '/requiretty/s/^/#/g' -i /etc/sudoers    #serach for requiretty and comment. This is to avoid tty for replication in zfs send/receive
 rm -f /etc/ssh/sshd_config
 mv /etc/ssh/temp_file /etc/ssh/sshd_config
-/etc/init.d/sshd start
+systemctl start sshd
 ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ''
+mkdir /home/replicator/.ssh
+ssh-keygen -t rsa -f /home/replicator/.ssh/id_rsa -N ''
 
-### Editing the /etc/yum.repos.d/CentOS-Base.repo ###
-# ..to disable base, updates and extras repositories. ###
+mkdir -p /etc/logrotate.d_old
 
-#cp -rf /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/Original-CentOS-Base-repo
-#sed -i '/\[base\]/a enabled=0' /etc/yum.repos.d/CentOS-Base.repo 
-#sed -i '/\[updates\]/a enabled=0' /etc/yum.repos.d/CentOS-Base.repo 
-#sed -i '/\[extras\]/a enabled=0' /etc/yum.repos.d/CentOS-Base.repo
-#sed -i '/\[centosplus\]/a enabled=0' /etc/yum.repos.d/CentOS-Base.repo
-#sed -i '/\[contrib\]/a enabled=0' /etc/yum.repos.d/CentOS-Base.repo
+### Linking integralstor code to respective paths
+ln -s /opt/integralstor/integralstor_common/site-packages/integralstor_common /usr/lib/python2.7/site-packages/integralstor_common
+ln -s /opt/integralstor/integralstor_unicell/site-packages/integralstor_unicell /usr/lib/python2.7/site-packages/integralstor_unicell
 
-ln -s /opt/integralstor/integralstor_common/site-packages/integralstor_common /usr/lib/python2.6/site-packages/integralstor_common
-ln -s /opt/integralstor/integralstor_unicell/site-packages/integralstor_unicell /usr/lib/python2.6/site-packages/integralstor_unicell
+### Updating platform file
+ln -s /tmp/platform /opt/integralstor
+ln -fs /opt/integralstor/platform /opt/integralstor/integralstor_unicell
 
-ln -s /opt/integralstor/integralstor_unicell/platform /opt/integralstor
+### Shellinabox file updates
 mv /etc/sysconfig/shellinaboxd /etc/sysconfig/shellinaboxd.bak
 ln -s /opt/integralstor/integralstor_unicell/config/shellinabox/shellinaboxd /etc/sysconfig
-echo "self" >> /opt/integralstor/integralstor_unicell/platform
+
+### Chhanging scripts files for appropriate permission
 chmod 755 /opt/integralstor/integralstor_unicell/scripts/python/*
 chmod 755 /opt/integralstor/integralstor_unicell/scripts/shell/*
-rm -rf /etc/init/start-ttys.conf
-cp -f /opt/integralstor/integralstor_unicell/install/conf_files/start-ttys.conf /etc/init
-cp -f /opt/integralstor/integralstor_unicell/install/conf_files/integralstor_unicell_menu.conf /etc/init
+mkdir /opt/integralstor/integralstor_unicell/config/logs/cron_logs
+mkdir /opt/integralstor/integralstor_unicell/config/logs/task_logs
+chmod 777 /opt/integralstor/integralstor_unicell/config/logs/cron_logs
+chmod 777 /opt/integralstor/integralstor_unicell/config/logs/task_logs
+
+### changing anacron to start cron jobs between 12AM-1AM
+sed -i 's/RANDOM_DELAY=45/RANDOM_DELAY=5/' /etc/anacrontab
+sed -i 's/START_HOURS_RANGE=3-22/START_HOURS_RANGE=0-1/' /etc/anacrontab
+
 rm -rf /etc/nsswitch.conf
 cp /opt/integralstor/integralstor_unicell/install/conf_files/nsswitch.conf /etc
 
 ### Configure nginx ###
 ln -s /opt/integralstor/integralstor_unicell/integral_view/integral_view_nginx.conf /etc/nginx/sites-enabled/
+cp -rf /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
+yes | cp -rf /opt/integralstor/integralstor_unicell_tar_installs/nginx.conf /etc/nginx
 sed -i 's/conf.d/sites-enabled/g' /etc/nginx/nginx.conf
 
 ### Cinfigure xinetd ###
@@ -206,33 +330,29 @@ ln -s /opt/integralstor/integralstor_unicell/install/conf_files/rsync /etc/xinet
 
 ### Configure uwsgi ###
 ln -s /opt/integralstor/integralstor_unicell/integral_view/integral_view_uwsgi.ini /etc/uwsgi/vassals/
-echo "/usr/bin/uwsgi --emperor /etc/uwsgi/vassals --uid root --gid root >/var/log/integralstor/integralstor_unicell/integral_view.log 2>&1 &" >> /etc/rc.local
-sed -i "/\/usr\/local\/bin\/uwsgi --emperor \/etc\/uwsgi\/vassals --uid root --gid root/d" /etc/rc.local
-rm -rf /etc/init.d/uwsgi
-ln -s /opt/integralstor/integralstor_common/scripts/init/uwsgi /etc/init.d/
+cd /usr/lib/systemd/system
+yes | cp -f /opt/integralstor/integralstor_unicell_tar_installs/uwsginew.service .
+ln -s /usr/lib/systemd/system/uwsginew.service /etc/systemd/system/multi-user.target.wants/
 
 ### Configure ramdisks ###
 #Change the ramdisks conf file name and location, move it into /opt/integralstor so it can be common to unicell and gridcell
 touch /opt/integralstor/ramdisks.conf
 touch /var/log/integralstor/integralstor_unicell/ramdisks
-rm -rf /etc/init.d/ramdisk
-ln -fs /opt/integralstor/integralstor_common/install/scripts/ramdisk /etc/init.d/
-chmod +x /etc/init.d/ramdisk
-
-### copying kmod-mv94xx directory to systems kernel Directory(This is spesific to Marvel servers) ###
-cp -rf /lib/modules/2.6.32-431.el6.x86_64/extra/mv94xx /lib/modules/2.6.32-504.el6.x86_64/extra
-
+#ln -fs /opt/integralstor/integralstor_common/install/scripts/ramdisk /etc/init.d/
+ln -s /usr/lib/systemd/system/ramdisk.service /etc/systemd/system/multi-user.target.wants/
 
 ###configure crontab ###
 (crontab -l 2>/dev/null; echo 'MAILTO=""') | crontab -
 (crontab -l 2>/dev/null; echo "SHELL=/bin/sh") | crontab -
-(crontab -l 2>/dev/null; echo "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin") | crontab -
+(crontab -l 2>/dev/null; echo "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/opt/dell/srvadmin/bin") | crontab -
 (crontab -l 2>/dev/null; echo "*/1 * * * * /opt/integralstor/integralstor_common/scripts/python/generate_status.py > /tmp/out_status >> /tmp/err_status") | crontab -
 (crontab -l 2>/dev/null; echo "*/10 * * * * /usr/lib64/sa/sa1 1 1 -S DISK > /tmp/out_status >> /tmp/err_status") | crontab -
-(crontab -l 2>/dev/null; echo "10,40 * * * * /usr/bin/python -c 'from integralstor_common import zfs; zfs.execute_remote_replication()' > /tmp/replication_alerts >> /tmp/replication_errors") | crontab -
 (crontab -l 2>/dev/null; echo "*/1 * * * * /opt/integralstor/integralstor_common/scripts/python/poll_for_alerts.py > /tmp/out_alerts >> /tmp/err_alerts") | crontab -
-(crontab -l 2>/dev/null; echo "* * * * * /usr/bin/python -c 'from integralstor_common import scheduler_utils; scheduler_utils.run_from_shell()' > /tmp/scheduler_alerts >> /tmp/scheduler_errors") | crontab -
+(crontab -l 2>/dev/null; echo "*/1 * * * * /opt/integralstor/integralstor_unicell/scripts/python/poll_for_alerts.py > /tmp/out_unicell_alerts >> /tmp/err_unicell_alerts") | crontab -
+(crontab -l 2>/dev/null; echo "*/1 * * * * /usr/bin/python /opt/integralstor/integralstor_common/scripts/python/task_processor.py > /tmp/out_task_processor >> /tmp/err_task_processor") | crontab -
 (crontab -l 2>/dev/null; echo "0 0 * * * /usr/bin/python -c 'from integralstor_common import logs; logs.auto_rotate_logs()' > /tmp/auto_rotate_logs_alerts >> /tmp/auto_rotate_errors") | crontab -
+(crontab -l 2>/dev/null; echo "@reboot /usr/sbin/modprobe ipmi_devintf > /tmp/logs-ipmi_devinfo_modprobe >> /tmp/errors-ipmi_devinfo_modprobe") | crontab -
+(crontab -l 2>/dev/null; echo "@reboot /usr/sbin/modprobe zfs > /tmp/logs-zfs_modprobe >> /tmp/errors-zfs_modprobe") | crontab -
 
 ###configure ZFS ###
 rm -f /etc/modprobe.d/zfs.conf
@@ -243,34 +363,67 @@ cp -rf /opt/integralstor/integralstor_unicell/install/conf_files/zed.rc /etc/zfs
 rm -f /etc/vsftpd/vsftpd.conf
 ln -fs /opt/integralstor/integralstor_unicell/install/conf_files/vsftpd.conf /etc/vsftpd
 
+#Log rotation 
+cp -f /etc/logrotate.d/* /etc/logrotate.d_old/
+cp -f /opt/integralstor/integralstor_unicell/install/log_rotate_files/* /etc/logrotate.d/
+
 ### configuring zed for zfs ###
-#cd /etc/zfs
-#/usr/bin/wget -c http://192.168.1.150/netboot/distros/centos/6.6/x86_64/integralstor_unicell/v1.0/zed.d
-#cd /etc/init/
-ln -s /opt/integralstor/integralstor_unicell/install/conf_files/zed.cconf /etc/init/
-#wget -c http://192.168.1.150/netboot/distros/centos/6.6/x86_64/integralstor_unicell/v1.0/zed.conf
-#cd /etc/sysconfig/modules/
-#/usr/bin/wget -c http://192.168.1.150/netboot/distros/centos/6.6/x86_64/integralstor_unicell/v1.0/zfs.modules #laoding ZFS module
+ln -s /opt/integralstor/integralstor_unicell/install/conf_files/zed.conf /etc/init/
 
 ### Configure rc.local ###
 modprobe ipmi_devintf
 modprobe 8021q
-cp -f /sbin/zed /etc/init.d
-echo "/sbin/zed" >> /etc/rc.local
-echo "modprobe ipmi_devintf" >> /etc/rc.local
-echo "/sbin/modprobe zfs" >> /etc/rc.local
-chmod 755 /etc/rc.local
-ln -sf /etc/rc.local /etc/rc3.d/S99local
 
-chkconfig --add ramdisk
-chkconfig rpcbind on
-chkconfig nfs on
-chkconfig winbind on
-chkconfig smb on
-chkconfig tgtd on
-chkconfig ntpd on
-chkconfig crond on
-chkconfig ramdisk on
-chkconfig uwsgi on
+if grep "dell" /opt/integralstor/platform > /dev/null
+then
+  (crontab -l 2>/dev/null; echo "@reboot srvadmin-services.sh restart > /tmp/srvadmin_logs >> /tmp/srvadmin_errors") | crontab -
+else
+  echo "Non dell hardware. Exiting..."
+fi
 
-echo "Completed post install operations."
+### Removing install files after install
+cd /opt/integralstor/integralstor_unicell_tar_installs
+yes | cp -rf getty\@tty* /etc/systemd/system/getty.target.wants/
+
+if [ $? -ne 0 ]; then
+    echo "CRITICAL: TTY installation failed!"
+    exit 1
+else
+    echo "Successfully installed TTY files."
+    echo "Removing installation files..."
+    rm -rf /opt/integralstor/integralstor_unicell_*
+    echo "Removing installation files...Done"
+
+fi
+
+sleep 2
+
+### Turn on other services ###
+systemctl start rpcbind.service
+systemctl enable rpcbind.service
+systemctl start nfs-server.service
+systemctl enable nfs-server.service
+systemctl start winbind.service
+systemctl enable winbind.service
+systemctl start smb.service
+systemctl enable smb.service
+systemctl start tgtd.service
+systemctl enable tgtd.service
+systemctl start ntpd.service
+systemctl enable ntpd.service
+systemctl start crond.service
+systemctl enable crond.service
+systemctl start ramdisk.service
+systemctl enable ramdisk.service
+systemctl start vsftpd.service
+systemctl enable vsftpd.service
+systemctl start shellinaboxd.service
+systemctl enable shellinaboxd.service
+systemctl start uwsginew.service
+systemctl enable uwsginew.service
+systemctl start nginx.service
+systemctl enable nginx.service
+systemctl enable getty@tty1.service
+systemctl daemon-reload
+
+echo "Completed post install operations. Reboot the machine to changes take affect."
