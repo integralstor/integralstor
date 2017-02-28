@@ -2,6 +2,7 @@
 
 echo ">>> Inside post script <<<"
 
+### disable selinux and firewall ###
 echo "Disabling selinux..."
 sed -i 's/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
 echo "Disabling selinux...Done"
@@ -13,6 +14,7 @@ systemctl disable firewalld
 systemctl stop ip6tables
 systemctl disable ip6tables
 
+### installing non-rpm files ###
 echo "Switching to working directory..."
 echo ""
 cd /opt/integralstor

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-### change the version number, release number and architecture whenever we create rpm
+### change the version number, release number and architecture whenever we create rpm ###
 version_number=1.0
 release_number=1
 arch=noarch
@@ -136,8 +136,8 @@ sleep 2
 chmod 700 /opt/integralstor/unicell_rpm_post.sh
 chmod +x /opt/integralstor/unicell_rpm_post.sh
 
-sh /opt/integralstor/integralstor_unicell/install/rpm/unicell_rpm_post.sh >/tmp/rpm_post_script_log
-#sh /opt/integralstor/unicell_rpm_post.sh >/tmp/rpm_post_script_log
+#sh /opt/integralstor/integralstor_unicell/install/rpm/unicell_rpm_post.sh >/tmp/rpm_post_script_log
+sh /opt/integralstor/unicell_rpm_post.sh >/tmp/rpm_post_script_log
 if [ $? -ne 0 ]; then
 echo "CRITICAL: Running post install script Failed!"
 exit 1

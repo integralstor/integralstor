@@ -10,6 +10,7 @@ systemctl stop ip6tables
 systemctl disable iptables
 systemctl disable ip6tables
 
+### any vendor specific entry
 echo -n "Enter hardware vendor(ex., dell) else press <ENTER>:"
 read vend
 
@@ -93,9 +94,6 @@ fi
 ### Install required dependencies for unicell rpm
 echo "Installing all other required dependencies..."
 yum install -y yum-utils-1.1.31 sg3_utils-1.37 perl-Config-General-2.61 scsi-target-utils-1.0.55 nfs-utils-1.3.0 smartmontools-6.2 samba-client-4.2.10 samba-4.2.10 samba-winbind-4.2.10 samba-winbind-clients-4.2.10 ipmitool-1.8.13 OpenIPMI-2.0.19 zfs-0.6.5.7 krb5-workstation-1.13.2 perl-5.16.3 python-setuptools-0.9.8 python2-pip-8.1.2 ypbind-1.37.1 ypserv-2.31 ntp-4.2.6p5 nginx-1.6.3 uwsgi-2.0.12 python-devel-2.7.5 gcc-4.8.5 vsftpd-3.0.2 xinetd-2.3.15 shellinabox-2.19 urbackup-server-2.0.38.1660 bind-utils-9.9.4 rsync-3.0.9 telnet-0.17 vim-enhanced-7.4.160 iptraf-ng-1.1.4
-
-### temporary unused
-#yum install yum-utils-1.1.31-34.el7.noarch sg3_utils-1.37-5.el7.x86_64 perl-Config-General-2.61-1.el7.noarch scsi-target-utils-1.0.55-4.el7.x86_64 nfs-utils-1.3.0-0.21.el7_2.1.x86_64 smartmontools-6.2-4.el7.x86_64 samba-client-4.2.10-6.2.el7_2.x86_64 samba-4.2.10-6.2.el7_2.x86_64 samba-winbind-4.2.10-6.2.el7_2.x86_64 samba-winbind-clients-4.2.10-6.2.el7_2.x86_64 ipmitool-1.8.13-8.el7_1.x86_64 OpenIPMI-2.0.19-11.el7.x86_64 zfs-0.6.5.7-1.el7.centos.x86_64 krb5-workstation-1.13.2-12.el7_2.x86_64 perl-5.16.3-286.el7.x86_64 python-setuptools-0.9.8-4.el7.noarch python-pip-7.1.0-1.el7.noarch ypbind-1.37.1-7.el7.x86_64 ypserv-2.31-8.el7.x86_64 ntp-4.2.6p5-22.el7.centos.2.x86_64 nginx-1.6.3-9.el7.x86_64 uwsgi-2.0.12-2.el7.x86_64 python-devel-2.7.5-34.el7.x86_64 gcc-4.8.5-4.el7.x86_64 vsftpd-3.0.2-11.el7_2.x86_64 xinetd-2.3.15-12.el7.x86_64 shellinabox-2.19-1.el7.x86_64 urbackup-server-2.0.38.1660-1.1.x86_64 bind-utils-9.9.4-29.el7_2.4.x86_64 rsync-3.0.9-17.el7.x86_64 telnet-0.17-60.el7.x86_64 srvadmin-all-8.4.0-2193.9883.el7.x86_64 dell-system-update-1.3.1-16.11.00.x86_64 vim-enhanced-7.4.160-1.el7.x86_64 iptraf-ng-1.1.4-6.el7.x86_64
 
 if [ $? -ne 0 ]; then
     echo "CRITICAL: Installing all other required dependencies...Failed!"
