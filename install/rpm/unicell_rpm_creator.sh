@@ -1,5 +1,6 @@
 #!/bin/bash
 
+### change the version number, release number and architecture whenever we create rpm
 version_number=1.0
 release_number=1
 arch=noarch
