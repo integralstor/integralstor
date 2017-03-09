@@ -9,6 +9,7 @@
   <p id="p-warning-text">Scrubbing a pool can have a severe impact on the performance of the disks. <br><br>Are you sure you want to initiate a scrub on the ZFS pool with name  "{{name}}"? </p>
   <br>
   <form action="/scrub_zfs_pool/" method="POST">
+    {%csrf_token%}
     <input type=hidden name="name" value="{{name}}">
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <input type="button" class="btn btn-default cover-page" value="Cancel" onClick="window.location='/view_zfs_pool?name={{name}}'"> &nbsp;&nbsp;

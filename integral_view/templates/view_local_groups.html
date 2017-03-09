@@ -1,4 +1,4 @@
-{% extends 'users-groups_base.html' %}
+{% extends 'users_groups_base.html' %}
 
 {%block tab_header %}
   Local user groups
@@ -34,7 +34,7 @@
               <div class="btn-group btn-group-xs" >
                 <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                 <ul class="dropdown-menu">
-                  <li><a class="action-dropdown" href="/modify_group_membership?grpname={{g.grpname}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Modify group membership</a>
+                  <li><a class="action-dropdown" href="/update_group_membership?grpname={{g.grpname}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Modify group membership</a>
                   <li><a class="action-dropdown" href="/delete_local_group?grpname={{g.grpname}}" style="color:red"><i class="fa fa-trash fa-fw"></i>&nbsp; Delete this group</a>
                 </ul>
               </div>
@@ -52,4 +52,5 @@
 {%endblock%}
 
 {%block help_body%}
+  This screen displayed all local groups that have been created.
 {%endblock%}

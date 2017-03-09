@@ -6,7 +6,8 @@
 
 {% block inside_content %}
 
-  <form id="form_id" action="" method="post">
+  <form id="form_id" action="" method="POST">
+    {%csrf_token%}
     <input type=hidden name="conf" value="1">
     <input type=hidden name="node" value="{{node}}">
     <input type=hidden name="serial_number" value="{{serial_number}}">

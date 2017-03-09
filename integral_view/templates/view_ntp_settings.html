@@ -8,7 +8,7 @@
 
   {%if not ntp_servers %}
     <p id="p-instructional-text"> You have not configured NTP.</p><br>
-    <a href="/configure_ntp_settings/" role="button" class="btn btn-default btn-sm"><i class="fa fa-cog fa-fw"></i>Configure NTP settings</a>
+    <a href="/update_ntp_settings/" role="button" class="btn btn-default btn-sm"><i class="fa fa-cog fa-fw"></i>Configure NTP settings</a>
 
   {%else%}
     <table class="table table-bordered" style="width:200px">
@@ -21,7 +21,7 @@
         </tr>
       {%endfor%}
     </table>
-    <a href="/configure_ntp_settings/" role="button" class="btn btn-default btn-sm"><i class="fa fa-cog fa-fw"></i>Modify</a>
+    <a href="/update_ntp_settings/" role="button" class="btn btn-default btn-sm"><i class="fa fa-cog fa-fw"></i>Modify</a>
 
   {%endif%}
 
@@ -32,7 +32,7 @@
 {%endblock%}
 
 {%block help_body%}
-<p>The IntegralStor GRIDCells need to be time synchronised with your Active Directory server in order for Active Directory based authentication to work properly. This requires that the NTP time synchronisation protocol be setup. Please ensure that NTP is running on the Active Directory server and that these NTP settings point to the Active Directory server. Alternatively, you could have IntegralStor and the Active Directory servers point to the same external NTP server in order to synchronize the times. This page displays the currently configured NTP server settings.</p>
+  <p>The IntegralStor GRIDCells need to be time synchronised with your Active Directory server in order for Active Directory based authentication to work properly. This requires that the NTP time synchronisation protocol be setup. Please ensure that NTP is running on the Active Directory server and that these NTP settings point to the Active Directory server. Alternatively, you could have IntegralStor and the Active Directory servers point to the same external NTP server in order to synchronize the times. This page displays the currently configured NTP server settings.</p>
 {%endblock%}
 
 {% block tab_active %}

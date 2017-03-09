@@ -6,7 +6,8 @@
 
 {% block inside_content %}
 
-  <form name="myform"  method="post">
+  <form name="myform"  method="POST">
+    {%csrf_token%}
     <table class="table" >
       <tr>
         <th> Select log type : </th>
@@ -38,6 +39,6 @@
 
 {% block tab_active %}
  <script>
-  make_tab_active("view_logs_tab")
+    make_tab_active("view_logs_tab")
  </script>
 {% endblock %}

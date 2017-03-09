@@ -10,9 +10,9 @@
       <a class="btn btn-default btn-sm pull-right dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
       <ul class="dropdown-menu">
         <li><a class="action-dropdown" href="/create_iscsi_lun?target_name={{target.iqn}}" role="button" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add a LUN</a></li>
-        <li><a class="action-dropdown" href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=incoming" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add an initiator authentication user</a></li>
-        <li><a class="action-dropdown" href="/add_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=outgoing" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add a target authentication user</a></li>
-        <li><a class="action-dropdown" href="/add_iscsi_acl?target_name={{target.iqn}}" role="button" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add an ACL</a></li>
+        <li><a class="action-dropdown" href="/create_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=incoming" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add an initiator authentication user</a></li>
+        <li><a class="action-dropdown" href="/create_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=outgoing" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add a target authentication user</a></li>
+        <li><a class="action-dropdown" href="/create_iscsi_acl?target_name={{target.iqn}}" role="button" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add an ACL</a></li>
         <li class="divider"></li>
         <li><a class="action-dropdown" href="/delete_iscsi_target?target_name={{target.iqn}}" style="color:red"><i class="fa fa-trash fa-fw"></i>&nbsp;Delete this ISCSI target</a></li>
         <li class="divider"></li>
@@ -86,7 +86,7 @@
             {%endif%}
           </td>
           <td>
-            <a href="/remove_iscsi_user_authentication?target_name={{target.iqn}}&username={{account.user}}&authentication_type={{account.type}}" role="button" class="btn btn-danger btn-xs"> Remove this user </a>
+            <a href="/delete_iscsi_user_authentication?target_name={{target.iqn}}&username={{account.user}}&authentication_type={{account.type}}" role="button" class="btn btn-danger btn-xs"> Remove this user </a>
           </td>
         </tr>
       {%endfor%}
@@ -103,7 +103,7 @@
       <tr>
         <td> {{acl}} </td>
         <td>
-          <a href="/remove_iscsi_acl?target_name={{target.iqn}}&acl={{acl}}" role="button" class="btn btn-danger btn-xs"> Remove this ACL</a>
+          <a href="/delete_iscsi_acl?target_name={{target.iqn}}&acl={{acl}}" role="button" class="btn btn-danger btn-xs"> Remove this ACL</a>
         </td>
       </tr>
     {%endfor%}

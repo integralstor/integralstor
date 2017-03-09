@@ -1,0 +1,44 @@
+{% extends 'services_base.html' %}
+
+{%block tab_header %}
+  Change Windows shares authentication method
+{%endblock%}
+
+{% block inside_content %}
+
+  <p id="warning-text"> Warning : Please check to make sure that the access control on shared directories are mapped to users and groups from the new authentication source in order for access control to continue to function properly. </p>
+
+  <form action="" method="POST">
+    {%csrf_token%}
+    <table class="table" >
+      <tr>
+        <th>Authentication method: : </th>
+        <td>
+          <select id="id_auth_method" name="auth_method" class="form-control" >
+            <option value="ads" {% if samba_global_dict.security == "ads" %} selected{%endif%} >Active Directory</option>
+            <option value="users" {% if samba_global_dict.security == "users" %} selected{%endif%} >Local users</option>
+          </select>
+        </td>
+        <td> {{form.auth_method.errors}} </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_samba_server_settings" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary">Change authentication method </button>
+    </div>
+  </form>
+{%endblock%}
+
+{%block help_header%}
+  Selecting an authentication method
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to select the authentication method that you would like to authenticate access to Windows shares. Please note that if you change the authentication method then you will need to reapply access control to all existing shares.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("auth_server_settings_tab")
+  </script>
+{% endblock %}

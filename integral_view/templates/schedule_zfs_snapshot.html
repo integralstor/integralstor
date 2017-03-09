@@ -6,7 +6,8 @@
 
 {% block inside_content %}
 
-  <form id="schedule_form" name="schedule_form" action="/schedule_zfs_snapshot/" method="post">
+  <form id="schedule_form" name="schedule_form" action="/schedule_zfs_snapshot/" method="POST">
+    {%csrf_token%}
     <table class="table">
       <tr>
         <th> Target :</th>

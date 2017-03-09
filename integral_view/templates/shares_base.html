@@ -8,13 +8,13 @@
     <a href="/view_nfs_shares/">NFS Exports</a>
   </li>
   <li id="view_iscsi_targets_tab">
-    <a href="/view_iscsi_targets/" >ISCSI Targets</a>
+    <a href="/view_iscsi_targets/">ISCSI Targets</a>
   </li>
   <li id="view_rsync_shares_tab">
-    <a href="/view_rsync_shares/" >RSync shares</a>
+    <a href="/view_rsync_shares/">RSync shares</a>
   </li>
   <li id="dir_manager_tab">
-    <a href="/dir_manager/">Directory manager</a>
+    <a href="/view_dir_manager/">Directory manager</a>
   </li>
 {%endblock tab_items %}
 
@@ -23,37 +23,3 @@
     make_side_menu_active("shares_menu")
   </script>
 {% endblock %}
-
-<!--
-  <div class="nav-tabs-custom">
-    <ul class="nav nav-tabs">
-      <li id="view_cifs_shares_tab">
-        <a href="/view_cifs_shares/" >Windows Shares</a>
-      </li>
-      <li id="view_nfs_shares_tab">
-        <a href="/view_nfs_shares/">NFS Shares</a>
-      </li>
-      <li id="view_iscsi_targets_tab">
-        <a href="/view_iscsi_targets/" >ISCSI Targets</a>
-      </li>
-      {% include 'help_and_refresh.html' %}
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane active" id="content">
-        <span class="bigger-120">
-          <i class="fa fa-circle text-yellow"></i> 
-          <span> 
-            {% block tab_header %}
-              Information
-            {% endblock %}
-          </span>
-        </span>
-        <span class="white-space:pre-line"></span>
-        {% block inside_content %}
-          Information Not found. Please refresh the page
-        {% endblock inside_content %}
-      </div>
-    </div>
-  </div>
--->
-

@@ -6,7 +6,8 @@
 
 {%block inside_content%}
 
-  <form id="create_form" name="create_form" action="/rename_zfs_snapshot/" method="post">
+  <form id="create_form" name="create_form" action="/rename_zfs_snapshot/" method="POST">
+    {%csrf_token%}
     {{form.ds_name}}
     {{form.snapshot_name}}
 

@@ -6,6 +6,7 @@
 
 {% block inside_content %}
   <form action="/upload_ssh_user_key" method="POST" enctype="multipart/form-data" class="form-horizontal">
+    {%csrf_token%}
     <table class="table" style="width:800px">
       <tr>
         <th> Selected User :</th>
@@ -23,12 +24,18 @@
     <button type="submit" class="btn btn-default cover-page"><i class="fa fa-upload fa-fw"></i>&nbsp;Upload</button>
   </form>
   <br>
-
-
 {% endblock %}
+
+{%block help_header%}
+  Upload a  SSH user ker
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to upload a SSH user key. The settings will take effect upon saving this information.</p>
+{%endblock%}
 
 {% block tab_active %}
   <script>
-   make_tab_active("download_ssh_keys_tab")
+    make_tab_active("user_ssh_keys_tab")
   </script>
 {% endblock %}

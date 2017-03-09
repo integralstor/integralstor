@@ -7,6 +7,7 @@
 {% block inside_content %}
 
   <form id="create_form" name="create_form" action="/create_nfs_share/" method="post">
+    {%csrf_token%}
     <table class="table" style="width:100%">
       <tr>
         <th> Underlying ZFS Dataset :</th>
@@ -115,8 +116,8 @@
         'data' : {
           'url' : function (node) {
             return node.id === '#' ? 
-              '/dir_contents?first=1' : 
-              '/dir_contents'; 
+              '/view_dir_contents?first=1' : 
+              '/view_dir_contents'; 
           },
           'data' : function (node) {
             var e = document.getElementById("id_dataset");
@@ -162,7 +163,7 @@
 {%endblock%}
 
 {%block help_body%}
-<p>Use this screen to create a NFS share. The settings will take effect upon saving this information.</p>
+  <p>Use this screen to create a NFS share. The settings will take effect upon saving this information.</p>
 {%endblock%}
 
 {% block tab_active %}

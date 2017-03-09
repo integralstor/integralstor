@@ -7,6 +7,7 @@
 {% block inside_content %}
 
   <form class="form-horizontal" role="form" name="create_form" action="" method="post">
+    {%csrf_token%}
     {{form.base_interface}}
     <table  class="table " style="width:800px">
       <tr>
@@ -24,7 +25,7 @@
     </table>
 
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      <a href="/view_nic?name={{form.base_interface.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <a href="/view_interface?name={{form.base_interface.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
       <button type="submit" class="btn btn-primary cover-page" > Create </button>
     </div>
   </form>
@@ -36,11 +37,11 @@
 {%endblock%}
 
 {%block help_body%}
-Help about creating a network VLAN
+  Help about creating a network VLAN
 {%endblock%}
 
 {% block tab_active %}
   <script>
-   make_tab_active("view_interfaces_tab")
+    make_tab_active("view_interfaces_tab")
   </script>
 {% endblock %}

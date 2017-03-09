@@ -7,7 +7,8 @@
 {%block inside_content %}
 
 
-  <form id="create_form" name="upload_form" action="/upload_ssl_certificate/" method="post">
+  <form id="create_form" name="upload_form" action="/upload_ssl_certificate/" method="POST">
+    {%csrf_token%}
     <table class="table" style="width:800px">
       <tr>
         <th> Certificate name: </th>

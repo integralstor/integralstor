@@ -1,7 +1,5 @@
 import django, django.template
 
-import integralstor_common
-import integralstor_unicell
 from integralstor_common import zfs, audit
 from integralstor_unicell import nfs
 
@@ -57,11 +55,10 @@ def view_nfs_share(request):
     if not found:
       raise Exception("Requested share not found.")
   
-    if not "error" in return_dict:
-      template = "view_nfs_share.html"
+    template = "view_nfs_share.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    return_dict['base_template'] = "networking_base.html"
+    return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'View NFS share details'
     return_dict['tab'] = 'view_nfs_shares_tab'
     return_dict["error"] = 'Error viewing NFS share details'
@@ -88,14 +85,14 @@ def delete_nfs_share(request):
       audit.audit("delete_nfs_share", audit_str, request.META)
       return django.http.HttpResponseRedirect('/view_nfs_shares?ack=deleted')
   except Exception, e:
-    return_dict['base_template'] = "networking_base.html"
+    return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'Remove NFS share '
     return_dict['tab'] = 'view_nfs_shares_tab'
     return_dict["error"] = 'Error removing NFS share'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def edit_nfs_share(request):
+def update_nfs_share(request):
   return_dict = {}
   try:
     if request.method == "GET":
@@ -126,13 +123,13 @@ def edit_nfs_share(request):
             initial['all_squash'] = True
       form = nfs_shares_forms.ShareForm(initial=initial)
       return_dict['form'] = form
-      return django.shortcuts.render_to_response("edit_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("update_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       form = nfs_shares_forms.ShareForm(request.POST)
       path = request.POST["path"]
       return_dict['form'] = form
       if not form.is_valid():
-        return django.shortcuts.render_to_response("edit_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("update_nfs_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
       result, err = nfs.save_share(cd)
       if err:

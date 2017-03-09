@@ -9,6 +9,7 @@
   <p id="p-warning-text">Rolling back to a snapshot will result in your current data being compromised. Are you sure you want to rollback to the ZFS snapshot with name  "{{display_name}}"? </p>
   <br>
   <form action="/rollback_zfs_snapshot/" method="POST">
+    {%csrf_token%}
     <input type=hidden name="name" value="{{name}}">
     <input type=hidden name="display_name" value="{{display_name}}">
 

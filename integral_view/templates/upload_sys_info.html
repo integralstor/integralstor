@@ -6,8 +6,7 @@
 
 {% block inside_content %}
 
-  <form action="." method="post" enctype="multipart/form-data" class="form-horizontal" id="upload-form" role="form"> 
-
+  <form action="." method="POST" enctype="multipart/form-data" class="form-horizontal" id="upload-form" role="form"> 
     {%csrf_token%}
     <table class="table" >
       <tr>
@@ -49,6 +48,7 @@
   });
 </script>
 {% endblock %}
+
 {% block tab_active %}
 <script>
    make_tab_active("node_info_tab")

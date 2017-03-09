@@ -6,7 +6,8 @@
 
 {%block inside_content %}
 
-  <form id="import_form" name="import_form" action="/import_zfs_pool/" method="post">
+  <form id="import_form" name="import_form" action="/import_zfs_pool/" method="POST">
+    {%csrf_token%}
     <table class="table" style="width:800px">
       <tr>
         <th> Pool name:</th>

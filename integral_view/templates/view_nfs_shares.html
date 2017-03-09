@@ -34,7 +34,7 @@
                 <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                 <ul class="dropdown-menu">
                   <li><a class="action-dropdown" href="/view_nfs_share?path={{d.path}}"  title="View and configure this share" class="cover-page"> <i class="fa fa-cog fa-fw"></i>View and configure</a> 
-                  <li><a class="action-dropdown" href="/edit_nfs_share?path={{d.path}}"  title="Modify the settings for this share" > <i class="fa fa-cog fa-fw"></i>Modify export settings</a> 
+                  <li><a class="action-dropdown" href="/update_nfs_share?path={{d.path}}"  title="Modify the settings for this share" > <i class="fa fa-cog fa-fw"></i>Modify export settings</a> 
                   <li class="divider"></li>
                   <li><a class="action-dropdown" href="/delete_nfs_share?path={{d.path}}"  title="Remove this share" style="color:red"> <i class="fa fa-trash fa-fw"></i>Remove this export </a> 
                 </ul>
@@ -55,8 +55,9 @@
 {%block help_body%}
   <p> This screen provides the list of all the NFS shares that have been created on this IntegralStor system. To view details about a particular NFS share, please select the the desired share from the list.</p>
 {%endblock%}
+
 {% block tab_active %}
- <script>
-  make_tab_active("view_nfs_shares_tab")
- </script>
+  <script>
+    make_tab_active("view_nfs_shares_tab")
+  </script>
 {% endblock %}

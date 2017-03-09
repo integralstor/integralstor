@@ -20,10 +20,6 @@
             <th> Share name </th>
             <th> Share path </th>
             <th> Description </th>
-<!--
-            <th> Read/write</td>
-            <th> Visibility</td>
--->
             <th> &nbsp; </th>
           </tr>
         </thead>
@@ -32,28 +28,12 @@
             <td> {{d.name}} </td>
             <td> {{d.display_path}} </td>
             <td> {{d.comment}} </td>
-<!--
-            <td> 
-              {% if share.read_only %}
-                Readonly
-              {%else%}
-                Read/Write
-              {%endif%}
-            </td>
-            <td> 
-              {% if share.browseable %}
-                Browseable
-              {%else%}
-                Hidden
-              {%endif%}
-            </td>
--->
             <td>
               <div class="btn-group btn-group-xs" >
                 <a class="btn btn-default pull-left dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                 <ul class="dropdown-menu">
                   <li ><a class="action-dropdown" href="/view_cifs_share?access_mode=by_id&index={{d.share_id}}"  title="View and configure this share" class="cover-page"> <i class="fa fa-cog fa-fw"></i>View and configure</a> 
-                  <li><a class="action-dropdown" href="/edit_cifs_share?share_id={{d.share_id}}"  title="Modify the settings for this share" > <i class="fa fa-cog fa-fw"></i>Modify share settings</a> 
+                  <li><a class="action-dropdown" href="/update_cifs_share?share_id={{d.share_id}}"  title="Modify the settings for this share" > <i class="fa fa-cog fa-fw"></i>Modify share settings</a> 
                   <li class="divider"></li>
                   <li><a class="action-dropdown" href="/delete_cifs_share?share_id={{d.share_id}}&name={{d.name}}"  title="Remove this share" style="color:red"> <i class="fa fa-trash fa-fw"></i>Remove this share </a> 
                 </ul>
@@ -76,7 +56,7 @@
 {%endblock%}
 
 {% block tab_active %}
- <script>
-  make_tab_active("view_cifs_shares_tab")
- </script>
+  <script>
+    make_tab_active("view_cifs_shares_tab")
+  </script>
 {% endblock %}

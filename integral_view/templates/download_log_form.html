@@ -7,6 +7,7 @@
 {% block inside_content %}
 
   <form name="myform"  method="post">
+    {%csrf_token%}
     {{form.hostname}}
     <table class="table" >
       <tr>
@@ -46,11 +47,11 @@
 {%endblock%}
 
 {%block help_body%}
-<p>Logs help in tracking down potential issues in the system. Please specify the log type before downloading it. The logs will be downloaded onto your system in the form of a compressed ZIP file or a normal text file.</p>
+  <p>Logs help in tracking down potential issues in the system. Please specify the log type before downloading it. The logs will be downloaded onto your system in the form of a compressed ZIP file or a normal text file.</p>
 {%endblock%}
 
 {% block tab_active %}
- <script>
-  make_tab_active("download_logs_tab")
- </script>
+  <script>
+    make_tab_active("download_logs_tab")
+  </script>
 {% endblock %}

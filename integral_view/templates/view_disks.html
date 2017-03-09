@@ -53,6 +53,7 @@
             {%if disk.status != 'PASSED' and disk.status != 'OK'%}
               {%if disk.pool%}
                 <form method="POST" action="/replace_disk/">
+                  {%csrf_token%}
                   <input type="hidden" name="node" value="{{node_name}}">
                   <input type="hidden" name="serial_number" value="{{sn}}">
                   <input type="hidden" name="step" value="offline_disk">
@@ -129,6 +130,7 @@
             {%if disk.status != 'PASSED' and disk.status != 'OK'%}
               {%if disk.pool%}
                 <form method="POST" action="/replace_disk/">
+                  {%csrf_token%}
                   <input type="hidden" name="node" value="{{node_name}}">
                   <input type="hidden" name="serial_number" value="{{sn}}">
                   <input type="hidden" name="step" value="offline_disk">
@@ -266,7 +268,7 @@
 {% endblock %}
 
 {%block help_header%}
-View disk status
+  View disk status
 {%endblock%}
 
 {%block help_body%}
@@ -278,7 +280,7 @@ View disk status
 
 {% block tab_active %}
   <script>
-   make_tab_active("view_disks_tab")
+    make_tab_active("view_disks_tab")
   </script>
 {% endblock%}
 

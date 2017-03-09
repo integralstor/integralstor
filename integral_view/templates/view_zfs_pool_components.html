@@ -116,13 +116,13 @@ i                   {%if child.children %}
                 {%endfor%}
               </ul>
               {% if pool.config.logs.root.children.0.type == 'RAMDisk' %}
-                <a href="/remove_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}&type=ramdisk" role="button" class="btn btn-danger btn-sm"> <i class="fa fa-trash fa-fw"></i>&nbsp;Remove the write cache RAMDisk device</a>
+                <a href="/delete_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}&type=ramdisk" role="button" class="btn btn-danger btn-sm"> <i class="fa fa-trash fa-fw"></i>&nbsp;Remove the write cache RAMDisk device</a>
               {%else%}
-                <a href="/remove_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}&type=flash" role="button" class="btn btn-danger btn-sm"> <i class="fa fa-trash fa-fw"></i>&nbsp;Remove the write cache flash device</a>
+                <a href="/delete_zfs_slog?pool={{pool.pool_name}}&device={{pool.config.logs.root.children.0.name}}&type=flash" role="button" class="btn btn-danger btn-sm"> <i class="fa fa-trash fa-fw"></i>&nbsp;Remove the write cache flash device</a>
               {%endif%}
             {%else%}
               <b>Write cache in use : </b> Disk<br><br>
-              <a href="/set_zfs_slog?pool={{pool.pool_name}}" role="button" class="btn btn-default btn-sm"><i class="fa fa-exchange fa-fw"></i> &nbsp;Change the write cache device</a>
+              <a href="/update_zfs_slog?pool={{pool.pool_name}}" role="button" class="btn btn-default btn-sm"><i class="fa fa-exchange fa-fw"></i> &nbsp;Change the write cache device</a>
             {%endif%}
           </div>
         </div>
@@ -159,11 +159,11 @@ i                   {%if child.children %}
                   {%endif%}
                 {%endfor%}
               </ul>
-              <a href="/remove_zfs_l2arc?pool={{pool.pool_name}}&device={{pool.config.cache.root.children.0.name}}" role="button" class="btn btn-danger btn-sm"> <i class="fa fa-trash fa-fw"></i>Remove the read cache device</a>
+              <a href="/delete_zfs_l2arc?pool={{pool.pool_name}}&device={{pool.config.cache.root.children.0.name}}" role="button" class="btn btn-danger btn-sm"> <i class="fa fa-trash fa-fw"></i>Remove the read cache device</a>
             {%else%}
               <b>Read cache in use : </b> RAM<br><br>
               {%if num_free_disks_for_cache %}
-                <a href="/set_zfs_l2arc?pool={{pool.pool_name}}" role="button" class="btn btn-default btn-sm"> <i class="fa fa-exchange fa-fw"></i>&nbsp;Change the read cache device</a>
+                <a href="/update_zfs_l2arc?pool={{pool.pool_name}}" role="button" class="btn btn-default btn-sm"> <i class="fa fa-exchange fa-fw"></i>&nbsp;Change the read cache device</a>
               {%else%}
                 There are no unused flash drives to use as a read cache.
               {%endif%}
@@ -200,12 +200,12 @@ i                   {%if child.children %}
             {%endif%}
             <div class="btn-group btn-group-sm" role="group" aria-label="...">
               {% if num_free_disks_for_spares  %}
-                <a href="/add_zfs_spares?pool_name={{pool.pool_name}}" role="button" class="btn btn-default " {% if not num_free_disks_for_spares  %} disabled {%endif%}><i class="fa fa-plus fa-fw"></i>&nbsp;Add spare drive(s)</a>
+                <a href="/create_zfs_spares?pool_name={{pool.pool_name}}" role="button" class="btn btn-default " {% if not num_free_disks_for_spares  %} disabled {%endif%}><i class="fa fa-plus fa-fw"></i>&nbsp;Add spare drive(s)</a>
               {%else%}
                 &nbsp;
               {%endif%}
               {% if pool.config.spares %}
-                <a href="/remove_zfs_spare?pool_name={{pool.pool_name}}" role="button" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i>&nbsp;Remove a spare disk</a>
+                <a href="/delete_zfs_spare?pool_name={{pool.pool_name}}" role="button" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i>&nbsp;Remove a spare disk</a>
               {%endif%}
             </div>
           </div>

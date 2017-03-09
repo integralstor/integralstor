@@ -2,10 +2,10 @@
 
 {%block tab_items %}
   <li id="user_ssh_keys_tab">
-    <a href="/user_ssh_keys/">User SSH keys</a>
+    <a href="/view_user_ssh_keys/">User SSH keys</a>
   </li> 
   <li id="host_ssh_keys_tab">
-    <a href="/known_hosts_ssh_keys/">Known Hosts SSH fingerprint</a>
+    <a href="/view_known_hosts_ssh_keys/">Known Hosts SSH fingerprint</a>
   </li>
   <li id="ssl_certs_tab">
     <a href="/view_ssl_certificates" >SSL certificates and keys</a>
@@ -17,38 +17,3 @@
     make_side_menu_active("key_management_menu")
   </script>
 {% endblock %}
-
-<!--
-  <div class="nav-tabs-custom">
-    <ul class="nav nav-tabs">
-      <li id="show_my_ssh_key_tab">
-        <a href="/show_my_ssh_key/">My Public Key</a>
-      </li>
-      <li id="upload_ssh_key_tab">
-        <a href="/upload_ssh_key" >Add a Public Key</a>
-      </li>
-      <li id="upload_host_key_tab">
-        <a href="/upload_host_key" >Add a Host</a>
-      </li>
-      {% include 'help_and_refresh.html' %}
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane active" id="content">
-        <span class="bigger-120">
-          <i class="fa fa-circle text-yellow"></i>
-          <span> 
-            {% block tab_header %}
-              Information
-            {% endblock %}
-          </span>
-        </span>
-        <span class="white-space:pre-line"></span>
-        {% block inside_content %}
-          Information Not found. Please refresh the page
-        {% endblock inside_content %}
-      </div>
-    </div>
-  </div>
--->
-
-

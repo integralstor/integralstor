@@ -8,6 +8,7 @@
 
   {{form.errors}}
   <form id="create_form" name="create_form" action="/create_zfs_dataset/" method="post">
+    {%csrf_token%}
     <input type="hidden" name="pool" value="{{pool}}">
     <table class="table">
       <tr>

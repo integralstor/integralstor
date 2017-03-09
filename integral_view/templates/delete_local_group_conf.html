@@ -1,4 +1,4 @@
-{% extends 'users-groups_base.html' %}
+{% extends 'users_groups_base.html' %}
 
 {%block tab_header %}
   Delete a local user group - confirmation
@@ -9,6 +9,7 @@
   <p id="p-warning-text">Are you sure you want to delete the local group "{{grpname}}"? </p>
   <br>
   <form action="/delete_local_group/" method="POST">
+    {%csrf_token%}
     <input type=hidden name="grpname" value="{{grpname}}">
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <!--<a href="/view_local_group/?grpname={{grpname}}&searchby=grpname" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;-->
@@ -24,11 +25,11 @@
 {%endblock%}
 
 {%block help_body%}
-<p>Confirming this operation results in a local group of the IntegralStor system being deleted.</p>
+  <p>Confirming this operation results in a local group of the IntegralStor system being deleted.</p>
 {%endblock%}
 
 {% block tab_active %}
   <script>
-   make_tab_active("view_local_groups_tab")
+    make_tab_active("view_local_groups_tab")
   </script>
 {% endblock %}

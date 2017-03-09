@@ -8,7 +8,7 @@
   <div class="btn-group btn-group-sm pull-right" >
     <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click to modify Windows services settings" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
     <ul class="dropdown-menu">
-      <li><a class="action-dropdown" href="/configure_ftp" role="button" ><i class="fa fa-cog fa-fw"></i>&nbsp;Modify configuration</a></li>
+      <li><a class="action-dropdown" href="/update_ftp_configuration" role="button" ><i class="fa fa-cog fa-fw"></i>&nbsp;Modify configuration</a></li>
       <li><a class="action-dropdown" href="/create_ftp_user_dirs" class="cover-page"><i class="fa fa-plus fa-fw"></i>&nbsp;Create FTP user directories</a></li>
     </ul>
   </div>
@@ -49,4 +49,12 @@
     make_tab_active("ftp_service_settings")
   </script>
 {% endblock %}
+
+{%block help_header%}
+  View FTP configuration
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to view details about FTP service configuration. </p>
+{%endblock%}
 

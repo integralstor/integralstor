@@ -9,11 +9,11 @@
   {% if port == 443 %}
     IntegralView is currently set to use the <b>secure mode using the HTTPS protocol</b>.
     <br><br>
-    <a href="/edit_https_mode?change_to=nonsecure" role="button" class="btn btn-default btn-sm"> <i class="fa fa-cog fa-fw" ></i>&nbsp;Change to non-secure access mode</a>
+    <a href="/update_https_mode?change_to=nonsecure" role="button" class="btn btn-default btn-sm"> <i class="fa fa-cog fa-fw" ></i>&nbsp;Change to non-secure access mode</a>
   {%else%}
     IntegralView is currently set to use the <b>non secure mode using the HTTP protocol</b>.
     <br><br>
-    <a href="/edit_https_mode?change_to=secure" role="button" class="btn btn-default btn-sm"> <i class="fa fa-cog fa-fw" ></i>&nbsp;Change to secure access mode</a>
+    <a href="/update_https_mode?change_to=secure" role="button" class="btn btn-default btn-sm"> <i class="fa fa-cog fa-fw" ></i>&nbsp;Change to secure access mode</a>
   {%endif%}
 
 {%endblock%}

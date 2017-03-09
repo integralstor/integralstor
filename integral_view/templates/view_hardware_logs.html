@@ -31,15 +31,9 @@
           {% for timestamp, log_list in logs_dict.items %}
             {%for log in log_list%}
               <tr {%if log.Severity == 'Critical'%} style="background-color:red" {%elif log.Severity == 'Non-Critical'%} style="background-color:orange"{%endif%}>
-                <td style="width:200px">
-                  {{log.date_time}}
-                </td>
-                <td style="width:200px">
-                  {{log.Severity}}
-                </td>
-                <td>
-                  {{log.description|safe}}
-                </td>
+                <td style="width:200px"> {{log.date_time}} </td>
+                <td style="width:200px"> {{log.Severity}} </td>
+                <td> {{log.description|safe}} </td>
               </tr>
             {%endfor%}
           {%endfor%}
@@ -56,7 +50,7 @@
 {%endblock%}
 
 {%block help_header%}
-View hardware logs 
+  View hardware logs 
 {%endblock%}
 
 {%block help_body%}

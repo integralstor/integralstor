@@ -12,10 +12,11 @@
     Doing so will stop all the services, disconnect all the users, will stop data transfer, which could lead to disruption of services to the end user.</p>
   </span><br><br>
   <form action="" method="POST" >   
+    {%csrf_token%}
     <input type="hidden" name="do" value="{{do}}">
     <input type="hidden" name="conf" value="yes">
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      <a href="/dashboard/disks" role="button" class="btn btn-primary "> Cancel</a>
+      <a href="/view_system_info/" role="button" class="btn btn-primary "> Cancel</a>
       <button type="submit" class="btn btn-danger btn-sm" >{{do}} the system </button>
     </div>
 

@@ -7,14 +7,6 @@
   <li id="view_disks_tab">
     <a href="/view_disks/">Disks</a>
   </li>
-  <!-- Now in a separate menu item
-  <li id="view_zfs_snapshots_tab">
-    <a href="/view_zfs_snapshots/" >Snapshots</a>
-  </li>
-  <li id="view_remote_replications_tab">
-    <a href="/view_remote_replications/" >Remote replication</a>
-  </li>
-  -->
 
 {%endblock tab_items %}
 
@@ -24,38 +16,3 @@
   </script>
 {% endblock %}
 
-<!--
-  <div class="nav-tabs-custom">
-    <ul class="nav nav-tabs">
-      <li id="view_zfs_pools_tab">
-        <a href="/view_zfs_pools/">ZFS Pool Manager</a>
-      </li>
-      <li id="view_zfs_snapshots_tab">
-        <a href="/view_zfs_snapshots/" >Snapshot viewer</a>
-      </li>
-      <li id="scheduled_snapshots_tab">
-        <a href="/schedule_zfs_snapshot/" >Scheduled snapshots</a>
-      </li>
-      <li id="dir_permissions_tab">
-        <a href="/modify_dir_permissions/">Ownership/permissions manager</a>
-      </li>
-      {% include 'help_and_refresh.html' %}
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane active" id="content">
-        <span class="bigger-120">
-          <i class="fa fa-circle text-yellow"></i> 
-          <span> 
-            {% block tab_header %}
-              Information
-            {% endblock %}
-          </span>
-        </span>
-        <span class="white-space:pre-line"></span>
-        {% block inside_content %}
-          Information Not found. Please refresh the page
-        {% endblock inside_content %}
-      </div>
-    </div>
-  </div>
--->

@@ -8,8 +8,8 @@
   <div class="btn-group btn-group-sm pull-right" >
     <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click to modify Windows services settings" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
     <ul class="dropdown-menu">
-      <li><a class="action-dropdown" href="/auth_server_settings?action=edit" ><i class="fa fa-cog fa-fw"></i>&nbsp;Modify authentication settings</a></li>
-      <li><a class="action-dropdown" href="/edit_auth_method"  ><i class="fa fa-exchange fa-fw"></i>&nbsp;Change authentication method</a></li>
+      <li><a class="action-dropdown" href="/update_samba_server_settings" ><i class="fa fa-cog fa-fw"></i>&nbsp;Modify authentication settings</a></li>
+      <li><a class="action-dropdown" href="/update_auth_method"  ><i class="fa fa-exchange fa-fw"></i>&nbsp;Change authentication method</a></li>
     </ul>
   </div>
 {%endblock%}
@@ -18,7 +18,7 @@
 
   {% if not samba_global_dict %}
     <p id="p-instructional-text"> You have not configured authentication settings.</p><br>
-    <a href="/auth_server_settings?action=edit" role="button" class="btn btn-default">Configure authentication settings</a>
+    <a href="/update_samba_server_settings" role="button" class="btn btn-default">Configure authentication settings</a>
   {%else%}
     <p id="p-instruction-text">{{conf}}</p>
 
@@ -87,5 +87,5 @@
 {%endblock%}
 
 {%block help_body%}
-<p>Use this screen to view the current configuration information about your Active Directory server against which authentication for share access will happen. Please ensure that you provide the correct server name, IP address and administrative user password in order for the authentication to proceed properly.</p>
+  <p>Use this screen to view the current configuration information about your Active Directory server against which authentication for share access will happen. Please ensure that you provide the correct server name, IP address and administrative user password in order for the authentication to proceed properly.</p>
 {%endblock%}

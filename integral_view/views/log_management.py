@@ -1,17 +1,31 @@
-import zipfile, datetime,os,shutil
+import zipfile, os,shutil
 
 import django, django.template
 from  django.contrib import auth
 from django.core.files.storage import default_storage
 from django.contrib.auth.decorators import login_required
 
-from integralstor_common import common, audit, alerts,command, db
-
-from integralstor_unicell import system_info
+from integralstor_common import common, audit, alerts, db
 
 import integral_view
-from integral_view.forms import log_management_forms,common_forms
+from integral_view.forms import log_management_forms, common_forms
 from integral_view.utils import iv_logging
+
+def _handle_uploaded_file(f):
+  with open('/tmp/upload.zip', 'wb+') as destination:
+    for chunk in f.chunks():
+      destination.write(chunk)
+  return True,"/tmp/upload.zip"
+
+def _copy_and_overwrite(from_path, to_path):
+  if os.path.exists(to_path):
+    shutil.rmtree(to_path)
+  shutil.copytree(from_path, to_path)
+  return True
+
+def _copy_file_and_overwrite(from_path,to_path):
+  shutil.copyfile(from_path,to_path)
+  return True
 
 def view_log(request):
   return_dict = {}
@@ -72,91 +86,6 @@ def view_alerts(request):
     return_dict["page_title"] = 'System alerts'
     return_dict['tab'] = 'view_current_alerts_tab'
     return_dict["error"] = 'Error loading system alerts'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-def view_hardware_logs(request):
-  return_dict = {}
-  try:
-    hw_platform, err = common.get_hardware_platform()
-    if hw_platform:
-      return_dict['hw_platform'] = hw_platform
-      if hw_platform == 'dell':
-        from integralstor_common.platforms import dell
-        logs_dict, err = dell.get_alert_logs()
-        if logs_dict:
-          return_dict['logs_dict'] = logs_dict
-    return django.shortcuts.render_to_response('view_hardware_logs.html', return_dict, context_instance=django.template.context.RequestContext(request))
-  except Exception, e:
-    return_dict['base_template'] = "logging_base.html"
-    return_dict["page_title"] = 'Hardware logs'
-    return_dict['tab'] = 'view_hardware_logs_tab'
-    return_dict["error"] = 'Error loading hardware logs'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-def view_audit_trail(request):
-  return_dict = {}
-  try:
-    al = None
-    al, err = audit.get_lines()
-    if err:
-      raise Exception(err)
-    return_dict["audit_list"] = al
-    return django.shortcuts.render_to_response('view_audit_trail.html', return_dict, context_instance=django.template.context.RequestContext(request))
-  except Exception, e:
-    return_dict['base_template'] = "logging_base.html"
-    return_dict["page_title"] = 'System audit trail'
-    return_dict['tab'] = 'view_current_audit_tab'
-    return_dict["error"] = 'Error loading system audit trail'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-def handle_uploaded_file(f):
-  with open('/tmp/upload.zip', 'wb+') as destination:
-    for chunk in f.chunks():
-      destination.write(chunk)
-  return True,"/tmp/upload.zip"
-
-def copy_and_overwrite(from_path, to_path):
-  if os.path.exists(to_path):
-    shutil.rmtree(to_path)
-  #command.execute("cp -rf %s/* %s"%(from_path,to_path))
-  shutil.copytree(from_path, to_path)
-  return True
-
-def copy_file_and_overwrite(from_path,to_path):
-  shutil.copyfile(from_path,to_path)
-  return True
-
-def edit_integral_view_log_level(request):
-
-  return_dict = {}
-  try:
-    if request.method == 'POST':
-      iv_logging.debug("Trying to change Integral View Log settings")
-      form = log_management_forms.IntegralViewLoggingForm(request.POST)
-      if form.is_valid():
-        iv_logging.debug("Trying to change Integral View Log settings - form valid")
-        cd = form.cleaned_data
-        log_level = int(cd['log_level'])
-        iv_logging.debug("Trying to change Integral View Log settings - log level is %d"%log_level)
-        ret, err = iv_logging.set_log_level(log_level)
-        if err:
-          raise Exception(err)
-        iv_logging.debug("Trying to change Integral View Log settings - changed log level")
-        return django.http.HttpResponseRedirect("/show/integral_view_log_level?saved=1")
-    else:
-      init = {}
-      init['log_level'] = iv_logging.get_log_level()
-      form = log_management_forms.IntegralViewLoggingForm(initial=init)
-      return_dict['form'] = form
-      return django.shortcuts.render_to_response('edit_integral_view_log_level.html', return_dict, context_instance=django.template.context.RequestContext(request))
-  except Exception, e:
-    return_dict['base_template'] = "logging_base.html"
-    return_dict["page_title"] = 'Modify IntegralView log level'
-    return_dict['tab'] = 'view_current_audit_tab'
-    return_dict["error"] = 'Error modifying IntegralView log level'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
@@ -255,51 +184,6 @@ def download_log(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-'''
-  
-def download_hardware_logs(request):
-  return_dict = {}
-  try:
-  
-    hw_platform, err = common.get_hardware_platform()
-    if not hw_platform or hw_platform != 'dell':
-      raise Exception('Unknown hardware platform')
-    if hw_platform == 'dell':
-      from integralstor_common.platforms import dell
-      logs_dict, err = dell.get_alert_logs()
-      if err:
-        raise Exception(err)
-      if not logs_dict:
-        raise Exception('No logs detected!')
-
-      try:
-        response = django.http.HttpResponse()
-        response['Content-disposition'] = 'attachment; filename=hardware_logs.txt'
-        response['Content-type'] = 'text/plain'
-        for timestamp, log_list in logs_dict.items():
-          for log in log_list:
-            response.write('Time : %s\n'%log['date_time'])
-            response.write('Severity : %s\n'%log['Severity'])
-            response.write('Description : %s\n'%log['description'])
-            response.write('\n')
-            response.flush()
-      except Exception as e:
-        raise Exception(e)
-  
-      return response
-  
-    # either a get or an invalid form so send back form
-    return_dict['form'] = form
-    return django.shortcuts.render_to_response('download_sys_log_form.html', return_dict, context_instance=django.template.context.RequestContext(request))
-  except Exception, e:
-    return_dict['base_template'] = "logging_base.html"
-    return_dict["page_title"] = 'Download system logs'
-    return_dict['tab'] = 'view_hardware_logs_tab'
-    return_dict["error"] = 'Error downloading hardware logs'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-'''
-  
 def rotate_log(request, log_type=None):
   return_dict = {}
   try:
@@ -375,7 +259,7 @@ def upload_sys_info(request):
   return_dict = {}
   try:
     if request.method == "POST" :
-      status,path = handle_uploaded_file(request.FILES['file_field'])
+      status,path = _handle_uploaded_file(request.FILES['file_field'])
       display_name, err = common.get_config_dir()
       if err:
         raise Exception(err)
@@ -387,10 +271,10 @@ def upload_sys_info(request):
         logs = {'smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf','nfs':'/etc/exports','ftp':'/etc/vsftpd/vsftpd.conf','master.status':display_name+"/status/master.status",'master.manifest':display_name+"/status/master.manifest"}
         for key,value in logs.iteritems():
           if key and os.path.isfile("/tmp/upload/"+key):
-            copy_file_and_overwrite("/tmp/upload/"+key,value)
+            _copy_file_and_overwrite("/tmp/upload/"+key,value)
         for dir in os.listdir("/tmp/upload"):
           if dir and os.path.isdir("/tmp/upload/"+dir):
-            copy_and_overwrite("/tmp/upload/"+dir,common.get_config_dir()[0]+"/"+dir)
+            _copy_and_overwrite("/tmp/upload/"+dir,common.get_config_dir()[0]+"/"+dir)
         return django.http.HttpResponseRedirect("/view_system_info/")
     else:
       form = common_forms.FileUploadForm()
@@ -478,10 +362,10 @@ def view_rotated_log_file(request, log_type):
 
 def refresh_alerts(request, random=None):
   try:
-    from datetime import datetime
+    from django.utils import timezone
     cmd_list = []
     #this command will insert or update the row value if the row with the user exists.
-    cmd = ["INSERT OR REPLACE INTO admin_alerts (user, last_refresh_time) values (?,?);", (request.user.username, datetime.now())]
+    cmd = ["INSERT OR REPLACE INTO admin_alerts (user, last_refresh_time) values (?,?);", (request.user.username, timezone.now())]
     cmd_list.append(cmd)
     db_path, err = common.get_db_path()
     if err:
@@ -507,6 +391,9 @@ def refresh_alerts(request, random=None):
       return django.http.HttpResponse("No New Alerts")
   except Exception, e:
     return django.http.HttpResponse("Error loading alerts : %s"%str(e))
+
+'''
+Not used currently but keeping it in case it is needed later
 
 @login_required
 def raise_alert(request):
@@ -545,3 +432,4 @@ def internal_audit(request):
       audit.audit(request.POST["audit_action"], request.POST["audit_str"], "0.0.0.0")
     response.write("Success")
   return response
+'''

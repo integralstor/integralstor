@@ -1,4 +1,4 @@
-{% extends 'users-groups_base.html' %}
+{% extends 'users_groups_base.html' %}
 
 {%block tab_header %}
   Local user group details
@@ -23,7 +23,7 @@
 
   <div class="btn-group btn-group-sm" role="group" aria-label="...">
     <a href="/view_local_groups" role="button" class="btn btn-default"> <i class="fa fa-list fa-fw"></i>&nbsp;Back to group list</a>
-    <a href="/modify_group_membership?grpname={{group.grpname}}" role="button" class="btn btn-default"> <i class="fa fa-cog fa-fw"></i>&nbsp;Modify group membership</a>
+    <a href="/update_group_membership?grpname={{group.grpname}}" role="button" class="btn btn-default"> <i class="fa fa-cog fa-fw"></i>&nbsp;Modify group membership</a>
     <a href="/delete_local_group?grpname={{group.grpname}}" role="button" class="btn btn-danger"> <i class="fa fa-trash fa-fw"></i>&nbsp;Delete this group</a>
   </div>
 
@@ -39,6 +39,6 @@
 
 {% block tab_active %}
   <script>
-   make_tab_active("view_local_groups_tab")
+    make_tab_active("view_local_groups_tab")
   </script>
 {% endblock %}

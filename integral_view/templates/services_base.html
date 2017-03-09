@@ -8,7 +8,7 @@
     <a href="/view_ntp_settings/" >Configure NTP</a>
   </li>
   <li id="auth_server_settings_tab">
-    <a href="/auth_server_settings/">Configure Windows access</a>
+    <a href="/view_samba_server_settings/">Configure Windows access</a>
   </li>
   <li id="ftp_service_settings">
     <a href="/view_ftp_configuration/">Configure FTP access</a>
@@ -21,42 +21,3 @@
    make_side_menu_active("services_menu")
 </script>
 {% endblock%}
-
-
-
-<!--
-  <div class="nav-tabs-custom">
-    <ul class="nav nav-tabs">
-      <li id="view_services_tab">
-        <a href="/view_services/">View Services</a>
-      </li>
-      <li id="ntp_settings_tab">
-        <a href="/view_ntp_settings/" >Configure NTP</a>
-      </li>
-      <li id="auth_server_settings_tab">
-        <a href="/auth_server_settings/">Configure Windows access</a>
-      </li>
-      <li id="ftp_service_settings">
-        <a href="/view_ftp_configuration/">Configure FTP access</a>
-      </li>
-      {% include 'help_and_refresh.html' %}
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane active" id="content">
-        <span class="bigger-120">
-          <i class="fa fa-circle text-yellow"></i> 
-          <span> 
-            {% block tab_header %}
-              Information
-            {% endblock %}
-          </span>
-        </span>
-        <span class="white-space:pre-line"></span>
-        {% block inside_content %}
-          Information Not found. Please refresh the page
-        {% endblock inside_content %}
-      </div>
-    </div>
-  </div>
--->
-

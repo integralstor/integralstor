@@ -6,6 +6,7 @@
 
 {% block inside_content %}
   <form action="/upload_ssh_host_key" method="POST" enctype="multipart/form-data" class="form-horizontal">
+    {%csrf_token%}
     <table class="table" style="width:800px">
       <tr>
         <th> Select User :</th>
@@ -39,7 +40,7 @@
 
 {% block tab_active %}
   <script>
-   make_tab_active("download_ssh_keys_tab")
+   make_tab_active("host_ssh_keys_tab")
   </script>
 {% endblock %}
 

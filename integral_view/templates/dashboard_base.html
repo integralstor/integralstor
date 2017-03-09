@@ -2,58 +2,21 @@
 
 {%block tab_items %}
   <li id="system_health_tab" class="cover-page">
-    <a href="/dashboard/dashboard" >System health </a>
+    <a href="/view_dashboard/sys_health" >System health </a>
   </li>
   <li id="cpu_tab" class="cover-page">
-    <a href="/dashboard/cpu" >CPU statistics</a>
+    <a href="/view_dashboard/cpu" >CPU statistics</a>
   </li>
   <li id="memory_tab" class="cover-page">
-    <a href="/dashboard/memory" >Memory statistics</a>
+    <a href="/view_dashboard/memory" >Memory statistics</a>
   </li>
   <li id="network_tab" class="cover-page">
-    <a href="/dashboard/network" >Network statistics</a>
+    <a href="/view_dashboard/network" >Network statistics</a>
   </li>
 {%endblock tab_items %}
-
 
 {% block menu_active %}
   <script>
     make_side_menu_active("dashboard_menu")
   </script>
 {% endblock%}
-
-<!--
-  <div class="nav-tabs-custom">
-    <ul class="nav nav-tabs">
-      <li id="disks_tab">
-        <a href="/dashboard/disks" >Disks </a>
-      </li>
-      <li id="pools_tab">
-        <a href="/dashboard/pools" >Pools </a>
-      </li>
-      <li id="cpu_tab" class="cover-page">
-        <a href="/dashboard/cpu" >CPU</a>
-      </li>
-      <li id="memory_tab" class="cover-page">
-        <a href="/dashboard/memory" >Memory</a>
-      </li>
-      <li id="hardware_tab">
-        <a href="/dashboard/hardware" >Hardware Components</a>
-      </li>
-      <li id="network_tab" class="cover-page">
-        <a href="/dashboard/network" >Network</a>
-      </li>
-      <li id="services_tab">
-        <a href="/dashboard/services" >Services</a>
-      </li>
-      {% include 'help_and_refresh.html' %}
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane active" id="content">
-        {% block inside_content %}
-          Information Not found. Please refresh the page
-        {% endblock inside_content %}
-      </div>
-    </div>
-  </div>
--->

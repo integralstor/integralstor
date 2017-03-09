@@ -28,7 +28,8 @@
               {%endif%}
             </td>
             <td>
-              <form method='POST' action='/change_service_status/'>
+              <form method='POST' action='/update_service_status/'>
+                {%csrf_token%}
                 {%if service.info.status.status_str != 'Inactive' %}
                   <input name='action' type='hidden' value='stop'>
                   <button type="submit" class="btn btn-danger btn-xs cover-page"><i class="fa fa-stop-circle-o fa-fw"></i>&nbsp;Stop&nbsp;&nbsp;&nbsp;&nbsp; </button>
@@ -72,3 +73,9 @@
   <p> This screen provides the list of all the services that have been configured on this IntegralStor system. 
   </p>
 {%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_services_tab")
+  </script>
+{% endblock %}

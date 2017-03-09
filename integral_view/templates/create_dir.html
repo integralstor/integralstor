@@ -7,6 +7,7 @@
 {% block inside_content %}
   {{form.errors}}
   <form action="" method="POST">
+    {%csrf_token%}
     {{form.path}}
     <table  class="table " style="width:800px">
       <tr>
@@ -25,7 +26,7 @@
       </tr>
     </table>
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      <a href="/dir_manager" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <a href="/view_dir_manager" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
       <button type="submit" class="btn btn-primary"> Create </button>
     </div>
     
@@ -36,10 +37,10 @@
 {%endblock%}
 
 {%block help_body%}
-<p>Use this screen to create a new sub-directory under the selected directory. </p>
+  <p>Use this screen to create a new sub-directory under the selected directory. </p>
 {%endblock%}
 {% block tab_active %}
   <script>
-   make_tab_active("dir_manager_tab")
+    make_tab_active("dir_manager_tab")
   </script>
 {% endblock %}

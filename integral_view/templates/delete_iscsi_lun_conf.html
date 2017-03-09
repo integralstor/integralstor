@@ -9,6 +9,7 @@
   <p id="p-warning-text">Are you sure you want to remove the LUN with backing storage {{store}} from target "{{target_name}}"? </p>
   <br>
   <form action="/delete_iscsi_lun/" method="POST">
+    {%csrf_token%}
     <input type=hidden name="target_name" value="{{target_name}}">
     <input type=hidden name="store" value="{{store}}">
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
@@ -24,7 +25,7 @@
 {%endblock%}
 
 {%block help_body%}
-<p>Confirming this operation results in the specified LUN being removed from the specified ISCSI target. Please ensure that this is actually intended before continuing.</p>
+  <p>Confirming this operation results in the specified LUN being removed from the specified ISCSI target. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}
 
 {% block tab_active %}

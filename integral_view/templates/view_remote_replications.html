@@ -34,9 +34,9 @@
               <div class="btn-group btn-group-xs pull-right" >
                 <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for pool specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                 <ul class="dropdown-menu">
-                  <li> <a class="action-dropdown" href="/modify_remote_replication/?remote_replication_id={{replication.remote_replication_id}}" title="Modify the parameters for this replication"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify replication settings </a></li>
+                  <li> <a class="action-dropdown" href="/update_remote_replication/?remote_replication_id={{replication.remote_replication_id}}" title="Modify the parameters for this replication"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify replication settings </a></li>
                   <li class="divider"></li>
-                  <li><a class="action-dropdown" href="/remove_remote_replication?remote_replication_id={{replication.remote_replication_id}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Cancel this replication </a></li>
+                  <li><a class="action-dropdown" href="/delete_remote_replication?remote_replication_id={{replication.remote_replication_id}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Cancel this replication </a></li>
                 </ul>
               </div>
           </tr>
@@ -49,4 +49,18 @@
   <br />
   <br />
   <br />
+{% endblock %}
+
+{%block help_header%}
+  View all scheduled remote replications
+{%endblock%}
+
+{%block help_body%}
+  <p> This screen provides the list of all the scheduled remote replications.
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_remote_replications_tab")
+  </script>
 {% endblock %}

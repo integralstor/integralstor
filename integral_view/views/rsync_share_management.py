@@ -1,5 +1,7 @@
-import django,os
-from integralstor_common import rsync,zfs,audit,alerts
+import django
+import os
+
+from integralstor_common import rsync, zfs, audit
 from integral_view.forms import rsync_forms
 
 def create_rsync_share(request):
@@ -46,7 +48,7 @@ def create_rsync_share(request):
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
-def edit_rsync_share(request):
+def update_rsync_share(request):
   return_dict = {}
   try:
     if request.method == "GET":
@@ -68,7 +70,7 @@ def edit_rsync_share(request):
         initial["browsable"] = False
       form = rsync_forms.ShareForm(initial = initial)
       return_dict["form"] = form
-      return django.shortcuts.render_to_response("edit_rsync_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("update_rsync_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       form = rsync_forms.ShareForm(request.POST)
       if form.is_valid():
@@ -85,7 +87,7 @@ def edit_rsync_share(request):
         return django.http.HttpResponseRedirect('/view_rsync_shares/?ack=saved')
       else:
         return_dict["form"] = form
-        return django.shortcuts.render_to_response("edit_rsync_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("update_rsync_share.html", return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'RSync Share'

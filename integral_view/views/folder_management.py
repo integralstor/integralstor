@@ -1,15 +1,14 @@
 import django, django.template
 from django.http import HttpResponse
 
-import os, pwd, grp, stat, datetime, shutil, time, json
-import integral_view
+import os, pwd, grp, stat, shutil, time, json
 
+import integral_view
 from integral_view.forms import samba_shares_forms, folder_management_forms
 
 from integralstor_common import audit, zfs, acl
 from integralstor_unicell import cifs as cifs_unicell, local_users, nfs
 
-from integral_view.forms import zfs_forms,common_forms
 
 def _sticky_bit_enabled(path):
   sticky_bit = False
@@ -45,7 +44,28 @@ def _get_subdirs(full_path):
   else:
     return subdirs, None
 
-def dir_contents(request):
+def _owner_readable(st):
+  return bool(st.st_mode & stat.S_IRUSR)
+def _owner_writeable(st):
+  return bool(st.st_mode & stat.S_IWUSR)
+def _owner_executeable(st):
+  return bool(st.st_mode & stat.S_IXUSR)
+
+def _group_readable(st):
+  return bool(st.st_mode & stat.S_IRGRP)
+def _group_writeable(st):
+  return bool(st.st_mode & stat.S_IWGRP)
+def _group_executeable(st):
+  return bool(st.st_mode & stat.S_IXGRP)
+
+def _other_readable(st):
+  return bool(st.st_mode & stat.S_IROTH)
+def _other_writeable(st):
+  return bool(st.st_mode & stat.S_IWOTH)
+def _other_executeable(st):
+  return bool(st.st_mode & stat.S_IXOTH)
+
+def view_dir_contents(request):
   dir_dict_list = []
   first = request.GET.get("first")
   if first:
@@ -130,34 +150,7 @@ def dir_contents(request):
       	dir_dict_list.append(d_dict)
   return HttpResponse(json.dumps(dir_dict_list),content_type='application/json')
 
-  '''
-  if 'dir' in request.GET and request.GET['dir'] != '/':
-    path = request.GET['dir']
-  else:
-    path = request.GET.get("pool_name")
-  first = request.GET.get("first")
-  dirs = os.listdir(path)
-  dir_dict_list = []
-  if not dirs or first:
-    d_dict = {'id':path, 'text':"/",'icon':'fa fa-angle-right','children':True,'data':{'dir':path},'parent':"#"}
-    dir_dict_list.append(d_dict)
-  if not first:
-    #print 'path ', path
-    for d in dirs:
-      #print 'dir', d
-      true = True
-      if os.path.isdir(path+"/"+d):
-        parent = path
-        subdirs = os.listdir('%s/%s'%(path, d))
-        if subdirs:
-          d_dict = {'id':path+"/"+d, 'text':d,'icon':'fa fa-angle-right','children':True,'data':{'dir':path+"/"+d},'parent':parent}
-        else:
-          d_dict = {'id':path+"/"+d, 'text':d,'icon':'fa','False':True,'data':{'dir':path+"/"+d},'parent':parent}
-      dir_dict_list.append(d_dict)
-  return HttpResponse(json.dumps(dir_dict_list),content_type='application/json')
-  '''
-
-def add_aces(request):
+def create_aces(request):
   return_dict = {}
   try:
     for_share = False
@@ -209,9 +202,9 @@ def add_aces(request):
         form = folder_management_forms.AddAcesForm(initial = initial, user_list = new_users, group_list = new_groups)
       return_dict["form"] = form
       if for_share:
-        return django.shortcuts.render_to_response("add_cifs_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("create_cifs_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
       else:
-        return django.shortcuts.render_to_response("add_dir_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("create_dir_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       if for_share:
         form = samba_shares_forms.AddShareAcesForm(request.POST, user_list = new_users, group_list = new_groups)
@@ -231,9 +224,9 @@ def add_aces(request):
           raise Exception(err)
       else:
         if for_share:
-          return django.shortcuts.render_to_response("add_cifs_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
+          return django.shortcuts.render_to_response("create_cifs_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
         else:
-          return django.shortcuts.render_to_response("add_dir_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
+          return django.shortcuts.render_to_response("create_dir_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
   
       audit_str = 'Added ACL entries : '
       for user in users:
@@ -255,7 +248,7 @@ def add_aces(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def edit_aces(request):
+def update_aces(request):
   return_dict = {}
   try:
     for_share = False
@@ -354,9 +347,9 @@ def edit_aces(request):
       return_dict['group_form_fields'] = group_form_fields
 
       if for_share:
-        return django.shortcuts.render_to_response("edit_cifs_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("update_cifs_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
       else:
-        return django.shortcuts.render_to_response("edit_dir_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("update_dir_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
 
     else:
       if for_share:
@@ -387,9 +380,9 @@ def edit_aces(request):
           raise Exception(err)
       else:
         if for_share:
-          return django.shortcuts.render_to_response("edit_cifs_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
+          return django.shortcuts.render_to_response("update_cifs_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
         else:
-          return django.shortcuts.render_to_response("edit_dir_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
+          return django.shortcuts.render_to_response("update_dir_aces.html", return_dict, context_instance = django.template.context.RequestContext(request))
   
       if for_share:
         audit_str = 'Modified ACL entries for CIFS share %s: '%share_name
@@ -507,7 +500,7 @@ def create_dir(request):
         os.chown(directory, 1000, 1000)
         audit_str = "Created new directory '%s' in '%s'" %(dir_name, path)
         audit.audit("create_dir", audit_str, request.META)
-        return django.http.HttpResponseRedirect('/dir_manager/?ack=created_dir')
+        return django.http.HttpResponseRedirect('/view_dir_manager/?ack=created_dir')
       else:
         return_dict['form'] = form
         return django.shortcuts.render_to_response('create_dir.html', return_dict, context_instance=django.template.context.RequestContext(request))
@@ -516,63 +509,6 @@ def create_dir(request):
     return_dict["page_title"] = 'Create a directory'
     return_dict['tab'] = 'dir_permissions_tab'
     return_dict["error"] = 'Error creating directory'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-def modify_sticky_bit(request):
-  return_dict = {}
-  try:
-
-    if 'path' not in request.REQUEST:
-      raise Exception('Invalid request. Please use the menus.')
-    path = request.REQUEST['path']
-
-    sticky_bit_enabled, err = _sticky_bit_enabled(path)
-    if err:
-      raise Exception(err)
-
-    if request.method == "GET":
-      initial = {}
-      initial['path'] = path
-      initial['sticky_bit_enabled'] = sticky_bit_enabled
-      form = folder_management_forms.ModifyStickyBitForm(initial=initial)
-      return_dict["form"] = form
-      return django.shortcuts.render_to_response('modify_sticky_bit.html', return_dict, context_instance=django.template.context.RequestContext(request))
-    else:
-      form = folder_management_forms.ModifyStickyBitForm(request.POST)
-      return_dict["form"] = form
-      if form.is_valid():
-        cd = form.cleaned_data
-        s = os.stat(path)
-        if cd['sticky_bit_enabled']:
-          audit_str = 'Enabled sticky bit '
-          if cd['recursive']:
-            audit_str += 'recursively '
-            for root, dirs, files in os.walk(path):  
-              for target in dirs:  
-                os.chmod('%s/%s'%(root,target), (s.st_mode | stat.S_ISVTX))
-          os.chmod(path, (s.st_mode | stat.S_ISVTX))
-          audit_str += 'for path %s'%path
-          #print audit_str
-        else:
-          audit_str = 'Disabled sticky bit '
-          if cd['recursive']:
-            audit_str += 'recursively '
-            for root, dirs, files in os.walk(path):  
-              for target in dirs:  
-                os.chmod('%s/%s'%(root,target), (s.st_mode & ~stat.S_ISVTX))
-          os.chmod(path, (s.st_mode & ~stat.S_ISVTX))
-          audit_str += 'for path %s'%path
-          #print audit_str
-        audit.audit("modify_dir_sticky_bit", audit_str, request.META)
-        return django.http.HttpResponseRedirect('/view_dir_ownership_permissions?path=%s&ack=modified_sticky_bit'%cd['path'])
-      else:
-        return django.shortcuts.render_to_response('modify_dir_ownership.html', return_dict, context_instance=django.template.context.RequestContext(request))
-  except Exception, e:
-    return_dict['base_template'] = "storage_base.html"
-    return_dict["page_title"] = 'Modify directory sticky bit settings'
-    return_dict['tab'] = 'dir_permissions_tab'
-    return_dict["error"] = 'Error modifying directory sticky bit settings'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
@@ -623,7 +559,7 @@ def delete_dir(request):
         audit_str = "Deleted directory '%s'" %path
         audit.audit("delete_dir", audit_str, request.META)
 
-        return django.http.HttpResponseRedirect('/dir_manager/?ack=deleted_dir')
+        return django.http.HttpResponseRedirect('/view_dir_manager/?ack=deleted_dir')
       else:
         raise Exception('Could not delete the specified directory as there was an error in the specified parameters.')
   except Exception, e:
@@ -634,7 +570,7 @@ def delete_dir(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def get_dir_listing(request):
+def view_dir_listing(request):
   resp = ''
   try:
     if 'path' not in request.GET:
@@ -645,13 +581,6 @@ def get_dir_listing(request):
     subdirs, err = _get_subdirs(path)
     if err:
       raise Exception(err)
-    '''
-    subdirs = []
-    for content in contents:
-      if os.path.isdir('%s/%s'%(path, content)):
-        subdirs.append(content)
-    '''
-    
 
     files = (file for file in os.listdir(path)
       if os.path.isfile(os.path.join(path, file)))
@@ -676,7 +605,7 @@ def get_dir_listing(request):
     print str(e)
     return HttpResponse('Error processing request : %s'%str(e),content_type='text/html')
 
-def dir_manager(request):
+def view_dir_manager(request):
   return_dict = {}
   try:
     if not "error" in return_dict:
@@ -710,7 +639,7 @@ def dir_manager(request):
 
     form = folder_management_forms.DirManagerForm1(initial = initial, pool_list = pool_list)
     return_dict["form"] = form
-    return django.shortcuts.render_to_response('dir_manager.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    return django.shortcuts.render_to_response('view_dir_manager.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'Directory manager'
@@ -777,7 +706,7 @@ def view_dir_ownership_permissions(request):
     if group_aces:
       return_dict['group_aces'] = group_aces
     
-    return django.shortcuts.render_to_response('dir_ownership_permissions.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    return django.shortcuts.render_to_response('view_dir_ownership_permissions.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'Directory manager'
@@ -786,108 +715,7 @@ def view_dir_ownership_permissions(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-'''
-def dir_manager(request):
-  return_dict = {}
-  try:
-    if not "error" in return_dict:
-      if "ack" in request.GET:
-        if request.GET["ack"] == "ace_deleted":
-          return_dict['ack_message'] = "ACL entry successfully removed"
-        elif request.GET["ack"] == "aces_added":
-          return_dict['ack_message'] = "ACL entries successfully added"
-        elif request.GET["ack"] == "aces_modified":
-          return_dict['ack_message'] = "ACL entries successfully modified"
-        elif request.GET["ack"] == "created_dir":
-          return_dict['ack_message'] = "Directory successfully created"
-        elif request.GET["ack"] == "deleted_dir":
-          return_dict['ack_message'] = "Directory successfully deleted"
-        elif request.GET["ack"] == "modified_ownership":
-          return_dict['ack_message'] = "Directory ownership successfully modified"
-
-    pools, err = zfs.get_pools() 
-    ds_list = [] 
-    for pool in pools:
-      for ds in pool["datasets"]:
-        if ds['properties']['type']['value'] == 'filesystem':
-          ds_list.append((ds["name"], ds['properties']['mountpoint']['value']))
-    if not ds_list:
-      raise Exception('No ZFS datasets available. Please create a dataset before creating shares.')
-
-    if 'path' not in request.REQUEST:
-      path = "/"+pools[0]["datasets"][0]["name"]
-    else:
-      path = request.REQUEST['path']
-    print 'path is ', path
-
-    try:
-      stat_info = os.stat(path)
-    except Exception, e:
-      raise Exception('Error accessing specified path : %s'%str(e))
-
-    uid = stat_info.st_uid
-    gid = stat_info.st_gid
-    username = pwd.getpwuid(uid)[0]
-    grpname = grp.getgrgid(gid)[0]
-    return_dict["username"] = username
-    return_dict["grpname"] = grpname
-
-    aces, err = acl.get_all_aces(path)
-    if err:
-      raise Exception(err)
-    minimal_aces, err = acl.get_minimal_aces(aces)
-    if err:
-      raise Exception(err)
-    user_aces, err = acl.get_ug_aces(aces, None, 'user')
-    if err:
-      raise Exception(err)
-    group_aces, err = acl.get_ug_aces(aces, None, 'group')
-    if err:
-      raise Exception(err)
-
-    return_dict['aces'] = aces
-    return_dict['minimal_aces'] = minimal_aces
-    if user_aces:
-      return_dict['user_aces'] = user_aces
-    if group_aces:
-      return_dict['group_aces'] = group_aces
-    
-    return_dict['path'] = path
-    return_dict["dataset"] = ds_list
-    initial = {}
-    if 'dataset' in request.REQUEST:
-      initial['dataset'] = request.REQUEST['dataset']
-    else:
-      initial['dataset'] = ds_list[0][0]
-    if 'path' in request.GET:
-      path = request.REQUEST['path']
-    else:
-      path = '/'+initial['dataset']
-    try:
-      stat_info = os.stat(path)
-    except Exception, e:
-      raise Exception('Error accessing specified path : %s'%str(e))
-    uid = stat_info.st_uid
-    gid = stat_info.st_gid
-    user_name = pwd.getpwuid(uid)[0]
-    grp_name = grp.getgrgid(gid)[0]
-    return_dict["user_name"] = user_name
-    return_dict["grp_name"] = grp_name
-    initial['path'] = path
-    print initial
-    form = folder_management_forms.DirManagerForm(initial=initial, dataset_list = ds_list)
-    return_dict["form"] = form
-    return django.shortcuts.render_to_response('dir_manager.html', return_dict, context_instance=django.template.context.RequestContext(request))
-  except Exception, e:
-    return_dict['base_template'] = "storage_base.html"
-    return_dict["page_title"] = 'Directory manager'
-    return_dict['tab'] = 'dir_permissions_tab'
-    return_dict["error"] = 'Error loading directory manager'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-'''
-
-def modify_dir_owner(request):
+def update_dir_owner(request):
   return_dict = {}
   try:
     users, err = local_users.get_local_users()
@@ -923,7 +751,7 @@ def modify_dir_owner(request):
       initial['group_name'] = group_name
       form = folder_management_forms.ModifyOwnershipForm(initial=initial, user_list = users, group_list = groups)
       return_dict["form"] = form
-      return django.shortcuts.render_to_response('modify_dir_ownership.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response('update_dir_ownership.html', return_dict, context_instance=django.template.context.RequestContext(request))
     else:
       form = folder_management_forms.ModifyOwnershipForm(request.POST, user_list = users, group_list = groups)
       return_dict["form"] = form
@@ -936,7 +764,7 @@ def modify_dir_owner(request):
         audit.audit("modify_dir_owner", audit_str, request.META)
         return django.http.HttpResponseRedirect('/view_dir_ownership_permissions?path=%s&ack=modified_ownership'%cd['path'])
       else:
-        return django.shortcuts.render_to_response('modify_dir_ownership.html', return_dict, context_instance=django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response('update_dir_ownership.html', return_dict, context_instance=django.template.context.RequestContext(request))
 
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
@@ -946,7 +774,7 @@ def modify_dir_owner(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def modify_dir_permissions(request):
+def update_dir_permissions(request):
   return_dict = {}
   try:
     if not "error" in return_dict:
@@ -1040,7 +868,7 @@ def modify_dir_permissions(request):
       form = folder_management_forms.SetFileOwnerAndPermissionsForm(initial = initial, user_list = users, group_list = groups)
   
       return_dict["form"] = form
-      return django.shortcuts.render_to_response('modify_dir_permissions.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response('update_dir_permissions.html', return_dict, context_instance=django.template.context.RequestContext(request))
   
     elif request.method == "POST":
       path = request.POST.get("path")
@@ -1076,7 +904,7 @@ def modify_dir_permissions(request):
         else:
           raise Exception("Cannot delete folder. It is either a dataset of a share")
       else:
-        form = common_forms.SetFileOwnerAndPermissionsForm(request.POST, user_list = users, group_list = groups)
+        form = folder_management_forms.SetFileOwnerAndPermissionsForm(request.POST, user_list = users, group_list = groups)
         return_dict["form"] = form
         if form.is_valid():
           cd = form.cleaned_data
@@ -1090,10 +918,10 @@ def modify_dir_permissions(request):
           audit_str = "Modified directory ownsership/permissions for %s"%cd["path"]
           audit.audit("modify_dir_owner_permissions", audit_str, request.META)
   
-      return django.http.HttpResponseRedirect('/modify_dir_permissions/?ack=set_permissions')
+      return django.http.HttpResponseRedirect('/update_dir_permissions/?ack=set_permissions')
   
     else:
-      return django.shortcuts.render_to_response('modify_dir_permissions.html', return_dict, context_instance=django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response('update_dir_permissions.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
     return_dict["page_title"] = 'Modify ownership/permissions on a directory'
@@ -1102,23 +930,60 @@ def modify_dir_permissions(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def _owner_readable(st):
-  return bool(st.st_mode & stat.S_IRUSR)
-def _owner_writeable(st):
-  return bool(st.st_mode & stat.S_IWUSR)
-def _owner_executeable(st):
-  return bool(st.st_mode & stat.S_IXUSR)
+def update_sticky_bit(request):
+  return_dict = {}
+  try:
 
-def _group_readable(st):
-  return bool(st.st_mode & stat.S_IRGRP)
-def _group_writeable(st):
-  return bool(st.st_mode & stat.S_IWGRP)
-def _group_executeable(st):
-  return bool(st.st_mode & stat.S_IXGRP)
+    if 'path' not in request.REQUEST:
+      raise Exception('Invalid request. Please use the menus.')
+    path = request.REQUEST['path']
 
-def _other_readable(st):
-  return bool(st.st_mode & stat.S_IROTH)
-def _other_writeable(st):
-  return bool(st.st_mode & stat.S_IWOTH)
-def _other_executeable(st):
-  return bool(st.st_mode & stat.S_IXOTH)
+    sticky_bit_enabled, err = _sticky_bit_enabled(path)
+    if err:
+      raise Exception(err)
+
+    if request.method == "GET":
+      initial = {}
+      initial['path'] = path
+      initial['sticky_bit_enabled'] = sticky_bit_enabled
+      form = folder_management_forms.ModifyStickyBitForm(initial=initial)
+      return_dict["form"] = form
+      return django.shortcuts.render_to_response('update_sticky_bit.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    else:
+      form = folder_management_forms.ModifyStickyBitForm(request.POST)
+      return_dict["form"] = form
+      if form.is_valid():
+        cd = form.cleaned_data
+        s = os.stat(path)
+        if cd['sticky_bit_enabled']:
+          audit_str = 'Enabled sticky bit '
+          if cd['recursive']:
+            audit_str += 'recursively '
+            for root, dirs, files in os.walk(path):  
+              for target in dirs:  
+                os.chmod('%s/%s'%(root,target), (s.st_mode | stat.S_ISVTX))
+          os.chmod(path, (s.st_mode | stat.S_ISVTX))
+          audit_str += 'for path %s'%path
+          #print audit_str
+        else:
+          audit_str = 'Disabled sticky bit '
+          if cd['recursive']:
+            audit_str += 'recursively '
+            for root, dirs, files in os.walk(path):  
+              for target in dirs:  
+                os.chmod('%s/%s'%(root,target), (s.st_mode & ~stat.S_ISVTX))
+          os.chmod(path, (s.st_mode & ~stat.S_ISVTX))
+          audit_str += 'for path %s'%path
+          #print audit_str
+        audit.audit("modify_dir_sticky_bit", audit_str, request.META)
+        return django.http.HttpResponseRedirect('/view_dir_ownership_permissions?path=%s&ack=modified_sticky_bit'%cd['path'])
+      else:
+        return django.shortcuts.render_to_response('update_dir_ownership.html', return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception, e:
+    return_dict['base_template'] = "storage_base.html"
+    return_dict["page_title"] = 'Modify directory sticky bit settings'
+    return_dict['tab'] = 'dir_permissions_tab'
+    return_dict["error"] = 'Error modifying directory sticky bit settings'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+

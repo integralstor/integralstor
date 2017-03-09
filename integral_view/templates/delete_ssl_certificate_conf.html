@@ -10,6 +10,7 @@
 
   <br>
   <form action="/delete_ssl_certificate/" method="POST">
+    {%csrf_token%}
     <input type=hidden name="name" value="{{name}}">
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <a href="/view_ssl_certificates" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
@@ -29,7 +30,7 @@
 
 {% block tab_active %}
   <script>
-   make_tab_active("ssl_certs_tab")
+    make_tab_active("ssl_certs_tab")
   </script>
 {% endblock %}
 

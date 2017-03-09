@@ -7,6 +7,7 @@
 {% block inside_content %}
 
   <form id="create_form" name="create_form" action="/create_rsync_share/" method="post">
+    {%csrf_token%}
     <table class="table" style="width:800px">
       <tr>
         <th>Share Name </th>
@@ -112,8 +113,8 @@
         'data' : {
           'url' : function (node) {
             return node.id === '#' ? 
-              '/dir_contents?first=1&dir=/' : 
-              '/dir_contents'; 
+              '/view_dir_contents?first=1&dir=/' : 
+              '/view_dir_contents'; 
           },
           'data' : function (node) {
             var e = document.getElementById("id_dataset");
@@ -169,7 +170,7 @@
 {%endblock%}
 
 {%block help_body%}
-<p>Use this screen to create a NFS share. The settings will take effect upon saving this information.</p>
+  <p>Use this screen to create a Rsync share. The settings will take effect upon saving this information.</p>
 {%endblock%}
 
 {% block tab_active %}

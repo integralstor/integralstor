@@ -19,6 +19,7 @@
   <br>
 
   <form action="/delete_zfs_dataset/" method="POST">
+    {%csrf_token%}
     <input type=hidden name="name" value="{{name}}">
     <input type=hidden name="type" value="{{type}}">
     <input type=hidden name="pool_name" value="{{pool_name}}">

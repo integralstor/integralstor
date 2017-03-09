@@ -9,6 +9,7 @@
   <p id="p-warning-text">Are you sure you want to delete the ZFS snapshot with name  "{{display_name}}"? </p>
   <br>
   <form action="/delete_zfs_snapshot/" method="POST">
+    {%csrf_token%}
     <input type=hidden name="name" value="{{name}}">
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_snapshots'"> &nbsp;&nbsp;

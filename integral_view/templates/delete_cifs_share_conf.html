@@ -10,6 +10,7 @@
   <p id="p-warning-text">Are you sure you want to delete the share named "{{name}}"? </p>
   <br>
   <form action="/delete_cifs_share/" method="POST">
+    {%csrf_token%}
     <input type=hidden name="name" value="{{name}}">
     <input type=hidden name="share_id" value="{{share_id}}">
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
@@ -30,7 +31,7 @@
 
 {% block tab_active %}
   <script>
-   make_tab_active("view_cifs_shares_tab")
+    make_tab_active("view_cifs_shares_tab")
   </script>
 {% endblock %}
 

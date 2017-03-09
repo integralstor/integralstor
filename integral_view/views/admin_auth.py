@@ -5,23 +5,16 @@ from django.contrib import auth
 from django.contrib.sessions.models import Session
 from django.contrib.auth.decorators import login_required
 
-import os, time, datetime
+import os
 
 import integral_view
 from integral_view.forms import admin_forms, pki_forms
 from integral_view.utils import iv_logging
-
-import integralstor_unicell
-from integralstor_unicell import system_info
-
-import integralstor_common
-from integralstor_common import audit, mail, common, certificates, nginx,command, scheduler_utils
+from integralstor_common import audit, mail, common, certificates, nginx, command, scheduler_utils
 
 
 def login(request):
-
   """ Used to login a user into the management utility"""
-
   try:
     return_dict = {}
     authSucceeded = False
@@ -40,16 +33,13 @@ def login(request):
         # Try to authenticate
         user = django.contrib.auth.authenticate(username=username, password=password)
         if user is not None and user.is_active:
-          production, err = integralstor_common.common.is_production()
-          if err:
-            raise Exception(err)
           '''
-          if production:
-            # Clear the session if the user has been logged in anywhere else.
-            sessions = Session.objects.all()
-            for s in sessions:
-              if s.get_decoded() and (s.get_decoded()['_auth_user_id'] == user.id):
-                s.delete()
+          #Uncomment if we want to kick out an already logged in user.
+          # Clear the session if the user has been logged in anywhere else.
+          sessions = Session.objects.all()
+          for s in sessions:
+            if s.get_decoded() and (int(s.get_decoded()['_auth_user_id']) == user.id):
+              s.delete()
           '''
           # authentication succeeded! Login and send to home screen
           django.contrib.auth.login(request, user)
@@ -73,7 +63,7 @@ def login(request):
     return_dict['form'] = form
 
     if authSucceeded:
-      return django.http.HttpResponseRedirect('/dashboard/dashboard')
+      return django.http.HttpResponseRedirect('/view_dashboard/sys_health')
 
     # For all other cases, return to login screen with return_dict 
     # appropriately populated
@@ -104,8 +94,7 @@ def logout(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
 
-
-def change_admin_password(request):
+def update_admin_password(request):
   """ Used to change a user's password for the management utility"""
 
   try:
@@ -142,7 +131,7 @@ def change_admin_password(request):
         form = admin_forms.ChangeAdminPasswordForm()
         return_dict['form'] = form
   
-      return django.shortcuts.render_to_response('change_admin_password_form.html', return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response('update_admin_password_form.html', return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       #User not authenticated so return a login screen
       return django.http.HttpResponseRedirect('/login/')
@@ -153,32 +142,6 @@ def change_admin_password(request):
     return_dict["error"] = 'Error changing administrator password'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-
-def view_system_info(request):
-  return_dict = {}
-  try:
-    si,err = system_info.load_system_config()
-    if err:
-      raise Exception(err)
-    now = datetime.datetime.now()
-    milliseconds =  int(time.mktime(time.localtime())*1000)
-    return_dict['date_str'] = now.strftime("%A %d %B %Y")
-    return_dict['time'] = now
-    return_dict['milliseconds'] = milliseconds
-    return_dict['system_info'] = si
-    if "from" in request.GET:
-      frm = request.GET["from"]
-      return_dict['frm'] = frm
-    return_dict['node'] = si[si.keys()[0]]
-    return django.shortcuts.render_to_response("view_system_info.html", return_dict, context_instance=django.template.context.RequestContext(request))
-  except Exception, e:
-    return_dict['base_template'] = "system_base.html"
-    return_dict["page_title"] = 'System configuration'
-    return_dict['tab'] = 'node_info_tab'
-    return_dict["error"] = 'Error loading system configuration'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-
 
 def view_email_settings(request):
   return_dict = {}
@@ -213,11 +176,11 @@ def view_email_settings(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
   
-def configure_email_settings(request):
+def update_email_settings(request):
 
   try:
     return_dict = {}
-    url = "edit_email_settings.html"
+    url = "update_email_settings.html"
     if request.method=="GET":
       d, err = mail.load_email_settings()
       if err:
@@ -261,9 +224,7 @@ def configure_email_settings(request):
     return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
 
 def view_https_mode(request):
-
   return_dict = {}
-
   try:
     mode, err = nginx.get_nginx_access_mode()
     if err:
@@ -285,10 +246,8 @@ def view_https_mode(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def edit_https_mode(request):
-
+def update_https_mode(request):
   return_dict = {}
-
   try:
 
     if 'change_to' not in request.REQUEST:
@@ -306,16 +265,16 @@ def edit_https_mode(request):
       if change_to == 'secure':
         form = pki_forms.SetHttpsModeForm(cert_list = cert_list)
         return_dict['form'] = form
-        return django.shortcuts.render_to_response("edit_https_mode.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("update_https_mode.html", return_dict, context_instance = django.template.context.RequestContext(request))
       else:
         return_dict['conf_message'] = 'Are you sure you want to disable the secure access mode for IntegralView?'
-        return django.shortcuts.render_to_response("set_http_mode_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("update_http_mode_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       if change_to == 'secure':
         form = pki_forms.SetHttpsModeForm(request.POST, cert_list = cert_list)
         return_dict['form'] = form
         if not form.is_valid():
-          return django.shortcuts.render_to_response("edit_https_mode.html", return_dict, context_instance = django.template.context.RequestContext(request))
+          return django.shortcuts.render_to_response("update_https_mode.html", return_dict, context_instance = django.template.context.RequestContext(request))
         cd = form.cleaned_data
       if change_to == 'secure':
         pki_dir, err = common.get_pki_dir()
@@ -336,9 +295,6 @@ def edit_https_mode(request):
  
     redirect_url = "https://" if change_to == "secure" else "http://"
     redirect_url = redirect_url + request.META["HTTP_HOST"] + "/view_https_mode?ack=set_to_%s"%change_to
-    db_path,err = common.get_db_path()
-    if err:
-      raise Exception(err)
     restart , err = scheduler_utils.add_task('Chaging IntegralView access mode',[{'Restarting Web Server':'service nginx restart'}], 2)
     if err:
       raise Exception(err)
@@ -382,86 +338,6 @@ def reboot_or_shutdown(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
 
-def reload_manifest(request):
-  return_dict = {}
-  try:
-    if request.method == "GET":
-      from integralstor_common import manifest_status as iu
-      mi, err = iu.generate_manifest_info()
-      #print mi, err
-      if err:
-        raise Exception(err)
-      if not mi:
-        raise Exception('Could not load new configuration')
-      return_dict["mi"] = mi[mi.keys()[0]] # Need the hostname here. 
-      return django.shortcuts.render_to_response("reload_manifest.html", return_dict, context_instance=django.template.context.RequestContext(request))
-    elif request.method == "POST":
-      common_python_scripts_path, err = common.get_common_python_scripts_path()
-      if err:
-        raise Exception(err)
-      ss_path, err = common.get_system_status_path()
-      if err:
-        raise Exception(err)
-      #(ret,rc), err = command.execute_with_rc("python %s/generate_manifest.py %s"%(common_python_scripts_path, ss_path))
-      ret, err = command.get_command_output("python %s/generate_manifest.py %s"%(common_python_scripts_path, ss_path))
-      #print 'mani', ret, err
-      if err:
-        raise Exception(err)
-      #(ret,rc), err = command.execute_with_rc("python %s/generate_status.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
-      ret, err = command.get_command_output("python %s/generate_status.py %s"%(common_python_scripts_path, ss_path))
-      #print 'stat', ret, err
-      if err:
-        raise Exception(err)
-      return django.http.HttpResponseRedirect("/view_system_info/")
-  except Exception, e:
-    return_dict['base_template'] = "system_base.html"
-    return_dict["page_title"] = 'Reload system configuration'
-    return_dict['tab'] = 'node_info_tab'
-    return_dict["error"] = 'Error reloading system configuration'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-@login_required 
-#@django.views.decorators.csrf.csrf_exempt
-def flag_node(request):
-
-  try:
-    return_dict = {}
-    if "node" not in request.GET:
-      raise Exception("Error flagging node. No node specified")
-  
-    node_name = request.GET["node"]
-    blink_time = 255
-    use_salt, err = common.use_salt()
-    if use_salt:
-      import salt.client
-      client = salt.client.LocalClient()
-      ret = client.cmd(node_name,'cmd.run',['ipmitool chassis identify %s' %(blink_time)])
-      print ret
-      if ret[node_name] == 'Chassis identify interval: %s seconds'%(blink_time):
-        return django.http.HttpResponse("Success")
-      else:
-        raise Exception("")
-    else:
-      out_list, err = command.get_command_output('service winbind status')
-      if err:
-        raise Exception(err)
-      if 'Chassis identify interval: %s seconds'%(blink_time) in out_list[0]:
-        return django.http.HttpResponse("Success")
-      else:
-        raise Exception("")
-  except Exception, e:
-    return django.http.HttpResponse("Error")
-
-
-#this function takes a user argument checks if the user has administrator rights and then returns True.
-#If he does not have the correct permissions, then then it returns a HTttpResponse stating No Permission to access this page.
-#Takes user object as a parameter: request.user
-# def is_superuser(user):
-#   if user.is_superuser:
-#     return True
-#   else:
-#     return False
 
 def admin_login_required(view):
 
@@ -473,120 +349,3 @@ def admin_login_required(view):
 
   return new_view
     
-#The below function was commented. Uncommented it. Please review it again
-@admin_login_required
-def reset_to_factory_defaults(request):
-  return_dict = {}
-  try:
-    if request.method == "GET":
-      #Send a confirmation screen
-      return django.shortcuts.render_to_response('reset_factory_defaults_conf.html', return_dict, context_instance = django.template.context.RequestContext(request))
-    else:
-      iv_logging.info("Got a request to reset to factory defaults")
-      #Post request so from conf screen
-  
-      #Reset the ntp config file
-      try :
-        shutil.copyfile("%s/factory_defaults/ntp.conf"%common.get_factory_defaults_path(), '%s/ntp.conf'%fractalio.common.get_ntp_conf_path())
-        pass
-      except Exception, e:
-        return_dict["error"] = "Error reseting NTP configuration : %s"%e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-  
-      #Remove email settings
-      try:
-        mail.delete_email_settings()
-      except Exception, e:
-        #print str(e)
-        return_dict["error"] = "Error reseting mail configuration : %s."%e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-  
-      try:
-        audit.rotate_audit_trail()
-      except Exception, e:
-        #print str(e)
-        return_dict["error"] = "Error rotating the audit trail : %s."%e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-  
-      #Remove all shares 
-      try:
-        cifs_common.delete_all_shares()
-      except Exception, e:
-        #print str(e)
-        return_dict["error"] = "Error deleting shares : %s."%e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-  
-      try:
-        cifs_common.delete_auth_settings()
-      except Exception, e:
-        return_dict["error"] = "Error deleting CIFS authentication settings : %s."%e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-      try:
-        request.user.set_password("admin");
-        request.user.save()
-      except Exception, e:
-        return_dict["error"] = "Error resetting admin password: %s."%e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-  
-  
-      #Reset the alerts file
-      try :
-        shutil.copyfile("%s/factory_defaults/alerts.log"%fractalio.common.get_factory_defaults_path(), '%s/alerts.log'%fractalio.common.get_alerts_path())
-      except Exception, e:
-        return_dict["error"] = "Error reseting alerts : %s."%e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-  
-      #Reset all batch jobs
-      try :
-        l = os.listdir("%s"%fractalio.common.get_batch_files_path())
-        for fname in l:
-          os.remove("%s/%s"%(fractalio.common.get_batch_files_path(), fname))
-      except Exception, e:
-        return_dict["error"] = "Error removing scheduled batch jobs : %s."%e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-  
-      try:
-        iscsi.reset_global_target_conf()
-        iscsi.delete_all_targets()
-        iscsi.delete_all_initiators()
-        iscsi.delete_all_auth_access_groups()
-        iscsi.delete_all_auth_access_users()
-      except Exception, e:
-        return_dict["error"] = "Error resetting ISCSI configuration : %s."%e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-  
-      try:
-        # Create commands to stop and delete volumes. Remove peers from cluster.
-        vil = volume_info.get_volume_info_all()
-        scl = system_info.load_system_config()
-        d = gluster_commands.create_factory_defaults_reset_file(scl, vil)
-        if not "error" in d:
-          audit.audit("factory_defaults_reset_start", "Scheduled reset of the system to factory defaults.",  request.META)
-          return django.http.HttpResponseRedirect('/show/batch_start_conf/%s'%d["file_name"])
-        else:
-          return_dict["error"] = "Error initiating a reset to system factory defaults : %s"%d["error"]
-          return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-      except Exception, e:
-        return_dict["error"] = "Error creating factory defaults reset batch file : %s."%e
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
-  except Exception, e:
-    s = str(e)
-    return_dict["error"] = "An error occurred when processing your request : %s"%s
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-
-'''
-
-def remove_email_settings(request):
-
-  response = django.http.HttpResponse()
-  iv_logging.info("Email settings deleted")
-  try:
-    mail.delete_email_settings()
-    response.write("Deleted email settings")
-  except Exception, e:
-    response.write("Error deleteing email settings : %s"%e)
-  return response
-
-
-'''

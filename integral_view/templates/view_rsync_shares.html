@@ -1,4 +1,3 @@
-
 {% extends 'shares_base.html' %}
 
 {%block tab_header %}
@@ -55,7 +54,7 @@
               <div class="btn-group btn-group-xs" >
                 <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                 <ul class="dropdown-menu">
-                  <li> <a href="/edit_rsync_share?name={{share.name}}" role="button" class="action-dropdown" title="Edit the RSync Share"><i class="fa fa-edit fa-fw"></i> Edit</a> </li>
+                  <li> <a href="/update_rsync_share?name={{share.name}}" role="button" class="action-dropdown" title="Edit the RSync Share"><i class="fa fa-edit fa-fw"></i> Edit</a> </li>
                   <li> <a href="/delete_rsync_share?name={{share.name}}" role="button" class="action-dropdown" title="Delete the RSync Share" style="color:red"> <i class="fa fa-trash fa-fw"></i>  Delete</a> </li>
                  </ul>
              
@@ -67,7 +66,6 @@
     <br>
   {%endif%}
 
-
 {%endblock%}
 
 {%block help_header%}
@@ -75,12 +73,12 @@
 {%endblock%}
 
 {%block help_body%}
-<p>
-	To copy data to a RSync share, use rsync -avz /path/to/your/files ip::rsync_share_name
-</p>
-<p>
-	To copy data from a RSync share, use rsync -avz  ip::rsync_share_name /path/to/copy
-</p>
+  <p>
+    To copy data to a RSync share, use rsync -avz /path/to/your/files ip::rsync_share_name
+  </p>
+  <p>
+    To copy data from a RSync share, use rsync -avz  ip::rsync_share_name /path/to/copy
+  </p>
 {%endblock%}
 
 {% block tab_active %}

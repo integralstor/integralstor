@@ -1,19 +1,21 @@
 {% extends 'networking_base.html' %}
+
 {%block tab_header %}
   NIC bond details
 {%endblock%}
+
 {%block global_actions %}
     <div class="btn-group btn-group-sm pull-right"  >
       <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
       <ul class="dropdown-menu">
         <li><a class="action-dropdown" href="/view_interfaces/" role="button" > <i class="fa fa-list fa-fw" ></i>&nbsp;Back to interface list</a></li>
-        <li><a class="action-dropdown" href="/edit_interface_address?name={{name}}" ><i class="fa fa-cog fa-fw" ></i>&nbsp;Modify bond address..</a></li>
+        <li><a class="action-dropdown" href="/update_interface_address?name={{name}}" ><i class="fa fa-cog fa-fw" ></i>&nbsp;Modify bond address..</a></li>
         <!--{%if nic.up_status == 'up' %}
-          <li><a class="action-dropdown" href="/set_interface_state?name={{name}}&state=down" style="color:red"><i class="fa fa-stop-circle-o fa-fw" ></i>&nbsp;Bring down this bond</a></li>
+          <li><a class="action-dropdown" href="/update_interface_state?name={{name}}&state=down" style="color:red"><i class="fa fa-stop-circle-o fa-fw" ></i>&nbsp;Bring down this bond</a></li>
         {%else %}
-          <li><a class="action-dropdown" href="/set_interface_state?name={{name}}&state=up" ><i class="fa fa-stop-play-o fa-fw" ></i>&nbsp;Bring up this bond</a></li>
+          <li><a class="action-dropdown" href="/update_interface_state?name={{name}}&state=up" ><i class="fa fa-stop-play-o fa-fw" ></i>&nbsp;Bring up this bond</a></li>
         {%endif%}-->
-          <li><a class="action-dropdown" href="/remove_bond?name={{name}}" role="button" style="color:red"><i class="fa fa-trash fa-fw" ></i>&nbsp;Remove this bond</a></li>
+          <li><a class="action-dropdown" href="/delete_bond?name={{name}}" role="button" style="color:red"><i class="fa fa-trash fa-fw" ></i>&nbsp;Remove this bond</a></li>
       </ul>
     </div>
 {%endblock%}
@@ -103,6 +105,6 @@
 
 {% block tab_active%}
   <script>
-   make_tab_active("view_interfaces_tab")
-   </script>
+    make_tab_active("view_interfaces_tab")
+  </script>
 {% endblock %}

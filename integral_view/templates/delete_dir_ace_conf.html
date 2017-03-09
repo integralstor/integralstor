@@ -10,6 +10,7 @@
   <p id="p-warning-text">Are you sure you want to delete the ACL entry for the {%if type == 'user'%} user {%else%} group {%endif%} "{{name}}" for directory "{{path}}"? </p>
   <br>
   <form action="/delete_ace/" method="POST">
+    {%csrf_token%}
     <input type=hidden name="name" value="{{name}}">
     <input type=hidden name="path" value="{{path}}">
     <input type=hidden name="type" value="{{type}}">
@@ -25,7 +26,7 @@
     <br/>
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
 
-      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/dir_manager'"> &nbsp;&nbsp;
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_dir_manager'"> &nbsp;&nbsp;
       <button type="submit" class="btn btn-danger cover-page" ">Confirm and delete</button>
     </div>
   </form>
@@ -37,12 +38,12 @@
 {%endblock%}
 
 {%block help_body%}
-<p>Confirming this operation results in the specified directory's ACL entry being deleted from the system. This may cause some access issues for the directory. Please ensure that this is actually intended before continuing.</p>
+  <p>Confirming this operation results in the specified directory's ACL entry being deleted from the system. This may cause some access issues for the directory. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}
 
 {% block tab_active %}
   <script>
-   make_tab_active("dir_manager_tab")
+    make_tab_active("dir_manager_tab")
   </script>
 {% endblock %}
 

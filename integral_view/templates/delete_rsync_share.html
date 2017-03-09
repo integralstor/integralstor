@@ -1,4 +1,3 @@
-
 {% extends 'shares_base.html' %}
 
 {%block tab_header %}
@@ -11,6 +10,7 @@
   <p id="p-warning-text">Are you sure you want to delete the share named "{{name}}"? </p>
   <br>
   <form action="/delete_rsync_share" method="POST">
+    {%csrf_token%}
     <input type=hidden name="name" value="{{name}}">
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_rsync_shares/'"> &nbsp;&nbsp;
@@ -25,12 +25,12 @@
 {%endblock%}
 
 {%block help_body%}
-<p>Confirming this operation results in the specified share being deleted from the system. Please ensure that this is actually intended before continuing.</p>
+  <p>Confirming this operation results in the specified share being deleted from the system. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}
 
 {% block tab_active %}
   <script>
-   make_tab_active("view_cifs_shares_tab")
+    make_tab_active("view_cifs_shares_tab")
   </script>
 {% endblock %}
 

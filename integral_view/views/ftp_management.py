@@ -1,8 +1,6 @@
 import django, django.template,os
 
-import subprocess, re, shutil
-
-from integralstor_common import audit, zfs,common, certificates, vsftp
+from integralstor_common import audit, zfs, certificates, vsftp
 from integralstor_unicell import local_users
 from integral_view.forms import ftp_management_forms
 
@@ -30,7 +28,7 @@ def view_ftp_configuration(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def configure_ftp(request):
+def update_ftp_configuration(request):
   return_dict = {}
   try:
     config, err = vsftp.get_ftp_config()
@@ -59,12 +57,12 @@ def configure_ftp(request):
           initial[key] = config[key]
       form = ftp_management_forms.ConfigureFTPForm(datasets = ds_list, cert_names = cert_name_list, initial=initial)
       return_dict['form'] = form
-      return django.shortcuts.render_to_response('configure_ftp.html', return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response('update_ftp_configuration.html', return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       form = ftp_management_forms.ConfigureFTPForm(request.POST, cert_names = cert_name_list, datasets = ds_list)
       return_dict['form'] = form
       if not form.is_valid():
-        return django.shortcuts.render_to_response("configure_ftp.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("update_ftp_configuration.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
       ret, err = vsftp.update_ftp_config(cd)
       if err:

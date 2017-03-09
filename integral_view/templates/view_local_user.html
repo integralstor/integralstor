@@ -1,4 +1,4 @@
-{% extends 'users-groups_base.html' %}
+{% extends 'users_groups_base.html' %}
 
 {%block tab_header %}
   Local user details
@@ -32,9 +32,9 @@
   </table>
   <div class="btn-group btn-group-sm" role="group" aria-label="...">
     <a href="/view_local_users" role="button" class="btn btn-default">  <i class="fa fa-list fa-fw"></i>&nbsp;Back to user list</a>
-    <a href="/change_local_user_password?username={{user.username}}" role="button" class="btn btn-primary"> <i class="fa fa-exchange fa-fw"></i>&nbsp;Change password</a>
+    <a href="/update_local_user_password?username={{user.username}}" role="button" class="btn btn-primary"> <i class="fa fa-exchange fa-fw"></i>&nbsp;Change password</a>
     <a href="/delete_local_user?username={{user.username}}" role="button" class="btn btn-danger"> <i class="fa fa-trash fa-fw"></i>&nbsp;Delete this user</a>
-    <a href="/edit_local_user_group_membership?username={{user.username}}" role="button" class="btn btn-primary"> <i class="fa fa-exchange fa-fw"></i>&nbsp;Modify group membership</a>
+    <a href="/update_local_user_group_membership?username={{user.username}}" role="button" class="btn btn-primary"> <i class="fa fa-exchange fa-fw"></i>&nbsp;Modify group membership</a>
   </div>
 
 {%endblock%}
@@ -49,6 +49,6 @@
 
 {% block tab_active %}
   <script>
-   make_tab_active("view_local_users_tab")
+    make_tab_active("view_local_users_tab")
   </script>
 {% endblock %}

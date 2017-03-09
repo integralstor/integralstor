@@ -1,4 +1,4 @@
-{% extends 'users-groups_base.html' %}
+{% extends 'users_groups_base.html' %}
 
 {%block tab_header %}
   Delete a local user - confirmation
@@ -10,9 +10,9 @@
   <p id="p-warning-text">Are you sure you want to delete the local user "{{username}}"? </p>
   <br>
   <form action="/delete_local_user/" method="POST">
+    {%csrf_token%}
     <input type=hidden name="username" value="{{username}}">
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      <!--<a href="/view_local_user/?username={{username}}&searchby=username" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;-->
       <a href="/view_local_users" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;
       <button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete </button>
     </div>
@@ -30,6 +30,6 @@
 
 {% block tab_active %}
  <script>
-  make_tab_active("view_local_users_tab")
+    make_tab_active("view_local_users_tab")
  </script>
 {% endblock %}

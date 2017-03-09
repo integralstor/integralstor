@@ -1,0 +1,36 @@
+{% extends 'shares_base.html' %}
+
+{%block tab_header %}
+  Remove an ISCSI user - confirmation
+{%endblock%}
+
+{% block inside_content %}
+
+  <p id="p-warning-text">Are you sure you want to remove the {%if authentication_type == 'incoming'%} initiator {%else%} target {%endif%} authentication for user "{{username}}" from target "{{target_name}}"? </p>
+  <br>
+  <form action="/delete_iscsi_user_authentication/" method="POST">
+    {%csrf_token%}
+    <input type=hidden name="target_name" value="{{target_name}}">
+    <input type=hidden name="username" value="{{username}}">
+    <input type=hidden name="authentication_type" value="{{authentication_type}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_iscsi_targets'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and remove</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Remove a user from ISCSI user authentication
+{%endblock%}
+
+{%block help_body%}
+  <p>Confirming this operation results in the specified user being removed from the specified kind of ISCSI authentication. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_iscsi_targets_tab")
+  </script>
+{% endblock %}

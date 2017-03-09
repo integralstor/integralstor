@@ -1,75 +1,10 @@
 import django, django.template
 
-import integralstor_common
-import integralstor_unicell
-from integralstor_common import zfs, audit, ramdisk,file_processing, common, command,db, disks, remote_replication
-from integralstor_common import scheduler_utils, manifest_status,ssh
+from integralstor_common import zfs, audit, ramdisk, common, command, db
 from integralstor_common import cifs as common_cifs
 from integralstor_unicell import nfs,local_users, iscsi_stgt, system_info
 
-import json, time, os, shutil, tempfile, os.path, re, subprocess, sys, shutil, pwd, grp, stat,datetime
-
-from integral_view.forms import zfs_forms,common_forms
-  
-def view_disks(request):
-  return_dict = {}
-  try:
-    if "ack" in request.GET:
-      if request.GET["ack"] == "blink":
-        return_dict['ack_message'] = "Disk identification LED successfully activated"
-      elif request.GET["ack"] == "unblink":
-        return_dict['ack_message'] = "Disk identification LED successfully de-activated"
-    si, err = system_info.load_system_config()
-    if err:
-      raise Exception(err)
-    if not si:
-      raise Exception('Error loading system configuration')
-    hw_platform, err = common.get_hardware_platform()
-    if hw_platform:
-      return_dict['hw_platform'] = hw_platform
-      if hw_platform == 'dell':
-        from integralstor_common.platforms import dell
-        idrac_url, err = dell.get_idrac_addr()
-        if idrac_url:
-          return_dict['idrac_url'] = idrac_url
-    return_dict['node'] = si[si.keys()[0]]
-    return_dict['system_info'] = si
-    return_dict["disk_status"] = si[si.keys()[0]]['disks']
-    return_dict['node_name'] = si.keys()[0]
-    return django.shortcuts.render_to_response('view_disks.html', return_dict, context_instance = django.template.context.RequestContext(request))
-  except Exception, e:
-    return_dict['base_template'] = "storage_base.html"
-    return_dict["page_title"] = 'Disks'
-    return_dict['tab'] = 'view_disks_tab'
-    return_dict["error"] = 'Error loading disk information'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-def identify_disk(request):
-  return_dict = {}
-  try:
-    if 'hw_platform' not in request.REQUEST or request.REQUEST['hw_platform'] != 'dell':
-      raise Exception('Unknown hardware platform so cannot toggle identification LED')
-    if 'action' not in request.REQUEST or request.REQUEST['action'] not in ['blink', 'unblink']:
-      raise Exception('Unknown action specified so cannot toggle identification LED')
-    if request.REQUEST['hw_platform'] == 'dell':
-      action = request.REQUEST['action']
-      channel = request.REQUEST['channel']
-      enclosure_id = request.REQUEST['enclosure_id']
-      target_id = request.REQUEST['target_id']
-      from integralstor_common.platforms import dell
-      result, err = dell.blink_unblink_disk(action, 0, channel, enclosure_id, target_id)
-      if not result:
-        raise Exception(err)
-      return django.http.HttpResponseRedirect('/view_disks?ack=%s'%action)
-
-  except Exception, e:
-    return_dict['base_template'] = "storage_base.html"
-    return_dict["page_title"] = 'Disks'
-    return_dict['tab'] = 'view_disks_tab'
-    return_dict["error"] = 'Error toggling disk identification'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+from integral_view.forms import zfs_forms
 
 def view_zfs_pools(request):
   return_dict = {}
@@ -225,188 +160,7 @@ def view_zfs_pool(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-
-def view_remote_replications(request):
-  return_dict = {}
-  try:
-    if "ack" in request.GET:
-      if request.GET["ack"] == "cancelled":
-        return_dict['ack_message'] = 'Selected replication successfully cancelled.'
-      elif request.GET["ack"] == "created":
-        return_dict['ack_message'] = 'Replication successfully scheduled.'
-      elif request.GET["ack"] == "updated":
-        return_dict['ack_message'] = 'Selected replication parameters successfully updated.'
-
-    replications, err = remote_replication.get_remote_replications()
-    if err:
-      raise Exception(err)
-    return_dict["replications"] = replications
-    return django.shortcuts.render_to_response('view_remote_replications.html',return_dict,context_instance=django.template.context.RequestContext(request))
-  except Exception as e:
-    return_dict['base_template'] = "storage_base.html"
-    return_dict["page_title"] = 'View Remote Replication'
-    return_dict['tab'] = 'view_remote_replications_tab'
-    return_dict["error"] = 'Error retreiving replication informat'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-    
-def create_remote_replication(request):
-  return_dict = {}
-  try:
-
-    if request.method == "GET":
-      datasets = []
-      pools,err = zfs.get_all_datasets_and_pools()
-      if err:
-        raise Exception(err)
-      for pool in pools:
-        if "/" in pool:
-          datasets.append(pool)
-      return_dict["datasets"] = datasets
-      return django.shortcuts.render_to_response('modify_remote_replication.html',return_dict,context_instance=django.template.context.RequestContext(request))
-
-    elif request.method == "POST":
-      source_dataset = request.POST.get('source_dataset')
-      scheduler = request.POST.get('scheduler')
-      schedule = scheduler.split()
-      destination_ip = request.POST.get('destination_ip')
-      destination_pool = request.POST.get('destination_pool')
-      destination_username = "replicator"
-
-      if (not destination_ip) or (not destination_pool) or (not source_dataset):
-        raise Exception("Incomplete request.")
-
-      existing_repl, err = remote_replication.get_remote_replications_with (source_dataset, destination_ip, destination_pool)
-      print existing_repl
-      if err:
-        raise Exception (err)
-      if existing_repl:
-        raise Exception ("A replication schedule already exists with matching entires/options.")
-
-      py_scripts_path, err = common.get_python_scripts_path()
-      if err:
-        raise Exception(err)
-
-      cmd = '%s/add_remote_replication_task.py %s %s %s %s'%(py_scripts_path, source_dataset, destination_ip, destination_username, destination_pool)
-      description = 'Replication of %s to pool %s on machine %s'%(source_dataset, destination_pool, destination_ip)
-      cron_task_id, err = scheduler_utils.add_cron_task(cmd, description,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4])
-      if err:
-        raise Exception(err)
-
-      remote_replication_id, err = remote_replication.add_remote_replication(source_dataset,destination_ip,destination_username,destination_pool, cron_task_id)
-      if err:
-        raise Exception(err)
-
-      crons, err = scheduler_utils.get_cron_tasks(cron_task_id)
-      if err:
-        raise Exception(err)
-      description += ' Scheduled for %s'%crons[0]['schedule_description']
-
-      audit.audit("create_remote_replication", description, request.META)
-
-      return django.http.HttpResponseRedirect('/view_remote_replications?ack=created')
-  except Exception as e:
-    return_dict['base_template'] = "snapshot_replication_base.html"
-    return_dict["page_title"] = 'Configure ZFS replication'
-    return_dict['tab'] = 'view_remote_replications_tab'
-    return_dict["error"] = 'Error configuring ZFS replication'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-def modify_remote_replication(request):
-  return_dict = {}
-  try:
-
-    if 'remote_replication_id' not in request.REQUEST:
-      raise Exception('Invalid request. Please use the menus.')
-    remote_replication_id = request.REQUEST['remote_replication_id']
-    replications, err = remote_replication.get_remote_replications(remote_replication_id)
-    if err:
-      raise Exception(err)
-    if not replications:
-      raise Exception('Specified replication definition not found')
-
-    if request.method == "GET":
-      return_dict['replication'] = replications[0]
-      return django.shortcuts.render_to_response('modify_remote_replication.html',return_dict,context_instance=django.template.context.RequestContext(request))
-    elif request.method == "POST":
-      if 'scheduler' not in request.POST:
-        raise Exception("Incomplete request.")
-      scheduler = request.POST.get('scheduler')
-      schedule = scheduler.split()
-
-      replication = replications[0]
-
-      description = 'Replication of %s to pool %s on machine %s'%(replication['source_dataset'], replication['destination_pool'], replication['destination_ip'])
-
-      py_scripts_path, err = common.get_python_scripts_path()
-      if err:
-        raise Exception(err)
-
-      cmd = '%s/add_remote_replication_task.py %s %s %s %s'%(py_scripts_path, replications[0]['source_dataset'], replications[0]['destination_ip'], replications[0]['destination_user_name'], replications[0]['destination_pool'])
-      #print cmd
-      new_cron_task_id, err = scheduler_utils.add_cron_task(cmd, description,schedule[0],schedule[1],schedule[2],schedule[3],schedule[4])
-      if err:
-        raise Exception(err)
-      ret, err = remote_replication.update_remote_replication(replications[0]['remote_replication_id'], new_cron_task_id)
-      if err:
-        raise Exception(err)
-
-      cron_remove,err = scheduler_utils.remove_cron(int(replication['cron_task_id']))
-      if err:
-        raise Exception(err)
-      crons, err = scheduler_utils.get_cron_tasks(new_cron_task_id)
-      if err:
-        raise Exception(err)
-      description += ' Scheduled for %s'%crons[0]['schedule_description']
-
-      audit.audit("modify_remote_replication", description, request.META)
-      return django.http.HttpResponseRedirect('/view_remote_replications?ack=updated')
-  except Exception as e:
-    return_dict['base_template'] = "snapshot_replication_base.html"
-    return_dict["page_title"] = 'Configure ZFS replication'
-    return_dict['tab'] = 'view_remote_replications_tab'
-    return_dict["error"] = 'Error configuring ZFS replication'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-
-def remove_remote_replication(request):
-  return_dict = {}
-  try:
-    if 'remote_replication_id' not in request.REQUEST:
-      raise Exception('Invalid request. Please use the menus.')
-    remote_replication_id = request.REQUEST['remote_replication_id']
-    return_dict['remote_replication_id'] = remote_replication_id
-    replications, err = remote_replication.get_remote_replications(remote_replication_id)
-    if err:
-      raise Exception(err)
-    if not replications:
-      raise Exception('Specified remote replication definition not found')
-
-    if request.method == "GET":
-      return_dict['replication'] = replications[0]
-      return django.shortcuts.render_to_response("cancel_zfs_replication_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
-    else:
-
-      cron_remove,err = scheduler_utils.remove_cron(int(request.REQUEST['cron_task_id']))
-      if err:
-        raise Exception(err)
-
-      ret, err = remote_replication.delete_remote_replication(remote_replication_id)
-      if err:
-        raise Exception(err)
-      audit.audit("remove_remote_replication", replications[0]['description'], request.META)
-      return django.http.HttpResponseRedirect('/view_remote_replications?ack=cancelled')
-  except Exception as e:
-    return_dict['base_template'] = "snapshot_replication_base.html"
-    return_dict["page_title"] = 'Cancel ZFS replication'
-    return_dict['tab'] = 'view_remote_replications_tab'
-    return_dict["error"] = 'Error cancelling ZFS replication'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-def set_zfs_quota(request):
+def update_zfs_quota(request):
   return_dict = {}
   try:
     if 'path' not in request.REQUEST or 'ug_type' not in request.REQUEST or 'path_type' not in request.REQUEST:
@@ -436,12 +190,12 @@ def set_zfs_quota(request):
     if request.method == "GET":
       form = zfs_forms.QuotaForm(user_group_list = ug_list, initial={'ug_type': ug_type, 'path':path})
       return_dict['form'] = form
-      return django.shortcuts.render_to_response("set_zfs_quota.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("update_zfs_quota.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       form = zfs_forms.QuotaForm(request.POST, user_group_list = ug_list)
       return_dict['form'] = form
       if not form.is_valid():
-        return django.shortcuts.render_to_response("set_zfs_quota.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("update_zfs_quota.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
       if cd['ug_type'] == 'user':
         user = True
@@ -464,7 +218,7 @@ def set_zfs_quota(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def remove_zfs_quota(request):
+def delete_zfs_quota(request):
   return_dict = {}
   try:
     if 'path' not in request.REQUEST or 'ug_name' not in request.REQUEST or 'ug_type' not in request.REQUEST or 'path_type' not in request.REQUEST:
@@ -482,7 +236,7 @@ def remove_zfs_quota(request):
     return_dict["ug_type"] = ug_type
     if request.method == "GET":
       #Return the conf page
-      return django.shortcuts.render_to_response("remove_zfs_quota_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("delete_zfs_quota_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       if ug_type == 'user':
         user = True
@@ -776,7 +530,7 @@ def delete_zfs_pool(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def set_zfs_slog(request):
+def update_zfs_slog(request):
   return_dict = {}
   try:
     
@@ -826,12 +580,12 @@ def set_zfs_slog(request):
 
       form = zfs_forms.SlogForm(initial=initial, free_disks = free_disks)
       return_dict['form'] = form
-      return django.shortcuts.render_to_response("edit_zfs_slog.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("update_zfs_slog.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       form = zfs_forms.SlogForm(request.POST, free_disks = free_disks)
       return_dict['form'] = form
       if not form.is_valid():
-        return django.shortcuts.render_to_response("edit_zfs_slog.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("update_zfs_slog.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
       #print cd
       if cd['slog'] == 'ramdisk':
@@ -871,7 +625,7 @@ def set_zfs_slog(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def remove_zfs_slog(request):
+def delete_zfs_slog(request):
 
   return_dict = {}
   try:
@@ -887,7 +641,7 @@ def remove_zfs_slog(request):
     return_dict["type"] = type
     if request.method == "GET":
       #Return the conf page
-      return django.shortcuts.render_to_response("remove_zfs_slog_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("delete_zfs_slog_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       result, err = zfs.remove_pool_vdev(pool, device)
       if not result:
@@ -911,7 +665,7 @@ def remove_zfs_slog(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def set_zfs_l2arc(request):
+def update_zfs_l2arc(request):
   return_dict = {}
   try:
     
@@ -943,12 +697,12 @@ def set_zfs_l2arc(request):
 
       form = zfs_forms.L2arcForm(initial=initial, free_disks = free_disks)
       return_dict['form'] = form
-      return django.shortcuts.render_to_response("edit_zfs_l2arc.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("update_zfs_l2arc.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       form = zfs_forms.L2arcForm(request.POST, free_disks = free_disks)
       return_dict['form'] = form
       if not form.is_valid():
-        return django.shortcuts.render_to_response("edit_zfs_l2arc.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("update_zfs_l2arc.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
       #print cd
       result, err = zfs.set_pool_cache_vdev(cd['pool'], cd['disk'])
@@ -964,7 +718,7 @@ def set_zfs_l2arc(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def remove_zfs_l2arc(request):
+def delete_zfs_l2arc(request):
 
   return_dict = {}
   try:
@@ -983,7 +737,7 @@ def remove_zfs_l2arc(request):
 
     if request.method == "GET":
       #Return the conf page
-      return django.shortcuts.render_to_response("remove_zfs_l2arc_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("delete_zfs_l2arc_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       result, err = zfs.remove_pool_vdev(pool, device)
       if not result:
@@ -1060,14 +814,6 @@ def view_zfs_dataset(request):
     return_dict['exposed_properties'] = ['compression', 'compressratio', 'dedup',  'type', 'usedbychildren', 'usedbydataset', 'creation']
     if 'result' in request.GET:
       return_dict['result'] = request.GET['result']
-    cmd = "select * from dataset_repl where dataset='%s'"%str(dataset_name)
-    db_path,err = common.get_db_path()
-    status,err = db.read_single_row(db_path,cmd)
-    if not err:
-      if not status:
-        return_dict["replication_status"] = "disabled"
-      else:
-        return_dict["replication_status"] = "enabled"
 
     template = "view_zfs_dataset.html"
     return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
@@ -1079,7 +825,7 @@ def view_zfs_dataset(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def edit_zfs_dataset(request):
+def update_zfs_dataset(request):
   return_dict = {}
   try:
     if 'name' not in request.REQUEST:
@@ -1104,12 +850,12 @@ def edit_zfs_dataset(request):
       return_dict['type'] = properties['type']
       form = zfs_forms.DatasetForm(initial=initial)
       return_dict['form'] = form
-      return django.shortcuts.render_to_response("edit_zfs_dataset.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("update_zfs_dataset.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       form = zfs_forms.DatasetForm(request.POST)
       return_dict['form'] = form
       if not form.is_valid():
-        return django.shortcuts.render_to_response("edit_zfs_dataset.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("update_zfs_dataset.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
       result_str = ""
       audit_str = "Changed the following dataset properties for dataset %s : "%name
@@ -1608,7 +1354,7 @@ def schedule_zfs_snapshot(request):
       form = zfs_forms.ScheduleSnapshotForm(request.POST, datasets = datasets)
       return_dict['form'] = form
       if not form.is_valid():
-        return django.shortcuts.render_to_response("create_zfs_snapshot.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("schedule_zfs_snapshot.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
       target = cd['target']
       frequent = cd['frequent']
@@ -1631,7 +1377,7 @@ def schedule_zfs_snapshot(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def add_zfs_spares(request):
+def create_zfs_spares(request):
   return_dict = {}
   try:
     if 'pool_name' not in request.REQUEST:
@@ -1647,12 +1393,12 @@ def add_zfs_spares(request):
       form = zfs_forms.AddSparesForm(num_free_drives = num_free_drives)
       return_dict['form'] = form
       return_dict['pool_name'] = pool_name
-      return django.shortcuts.render_to_response("add_zfs_spares.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("create_zfs_spares.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       form = zfs_forms.AddSparesForm(request.POST, num_free_drives = num_free_drives)
       return_dict['form'] = form
       if not form.is_valid():
-        return django.shortcuts.render_to_response("add_zfs_spares.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("create_zfs_spares.html", return_dict, context_instance = django.template.context.RequestContext(request))
       cd = form.cleaned_data
       num_spares = cd['num_spares']
       #print num_spares
@@ -1671,7 +1417,7 @@ def add_zfs_spares(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def remove_zfs_spare(request):
+def delete_zfs_spare(request):
   return_dict = {}
   try:
     if 'pool_name' not in request.REQUEST:
@@ -1684,7 +1430,7 @@ def remove_zfs_spare(request):
       raise Exception('The pool does not have any spare drives assigned to it')
     if request.method == 'GET':
       return_dict['pool_name'] = pool_name
-      return django.shortcuts.render_to_response("remove_zfs_spare_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("delete_zfs_spare_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       ret, err = zfs.remove_a_spare_from_pool(pool_name)
       if err:
@@ -1698,214 +1444,6 @@ def remove_zfs_spare(request):
     return_dict["page_title"] = 'Remove a spare disk from a ZFS pool'
     return_dict['tab'] = 'view_zfs_pools_tab'
     return_dict["error"] = 'Error removing a  spares disk from a ZFS pool'
-    return_dict["error_details"] = str(e)
-    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-def replace_disk(request):
-
-  return_dict = {}
-  try:
-    form = None
-  
-    si, err = system_info.load_system_config()
-    if err:
-      raise Exception(err)
-    if not si:
-      raise Exception('Error loading system config')
-
-    return_dict['system_config_list'] = si
-    
-    template = 'logged_in_error.html'
-    use_salt, err = common.use_salt()
-    if err:
-      raise Exception(err)
-  
-    if request.method == "GET":
-      raise Exception("Incorrect access method. Please use the menus")
-    else:
-      if 'node' in request.POST:
-        node = request.POST["node"]
-      else:
-        node = si.keys()[0]
-      serial_number = request.POST["serial_number"]
-  
-      if "conf" in request.POST:
-        if "node" not in request.POST or  "serial_number" not in request.POST:
-          raise Exception("Incorrect access method. Please use the menus")
-        elif request.POST["node"] not in si:
-          raise Exception("Unknown node. Please use the menus")
-        elif "step" not in request.POST :
-          raise Exception("Incomplete request. Please use the menus")
-        elif request.POST["step"] not in ["replace_method", "select_replacement_disk", "offline_disk", "scan_for_new_disk", "online_new_disk"]:
-          raise Exception("Incomplete request. Please use the menus")
-        else:
-          step = request.POST["step"]
-  
-          # Which step of the replace disk are we in?
-  
-          if step == "offline_disk":
-  
-            #get the pool corresponding to the disk
-            #zpool offline pool disk
-            #send a screen asking them to replace the disk
-  
-            if 'replacement_method' not in request.POST or request.POST['replacement_method'] not in ['use_existing_disk','swap_out_disk']:
-              raise Exception('Invalid request')
-            return_dict['replacement_method'] = request.POST['replacement_method']
-            if request.POST['replacement_method'] == 'use_existing_disk':
-              #Then we should have landed here after already selecting the new disk so get and record the new disk details
-              if 'new_serial_number' not in request.POST:
-                raise Exception('Incomplete request. Please try again')
-              new_serial_number = request.POST['new_serial_number']
-              all_disks, err = disks.get_disk_info_all()
-              if new_serial_number not in all_disks:
-                raise Exception('Invalid disk selection')
-              #print new_serial_number
-              #print all_disks[new_serial_number]['id']
-              return_dict['new_serial_number'] = new_serial_number
-              return_dict['new_id'] = all_disks[new_serial_number]['id']
-      
-            pool = None
-            if serial_number in si[node]["disks"]:
-              disk = si[node]["disks"][serial_number]
-              if "pool" in disk:
-                pool = disk["pool"]
-              disk_id = disk["id"]
-            if not pool:
-              raise Exception("Could not find the storage pool on that disk. Please use the menus")
-            else:
-              cmd_to_run = 'zpool offline %s %s'%(pool, disk_id)
-              #print 'Running %s'%cmd_to_run
-              #assert False
-              ret, err = command.get_command_output(cmd_to_run)
-              if err:
-                raise Exception(err)
-              '''
-              (ret, rc), err = command.execute_with_rc(cmd_to_run)
-              if err:
-                raise Exception(err)
-              #print ret
-              if rc != 0:
-                err = "Error bringing the disk with serial number %s offline  : "%(serial_number)
-                tl, er = command.get_output_list(ret)
-                if er:
-                  raise Exception(er)
-                if tl:
-                  err = ','.join(tl)
-                tl, er = command.get_error_list(ret)
-                if er:
-                  raise Exception(er)
-                if tl:
-                  err = err + ','.join(tl)
-                raise Exception(err)  
-              '''
-              audit_str = "Replace disk - Disk with serial number %s brought offline"%serial_number
-              audit.audit("replace_disk_offline_disk", audit_str, request.META)
-              return_dict["serial_number"] = serial_number
-              return_dict["node"] = node
-              return_dict["pool"] = pool
-              return_dict["old_id"] = disk_id
-              template = "replace_disk_offlined_conf.html"
-  
-          elif step == "replace_method":
-            return_dict["node"] = node
-            return_dict["serial_number"] = serial_number
-            template = "replace_disk_method.html"
-
-          elif step == "select_replacement_disk":
-            if 'replacement_method' not in request.POST or request.POST['replacement_method'] not in ['use_existing_disk','swap_out_disk']:
-              raise Exception('Invalid request')
-            return_dict['replacement_method'] = request.POST['replacement_method']
-            return_dict["node"] = node
-            return_dict["serial_number"] = serial_number
-            free_disks, err = zfs.get_free_disks()
-            if err:
-              raise Exception(err)
-            if not free_disks:
-              raise Exception('There are no unused disks presently')
-            return_dict['free_disks'] = free_disks
-            template = "replace_disk_choose_disk.html"
-
-          elif step == "scan_for_new_disk":
-  
-            #they have replaced the disk so scan for the new disk
-            # and prompt for a confirmation of the new disk serial number
-  
-            pool = request.POST["pool"]
-            old_id = request.POST["old_id"]
-            return_dict["node"] = node
-            return_dict["serial_number"] = serial_number
-            return_dict["pool"] = pool
-            return_dict["old_id"] = old_id
-            old_disks = si[node]["disks"].keys()
-            result = False
-            rc, err = manifest_status.disk_info_and_status()
-            if err:
-              raise Exception(err)
-            if rc:
-              result = True
-              new_disks = rc
-            if result:
-              #print '1'
-              if new_disks:
-                #print new_disks.keys()
-                #print old_disks
-                for disk in new_disks.keys():
-                  #print disk
-                  if disk not in old_disks:
-                    #print 'new disk : ', disk
-                    return_dict["inserted_disk_serial_number"] = disk
-                    return_dict["new_id"] = new_disks[disk]["id"]
-                    break
-                if "inserted_disk_serial_number" not in return_dict:
-                  raise Exception("Could not detect any new disk. Please check the new disk is inserted and give the system a few seconds to detect the drive and refresh the page to try again.")
-                else:
-                  template = "replace_disk_confirm_new_disk.html"
-          elif step == "online_new_disk":
-  
-            pool = request.POST["pool"]
-            old_id = request.POST["old_id"]
-            new_id = request.POST["new_id"]
-            new_serial_number = request.POST["new_serial_number"]
-            db_path, err = common.get_db_path()
-            if err:
-              raise Exception(err)
-            common_python_scripts_path, err = common.get_common_python_scripts_path()
-            if err:
-              raise Exception(err)
-            cmd_list = []
-            cmd_list.append({'Replace old disk':'zpool replace -f %s %s %s'%(pool, old_id, new_id)})
-            cmd_list.append({'Online the new disk':'zpool online -e %s %s'%(pool, new_id)})
-            cmd_list.append({'Regenerate the system configuration':'%s/generate_manifest.py'%common_python_scripts_path})
-            ret, err = scheduler_utils.add_task('Disk replacement',cmd_list,task_type_id = 1, attempts = 1)
-            if err:
-              raise Exception(err)
-            if not ret:
-              raise Exception('Error scheduling disk replacement tasks')
-            audit_str = "Replace disk - Scheduled a task for replacing the old disk with serial number %s with the new disk with serial number %s"%(serial_number, new_serial_number)
-            audit.audit("replace_disk_replaced_disk", audit_str, request.META)
-            return_dict["node"] = node
-            return_dict["old_serial_number"] = serial_number
-            return_dict["new_serial_number"] = new_serial_number
-            template = "replace_disk_success.html"
-          return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
-          
-      else:
-        if "serial_number" not in request.POST:
-          raise Exception("Incorrect access method. Please use the menus")
-        else:
-          if 'node' in request.POST:
-            return_dict["node"] = request.POST["node"]
-          else:
-            node = si.keys()[0]
-          return_dict["serial_number"] = request.POST["serial_number"]
-          template = "replace_disk_conf.html"
-    return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
-  except Exception, e:
-    return_dict['base_template'] = "storage_base.html"
-    return_dict["page_title"] = 'Replace a disk in a ZFS pool'
-    return_dict['tab'] = 'view_zfs_pools_tab'
-    return_dict["error"] = 'Error replacing a disk in a ZFS pool'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 

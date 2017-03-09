@@ -1,13 +1,12 @@
 
-import integralstor_common
 from integralstor_common import audit, zfs
 from integralstor_unicell import iscsi_stgt
+
 from integral_view.forms import iscsi_stgt_forms
 
 import django, django.template
 
 def view_targets(request):
-
   return_dict = {}
   try:
     target_list, err = iscsi_stgt.get_targets()
@@ -34,7 +33,6 @@ def view_targets(request):
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
   
 def view_target(request):
-
   return_dict = {}
   try:
     if 'name' not in request.GET:
@@ -142,14 +140,11 @@ def delete_iscsi_target(request):
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def create_iscsi_lun(request):
-
   return_dict = {}
-
-  target_name = request.REQUEST['target_name']
-
   try:
     if 'target_name' not in request.REQUEST:
       raise Exception("Malformed request. No target specified. Please use the menus.")
+    target_name = request.REQUEST['target_name']
     zvols, err = zfs.get_all_zvols()
     if err:
       raise Exception(err)
@@ -223,7 +218,7 @@ def delete_iscsi_lun(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def add_iscsi_user_authentication(request):
+def create_iscsi_user_authentication(request):
   return_dict = {}
   try:
     if 'authentication_type' not in request.REQUEST:
@@ -245,7 +240,7 @@ def add_iscsi_user_authentication(request):
       initial['target_name'] = target_name
       form = iscsi_stgt_forms.IscsiAuthenticationForm(initial = initial)
       return_dict["form"] = form
-      return django.shortcuts.render_to_response("add_iscsi_target_user.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("create_iscsi_target_user.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       #Form submission so create
       return_dict = {}
@@ -268,7 +263,7 @@ def add_iscsi_user_authentication(request):
         return django.http.HttpResponseRedirect(url)
       else:
         return_dict["form"] = form
-        return django.shortcuts.render_to_response("add_iscsi_target_user.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("create_iscsi_target_user.html", return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'Add ISCSI authentication user'
@@ -277,7 +272,7 @@ def add_iscsi_user_authentication(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def remove_iscsi_user_authentication(request):
+def delete_iscsi_user_authentication(request):
   return_dict = {}
   try:
     if 'authentication_type' not in request.REQUEST:
@@ -299,7 +294,7 @@ def remove_iscsi_user_authentication(request):
       return_dict["target_name"] = target_name
       return_dict["username"] = username
       return_dict["authentication_type"] = authentication_type
-      return django.shortcuts.render_to_response("remove_iscsi_user_auth_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("delete_iscsi_user_auth_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       ret, err = iscsi_stgt.remove_user_authentication(target_name, username, authentication_type)
       if not ret:
@@ -323,7 +318,7 @@ def remove_iscsi_user_authentication(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def add_iscsi_acl(request):
+def create_iscsi_acl(request):
   return_dict = {}
   try:
     if 'target_name' not in request.REQUEST:
@@ -342,7 +337,7 @@ def add_iscsi_acl(request):
       initial['target_name'] = target_name
       form = iscsi_stgt_forms.IscsiAclForm(initial = initial)
       return_dict["form"] = form
-      return django.shortcuts.render_to_response("add_iscsi_acl.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("create_iscsi_acl.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       #Form submission so create
       return_dict = {}
@@ -361,7 +356,7 @@ def add_iscsi_acl(request):
         return django.http.HttpResponseRedirect(url)
       else:
         return_dict["form"] = form
-        return django.shortcuts.render_to_response("add_iscsi_acl.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("create_iscsi_acl.html", return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "shares_base.html"
     return_dict["page_title"] = 'Add ISCSI ACL'
@@ -370,7 +365,7 @@ def add_iscsi_acl(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def remove_iscsi_acl(request):
+def delete_iscsi_acl(request):
   return_dict = {}
   try:
     if 'acl' not in request.REQUEST:
@@ -384,7 +379,7 @@ def remove_iscsi_acl(request):
     if request.method == "GET":
       return_dict["target_name"] = target_name
       return_dict["acl"] = acl
-      return django.shortcuts.render_to_response("remove_iscsi_acl_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+      return django.shortcuts.render_to_response("delete_iscsi_acl_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       ret, err = iscsi_stgt.remove_acl(target_name, acl)
       if not ret:

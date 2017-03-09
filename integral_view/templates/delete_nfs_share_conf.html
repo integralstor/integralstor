@@ -9,6 +9,7 @@
   <p id="p-warning-text">Are you sure you want to delete the NFS share with path  "{{path}}"? </p>
   <br>
   <form action="/delete_nfs_share/" method="POST">
+    {%csrf_token%}
     <input type=hidden name="path" value="{{path}}">
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_nfs_shares'"> &nbsp;&nbsp;
@@ -29,5 +30,5 @@
 {%endblock%}
 
 {%block help_body%}
-<p>Confirming this operation results in the specified NFS share being deleted from the system. Please ensure that this is actually intended before continuing.</p>
+  <p>Confirming this operation results in the specified NFS share being deleted from the system. Please ensure that this is actually intended before continuing.</p>
 {%endblock%}

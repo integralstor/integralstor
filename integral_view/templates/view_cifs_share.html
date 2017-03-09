@@ -14,7 +14,7 @@
       <a class="btn btn-default btn-sm pull-right dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Share actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
       <ul class="dropdown-menu">
         <li><a class="action-dropdown" href="/view_cifs_shares" role="button" ><i class="fa fa-list fa-fw">&nbsp; </i>Back to share list</a></li>
-        <li><a class="action-dropdown" href="/edit_cifs_share?share_id={{share.share_id}}" ><i class="fa fa-cog fa-fw">&nbsp; </i>Modify settings</a></li>
+        <li><a class="action-dropdown" href="/update_cifs_share?share_id={{share.share_id}}" ><i class="fa fa-cog fa-fw">&nbsp; </i>Modify settings</a></li>
         <li class="divider"></li>
         <li><a class="action-dropdown" href="/delete_cifs_share?share_id={{share.share_id}}&name={{share.name}}" style="color:red"><i class="fa fa-trash fa-fw">&nbsp; </i>Remove this share</a></li>
       </ul>
@@ -65,12 +65,12 @@
 {%endblock%}
 
 {%block help_body%}
-<p>Use this screen to view details about a particular share that has been created. </p>
+  <p>Use this screen to view details about a particular share that has been created. </p>
 {%endblock%}
 
 {% block tab_active %}
   <script>
-   make_tab_active("view_cifs_shares_tab")
+    make_tab_active("view_cifs_shares_tab")
   </script>
 {% endblock %}
 

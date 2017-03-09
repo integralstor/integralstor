@@ -1,8 +1,9 @@
 
-import django.template, django, shutil
-from django.conf import settings
+import django.template, django
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+
+import shutil
 
 from integralstor_common import ntp, services_management
 from integralstor_unicell import system_info
@@ -23,7 +24,7 @@ def view_ntp_settings(request):
       return_dict["ack_message"] = 'NTP settings have successfully been updated.'
     return django.shortcuts.render_to_response('view_ntp_settings.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
-    return_dict['base_template'] = "system_base.html"
+    return_dict['base_template'] = "services_base.html"
     return_dict["page_title"] = 'View NTP settings'
     return_dict['tab'] = 'ntp_settings_tab'
     return_dict["error"] = 'Error retrieving NTP settings'
@@ -31,7 +32,7 @@ def view_ntp_settings(request):
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 @login_required
-def configure_ntp_settings(request):
+def update_ntp_settings(request):
 
   return_dict = {}
   try:
@@ -43,7 +44,7 @@ def configure_ntp_settings(request):
         form = common_forms.ConfigureNTPForm()
       else:
         form = common_forms.ConfigureNTPForm(initial={'server_list': ','.join(ntp_servers)})
-      url = "edit_ntp_settings.html"
+      url = "update_ntp_settings.html"
     else:
       form = common_forms.ConfigureNTPForm(request.POST)
       if form.is_valid():
@@ -77,11 +78,11 @@ def configure_ntp_settings(request):
       else:
         #invalid form
         iv_logging.debug("Got invalid request to change NTP settings")
-        url = "edit_ntp_settings.html"
+        url = "update_ntp_settings.html"
     return_dict["form"] = form
     return django.shortcuts.render_to_response(url, return_dict, context_instance = django.template.context.RequestContext(request))
   except Exception, e:
-    return_dict['base_template'] = "system_base.html"
+    return_dict['base_template'] = "services_base.html"
     return_dict["page_title"] = 'Modify NTP notifications settings'
     return_dict['tab'] = 'ntp_settings_tab'
     return_dict["error"] = 'Error modifying NTP notifications settings'
