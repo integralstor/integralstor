@@ -7,11 +7,11 @@
       <a class="btn btn-default btn-sm pull-right dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp;</i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
       <ul class="dropdown-menu">
         {%if share%}
-          <li><a class="action-dropdown" href="/edit_aces?path={{share.path}}&share_name={{share.name}}&share_index={{share.share_id}}&for=share" ><i class="fa fa-cog fa-fw">&nbsp; </i>Modify entries</a></li>
-          <li><a class="action-dropdown" href="/add_aces?path={{share.path}}&share_name={{share.name}}&share_index={{share.share_id}}&for=share" ><i class="fa fa-plus fa-fw">&nbsp; </i>Add entries</a></li>
+          <li><a class="action-dropdown" href="/update_aces?path={{share.path}}&share_name={{share.name}}&share_index={{share.share_id}}&for=share" ><i class="fa fa-cog fa-fw">&nbsp; </i>Modify entries</a></li>
+          <li><a class="action-dropdown" href="/create_aces?path={{share.path}}&share_name={{share.name}}&share_index={{share.share_id}}&for=share" ><i class="fa fa-plus fa-fw">&nbsp; </i>Add entries</a></li>
         {%else%}
-          <li><a class="action-dropdown" href="/edit_aces?path={{path}}"><i class="fa fa-cog fa-fw">&nbsp; </i>Modify entries</a></li>
-          <li><a class="action-dropdown" href="/add_aces?path={{path}}"><i class="fa fa-plus fa-fw">&nbsp; </i>Add entries</a></li>
+          <li><a class="action-dropdown" href="/update_aces?path={{path}}"><i class="fa fa-cog fa-fw">&nbsp; </i>Modify entries</a></li>
+          <li><a class="action-dropdown" href="/create_aces?path={{path}}"><i class="fa fa-plus fa-fw">&nbsp; </i>Add entries</a></li>
         {%endif%}
       </ul>
     </div>
