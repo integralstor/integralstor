@@ -329,9 +329,11 @@ def create_bond(request):
       raise Exception("Error loading network interface information : No interfaces found")
 
     bm, err = networking.get_bonding_masters ()
+    print 'bm: ', bm
     if err:
       raise Exception (err)
     bid, err = networking.get_bonding_info_all()
+    print 'bid: ', bid
     if err:
       raise Exception(err)
 
@@ -339,9 +341,9 @@ def create_bond(request):
     if_list = []
     existing_bonds = []
     for if_name, iface in interfaces.items():
-      ret, err = networking.get_ip_info (if_name)
-      if ret:
-        continue
+      #ret, err = networking.get_ip_info (if_name)
+      #if ret:
+        #continue
       if if_name.startswith('lo') or if_name in bid['by_slave']:
         continue
       if if_name in bm:

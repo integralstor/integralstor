@@ -23,9 +23,6 @@ def create_bond ():
     
     avail_if = []
     for if_name, iface in interfaces.items():
-      ret, err = networking.get_ip_info (if_name)
-      if ret:
-        continue
       if if_name.startswith('lo') or if_name in bm or if_name in bid['by_slave']:
         continue
       print '\t- %s'%if_name
@@ -72,7 +69,7 @@ def create_bond ():
         else:
           raise Exception("Couldn't create bond")
     if ret:
-        print "\nBond created!\n"
+        print "\nBond created! Configure IP to activate.\n"
     
   except Exception, e:
     print "Error: %s" %e
