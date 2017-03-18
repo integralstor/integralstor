@@ -83,3 +83,5 @@ if __name__ == '__main__':
   rc = create_bond ()
   sys.exit (rc)
       
+
+# vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

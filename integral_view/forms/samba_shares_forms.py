@@ -4,72 +4,72 @@ from integralstor_common import networking
 from integral_view.forms import folder_management_forms
 
 class AuthADSettingsForm(forms.Form):
-  security = forms.CharField(widget=forms.HiddenInput)
-  password = forms.CharField(widget=forms.PasswordInput())
-  realm = forms.CharField()
-  workgroup = forms.CharField()
-  password_server = forms.CharField()
-  password_server_ip = forms.CharField()
-  netbios_name = forms.CharField()
+    security = forms.CharField(widget=forms.HiddenInput)
+    password = forms.CharField(widget=forms.PasswordInput())
+    realm = forms.CharField()
+    workgroup = forms.CharField()
+    password_server = forms.CharField()
+    password_server_ip = forms.CharField()
+    netbios_name = forms.CharField()
 
-  def clean(self):
-    cd = super(AuthADSettingsForm, self).clean()
-    if not networking.validate_ip(cd['password_server_ip']):
-      del cd["password_server_ip"]
-      self._errors["password_server_ip"] = self.error_class(["Please specify a valid IP address"])
-    return cd
+    def clean(self):
+        cd = super(AuthADSettingsForm, self).clean()
+        if not networking.validate_ip(cd['password_server_ip']):
+            del cd["password_server_ip"]
+            self._errors["password_server_ip"] = self.error_class(["Please specify a valid IP address"])
+        return cd
 
 class AuthUsersSettingsForm(forms.Form):
-  security = forms.CharField(widget=forms.HiddenInput)
-  workgroup = forms.CharField()
-  netbios_name = forms.CharField()
+    security = forms.CharField(widget=forms.HiddenInput)
+    workgroup = forms.CharField()
+    netbios_name = forms.CharField()
 
 
 class CreateShareForm(folder_management_forms.DirForm):
-  share_id =  forms.IntegerField(widget=forms.HiddenInput, required = False)
-  name = forms.CharField()
-  comment = forms.CharField(required=False)
-  browseable = forms.BooleanField(required=False,initial=True)
-  read_only = forms.BooleanField(required=False)
-  new_folder = forms.CharField(required=False)
+    share_id =  forms.IntegerField(widget=forms.HiddenInput, required = False)
+    name = forms.CharField()
+    comment = forms.CharField(required=False)
+    browseable = forms.BooleanField(required=False,initial=True)
+    read_only = forms.BooleanField(required=False)
+    new_folder = forms.CharField(required=False)
 
-  def __init__(self, *args, **kwargs):
-    if kwargs:
-      dataset_list = kwargs.pop("dataset_list")
-    super(CreateShareForm, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        if kwargs:
+            dataset_list = kwargs.pop("dataset_list")
+        super(CreateShareForm, self).__init__(*args, **kwargs)
 
-    ch = []
-    if dataset_list:
-      for ds in dataset_list:
-        tup = (ds[0], ds[1])
-        ch.append(tup)   
-    self.fields['dataset'] =  forms.ChoiceField(widget=forms.Select, choices=ch)
+        ch = []
+        if dataset_list:
+            for ds in dataset_list:
+                tup = (ds[0], ds[1])
+                ch.append(tup)   
+        self.fields['dataset'] =  forms.ChoiceField(widget=forms.Select, choices=ch)
 
 
 class AddShareAcesForm(folder_management_forms.AddAcesForm):
-  share_index =  forms.IntegerField(widget=forms.HiddenInput)
-  share_name =  forms.CharField(widget=forms.HiddenInput)
+    share_index =  forms.IntegerField(widget=forms.HiddenInput)
+    share_name =  forms.CharField(widget=forms.HiddenInput)
 
-  def __init__(self, *args, **kwargs):
-    super(AddShareAcesForm, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(AddShareAcesForm, self).__init__(*args, **kwargs)
 
 
 class EditShareAcesForm(folder_management_forms.EditAcesForm):
-  share_index =  forms.IntegerField(widget=forms.HiddenInput)
-  share_name =  forms.CharField(widget=forms.HiddenInput)
-  def __init__(self, *args, **kwargs):
-    super(EditShareAcesForm, self).__init__(*args, **kwargs)
+    share_index =  forms.IntegerField(widget=forms.HiddenInput)
+    share_name =  forms.CharField(widget=forms.HiddenInput)
+    def __init__(self, *args, **kwargs):
+        super(EditShareAcesForm, self).__init__(*args, **kwargs)
 
 class EditShareForm(forms.Form):
-  share_id =  forms.IntegerField(widget=forms.HiddenInput)
-  name = forms.CharField()
-  path = forms.CharField(required=False)
-  comment = forms.CharField(required=False)
-  browseable = forms.BooleanField(required=False)
-  read_only = forms.BooleanField(required=False)
-  #guest_ok = forms.BooleanField(required=False)
+    share_id =  forms.IntegerField(widget=forms.HiddenInput)
+    name = forms.CharField()
+    path = forms.CharField(required=False)
+    comment = forms.CharField(required=False)
+    browseable = forms.BooleanField(required=False)
+    read_only = forms.BooleanField(required=False)
+    #guest_ok = forms.BooleanField(required=False)
 
-  '''
+    '''
   def __init__(self, *args, **kwargs):
     if kwargs:
       user_list = kwargs.pop("user_list")
@@ -107,3 +107,5 @@ class EditShareForm(forms.Form):
     return cd
   '''
 
+
+# vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

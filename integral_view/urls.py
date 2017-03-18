@@ -229,3 +229,5 @@ urlpatterns = patterns('',
     url(r'^delete_zfs_spare/', login_required(delete_zfs_spare)),
 )
 
+
+# vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

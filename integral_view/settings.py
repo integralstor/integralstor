@@ -117,3 +117,5 @@ STATICFILES_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     STATIC_DIR_PATH,
 )
+
+# vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

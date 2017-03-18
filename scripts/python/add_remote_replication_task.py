@@ -27,3 +27,5 @@ if __name__ == '__main__':
     print err
     sys.exit(-1)
   sys.exit(0)
+
+# vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab
