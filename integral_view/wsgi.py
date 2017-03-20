@@ -27,3 +27,5 @@ application = get_wsgi_application()
 # Apply WSGI middleware here.
 # from helloworld.wsgi import HelloWorldApplication
 # application = HelloWorldApplication(application)
+
+# vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

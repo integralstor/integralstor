@@ -110,6 +110,11 @@ create_nic_bond(){
   pause
 }
 
+remove_nic_bond(){
+  python /opt/integralstor/integralstor_unicell/scripts/python/remove_nic_bond.py 
+  pause
+}
+
 view_node_status(){
   python /opt/integralstor/integralstor_unicell/scripts/python/display_node_status.py
   pause
@@ -147,17 +152,18 @@ show_menu() {
   echo "-------------------------------"	
   echo " IntegralSTOR UNIcell - Menu"
   echo "-------------------------------"
-  echo "1. Configure a network interface"
-  echo "2. Reboot"
-  echo "3. Shutdown"
-  echo "4. View configuration"
-  echo "5. View process status"
-  echo "6. Scan system configuration"
-  echo "7. Update date using NTP"
-  echo "8. Restart services"
-  echo "   | 81. Restart smb   82. Restart Winbind               83. Restart iscsi   84. Restart shell service"
-  echo "   | 85. Restart NTP   86. Restart IntegralView services 87. Restart FTP     88. Restart NFS"
-  echo "9. Create NIC Bond"
+  echo "1.  Configure a network interface"
+  echo "2.  Reboot"
+  echo "3.  Shutdown"
+  echo "4.  View configuration"
+  echo "5.  View process status"
+  echo "6.  Scan system configuration"
+  echo "7.  Update date using NTP"
+  echo "8.  Restart services"
+  echo "    | 81. Restart smb   82. Restart Winbind               83. Restart iscsi   84. Restart shell service"
+  echo "    | 85. Restart NTP   86. Restart IntegralView services 87. Restart FTP     88. Restart NFS"
+  echo "9.  Create NIC Bond"
+  echo "10. Remove NIC Bond"
   echo
 
 }
@@ -174,6 +180,7 @@ read_input(){
     6) generate_manifest_and_status;;
     7) update_ntp_date;;
     9) create_nic_bond;;
+   10) remove_nic_bond;;
    81) smb_restart;;
    82) winbind_restart;;
    83) restart_iscsi;;
