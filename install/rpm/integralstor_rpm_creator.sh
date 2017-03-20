@@ -66,7 +66,7 @@ cp -rf /root/unicell_rpm/integralstor_common /root/unicell_rpm/integralstor-unic
 cp -rf /root/unicell_rpm/integralstor_unicell /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor
 
 cp -rf /root/unicell_rpm/integralstor_unicell_tar_installs.tar.gz /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor
-cp -rf /root/unicell_rpm/unicell_rpm_post.sh /root/unicell_rpm/integralstor-unicell-$version_number/opt/integralstor #comment if its in repo
+cp -rf /root/unicell_rpm/integralstor_rpm_post.sh /root/unicell_rpm/integralstor-unicell-$version_number/opt/integralstor #comment if its in repo
 cp -rf /root/unicell_rpm/initial_setup.sh /root/unicell_rpm/integralstor-unicell-$version_number/opt/integralstor #comment if its in repo
 
 ### NOW MOVE THE /root/unicell_rpm/integralstor-unicell-$version_number/ to where ? ###
@@ -132,12 +132,12 @@ rm -rf %{buildroot}
 echo ">>> Inside post <<<"
    
 sleep 2
-#chown root /opt/integralstor/unicell_rpm_post.sh
-chmod 700 /opt/integralstor/unicell_rpm_post.sh
-chmod +x /opt/integralstor/unicell_rpm_post.sh
+#chown root /opt/integralstor/integralstor_rpm_post.sh
+chmod 700 /opt/integralstor/integralstor_rpm_post.sh
+chmod +x /opt/integralstor/integralstor_rpm_post.sh
 
-#sh /opt/integralstor/integralstor_unicell/install/rpm/unicell_rpm_post.sh >/tmp/rpm_post_script_log
-sh /opt/integralstor/unicell_rpm_post.sh >/tmp/rpm_post_script_log
+#sh /opt/integralstor/integralstor_unicell/install/rpm/integralstor_rpm_post.sh >/tmp/rpm_post_script_log
+sh /opt/integralstor/integralstor_rpm_post.sh >/tmp/rpm_post_script_log
 if [ $? -ne 0 ]; then
 echo "CRITICAL: Running post install script Failed!"
 exit 1
