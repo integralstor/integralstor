@@ -1,5 +1,6 @@
 from django import forms
 
+
 class ShareForm(forms.Form):
 
     path = forms.CharField()
@@ -7,11 +8,14 @@ class ShareForm(forms.Form):
     readonly = forms.BooleanField(required=False)
     root_squash = forms.BooleanField(required=False)
     all_squash = forms.BooleanField(required=False)
+
     def clean(self):
         cd = super(ShareForm, self).clean()
         if len(cd['path'].split()) > 1:
-            self._errors["path"] = self.error_class(["The export path cannot contain whitespaces"])
+            self._errors["path"] = self.error_class(
+                ["The export path cannot contain whitespaces"])
         return cd
+
 
 class CreateShareForm(ShareForm):
 
@@ -26,8 +30,8 @@ class CreateShareForm(ShareForm):
         ch = []
         if dataset_list:
             for ds in dataset_list:
-                tup = ( ds['mountpoint'], ds['name'])
-                ch.append(tup)   
+                tup = (ds['mountpoint'], ds['name'])
+                ch.append(tup)
         self.fields["dataset"] = forms.ChoiceField(choices=ch)
 
 

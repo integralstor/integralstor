@@ -1,5 +1,6 @@
 from django import forms
 
+
 class LocalUserForm(forms.Form):
 
     username = forms.CharField()
@@ -25,23 +26,28 @@ class LocalUserForm(forms.Form):
         cd = super(LocalUserForm, self).clean()
         if "password" in cd and "password_conf" in cd:
             if cd["password"] != cd["password_conf"]:
-                self._errors["password"] = self.error_class(["The password and password confirmation do not match."])
+                self._errors["password"] = self.error_class(
+                    ["The password and password confirmation do not match."])
                 del cd["password"]
                 del cd["password_conf"]
 
         if "'" in cd["name"] or '"' in cd["name"]:
-            self._errors["name"] = self.error_class(["The name cannot contain special characters."])
+            self._errors["name"] = self.error_class(
+                ["The name cannot contain special characters."])
             del cd["name"]
         if "name" in cd:
             n = cd["name"]
             cd["name"] = "_".join(n.split())
         return cd
 
+
 class LocalGroupForm(forms.Form):
     grpname = forms.CharField()
 
+
 class EditLocalUserGidForm(forms.Form):
     username = forms.CharField(widget=forms.HiddenInput)
+
     def __init__(self, *args, **kwargs):
         if kwargs:
             group_list = kwargs.pop("group_list")
@@ -51,11 +57,13 @@ class EditLocalUserGidForm(forms.Form):
         if group_list:
             for group in group_list:
                 tup = (group['gid'], group['grpname'])
-                ch.append(tup)   
-        self.fields['gid'] =  forms.ChoiceField(widget=forms.Select, choices=ch)
+                ch.append(tup)
+        self.fields['gid'] = forms.ChoiceField(widget=forms.Select, choices=ch)
+
 
 class EditLocalUserGroupMembershipForm(forms.Form):
     username = forms.CharField(widget=forms.HiddenInput)
+
     def __init__(self, *args, **kwargs):
         if kwargs:
             group_list = kwargs.pop("group_list")
@@ -65,11 +73,14 @@ class EditLocalUserGroupMembershipForm(forms.Form):
         if group_list:
             for group in group_list:
                 tup = (group['grpname'], group['grpname'])
-                ch.append(tup)   
-        self.fields["groups"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=ch,required=False )
+                ch.append(tup)
+        self.fields["groups"] = forms.MultipleChoiceField(
+            widget=forms.CheckboxSelectMultiple(), choices=ch, required=False)
+
 
 class ModifyGroupMembershipForm(forms.Form):
     grpname = forms.CharField(widget=forms.HiddenInput)
+
     def __init__(self, *args, **kwargs):
         if kwargs:
             user_list = kwargs.pop("user_list")
@@ -79,8 +90,10 @@ class ModifyGroupMembershipForm(forms.Form):
         if user_list:
             for user in user_list:
                 tup = (user['username'], user['username'])
-                ch.append(tup)   
-        self.fields["users"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=ch,required=False )
+                ch.append(tup)
+        self.fields["users"] = forms.MultipleChoiceField(
+            widget=forms.CheckboxSelectMultiple(), choices=ch, required=False)
+
 
 class PasswordChangeForm(forms.Form):
 
@@ -92,7 +105,8 @@ class PasswordChangeForm(forms.Form):
         cd = super(PasswordChangeForm, self).clean()
         if "password" in cd and "password_conf" in cd:
             if cd["password"] != cd["password_conf"]:
-                self._errors["password"] = self.error_class(["The password and password confirmation do not match."])
+                self._errors["password"] = self.error_class(
+                    ["The password and password confirmation do not match."])
                 del cd["password"]
                 del cd["password_conf"]
         return cd

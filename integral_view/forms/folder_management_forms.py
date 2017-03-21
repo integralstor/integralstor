@@ -1,8 +1,10 @@
 from django import forms
 
+
 class AddAcesForm(forms.Form):
-    path =  forms.CharField(widget=forms.HiddenInput)
+    path = forms.CharField(widget=forms.HiddenInput)
     recursive = forms.BooleanField(required=False)
+
     def __init__(self, *args, **kwargs):
         if kwargs:
             user_list = kwargs.pop("user_list")
@@ -12,18 +14,21 @@ class AddAcesForm(forms.Form):
         if user_list:
             for user in user_list:
                 tup = (user, user)
-                ch.append(tup)   
-        self.fields["users"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(attrs={'onclick':'select_guest_ok();'}), choices=ch,required=False )
+                ch.append(tup)
+        self.fields["users"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(
+            attrs={'onclick': 'select_guest_ok();'}), choices=ch, required=False)
 
         ch = []
         if group_list:
             for gr in group_list:
                 tup = (gr, gr)
-                ch.append(tup)   
-        self.fields["groups"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(attrs={'onclick':'select_guest_ok();'}), choices=ch,required=False )
+                ch.append(tup)
+        self.fields["groups"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(
+            attrs={'onclick': 'select_guest_ok();'}), choices=ch, required=False)
+
 
 class EditAcesForm(forms.Form):
-    path =  forms.CharField(widget=forms.HiddenInput)
+    path = forms.CharField(widget=forms.HiddenInput)
     recursive = forms.BooleanField(required=False)
     ou_r = forms.BooleanField(required=False)
     ou_w = forms.BooleanField(required=False)
@@ -45,25 +50,35 @@ class EditAcesForm(forms.Form):
         ch = []
         if user_list:
             for user in user_list:
-                self.fields['user_%s_r'%user[2]] = forms.BooleanField(required=False)
-                self.fields["user_%s_w"%user[2]] = forms.BooleanField(required=False)
-                self.fields["user_%s_x"%user[2]] = forms.BooleanField(required=False)
+                self.fields['user_%s_r' %
+                            user[2]] = forms.BooleanField(required=False)
+                self.fields["user_%s_w" %
+                            user[2]] = forms.BooleanField(required=False)
+                self.fields["user_%s_x" %
+                            user[2]] = forms.BooleanField(required=False)
         if group_list:
             for group in group_list:
-                self.fields["group_%s_r"%group[2]] = forms.BooleanField(required=False)
-                self.fields["group_%s_w"%group[2]] = forms.BooleanField(required=False)
-                self.fields["group_%s_x"%group[2]] = forms.BooleanField(required=False)
+                self.fields["group_%s_r" %
+                            group[2]] = forms.BooleanField(required=False)
+                self.fields["group_%s_w" %
+                            group[2]] = forms.BooleanField(required=False)
+                self.fields["group_%s_x" %
+                            group[2]] = forms.BooleanField(required=False)
+
 
 class CreateDirForm(forms.Form):
     path = forms.CharField(widget=forms.HiddenInput)
     dir_name = forms.CharField()
 
+
 class DirForm(forms.Form):
     path = forms.CharField(widget=forms.HiddenInput)
+
 
 class ModifyStickyBitForm(DirForm):
     recursive = forms.BooleanField(required=False)
     sticky_bit_enabled = forms.BooleanField(required=False)
+
 
 class DirManagerForm(DirForm):
     def __init__(self, *args, **kwargs):
@@ -74,8 +89,10 @@ class DirManagerForm(DirForm):
         if dataset_list:
             for ds in dataset_list:
                 tup = (ds[0], ds[1])
-                ch.append(tup)   
-        self.fields['dataset'] =  forms.ChoiceField(widget=forms.Select, choices=ch)
+                ch.append(tup)
+        self.fields['dataset'] = forms.ChoiceField(
+            widget=forms.Select, choices=ch)
+
 
 class DirManagerForm1(DirForm):
     def __init__(self, *args, **kwargs):
@@ -86,13 +103,16 @@ class DirManagerForm1(DirForm):
         if pool_list:
             for p in pool_list:
                 tup = (p, p)
-                ch.append(tup)   
-        self.fields['pool'] =  forms.ChoiceField(widget=forms.Select, choices=ch)
+                ch.append(tup)
+        self.fields['pool'] = forms.ChoiceField(
+            widget=forms.Select, choices=ch)
+
 
 class ModifyOwnershipForm(DirForm):
     path = forms.CharField(widget=forms.HiddenInput)
     user_name = forms.CharField(widget=forms.HiddenInput)
     group_name = forms.CharField(widget=forms.HiddenInput)
+
     def __init__(self, *args, **kwargs):
         if kwargs:
             user_list = kwargs.pop("user_list")
@@ -102,17 +122,20 @@ class ModifyOwnershipForm(DirForm):
         if group_list:
             for group in group_list:
                 tup = (group['gid'], group['grpname'])
-                ch.append(tup)   
+                ch.append(tup)
         ch.append((1000, 'integralstor'))
-        self.fields['gid'] =  forms.ChoiceField(widget=forms.Select, choices=ch, required=False)
+        self.fields['gid'] = forms.ChoiceField(
+            widget=forms.Select, choices=ch, required=False)
 
         ch = []
         if user_list:
             for user in user_list:
                 tup = (user['uid'], user['username'])
-                ch.append(tup)   
+                ch.append(tup)
         ch.append((1000, 'integralstor'))
-        self.fields['uid'] =  forms.ChoiceField(widget=forms.Select, choices=ch, required=False)
+        self.fields['uid'] = forms.ChoiceField(
+            widget=forms.Select, choices=ch, required=False)
+
 
 class SetFileOwnerAndPermissionsForm(forms.Form):
 
@@ -140,16 +163,17 @@ class SetFileOwnerAndPermissionsForm(forms.Form):
         if group_list:
             for group in group_list:
                 tup = (group['gid'], group['grpname'])
-                ch.append(tup)   
-        self.fields['gid'] =  forms.ChoiceField(widget=forms.Select, choices=ch, required=False)
+                ch.append(tup)
+        self.fields['gid'] = forms.ChoiceField(
+            widget=forms.Select, choices=ch, required=False)
 
         ch = []
         if user_list:
             for user in user_list:
                 tup = (user['uid'], user['username'])
-                ch.append(tup)   
-        self.fields['uid'] =  forms.ChoiceField(widget=forms.Select, choices=ch, required=False)
-
+                ch.append(tup)
+        self.fields['uid'] = forms.ChoiceField(
+            widget=forms.Select, choices=ch, required=False)
 
 
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

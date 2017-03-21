@@ -3,6 +3,7 @@ from django import forms
 import re
 from email.utils import parseaddr
 
+
 class _MultipleEmailField(forms.CharField):
 
     def _is_valid_email(self, email):
@@ -17,10 +18,9 @@ class _MultipleEmailField(forms.CharField):
             else:
                 raise Exception('Invalid email address.')
         except Exception, e:
-            return False, 'Error validating email address : %s'%str(e)
+            return False, 'Error validating email address : %s' % str(e)
         else:
             return True, None
-
 
     def clean(self, value):
         if not value:
@@ -34,7 +34,8 @@ class _MultipleEmailField(forms.CharField):
             if err:
                 raise forms.ValidationError(err)
             if not ret:
-                raise forms.ValidationError("%s is not a valid email address"%email)
+                raise forms.ValidationError(
+                    "%s is not a valid email address" % email)
 
         return value.lower()
 
@@ -44,12 +45,14 @@ class LoginForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput())
 
+
 class ChangeAdminPasswordForm(forms.Form):
     """ Form for the change admin password prompt"""
 
     oldPasswd = forms.CharField(widget=forms.PasswordInput())
     newPasswd1 = forms.CharField(min_length=6, widget=forms.PasswordInput())
     newPasswd2 = forms.CharField(min_length=6, widget=forms.PasswordInput())
+
 
 class ConfigureEmailForm(forms.Form):
 
@@ -61,7 +64,8 @@ class ConfigureEmailForm(forms.Form):
     rcpt_list = _MultipleEmailField(required=True)
     email_alerts = forms.BooleanField(required=False)
     email_audit = forms.BooleanField(required=False)
-    email_quota = forms.BooleanField(required=False,widget=forms.HiddenInput())
+    email_quota = forms.BooleanField(
+        required=False, widget=forms.HiddenInput())
 
 
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

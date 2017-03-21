@@ -1,9 +1,12 @@
-import django, django.template,os
+import django
+import django.template
+import os
 
-import urllib 
+import urllib
 
 from integralstor_common import audit, services_management
 from integralstor_unicell import local_users
+
 
 def view_services(request):
     return_dict = {}
@@ -21,14 +24,15 @@ def view_services(request):
                 return_dict['ack_message'] = "Service start failed"
         if 'service_change_status' in request.GET:
             if request.GET['service_change_status'] != 'none':
-                return_dict['ack_message'] = 'Service status change initiated. Output : %s'%urllib.quote(request.GET['service_change_status'])
+                return_dict['ack_message'] = 'Service status change initiated. Output : %s' % urllib.quote(
+                    request.GET['service_change_status'])
             else:
                 return_dict['ack_message'] = 'Service status change initiated'
 
-        return_dict["services"], err = services_management.get_sysd_services_status ()
+        return_dict["services"], err = services_management.get_sysd_services_status()
         if err:
             raise Exception(err)
-        return django.shortcuts.render_to_response('view_services.html', return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response('view_services.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = "services_base.html"
         return_dict["page_title"] = 'System services'
@@ -37,6 +41,7 @@ def view_services(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def update_service_status(request):
     return_dict = {}
     try:
@@ -44,25 +49,27 @@ def update_service_status(request):
             raise Exception("Invalid request. Please use the menus")
         if 'service' not in request.POST:
             raise Exception("Invalid request. Please use the menus")
-        if 'action' not in request.POST or request.POST['action'] not in ['start', 'stop','restart','enable','disable']:
+        if 'action' not in request.POST or request.POST['action'] not in ['start', 'stop', 'restart', 'enable', 'disable']:
             raise Exception("Invalid request. Please use the menus")
 
         service = request.POST['service']
         action = request.POST['action']
 
         if 'action' == 'start' and service == 'vsftpd':
-            #Need to make sure that all local users have their directories created so do it..
+            # Need to make sure that all local users have their directories
+            # created so do it..
             config, err = vsftp.get_ftp_config()
             if err:
                 raise Exception(err)
-            users,err = local_users.get_local_users()
+            users, err = local_users.get_local_users()
             if err:
                 raise Exception(err)
             ret, err = create_ftp_user_dirs(config['dataset'], users)
             if err:
                 raise Exception(err)
 
-        audit_str = "Service status change of %s initiated to %s state."%(service, action)
+        audit_str = "Service status change of %s initiated to %s state." % (
+            service, action)
         audit.audit("change_service_status", audit_str, request.META)
 
         out, err = services_management.change_service_status(service, action)
@@ -70,7 +77,7 @@ def update_service_status(request):
             raise Exception(err)
 
         if out:
-            return django.http.HttpResponseRedirect('/view_services?&service_change_status=%s'%','.join(out))
+            return django.http.HttpResponseRedirect('/view_services?&service_change_status=%s' % ','.join(out))
         else:
             return django.http.HttpResponseRedirect('/view_services?service_change_status=none')
 

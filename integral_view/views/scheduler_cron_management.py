@@ -1,10 +1,13 @@
-import django.template, django
+import django.template
+import django
 from django.contrib.auth.decorators import login_required
-import django.http 
+import django.http
 
-import os, os.path
+import os
+import os.path
 
 from integralstor_common import scheduler_utils, common, command, audit
+
 
 def view_background_tasks(request):
     return_dict = {}
@@ -25,6 +28,7 @@ def view_background_tasks(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def delete_background_task(request):
     return_dict = {}
     try:
@@ -39,7 +43,8 @@ def delete_background_task(request):
         if err:
             raise Exception(err)
 
-        audit.audit("remove_background_task", task['description'], request.META)
+        audit.audit("remove_background_task",
+                    task['description'], request.META)
         return django.http.HttpResponseRedirect('/view_background_tasks?ack=deleted')
     except Exception, e:
         return_dict['base_template'] = "scheduler_base.html"
@@ -49,40 +54,45 @@ def delete_background_task(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def view_task_details(request,task_id):
+
+def view_task_details(request, task_id):
     return_dict = {}
     try:
-        task,err = scheduler_utils.get_task(int(task_id))
+        task, err = scheduler_utils.get_task(int(task_id))
         if err:
             raise Exception(err)
         return_dict['task'] = task
-        subtasks,err = scheduler_utils.get_subtasks(int(task_id))
+        subtasks, err = scheduler_utils.get_subtasks(int(task_id))
         if err:
             raise Exception(err)
         return_dict["subtasks"] = subtasks
-        #print subtasks, err
+        # print subtasks, err
         task_output = ""
         log_path, err = common.get_log_folder_path()
         if err:
             raise Exception(err)
-        log_dir = '%s/task_logs'%log_path
-        log_file_path = '%s/%d.log'%(log_dir, int(task_id))
+        log_dir = '%s/task_logs' % log_path
+        log_file_path = '%s/%d.log' % (log_dir, int(task_id))
         if os.path.isfile(log_file_path):
-            lines,err = command.get_command_output("wc -l %s"%log_file_path)
+            lines, err = command.get_command_output("wc -l %s" % log_file_path)
             no_of_lines = lines[0].split()[0]
-            #print no_of_lines
+            # print no_of_lines
             if int(no_of_lines) <= 41:
-                # This code always updates the 0th element of the command list. This is assuming that we will only have one long running command.
+                # This code always updates the 0th element of the command list.
+                # This is assuming that we will only have one long running
+                # command.
                 with open(log_file_path) as output:
                     task_output = task_output + ''.join(output.readlines())
             else:
-                first,err = command.get_command_output("head -n 5 %s"%log_file_path, shell=True)
+                first, err = command.get_command_output(
+                    "head -n 5 %s" % log_file_path, shell=True)
                 if err:
                     print err
-                last,err = command.get_command_output("tail -n 20 %s"%log_file_path, shell=True)
+                last, err = command.get_command_output(
+                    "tail -n 20 %s" % log_file_path, shell=True)
                 if err:
                     print err
-                #print last
+                # print last
                 task_output = task_output + '\n'.join(first)
                 task_output = task_output + "\n.... \n ....\n"
                 task_output = task_output + '\n'.join(last)
@@ -96,6 +106,7 @@ def view_task_details(request,task_id):
         return_dict["error"] = 'Error retriving background task details'
         return_dict["error_details"] = e
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 
 '''
 def view_scheduled_jobs(request):

@@ -1,5 +1,6 @@
 from django import forms
 
+
 class CreateSelfSignedCertForm(forms.Form):
 
     name = forms.CharField()
@@ -16,10 +17,12 @@ class CreateSelfSignedCertForm(forms.Form):
     ch = [('1024', 1024), ('2048', 2048)]
     key_length = forms.ChoiceField(choices=ch)
 
+
 class UploadCertForm(forms.Form):
     name = forms.CharField()
     certificate = forms.CharField(widget=forms.Textarea)
     private_key = forms.CharField(widget=forms.Textarea)
+
 
 class SetHttpsModeForm(forms.Form):
     def __init__(self, *args, **kwargs):

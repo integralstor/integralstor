@@ -1,19 +1,23 @@
 
 from integralstor_common import networking, command
-import os, socket, sys
+import os
+import socket
+import sys
 
 from integralstor_common import common
 
+
 def display_status():
 
-    try :
+    try:
         hostname = socket.gethostname()
         use_salt, err = common.use_salt()
         if err:
             raise Exception(err)
         if use_salt:
             print "Salt master service status :",
-            (r, rc), err = command.execute_with_rc('service salt-master status')
+            (r, rc), err = command.execute_with_rc(
+                'service salt-master status')
             if err:
                 raise Exception(err)
             l, err = command.get_output_list(r)
@@ -28,7 +32,8 @@ def display_status():
                 if l:
                     print '\n'.join(l)
             print "Salt minion service status :",
-            (r, rc), err = command.execute_with_rc('service salt-minion status')
+            (r, rc), err = command.execute_with_rc(
+                'service salt-minion status')
             if err:
                 raise Exception(err)
             l, err = command.get_output_list(r)
@@ -74,10 +79,11 @@ def display_status():
             if l:
                 print '\n'.join(l)
     except Exception, e:
-        print "Error displaying system status : %s"%e
+        print "Error displaying system status : %s" % e
         return -1
     else:
         return 0
+
 
 if __name__ == '__main__':
 
@@ -90,7 +96,7 @@ if __name__ == '__main__':
     rc = display_status()
     print
     print
-    #sys.exit(rc)
+    # sys.exit(rc)
 
 
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

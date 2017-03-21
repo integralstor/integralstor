@@ -1,6 +1,7 @@
 
 from django import forms
 
+
 class IscsiAuthenticationForm(forms.Form):
 
     username = forms.CharField()
@@ -9,9 +10,11 @@ class IscsiAuthenticationForm(forms.Form):
     authentication_type = forms.CharField(widget=forms.HiddenInput)
     target_name = forms.CharField(widget=forms.HiddenInput)
 
+
 class IscsiTargetForm(forms.Form):
 
     name = forms.CharField()
+
 
 class IscsiLunForm(forms.Form):
 
@@ -28,6 +31,7 @@ class IscsiLunForm(forms.Form):
                 tup = (zvol['path'], zvol['name'])
                 ch.append(tup)
         self.fields['path'] = forms.ChoiceField(choices=ch)
+
 
 class IscsiAclForm(forms.Form):
 
