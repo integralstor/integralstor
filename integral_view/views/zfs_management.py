@@ -208,7 +208,7 @@ def update_zfs_quota(request):
                 user = True
             else:
                 user = False
-            ret, err = zfs.set_quota(
+            ret, err = zfs.update_quota(
                 cd['path'], cd['ug_name'], '%d%s' % (cd['size'], cd['unit']), user)
             if err:
                 raise Exception(err)
@@ -252,7 +252,7 @@ def delete_zfs_quota(request):
                 user = True
             else:
                 user = False
-            result, err = zfs.set_quota(path, ug_name, 'none', user)
+            result, err = zfs.update_quota(path, ug_name, 'none', user)
             if not result:
                 if not err:
                     raise Exception('Unknown error!')
@@ -630,11 +630,11 @@ def update_zfs_slog(request):
                     if err:
                         raise Exception(err)
                     if oldramdisk:
-                        result, err = ramdisk.destroy_ramdisk(
+                        result, err = ramdisk.delete_ramdisk(
                             '/mnt/ramdisk_%s' % cd['pool'], cd['pool'])
                         if err:
                             raise Exception(err)
-                        result, err = zfs.remove_pool_vdev(
+                        result, err = zfs.delete_pool_vdev(
                             cd['pool'], '/mnt/ramdisk_%s/ramfile' % cd['pool'])
                         if err:
                             raise Exception(err)
@@ -643,17 +643,17 @@ def update_zfs_slog(request):
                     if err:
                         raise Exception(err)
                     else:
-                        result, err = zfs.set_pool_log_vdev(
+                        result, err = zfs.update_pool_log_vdev(
                             cd['pool'], '/mnt/ramdisk_%s/ramfile' % cd['pool'])
                         if err:
-                            ramdisk.destroy_ramdisk(
+                            ramdisk.delete_ramdisk(
                                 '/mnt/ramdisk_%s' % cd['pool'], cd['pool'])
                             raise Exception(err)
                         audit.audit("edit_zfs_slog", 'Changed the write log for pool %s to a RAM disk of size %dGB' % (
                             cd['pool'], cd['ramdisk_size']), request.META)
             else:
                 # Flash drive
-                result, err = zfs.set_pool_log_vdev(cd['pool'], cd['disk'])
+                result, err = zfs.update_pool_log_vdev(cd['pool'], cd['disk'])
                 if err:
                     raise Exception(err)
                 audit.audit("edit_zfs_slog", 'Changed the write log for pool %s to a flash drive' % (
@@ -686,14 +686,14 @@ def delete_zfs_slog(request):
             # Return the conf page
             return django.shortcuts.render_to_response("delete_zfs_slog_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            result, err = zfs.remove_pool_vdev(pool, device)
+            result, err = zfs.delete_pool_vdev(pool, device)
             if not result:
                 if not err:
                     raise Exception('Unknown error!')
                 else:
                     raise Exception(err)
             if type == 'ramdisk':
-                result, err = ramdisk.destroy_ramdisk(
+                result, err = ramdisk.delete_ramdisk(
                     '/mnt/ramdisk_%s' % pool, pool)
                 if err:
                     raise Exception(err)
@@ -751,7 +751,7 @@ def update_zfs_l2arc(request):
                 return django.shortcuts.render_to_response("update_zfs_l2arc.html", return_dict, context_instance=django.template.context.RequestContext(request))
             cd = form.cleaned_data
             # print cd
-            result, err = zfs.set_pool_cache_vdev(cd['pool'], cd['disk'])
+            result, err = zfs.update_pool_cache_vdev(cd['pool'], cd['disk'])
             if err:
                 raise Exception(err)
             ret, err = audit.audit("edit_zfs_l2arc", 'Changed the read cache for pool %s to a flash drive' % (
@@ -787,7 +787,7 @@ def delete_zfs_l2arc(request):
             # Return the conf page
             return django.shortcuts.render_to_response("delete_zfs_l2arc_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            result, err = zfs.remove_pool_vdev(pool, device)
+            result, err = zfs.delete_pool_vdev(pool, device)
             if not result:
                 if not err:
                     raise Exception('Unknown error!')
@@ -922,7 +922,7 @@ def update_zfs_dataset(request):
                     changed = 'off'
                 # print 'property %s orig %s changed %s'%(p, orig, changed)
                 if orig != changed:
-                    result, err = zfs.set_property(name, p, changed)
+                    result, err = zfs.update_property(name, p, changed)
                     # print err
                     if not result:
                         result_str += ' Error setting property %s' % p
@@ -1521,7 +1521,7 @@ def delete_zfs_spare(request):
             return_dict['pool_name'] = pool_name
             return django.shortcuts.render_to_response("delete_zfs_spare_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            ret, err = zfs.remove_a_spare_from_pool(pool_name)
+            ret, err = zfs.delete_spare_from_pool(pool_name)
             if err:
                 raise Exception(err)
             audit_str = "Removed a  spare drive from pool %s" % pool_name

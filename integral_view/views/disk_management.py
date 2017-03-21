@@ -198,7 +198,7 @@ def replace_disk(request):
                         return_dict["old_id"] = old_id
                         old_disks = si[node]["disks"].keys()
                         result = False
-                        rc, err = manifest_status.disk_info_and_status()
+                        rc, err = manifest_status.get_disk_info_and_status()
                         if err:
                             raise Exception(err)
                         if rc:

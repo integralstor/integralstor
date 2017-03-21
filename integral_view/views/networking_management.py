@@ -113,7 +113,7 @@ def update_interface_state(request):
             # Return the conf page
             return django.shortcuts.render_to_response("update_interface_state_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            result, err = networking.set_interface_state(name, state)
+            result, err = networking.update_interface_state(name, state)
             if not result:
                 if err:
                     raise Exception(err)
@@ -215,7 +215,7 @@ def update_interface_address(request):
             cd = form.cleaned_data
             result_str = ""
             success = False
-            result, err = networking.set_interface_ip_info(cd['name'], cd)
+            result, err = networking.update_interface_ip(cd['name'], cd)
             if err:
                 raise Exception(err)
             result, err = networking.restart_networking()
@@ -318,7 +318,7 @@ def delete_vlan(request):
             # Return the conf page
             return django.shortcuts.render_to_response("delete_vlan_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            result, err = networking.remove_vlan(name)
+            result, err = networking.delete_vlan(name)
             if not result:
                 if not err:
                     raise Exception("Error removing VLAN")
@@ -442,7 +442,7 @@ def delete_bond(request):
             # Return the conf page
             return django.shortcuts.render_to_response("delete_bond_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            result, err = networking.remove_bond(name)
+            result, err = networking.delete_bond(name)
             if not result:
                 if not err:
                     raise Exception("Error removing bond")
@@ -539,13 +539,13 @@ def update_hostname(request):
             domain_name = None
             if 'domain_name' in cd:
                 domain_name = cd['domain_name']
-            result, err = networking.set_hostname(cd['hostname'], domain_name)
+            result, err = networking.update_hostname(cd['hostname'], domain_name)
             if not result:
                 if err:
                     raise Exception(err)
                 else:
                     raise Exception('Error setting hostname')
-            result, err = networking.set_domain_name(domain_name)
+            result, err = networking.update_domain_name(domain_name)
             if not result:
                 if err:
                     raise Exception(err)
@@ -632,7 +632,7 @@ def update_dns_nameservers(request):
                     slist = nameservers.split(',')
                 else:
                     slist = nameservers.split(' ')
-                res, err = networking.set_name_servers(slist)
+                res, err = networking.update_name_servers(slist)
                 if not res:
                     if err:
                         raise Exception(err)

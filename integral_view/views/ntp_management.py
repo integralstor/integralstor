@@ -78,7 +78,7 @@ def update_ntp_settings(request):
                     temp.close()
                 shutil.move('/tmp/ntp.conf', '/etc/ntp.conf')
                 #ret, err = ntp.restart_ntp_service()
-                ret, err = services_management.change_service_status(
+                ret, err = services_management.update_service_status(
                     'ntpd', 'restart')
                 if err:
                     raise Exception(err)

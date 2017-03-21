@@ -72,7 +72,7 @@ def update_service_status(request):
             service, action)
         audit.audit("change_service_status", audit_str, request.META)
 
-        out, err = services_management.change_service_status(service, action)
+        out, err = services_management.update_service_status(service, action)
         if err:
             raise Exception(err)
 
