@@ -1,7 +1,10 @@
-import time, stat, datetime
+import time
+import stat
+import datetime
 from datetime import timedelta
 
-import django.template, django
+import django.template
+import django
 from django.contrib.auth.decorators import login_required
 import django.http
 
@@ -10,15 +13,16 @@ from integralstor_common import cifs as cifs_common, services_management
 
 from integralstor_unicell import system_info, iscsi_stgt, nfs
 
+
 @login_required
 def view_system_info(request):
     return_dict = {}
     try:
-        si,err = system_info.load_system_config()
+        si, err = system_info.load_system_config()
         if err:
             raise Exception(err)
         now = datetime.datetime.now()
-        milliseconds =  int(time.mktime(time.localtime())*1000)
+        milliseconds = int(time.mktime(time.localtime()) * 1000)
         return_dict['date_str'] = now.strftime("%A %d %B %Y")
         return_dict['time'] = now
         return_dict['milliseconds'] = milliseconds
@@ -34,7 +38,8 @@ def view_system_info(request):
         return_dict['tab'] = 'node_info_tab'
         return_dict["error"] = 'Error loading system configuration'
         return_dict["error_details"] = str(e)
-        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
+
 
 @login_required
 def update_manifest(request):
@@ -43,12 +48,12 @@ def update_manifest(request):
         if request.method == "GET":
             from integralstor_common import manifest_status as iu
             mi, err = iu.generate_manifest_info()
-            #print mi, err
+            # print mi, err
             if err:
                 raise Exception(err)
             if not mi:
                 raise Exception('Could not load new configuration')
-            return_dict["mi"] = mi[mi.keys()[0]] # Need the hostname here. 
+            return_dict["mi"] = mi[mi.keys()[0]]  # Need the hostname here.
             return django.shortcuts.render_to_response("update_manifest.html", return_dict, context_instance=django.template.context.RequestContext(request))
         elif request.method == "POST":
             common_python_scripts_path, err = common.get_common_python_scripts_path()
@@ -58,13 +63,15 @@ def update_manifest(request):
             if err:
                 raise Exception(err)
             #(ret,rc), err = command.execute_with_rc("python %s/generate_manifest.py %s"%(common_python_scripts_path, ss_path))
-            ret, err = command.get_command_output("python %s/generate_manifest.py %s"%(common_python_scripts_path, ss_path))
-            #print 'mani', ret, err
+            ret, err = command.get_command_output(
+                "python %s/generate_manifest.py %s" % (common_python_scripts_path, ss_path))
+            # print 'mani', ret, err
             if err:
                 raise Exception(err)
             #(ret,rc), err = command.execute_with_rc("python %s/generate_status.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
-            ret, err = command.get_command_output("python %s/generate_status.py %s"%(common_python_scripts_path, ss_path))
-            #print 'stat', ret, err
+            ret, err = command.get_command_output(
+                "python %s/generate_status.py %s" % (common_python_scripts_path, ss_path))
+            # print 'stat', ret, err
             if err:
                 raise Exception(err)
             return django.http.HttpResponseRedirect("/view_system_info/")
@@ -76,7 +83,8 @@ def update_manifest(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-@login_required 
+
+@login_required
 #@django.views.decorators.csrf.csrf_exempt
 def flag_node(request):
 
@@ -91,17 +99,19 @@ def flag_node(request):
         if use_salt:
             import salt.client
             client = salt.client.LocalClient()
-            ret = client.cmd(node_name,'cmd.run',['ipmitool chassis identify %s' %(blink_time)])
+            ret = client.cmd(node_name, 'cmd.run', [
+                             'ipmitool chassis identify %s' % (blink_time)])
             print ret
-            if ret[node_name] == 'Chassis identify interval: %s seconds'%(blink_time):
+            if ret[node_name] == 'Chassis identify interval: %s seconds' % (blink_time):
                 return django.http.HttpResponse("Success")
             else:
                 raise Exception("")
         else:
-            out_list, err = command.get_command_output('service winbind status')
+            out_list, err = command.get_command_output(
+                'service winbind status')
             if err:
                 raise Exception(err)
-            if 'Chassis identify interval: %s seconds'%(blink_time) in out_list[0]:
+            if 'Chassis identify interval: %s seconds' % (blink_time) in out_list[0]:
                 return django.http.HttpResponse("Success")
             else:
                 raise Exception("")
@@ -118,9 +128,9 @@ def view_backup(request):
             col_pos = host.find(':')
             if col_pos:
                 host = host[:col_pos]
-        url = '%s:55414'%host
+        url = '%s:55414' % host
         return_dict['url'] = url
-        return django.shortcuts.render_to_response("view_backup.html", return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response("view_backup.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
     except Exception, e:
         return_dict['base_template'] = "backup_base.html"
@@ -130,8 +140,9 @@ def view_backup(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 @login_required
-def view_dashboard(request,page):
+def view_dashboard(request, page):
     return_dict = {}
     try:
         return_dict["page_title"] = 'Overall system health'
@@ -150,18 +161,19 @@ def view_dashboard(request,page):
         node_name = si.keys()[0]
         node = si[node_name]
         return_dict['node'] = node
-        #print node.keys()
+        # print node.keys()
 
-        #By default show error page
+        # By default show error page
         template = "logged_in_error.html"
 
         # Chart specific declarations
-        todays_date = (datetime.date.today()).strftime('%02d') # will return 02, instead of 2.
-        start_hour = '%02d'%(datetime.datetime.today().hour-3)
-        end_hour = '%02d'%(datetime.datetime.today().hour)
-        minute = '%02d'%(datetime.datetime.today().minute)
-        start = str(start_hour)+":"+str(minute)+str(":10")
-        end = str(end_hour)+":"+str(minute)+str(":40")
+        # will return 02, instead of 2.
+        todays_date = (datetime.date.today()).strftime('%02d')
+        start_hour = '%02d' % (datetime.datetime.today().hour - 3)
+        end_hour = '%02d' % (datetime.datetime.today().hour)
+        minute = '%02d' % (datetime.datetime.today().minute)
+        start = str(start_hour) + ":" + str(minute) + str(":10")
+        end = str(end_hour) + ":" + str(minute) + str(":40")
 
         value_list = []
         time_list = []
@@ -177,18 +189,18 @@ def view_dashboard(request,page):
                 if 'hw_raid' in disk:
                     if not disk['hw_raid']:
                         num_smart_ctrl_disks += 1
-                        if (disk['status'] is not None and disk['status'].upper() not in  ['PASSED', 'OK']):
-                            num_bad_disks += 1 
+                        if (disk['status'] is not None and disk['status'].upper() not in ['PASSED', 'OK']):
+                            num_bad_disks += 1
                             disks_ok = False
                     else:
-                        num_hw_raid_ctrl_disks += 1        
+                        num_hw_raid_ctrl_disks += 1
                         if (disk['status'] is not None and disk['status'].upper() != 'OK'):
                             num_hw_raid_bad_disks += 1
                             disks_ok = False
                 else:
-                    #Assume its a non raid disk
+                    # Assume its a non raid disk
                     num_smart_ctrl_disks += 1
-                    if (disk['status'] is not None and disk['status'].upper() not in  ['PASSED', 'OK']):
+                    if (disk['status'] is not None and disk['status'].upper() not in ['PASSED', 'OK']):
                         num_bad_disks += 1
                         disks_ok = False
 
@@ -213,18 +225,18 @@ def view_dashboard(request,page):
             return_dict['num_bad_sensors'] = num_bad_sensors
             return_dict['ipmi_ok'] = ipmi_ok
 
-        services_dict, err = services_management.get_sysd_services_status ()
+        services_dict, err = services_management.get_sysd_services_status()
         if err:
-            raise Exception (err)
+            raise Exception(err)
 
-        num_services = len (services_dict)
+        num_services = len(services_dict)
         num_failed_services = 0
         num_active_services = 0
         num_inactive_services = 0
         services_ok = True
 
         if services_dict:
-            for service, service_d in services_dict.items ():
+            for service, service_d in services_dict.items():
                 if service_d["info"]["status"]["status_str"] == "Active":
                     num_active_services += 1
                 elif service_d["info"]["status"]["status_str"] == "Inactive":
@@ -241,7 +253,7 @@ def view_dashboard(request,page):
             return_dict['num_failed_services'] = num_failed_services
             return_dict['services_ok'] = services_ok
         else:
-            raise Exception ('Error retrieving services status')
+            raise Exception('Error retrieving services status')
 
         pools, err = zfs.get_pools()
         if err:
@@ -285,10 +297,10 @@ def view_dashboard(request,page):
             raise Exception(err)
         return_dict['num_iscsi_targets'] = len(target_list)
 
-
         with open('/proc/uptime', 'r') as f:
             uptime_seconds = float(f.readline().split()[0])
-            uptime_str = '%s hours'%(':'.join(str(timedelta(seconds = uptime_seconds)).split(':')[:2]))
+            uptime_str = '%s hours' % (
+                ':'.join(str(timedelta(seconds=uptime_seconds)).split(':')[:2]))
             return_dict['uptime_str'] = uptime_str
 
         # CPU status
@@ -296,7 +308,7 @@ def view_dashboard(request,page):
             return_dict["page_title"] = 'CPU statistics'
             return_dict['tab'] = 'cpu_tab'
             return_dict["error"] = 'Error loading CPU statistics'
-            cpu,err = stats.get_system_stats(todays_date,start,end,"cpu")
+            cpu, err = stats.get_system_stats(todays_date, start, end, "cpu")
             if err:
                 raise Exception(err)
             value_dict = {}
@@ -313,7 +325,8 @@ def view_dashboard(request,page):
                                 value_list.append(a[1])
                         value_dict[key] = value_list
             return_dict["data_dict"] = value_dict
-            queue,err = stats.get_system_stats(todays_date,start,end,"queue")
+            queue, err = stats.get_system_stats(
+                todays_date, start, end, "queue")
             if err:
                 raise Exception(err)
             value_dict = {}
@@ -351,21 +364,23 @@ def view_dashboard(request,page):
             return_dict["page_title"] = 'Memory statistics'
             return_dict['tab'] = 'memory_tab'
             return_dict["error"] = 'Error loading memory statistics'
-            mem,err = stats.get_system_stats(todays_date,start,end,"memory")
+            mem, err = stats.get_system_stats(
+                todays_date, start, end, "memory")
             if err:
                 raise Exception(err)
             if mem:
                 for a in mem["memused"]:
                     time_list.append(a[0])
-                    value_list.append((a[1]/(1024*1024)))
-            return_dict['memory_status'] =  si[node_name]['memory']
+                    value_list.append((a[1] / (1024 * 1024)))
+            return_dict['memory_status'] = si[node_name]['memory']
             template = "view_memory_stats.html"
         # Network
         elif page == "network":
             return_dict["page_title"] = 'Network statistics'
             return_dict['tab'] = 'network_tab'
             return_dict["error"] = 'Error loading Network statistics'
-            network,err = stats.get_system_stats(todays_date,start,end,"network")
+            network, err = stats.get_system_stats(
+                todays_date, start, end, "network")
             if err:
                 raise Exception(err)
             value_dict = {}
@@ -392,16 +407,18 @@ def view_dashboard(request,page):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def access_shell(request):
     return_dict = {}
     try:
-        status,err = services_management.get_service_status(['shellinaboxd'])
+        status, err = services_management.get_service_status(['shellinaboxd'])
         if err:
             raise Exception(err)
         if status['status_str'] == "Running":
             return django.shortcuts.render_to_response("shell_access.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            raise Exception("Shell Service is not running. Start the service and visit the page again")
+            raise Exception(
+                "Shell Service is not running. Start the service and visit the page again")
 
     except Exception, e:
         return_dict['base_template'] = "system_base.html"

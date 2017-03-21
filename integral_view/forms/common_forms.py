@@ -11,25 +11,29 @@ class MultipleServerField(forms.CharField):
         server = server.strip()
         ok, err = networking.validate_ip_or_hostname(server)
         if err:
-            raise Exception('Error validating server : %s'%err)
+            raise Exception('Error validating server : %s' % err)
         return ok
 
     def clean(self, value):
         if not value:
-            raise forms.ValidationError("Enter atleast one IP address or hostname")
+            raise forms.ValidationError(
+                "Enter atleast one IP address or hostname")
         if ',' in value:
             servers = value.lower().split(',')
         else:
             servers = value.lower().split(' ')
         for server in servers:
             if not self._is_valid_server(server):
-                raise forms.ValidationError("%s is not a valid address"%server)
+                raise forms.ValidationError(
+                    "%s is not a valid address" % server)
 
         return value.lower()
+
 
 class ConfigureNTPForm(forms.Form):
 
     server_list = MultipleServerField()
+
 
 class AddNodesForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -39,8 +43,10 @@ class AddNodesForm(forms.Form):
         ch = []
         for minion in pml:
             tup = (minion, minion)
-            ch.append(tup)   
-        self.fields["nodes"] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, choices=ch)
+            ch.append(tup)
+        self.fields["nodes"] = forms.MultipleChoiceField(
+            widget=forms.CheckboxSelectMultiple, choices=ch)
+
 
 class FileUploadForm(forms.Form):
     file_field = forms.FileField()

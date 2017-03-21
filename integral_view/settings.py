@@ -13,8 +13,8 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import integralstor_common
 from integralstor_common import common
 platform_root, err = common.get_platform_root()
-STATIC_DIR_PATH = '%s/integral_view/static'%platform_root
-TEMPLATE_DIR_PATH = "%s/integral_view/templates"%platform_root
+STATIC_DIR_PATH = '%s/integral_view/static' % platform_root
+TEMPLATE_DIR_PATH = "%s/integral_view/templates" % platform_root
 LOGIN_URL = '/login/'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)

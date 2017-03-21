@@ -1,6 +1,7 @@
 
 from integralstor_common import common
 
+
 def get_version(request):
     version = None
     try:
@@ -8,7 +9,7 @@ def get_version(request):
         if err:
             raise Exception('Error retrieving version number')
     except Exception, e:
-        return {'version':'Unspecified version'}
+        return {'version': 'Unspecified version'}
     else:
         return {'version': version}
 

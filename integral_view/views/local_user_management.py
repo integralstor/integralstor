@@ -1,11 +1,13 @@
 
-import django, django.template
+import django
+import django.template
 
 import integral_view
 from integral_view.forms import local_user_forms
 
 from integralstor_common import audit
 from integralstor_unicell import local_users
+
 
 def view_local_users(request):
     return_dict = {}
@@ -35,6 +37,7 @@ def view_local_users(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def view_local_groups(request):
 
     return_dict = {}
@@ -61,6 +64,7 @@ def view_local_groups(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def view_local_user(request):
 
     return_dict = {}
@@ -71,11 +75,12 @@ def view_local_user(request):
         if request.GET['searchby'] == 'username':
             if 'username' not in request.GET:
                 raise Exception("Malformed request. Please use the menus.")
-            ud,err = local_users.get_local_user(request.GET['username'])
+            ud, err = local_users.get_local_user(request.GET['username'])
         elif request.GET['searchby'] == 'uid':
             if 'uid' not in request.GET:
                 raise Exception("Malformed request. Please use the menus.")
-            ud,err = local_users.get_local_user(request.GET['username'], False)
+            ud, err = local_users.get_local_user(
+                request.GET['username'], False)
 
         if err:
             raise Exception(err)
@@ -100,6 +105,7 @@ def view_local_user(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def view_local_group(request):
     return_dict = {}
     try:
@@ -108,11 +114,12 @@ def view_local_group(request):
         if request.GET['searchby'] == 'grpname':
             if 'grpname' not in request.GET:
                 raise Exception("Malformed request. Please use the menus.")
-            gd,err = local_users.get_local_group(request.GET['grpname'])
+            gd, err = local_users.get_local_group(request.GET['grpname'])
         elif request.GET['searchby'] == 'gid':
             if 'gid' not in request.GET:
                 raise Exception("Malformed request. Please use the menus.")
-            gd,err = local_users.get_local_group(request.GET['grpname'], False)
+            gd, err = local_users.get_local_group(
+                request.GET['grpname'], False)
 
         if err:
             raise Exception(err)
@@ -147,14 +154,14 @@ def update_local_user_group_membership(request):
         if "ack" in request.GET:
             if request.GET["ack"] == "created":
                 return_dict['ack_message'] = "Local user successfully created"
-        t_group_list,err = local_users.get_local_groups()
+        t_group_list, err = local_users.get_local_groups()
         if err:
             raise Exception(err)
         if 'username' not in request.REQUEST:
             raise Exception("Unknown user specified")
 
         username = request.REQUEST["username"]
-        ud,err = local_users.get_local_user(username)
+        ud, err = local_users.get_local_user(username)
         if err:
             raise Exception(err)
         if not ud:
@@ -175,7 +182,8 @@ def update_local_user_group_membership(request):
             initial['username'] = ud['username']
             initial['groups'] = ud['other_groups']
 
-            form = local_user_forms.EditLocalUserGroupMembershipForm(initial = initial, group_list = group_list)
+            form = local_user_forms.EditLocalUserGroupMembershipForm(
+                initial=initial, group_list=group_list)
 
             return_dict["form"] = form
             return django.shortcuts.render_to_response('update_local_user_group_membership.html', return_dict, context_instance=django.template.context.RequestContext(request))
@@ -183,7 +191,8 @@ def update_local_user_group_membership(request):
         else:
 
             # Shd be an save request
-            form = local_user_forms.EditLocalUserGroupMembershipForm(request.POST, group_list = group_list)
+            form = local_user_forms.EditLocalUserGroupMembershipForm(
+                request.POST, group_list=group_list)
             return_dict["form"] = form
             if form.is_valid():
                 cd = form.cleaned_data
@@ -192,15 +201,18 @@ def update_local_user_group_membership(request):
                     if err:
                         raise Exception(err)
                     else:
-                        raise Exception("Error saving user's group membership information")
+                        raise Exception(
+                            "Error saving user's group membership information")
 
-                audit_str = "Modified local user group membership information %s"%cd["username"]
-                audit.audit("modify_local_user_grp_membership", audit_str, request.META)
+                audit_str = "Modified local user group membership information %s" % cd[
+                    "username"]
+                audit.audit("modify_local_user_grp_membership",
+                            audit_str, request.META)
 
-                return django.http.HttpResponseRedirect('/view_local_user?username=%s&searchby=username&ack=groups_changed'%cd["username"])
+                return django.http.HttpResponseRedirect('/view_local_user?username=%s&searchby=username&ack=groups_changed' % cd["username"])
 
             else:
-                #Invalid form
+                # Invalid form
                 return django.shortcuts.render_to_response('update_local_user_group_membership.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = 'users_groups_base.html'
@@ -210,43 +222,45 @@ def update_local_user_group_membership(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def create_local_user(request):
     return_dict = {}
     try:
-        group_list,err = local_users.get_local_groups()
+        group_list, err = local_users.get_local_groups()
         if err:
             raise Exception(err)
         if request.method == "GET":
-            #Return the form
+            # Return the form
             #form = local_user_forms.LocalUserForm(group_list = group_list)
             form = local_user_forms.LocalUserForm()
             return_dict["form"] = form
-            return django.shortcuts.render_to_response("create_local_user.html", return_dict, context_instance = django.template.context.RequestContext(request))
+            return django.shortcuts.render_to_response("create_local_user.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            #Form submission so create
+            # Form submission so create
             return_dict = {}
             #form = local_user_forms.LocalUserForm(request.POST, group_list = group_list)
             form = local_user_forms.LocalUserForm(request.POST)
             if form.is_valid():
                 cd = form.cleaned_data
                 #ret, err = local_users.create_local_user(cd["username"], cd["name"], cd["password"], cd['gid'])
-                ret, err = local_users.create_local_user(cd["username"], cd["name"], cd["password"], 1000)
+                ret, err = local_users.create_local_user(
+                    cd["username"], cd["name"], cd["password"], 1000)
                 if not ret:
                     if err:
                         raise Exception(err)
                     else:
                         raise Exception("Error creating the local user.")
 
-                audit_str = "Created a local user %s"%cd["username"]
+                audit_str = "Created a local user %s" % cd["username"]
                 audit.audit("create_local_user", audit_str, request.META)
                 if group_list:
-                    url = '/update_local_user_group_membership/?username=%s&ack=created'%cd['username']
+                    url = '/update_local_user_group_membership/?username=%s&ack=created' % cd['username']
                 else:
                     url = '/view_local_users?ack=created'
                 return django.http.HttpResponseRedirect(url)
             else:
                 return_dict["form"] = form
-                return django.shortcuts.render_to_response("create_local_user.html", return_dict, context_instance = django.template.context.RequestContext(request))
+                return django.shortcuts.render_to_response("create_local_user.html", return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = 'users_groups_base.html'
         return_dict["page_title"] = 'Create a local users'
@@ -260,33 +274,33 @@ def create_local_group(request):
     return_dict = {}
     try:
         if request.method == "GET":
-            #Return the form
+            # Return the form
             form = local_user_forms.LocalGroupForm()
             return_dict["form"] = form
-            return django.shortcuts.render_to_response("create_local_group.html", return_dict, context_instance = django.template.context.RequestContext(request))
+            return django.shortcuts.render_to_response("create_local_group.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            #Form submission so create
+            # Form submission so create
             return_dict = {}
-            #print '1'
+            # print '1'
             form = local_user_forms.LocalGroupForm(request.POST)
             if form.is_valid():
-                #print '2'
+                # print '2'
                 cd = form.cleaned_data
                 ret, err = local_users.create_local_group(cd["grpname"])
-                #print '3'
+                # print '3'
                 if not ret:
                     if err:
                         raise Exception(err)
                     else:
                         raise Exception("Error creating the local group.")
-                audit_str = "Created a local group %s"%cd["grpname"]
+                audit_str = "Created a local group %s" % cd["grpname"]
                 audit.audit("create_local_group", audit_str, request.META)
                 #url = '/view_local_groups?ack=created'
-                url = '/update_group_membership?grpname=%s&ack=created'%cd['grpname']
+                url = '/update_group_membership?grpname=%s&ack=created' % cd['grpname']
                 return django.http.HttpResponseRedirect(url)
             else:
                 return_dict["form"] = form
-                return django.shortcuts.render_to_response("create_local_group.html", return_dict, context_instance = django.template.context.RequestContext(request))
+                return django.shortcuts.render_to_response("create_local_group.html", return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = 'users_groups_base.html'
         return_dict["page_title"] = 'Create a local user group'
@@ -294,6 +308,7 @@ def create_local_group(request):
         return_dict["error"] = 'Error create a local user group'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 
 def delete_local_group(request):
     return_dict = {}
@@ -309,22 +324,23 @@ def delete_local_group(request):
                 raise Exception("Could not retrieve group information")
 
         if gd['members']:
-            raise Exception("Cannot delete this group as it has the following members : %s"%(','.join(gd['members'])))
+            raise Exception("Cannot delete this group as it has the following members : %s" % (
+                ','.join(gd['members'])))
 
         if request.method == "GET":
-            #Return the form
+            # Return the form
             return_dict["grpname"] = request.GET["grpname"]
-            return django.shortcuts.render_to_response("delete_local_group_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+            return django.shortcuts.render_to_response("delete_local_group_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            #Form submission so create
+            # Form submission so create
             return_dict = {}
             ret, err = local_users.delete_local_group(request.POST["grpname"])
             if not ret:
                 if err:
-                    raise Exception('Error deleting group : %s'%err)
+                    raise Exception('Error deleting group : %s' % err)
                 else:
                     raise Exception('Error deleting group')
-            audit_str = "Deleted a local group %s"%request.POST["grpname"]
+            audit_str = "Deleted a local group %s" % request.POST["grpname"]
             audit.audit("delete_local_group", audit_str, request.META)
             url = '/view_local_groups?ack=deleted'
             return django.http.HttpResponseRedirect(url)
@@ -336,6 +352,7 @@ def delete_local_group(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def delete_local_user(request):
 
     return_dict = {}
@@ -344,11 +361,11 @@ def delete_local_user(request):
             raise Exception("Invalid request. No user name specified.")
 
         if request.method == "GET":
-            #Return the form
+            # Return the form
             return_dict["username"] = request.GET["username"]
-            return django.shortcuts.render_to_response("delete_local_user_conf.html", return_dict, context_instance = django.template.context.RequestContext(request))
+            return django.shortcuts.render_to_response("delete_local_user_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            #Form submission so create
+            # Form submission so create
             return_dict = {}
             ret, err = local_users.delete_local_user(request.POST["username"])
             if not ret:
@@ -356,7 +373,7 @@ def delete_local_user(request):
                     raise Exception(err)
                 else:
                     raise Exception('Error deleting local user')
-            audit_str = "Deleted a local user %s"%request.POST["username"]
+            audit_str = "Deleted a local user %s" % request.POST["username"]
             audit.audit("delete_local_user", audit_str, request.META)
             url = '/view_local_users?ack=deleted'
             return django.http.HttpResponseRedirect(url)
@@ -374,33 +391,36 @@ def update_local_user_password(request):
     return_dict = {}
     try:
         if request.method == "GET":
-            #Return the form
+            # Return the form
             if "username" not in request.GET:
                 raise Exception("Invalid request. No user name specified.")
             d = {}
             d["username"] = request.GET["username"]
             form = local_user_forms.PasswordChangeForm(initial=d)
             return_dict["form"] = form
-            return django.shortcuts.render_to_response("update_local_user_password.html", return_dict, context_instance = django.template.context.RequestContext(request))
+            return django.shortcuts.render_to_response("update_local_user_password.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            #Form submission so create
+            # Form submission so create
             return_dict = {}
             form = local_user_forms.PasswordChangeForm(request.POST)
             if form.is_valid():
                 cd = form.cleaned_data
-                rc, err = local_users.change_password(cd["username"], cd["password"])
+                rc, err = local_users.change_password(
+                    cd["username"], cd["password"])
                 if not rc:
                     if err:
                         raise Exception(err)
                     else:
-                        raise Exception("Error changing the local user password")
+                        raise Exception(
+                            "Error changing the local user password")
 
-                audit_str = "Changed password for local user %s"%cd["username"]
-                audit.audit("change_local_user_password", audit_str, request.META)
+                audit_str = "Changed password for local user %s" % cd["username"]
+                audit.audit("change_local_user_password",
+                            audit_str, request.META)
                 return django.http.HttpResponseRedirect('/view_local_users?ack=changed_password')
             else:
                 return_dict["form"] = form
-                return django.shortcuts.render_to_response("update_local_user_password.html", return_dict, context_instance = django.template.context.RequestContext(request))
+                return django.shortcuts.render_to_response("update_local_user_password.html", return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = 'users_groups_base.html'
         return_dict["page_title"] = "Modify local user's password"
@@ -408,6 +428,7 @@ def update_local_user_password(request):
         return_dict["error"] = "Error modifying local user's password"
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 
 def update_group_membership(request):
     return_dict = {}
@@ -426,13 +447,13 @@ def update_group_membership(request):
             else:
                 raise Exception("Could not retrieve group information")
 
-        #print 'gd - ', gd
+        # print 'gd - ', gd
 
         user_list, err = local_users.get_local_users()
         if err:
             raise Exception(err)
 
-        #print 'user_list', user_list
+        # print 'user_list', user_list
 
         users = []
         primary_users = []
@@ -444,51 +465,55 @@ def update_group_membership(request):
                 primary_users.append(u['username'])
             if u['username'] in gd['members']:
                 users.append(u['username'])
-        #print 'users', users
+        # print 'users', users
         #return_dict['primary_users'] = primary_users
 
         if request.method == "GET":
-            #Return the form
+            # Return the form
             initial = {}
             initial['grpname'] = request.GET['grpname']
             initial['users'] = users
-            form = local_user_forms.ModifyGroupMembershipForm(initial=initial, user_list = permitted_users)
+            form = local_user_forms.ModifyGroupMembershipForm(
+                initial=initial, user_list=permitted_users)
             return_dict['form'] = form
-            return django.shortcuts.render_to_response("update_group_membership.html", return_dict, context_instance = django.template.context.RequestContext(request))
+            return django.shortcuts.render_to_response("update_group_membership.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            form = local_user_forms.ModifyGroupMembershipForm(request.POST, user_list = permitted_users)
+            form = local_user_forms.ModifyGroupMembershipForm(
+                request.POST, user_list=permitted_users)
             return_dict["form"] = form
             if form.is_valid():
                 cd = form.cleaned_data
                 users = cd['users']
-                #print users
+                # print users
 
-                audit_str = 'Modified group membership for group "%s". '%cd['grpname']
+                audit_str = 'Modified group membership for group "%s". ' % cd['grpname']
                 deleted_users = []
                 for existing_user in gd['members']:
                     if existing_user not in users and existing_user not in primary_users:
                         deleted_users.append(existing_user)
-                        #print 'delete user %s'%existing_user
+                        # print 'delete user %s'%existing_user
                 added_users = []
                 for user in users:
                     if user not in gd['members'] and user not in primary_users:
                         added_users.append(user)
-                        #print 'add user %s'%user
+                        # print 'add user %s'%user
                 if added_users:
-                    audit_str += 'Added user(s) %s. '%(','.join(added_users))
+                    audit_str += 'Added user(s) %s. ' % (','.join(added_users))
                 if deleted_users:
-                    audit_str += 'Removed user(s) %s.'%(','.join(deleted_users))
-                #print audit_str
+                    audit_str += 'Removed user(s) %s.' % (
+                        ','.join(deleted_users))
+                # print audit_str
                 #assert False
-                ret, err = local_users.set_group_membership(cd['grpname'], cd['users'])
+                ret, err = local_users.set_group_membership(
+                    cd['grpname'], cd['users'])
                 if err:
-                    raise Exception('Error setting group membership: %s'%err)
+                    raise Exception('Error setting group membership: %s' % err)
                 #assert False
                 audit.audit("set_group_membership", audit_str, request.META)
-                url = '/view_local_group?grpname=%s&searchby=grpname&ack=set_membership'%cd['grpname']
+                url = '/view_local_group?grpname=%s&searchby=grpname&ack=set_membership' % cd['grpname']
                 return django.http.HttpResponseRedirect(url)
             else:
-                return django.shortcuts.render_to_response("update_group_membership.html", return_dict, context_instance = django.template.context.RequestContext(request))
+                return django.shortcuts.render_to_response("update_group_membership.html", return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = 'users_groups_base.html'
         return_dict["page_title"] = 'Modify group membership'
@@ -496,6 +521,7 @@ def update_group_membership(request):
         return_dict["error"] = 'Error modifying group membership'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 
 '''
 def edit_local_user_gid(request):

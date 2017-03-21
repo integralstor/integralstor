@@ -1,13 +1,16 @@
 
 from integralstor_common import networking, command
-import os, socket, sys
+import os
+import socket
+import sys
+
 
 def display_config():
 
-    try :
+    try:
         hostname = socket.gethostname()
-        if hostname :
-            print "Hostname : %s"%hostname
+        if hostname:
+            print "Hostname : %s" % hostname
         else:
             print "Hostname : Not set"
         print
@@ -16,32 +19,32 @@ def display_config():
             for name, interface in interfaces.items():
                 if name.startswith('lo'):
                     continue
-                print 'Interface : %s. '%name
+                print 'Interface : %s. ' % name
                 if 'AF_INET' in interface['addresses']:
-                    print 'IP Address : %s, Netmask %s. '%(interface['addresses']['AF_INET'][0]['addr'], interface['addresses']['AF_INET'][0]['netmask']) , 
+                    print 'IP Address : %s, Netmask %s. ' % (interface['addresses']['AF_INET'][0]['addr'], interface['addresses']['AF_INET'][0]['netmask']),
                 else:
                     print 'No address assigned. ',
                 if 'slave_to' in interface:
-                    print 'NIC bonded slave to %s.'%interface['slave_to'],
+                    print 'NIC bonded slave to %s.' % interface['slave_to'],
                 if 'bonding_master' in interface:
                     print 'NIC bonded master. ',
                     bonding_type, err = networking.get_bonding_type(name)
                     if bonding_type:
-                        print 'Bonding type %d. '%bonding_type
-                print 'Carrier status : %s. '%interface['carrier_status'],
-                print 'NIC status : %s. '%interface['up_status']
+                        print 'Bonding type %d. ' % bonding_type
+                print 'Carrier status : %s. ' % interface['carrier_status'],
+                print 'NIC status : %s. ' % interface['up_status']
                 print
         else:
             if err:
-                print 'Error retrieving interface information : %s'%err
+                print 'Error retrieving interface information : %s' % err
 
-        dns_list,err = networking.get_name_servers()
-        if dns_list :
+        dns_list, err = networking.get_name_servers()
+        if dns_list:
             print "DNS lookup servers :",
             print ', '.join(dns_list)
             print
     except Exception, e:
-        print "Error displaying system configuration : %s"%e
+        print "Error displaying system configuration : %s" % e
         return -1
     else:
         return 0

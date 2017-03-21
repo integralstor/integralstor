@@ -1,7 +1,10 @@
-import zipfile, os,shutil
+import zipfile
+import os
+import shutil
 
-import django, django.template
-from  django.contrib import auth
+import django
+import django.template
+from django.contrib import auth
 from django.core.files.storage import default_storage
 from django.contrib.auth.decorators import login_required
 
@@ -11,11 +14,13 @@ import integral_view
 from integral_view.forms import log_management_forms, common_forms
 from integral_view.utils import iv_logging
 
+
 def _handle_uploaded_file(f):
     with open('/tmp/upload.zip', 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
-    return True,"/tmp/upload.zip"
+    return True, "/tmp/upload.zip"
+
 
 def _copy_and_overwrite(from_path, to_path):
     if os.path.exists(to_path):
@@ -23,9 +28,11 @@ def _copy_and_overwrite(from_path, to_path):
     shutil.copytree(from_path, to_path)
     return True
 
-def _copy_file_and_overwrite(from_path,to_path):
-    shutil.copyfile(from_path,to_path)
+
+def _copy_file_and_overwrite(from_path, to_path):
+    shutil.copyfile(from_path, to_path)
     return True
+
 
 def view_log(request):
     return_dict = {}
@@ -73,6 +80,7 @@ def view_log(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def view_alerts(request):
     return_dict = {}
     try:
@@ -111,7 +119,8 @@ def download_log(request):
                         if err:
                             raise Exception(err)
                         for alert in all_alerts:
-                            response.write('%s : %s\n'%(alert['time'], alert['message']))
+                            response.write('%s : %s\n' %
+                                           (alert['time'], alert['message']))
                             response.flush()
                     elif log_type == 'audit':
                         response['Content-disposition'] = 'attachment; filename=audit_log.txt'
@@ -119,9 +128,11 @@ def download_log(request):
                         if err:
                             raise Exception(err)
                         for audit_info in all_audits:
-                            response.write('Time : %s \n'%audit_info['time'])
-                            response.write('Source IP : %s \n'%audit_info['ip'])
-                            response.write('Action : %s \n'%audit_info['action'])
+                            response.write('Time : %s \n' % audit_info['time'])
+                            response.write('Source IP : %s \n' %
+                                           audit_info['ip'])
+                            response.write('Action : %s \n' %
+                                           audit_info['action'])
                             response.write('\n')
                             response.flush()
                     elif log_type == 'hardware':
@@ -138,31 +149,38 @@ def download_log(request):
                                 raise Exception('No logs detected!')
                             for timestamp, log_list in logs_dict.items():
                                 for log in log_list:
-                                    response.write('Time : %s\n'%log['date_time'])
-                                    response.write('Severity : %s\n'%log['Severity'])
-                                    response.write('Description : %s\n'%log['description'])
+                                    response.write('Time : %s\n' %
+                                                   log['date_time'])
+                                    response.write(
+                                        'Severity : %s\n' % log['Severity'])
+                                    response.write(
+                                        'Description : %s\n' % log['description'])
                                     response.write('\n')
                                     response.flush()
                         else:
                             raise Exception('Unknown platform')
                 else:
 
-                    fn = {'boot':'/var/log/boot.log', 'dmesg':'/var/log/dmesg', 'message':'/var/log/messages', 'smb':'/var/log/smblog.vfs', 'winbind':'/var/log/samba/log.winbindd','ctdb':'/var/log/log.ctdb'}
-                    dn = {'boot':'boot.log', 'dmesg':'dmesg', 'message':'messages','smb':'samba_logs','winbind':'winbind_logs','ctdb':'ctdb_logs'}
+                    fn = {'boot': '/var/log/boot.log', 'dmesg': '/var/log/dmesg', 'message': '/var/log/messages',
+                          'smb': '/var/log/smblog.vfs', 'winbind': '/var/log/samba/log.winbindd', 'ctdb': '/var/log/log.ctdb'}
+                    dn = {'boot': 'boot.log', 'dmesg': 'dmesg', 'message': 'messages',
+                          'smb': 'samba_logs', 'winbind': 'winbind_logs', 'ctdb': 'ctdb_logs'}
 
                     file_name = fn[log_type]
                     display_name = dn[log_type]
 
-                    zf_name = '%s.zip'%display_name
+                    zf_name = '%s.zip' % display_name
 
                     try:
                         zf = zipfile.ZipFile(zf_name, 'w')
-                        zf.write(file_name, arcname = display_name)
+                        zf.write(file_name, arcname=display_name)
                         zf.close()
                     except Exception as e:
-                        raise Exception("Error compressing remote log file : %s"%str(e))
+                        raise Exception(
+                            "Error compressing remote log file : %s" % str(e))
 
-                    response['Content-disposition'] = 'attachment; filename=%s.zip'%(display_name)
+                    response['Content-disposition'] = 'attachment; filename=%s.zip' % (
+                        display_name)
                     response['Content-type'] = 'application/x-compressed'
                     with open(zf_name, 'rb') as f:
                         byte = f.read(1)
@@ -184,12 +202,13 @@ def download_log(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def rotate_log(request, log_type=None):
     return_dict = {}
     try:
         if log_type not in ["alerts", "audit_trail"]:
             raise Exception("Unknown log type")
-            return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance = django.template.context.RequestContext(request))
+            return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
         if log_type == "alerts":
             return_dict['tab'] = 'view_current_alerts_tab'
             return_dict["page_title"] = 'Rotate system alerts log'
@@ -224,18 +243,20 @@ def download_sys_info(request):
             zf = zipfile.ZipFile(zf_name, 'w')
             abs_src = os.path.abspath(display_name)
             for dirname, subdirs, files in os.walk(display_name):
-                if not( ("logs" in dirname) or ("ntp" in dirname) or ("rc_local" in dirname) or ("samba" in dirname) or ("status" in dirname)):
-                    for filename in files: 
-                        absname = os.path.abspath(os.path.join(dirname, filename))
+                if not(("logs" in dirname) or ("ntp" in dirname) or ("rc_local" in dirname) or ("samba" in dirname) or ("status" in dirname)):
+                    for filename in files:
+                        absname = os.path.abspath(
+                            os.path.join(dirname, filename))
                         arcname = absname[len(abs_src) + 1:]
                         zf.write(absname, arcname)
-            logs = {'smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf','nfs':'/etc/exports','ftp':'/etc/vsftpd/vsftpd.conf','master.status':display_name+"/status/master.status",'master.manifest':display_name+"/status/master.manifest"}
-            for key,value in logs.iteritems():
+            logs = {'smb_conf': '/etc/samba/smb.conf', 'ntp_conf': '/etc/ntp.conf', 'krb5_conf': '/etc/krb5.conf', 'nfs': '/etc/exports',
+                    'ftp': '/etc/vsftpd/vsftpd.conf', 'master.status': display_name + "/status/master.status", 'master.manifest': display_name + "/status/master.manifest"}
+            for key, value in logs.iteritems():
                 if os.path.isfile(value):
                     zf.write(value, key)
             zf.close()
         except Exception as e:
-            raise Exception("Error compressing remote log file : %s"%str(e))
+            raise Exception("Error compressing remote log file : %s" % str(e))
         response = django.http.HttpResponse()
         response['Content-disposition'] = 'attachment; filename=system_info.zip'
         response['Content-type'] = 'application/x-compressed'
@@ -258,29 +279,31 @@ def download_sys_info(request):
 def upload_sys_info(request):
     return_dict = {}
     try:
-        if request.method == "POST" :
-            status,path = _handle_uploaded_file(request.FILES['file_field'])
+        if request.method == "POST":
+            status, path = _handle_uploaded_file(request.FILES['file_field'])
             display_name, err = common.get_config_dir()
             if err:
                 raise Exception(err)
             if path:
-                zip = zipfile.ZipFile(path,'r')
+                zip = zipfile.ZipFile(path, 'r')
                 data = zip.namelist()
                 move = zip.extractall("/tmp/upload/")
                # logs = {'smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf','nfs':'/etc/exports','ftp':'/etc/vsftpd/vsftpd.conf'}
-                logs = {'smb_conf':'/etc/samba/smb.conf','ntp_conf':'/etc/ntp.conf','krb5_conf':'/etc/krb5.conf','nfs':'/etc/exports','ftp':'/etc/vsftpd/vsftpd.conf','master.status':display_name+"/status/master.status",'master.manifest':display_name+"/status/master.manifest"}
-                for key,value in logs.iteritems():
-                    if key and os.path.isfile("/tmp/upload/"+key):
-                        _copy_file_and_overwrite("/tmp/upload/"+key,value)
+                logs = {'smb_conf': '/etc/samba/smb.conf', 'ntp_conf': '/etc/ntp.conf', 'krb5_conf': '/etc/krb5.conf', 'nfs': '/etc/exports',
+                        'ftp': '/etc/vsftpd/vsftpd.conf', 'master.status': display_name + "/status/master.status", 'master.manifest': display_name + "/status/master.manifest"}
+                for key, value in logs.iteritems():
+                    if key and os.path.isfile("/tmp/upload/" + key):
+                        _copy_file_and_overwrite("/tmp/upload/" + key, value)
                 for dir in os.listdir("/tmp/upload"):
-                    if dir and os.path.isdir("/tmp/upload/"+dir):
-                        _copy_and_overwrite("/tmp/upload/"+dir,common.get_config_dir()[0]+"/"+dir)
+                    if dir and os.path.isdir("/tmp/upload/" + dir):
+                        _copy_and_overwrite(
+                            "/tmp/upload/" + dir, common.get_config_dir()[0] + "/" + dir)
                 return django.http.HttpResponseRedirect("/view_system_info/")
         else:
             form = common_forms.FileUploadForm()
-            return_dict["form"] = form  
+            return_dict["form"] = form
             return django.shortcuts.render_to_response("upload_sys_info.html", return_dict, context_instance=django.template.context.RequestContext(request))
-    except Exception,e:
+    except Exception, e:
         return_dict['base_template'] = "logging_base.html"
         return_dict["error"] = 'Error displaying rotated log list'
         return_dict["error_details"] = str(e)
@@ -313,7 +336,7 @@ def view_rotated_log_list(request, log_type):
 
         return_dict["type"] = log_type
         return_dict["log_file_list"] = l
-        return django.shortcuts.render_to_response('view_rolled_log_list.html', return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response('view_rolled_log_list.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = "logging_base.html"
         return_dict["error"] = 'Error displaying rotated log list'
@@ -344,14 +367,14 @@ def view_rotated_log_file(request, log_type):
             if err:
                 raise Exception(err)
             return_dict["alerts_list"] = l
-            return django.shortcuts.render_to_response('view_alerts.html', return_dict, context_instance = django.template.context.RequestContext(request))
+            return django.shortcuts.render_to_response('view_alerts.html', return_dict, context_instance=django.template.context.RequestContext(request))
         else:
             return_dict['tab'] = 'view_rotated_audit_log_list_tab'
             d, err = audit.get_lines(file_name)
             if err:
                 raise Exception(err)
             return_dict["audit_list"] = d
-            return django.shortcuts.render_to_response('view_audit_trail.html', return_dict, context_instance = django.template.context.RequestContext(request))
+            return django.shortcuts.render_to_response('view_audit_trail.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = "logging_base.html"
         return_dict["page_title"] = 'View rotated log file'
@@ -364,8 +387,10 @@ def refresh_alerts(request, random=None):
     try:
         from django.utils import timezone
         cmd_list = []
-        #this command will insert or update the row value if the row with the user exists.
-        cmd = ["INSERT OR REPLACE INTO admin_alerts (user, last_refresh_time) values (?,?);", (request.user.username, timezone.now())]
+        # this command will insert or update the row value if the row with the
+        # user exists.
+        cmd = ["INSERT OR REPLACE INTO admin_alerts (user, last_refresh_time) values (?,?);", (
+            request.user.username, timezone.now())]
         cmd_list.append(cmd)
         db_path, err = common.get_db_path()
         if err:
@@ -378,7 +403,7 @@ def refresh_alerts(request, random=None):
             raise Exception(err)
         if new_alerts_present:
             import json
-            alerts_list, err = alerts.load_alerts(last_n = 5)
+            alerts_list, err = alerts.load_alerts(last_n=5)
             if err:
                 raise Exception(err)
             if not alerts_list:
@@ -390,7 +415,8 @@ def refresh_alerts(request, random=None):
             message = "View alerts"
             return django.http.HttpResponse("No New Alerts")
     except Exception, e:
-        return django.http.HttpResponse("Error loading alerts : %s"%str(e))
+        return django.http.HttpResponse("Error loading alerts : %s" % str(e))
+
 
 '''
 Not used currently but keeping it in case it is needed later

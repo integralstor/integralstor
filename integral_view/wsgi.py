@@ -13,7 +13,8 @@ middleware here, or combine a Django application with an application of another
 framework.
 
 """
-import os,sys
+import os
+import sys
 sys.path.append('/opt/integralstor/integralstor_unicell')
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "integral_view.settings")

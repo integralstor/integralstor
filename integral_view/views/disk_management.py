@@ -1,7 +1,9 @@
-import django, django.template
+import django
+import django.template
 
 from integralstor_common import common, disks, command, audit, zfs, manifest_status, scheduler_utils
 from integralstor_unicell import system_info
+
 
 def view_disks(request):
     return_dict = {}
@@ -28,7 +30,7 @@ def view_disks(request):
         return_dict['system_info'] = si
         return_dict["disk_status"] = si[si.keys()[0]]['disks']
         return_dict['node_name'] = si.keys()[0]
-        return django.shortcuts.render_to_response('view_disks.html', return_dict, context_instance = django.template.context.RequestContext(request))
+        return django.shortcuts.render_to_response('view_disks.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
         return_dict["page_title"] = 'Disks'
@@ -37,23 +39,27 @@ def view_disks(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def identify_disk(request):
     return_dict = {}
     try:
         if 'hw_platform' not in request.REQUEST or request.REQUEST['hw_platform'] != 'dell':
-            raise Exception('Unknown hardware platform so cannot toggle identification LED')
+            raise Exception(
+                'Unknown hardware platform so cannot toggle identification LED')
         if 'action' not in request.REQUEST or request.REQUEST['action'] not in ['blink', 'unblink']:
-            raise Exception('Unknown action specified so cannot toggle identification LED')
+            raise Exception(
+                'Unknown action specified so cannot toggle identification LED')
         if request.REQUEST['hw_platform'] == 'dell':
             action = request.REQUEST['action']
             channel = request.REQUEST['channel']
             enclosure_id = request.REQUEST['enclosure_id']
             target_id = request.REQUEST['target_id']
             from integralstor_common.platforms import dell
-            result, err = dell.blink_unblink_disk(action, 0, channel, enclosure_id, target_id)
+            result, err = dell.blink_unblink_disk(
+                action, 0, channel, enclosure_id, target_id)
             if not result:
                 raise Exception(err)
-            return django.http.HttpResponseRedirect('/view_disks?ack=%s'%action)
+            return django.http.HttpResponseRedirect('/view_disks?ack=%s' % action)
 
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -62,6 +68,7 @@ def identify_disk(request):
         return_dict["error"] = 'Error toggling disk identification'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 
 def replace_disk(request):
 
@@ -92,11 +99,12 @@ def replace_disk(request):
             serial_number = request.POST["serial_number"]
 
             if "conf" in request.POST:
-                if "node" not in request.POST or  "serial_number" not in request.POST:
-                    raise Exception("Incorrect access method. Please use the menus")
+                if "node" not in request.POST or "serial_number" not in request.POST:
+                    raise Exception(
+                        "Incorrect access method. Please use the menus")
                 elif request.POST["node"] not in si:
                     raise Exception("Unknown node. Please use the menus")
-                elif "step" not in request.POST :
+                elif "step" not in request.POST:
                     raise Exception("Incomplete request. Please use the menus")
                 elif request.POST["step"] not in ["replace_method", "select_replacement_disk", "offline_disk", "scan_for_new_disk", "online_new_disk"]:
                     raise Exception("Incomplete request. Please use the menus")
@@ -107,23 +115,26 @@ def replace_disk(request):
 
                     if step == "offline_disk":
 
-                        #get the pool corresponding to the disk
-                        #zpool offline pool disk
-                        #send a screen asking them to replace the disk
+                        # get the pool corresponding to the disk
+                        # zpool offline pool disk
+                        # send a screen asking them to replace the disk
 
-                        if 'replacement_method' not in request.POST or request.POST['replacement_method'] not in ['use_existing_disk','swap_out_disk']:
+                        if 'replacement_method' not in request.POST or request.POST['replacement_method'] not in ['use_existing_disk', 'swap_out_disk']:
                             raise Exception('Invalid request')
                         return_dict['replacement_method'] = request.POST['replacement_method']
                         if request.POST['replacement_method'] == 'use_existing_disk':
-                            #Then we should have landed here after already selecting the new disk so get and record the new disk details
+                            # Then we should have landed here after already
+                            # selecting the new disk so get and record the new
+                            # disk details
                             if 'new_serial_number' not in request.POST:
-                                raise Exception('Incomplete request. Please try again')
+                                raise Exception(
+                                    'Incomplete request. Please try again')
                             new_serial_number = request.POST['new_serial_number']
                             all_disks, err = disks.get_disk_info_all()
                             if new_serial_number not in all_disks:
                                 raise Exception('Invalid disk selection')
-                            #print new_serial_number
-                            #print all_disks[new_serial_number]['id']
+                            # print new_serial_number
+                            # print all_disks[new_serial_number]['id']
                             return_dict['new_serial_number'] = new_serial_number
                             return_dict['new_id'] = all_disks[new_serial_number]['id']
 
@@ -134,16 +145,19 @@ def replace_disk(request):
                                 pool = disk["pool"]
                             disk_id = disk["id"]
                         if not pool:
-                            raise Exception("Could not find the storage pool on that disk. Please use the menus")
+                            raise Exception(
+                                "Could not find the storage pool on that disk. Please use the menus")
                         else:
-                            cmd_to_run = 'zpool offline %s %s'%(pool, disk_id)
-                            #print 'Running %s'%cmd_to_run
+                            cmd_to_run = 'zpool offline %s %s' % (
+                                pool, disk_id)
+                            # print 'Running %s'%cmd_to_run
                             #assert False
                             ret, err = command.get_command_output(cmd_to_run)
                             if err:
                                 raise Exception(err)
-                            audit_str = "Replace disk - Disk with serial number %s brought offline"%serial_number
-                            audit.audit("replace_disk_offline_disk", audit_str, request.META)
+                            audit_str = "Replace disk - Disk with serial number %s brought offline" % serial_number
+                            audit.audit("replace_disk_offline_disk",
+                                        audit_str, request.META)
                             return_dict["serial_number"] = serial_number
                             return_dict["node"] = node
                             return_dict["pool"] = pool
@@ -156,7 +170,7 @@ def replace_disk(request):
                         template = "replace_disk_method.html"
 
                     elif step == "select_replacement_disk":
-                        if 'replacement_method' not in request.POST or request.POST['replacement_method'] not in ['use_existing_disk','swap_out_disk']:
+                        if 'replacement_method' not in request.POST or request.POST['replacement_method'] not in ['use_existing_disk', 'swap_out_disk']:
                             raise Exception('Invalid request')
                         return_dict['replacement_method'] = request.POST['replacement_method']
                         return_dict["node"] = node
@@ -165,14 +179,16 @@ def replace_disk(request):
                         if err:
                             raise Exception(err)
                         if not free_disks:
-                            raise Exception('There are no unused disks presently')
+                            raise Exception(
+                                'There are no unused disks presently')
                         return_dict['free_disks'] = free_disks
                         template = "replace_disk_choose_disk.html"
 
                     elif step == "scan_for_new_disk":
 
-                        #they have replaced the disk so scan for the new disk
-                        # and prompt for a confirmation of the new disk serial number
+                        # they have replaced the disk so scan for the new disk
+                        # and prompt for a confirmation of the new disk serial
+                        # number
 
                         pool = request.POST["pool"]
                         old_id = request.POST["old_id"]
@@ -189,19 +205,20 @@ def replace_disk(request):
                             result = True
                             new_disks = rc
                         if result:
-                            #print '1'
+                            # print '1'
                             if new_disks:
-                                #print new_disks.keys()
-                                #print old_disks
+                                # print new_disks.keys()
+                                # print old_disks
                                 for disk in new_disks.keys():
-                                    #print disk
+                                    # print disk
                                     if disk not in old_disks:
-                                        #print 'new disk : ', disk
+                                        # print 'new disk : ', disk
                                         return_dict["inserted_disk_serial_number"] = disk
                                         return_dict["new_id"] = new_disks[disk]["id"]
                                         break
                                 if "inserted_disk_serial_number" not in return_dict:
-                                    raise Exception("Could not detect any new disk. Please check the new disk is inserted and give the system a few seconds to detect the drive and refresh the page to try again.")
+                                    raise Exception(
+                                        "Could not detect any new disk. Please check the new disk is inserted and give the system a few seconds to detect the drive and refresh the page to try again.")
                                 else:
                                     template = "replace_disk_confirm_new_disk.html"
                     elif step == "online_new_disk":
@@ -214,25 +231,33 @@ def replace_disk(request):
                         if err:
                             raise Exception(err)
                         cmd_list = []
-                        cmd_list.append({'Replace old disk':'zpool replace -f %s %s %s'%(pool, old_id, new_id)})
-                        cmd_list.append({'Online the new disk':'zpool online -e %s %s'%(pool, new_id)})
-                        cmd_list.append({'Regenerate the system configuration':'%s/generate_manifest.py'%common_python_scripts_path})
-                        ret, err = scheduler_utils.add_task('Disk replacement',cmd_list,task_type_id = 1, attempts = 1)
+                        cmd_list.append(
+                            {'Replace old disk': 'zpool replace -f %s %s %s' % (pool, old_id, new_id)})
+                        cmd_list.append(
+                            {'Online the new disk': 'zpool online -e %s %s' % (pool, new_id)})
+                        cmd_list.append(
+                            {'Regenerate the system configuration': '%s/generate_manifest.py' % common_python_scripts_path})
+                        ret, err = scheduler_utils.add_task(
+                            'Disk replacement', cmd_list, task_type_id=1, attempts=1)
                         if err:
                             raise Exception(err)
                         if not ret:
-                            raise Exception('Error scheduling disk replacement tasks')
-                        audit_str = "Replace disk - Scheduled a task for replacing the old disk with serial number %s with the new disk with serial number %s"%(serial_number, new_serial_number)
-                        audit.audit("replace_disk_replaced_disk", audit_str, request.META)
+                            raise Exception(
+                                'Error scheduling disk replacement tasks')
+                        audit_str = "Replace disk - Scheduled a task for replacing the old disk with serial number %s with the new disk with serial number %s" % (
+                            serial_number, new_serial_number)
+                        audit.audit("replace_disk_replaced_disk",
+                                    audit_str, request.META)
                         return_dict["node"] = node
                         return_dict["old_serial_number"] = serial_number
                         return_dict["new_serial_number"] = new_serial_number
                         template = "replace_disk_success.html"
-                    return django.shortcuts.render_to_response(template, return_dict, context_instance = django.template.context.RequestContext(request))
+                    return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
 
             else:
                 if "serial_number" not in request.POST:
-                    raise Exception("Incorrect access method. Please use the menus")
+                    raise Exception(
+                        "Incorrect access method. Please use the menus")
                 else:
                     if 'node' in request.POST:
                         return_dict["node"] = request.POST["node"]
