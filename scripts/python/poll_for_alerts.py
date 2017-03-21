@@ -28,7 +28,7 @@ def main():
         tasks_query = "select * from tasks where last_run_time > '%d' and (status = 'error-retrying' or status = 'failed');" % (
             now - 110)
         # print "\ntasks_query: ", tasks_query
-        rows, err = db.read_multiple_rows(db_path, tasks_query)
+        rows, err = db.get_multiple_rows(db_path, tasks_query)
         # print "\nrows: ", rows
         if err:
             raise Exception(err)

@@ -17,7 +17,7 @@ def view_cifs_shares(request):
     return_dict = {}
     try:
         template = 'logged_in_error.html'
-        shares_list, err = cifs_common.load_shares_list()
+        shares_list, err = cifs_common.get_shares_list()
         if err:
             raise Exception(err)
 
@@ -67,7 +67,7 @@ def view_cifs_share(request):
             return_dict["ack_message"] = "Information updated successfully"
 
         valid_users_list = None
-        share, err = cifs_common.load_share_info(access_mode, index)
+        share, err = cifs_common.get_share_info(access_mode, index)
         if err:
             raise Exception(err)
         if not share:
@@ -123,7 +123,7 @@ def update_cifs_share(request):
                 raise Exception("Unknown share specified")
 
             share_id = request.GET["share_id"]
-            share_dict, err = cifs_common.load_share_info("by_id", share_id)
+            share_dict, err = cifs_common.get_share_info("by_id", share_id)
             if err:
                 raise Exception(err)
 
@@ -171,7 +171,7 @@ def update_cifs_share(request):
                     browseable = cd["browseable"]
                 else:
                     browseable = False
-                ret, err = cifs_common.save_share(
+                ret, err = cifs_common.update_share(
                     share_id, name, comment, False, read_only, path, browseable, None, None)
                 if err:
                     raise Exception(err)
@@ -344,7 +344,7 @@ def create_cifs_share(request):
 def update_auth_method(request):
     return_dict = {}
     try:
-        d, err = cifs_common.load_auth_settings()
+        d, err = cifs_common.get_auth_settings()
         if err:
             raise Exception(err)
         return_dict["samba_global_dict"] = d
@@ -361,7 +361,7 @@ def update_auth_method(request):
                 return_dict["error"] = "Selected authentication method is the same as before."
                 return django.shortcuts.render_to_response('update_cifs_auth_method.html', return_dict, context_instance=django.template.context.RequestContext(request))
 
-            ret, err = cifs_common.change_auth_method(security)
+            ret, err = cifs_common.update_auth_method(security)
             if err:
                 raise Exception(err)
             ret, err = cifs_unicell.generate_smb_conf()
@@ -381,7 +381,7 @@ def update_auth_method(request):
 def view_samba_server_settings(request):
     return_dict = {}
     try:
-        d, err = cifs_common.load_auth_settings()
+        d, err = cifs_common.get_auth_settings()
         if err:
             raise Exception(err)
 
@@ -404,7 +404,7 @@ def update_samba_server_settings(request):
     return_dict = {}
     try:
         if request.method == "GET":
-            d, err = cifs_common.load_auth_settings()
+            d, err = cifs_common.get_auth_settings()
             if err:
                 raise Exception(err)
             ini = {}
@@ -437,7 +437,7 @@ def update_samba_server_settings(request):
             if form.is_valid():
                 cd = form.cleaned_data
                 print "Calling auth save settings"
-                ret, err = cifs_common.save_auth_settings(cd)
+                ret, err = cifs_common.update_auth_settings(cd)
                 print "save settings done"
                 if err:
                     raise Exception(err)

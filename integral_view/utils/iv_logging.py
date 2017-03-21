@@ -16,7 +16,7 @@ def set_log_level(level):
         if level not in [logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL]:
             logger.setLevel(logging.INFO)
         else:
-            d1, err = db.read_single_row(
+            d1, err = db.get_single_row(
                 db_path, "select * from global_params")
             if err:
                 raise Exception(err)
@@ -64,7 +64,7 @@ def get_log_level():
     conn = None
     log_level = None
     try:
-        d, err = db.read_single_row(
+        d, err = db.get_single_row(
             db_path, "select * from global_params where id=1")
         if err:
             raise Exception(err)

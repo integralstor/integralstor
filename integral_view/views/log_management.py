@@ -45,7 +45,7 @@ def view_log(request):
                 if log_type not in ['alerts', 'audit', 'hardware']:
                     raise Exception('Invalid log type specified')
                 if log_type == 'alerts':
-                    alerts_list, err = alerts.load_alerts()
+                    alerts_list, err = alerts.get_alerts()
                     if err:
                         raise Exception(err)
                     return_dict['alerts_list'] = alerts_list
@@ -84,7 +84,7 @@ def view_log(request):
 def view_alerts(request):
     return_dict = {}
     try:
-        alerts_list, err = alerts.load_alerts()
+        alerts_list, err = alerts.get_alerts()
         if err:
             raise Exception(err)
         return_dict['alerts_list'] = alerts_list
@@ -115,7 +115,7 @@ def download_log(request):
                 if log_type in ['alerts', 'audit', 'hardware']:
                     if log_type == 'alerts':
                         response['Content-disposition'] = 'attachment; filename=alerts_log.txt'
-                        all_alerts, err = alerts.load_alerts()
+                        all_alerts, err = alerts.get_alerts()
                         if err:
                             raise Exception(err)
                         for alert in all_alerts:
@@ -363,7 +363,7 @@ def view_rotated_log_file(request, log_type):
         return_dict["historical"] = True
         if log_type == "alerts":
             return_dict['tab'] = 'view_rotated_alert_log_list_tab'
-            l, err = alerts.load_alerts(file_name)
+            l, err = alerts.get_alerts(file_name)
             if err:
                 raise Exception(err)
             return_dict["alerts_list"] = l
@@ -403,7 +403,7 @@ def refresh_alerts(request, random=None):
             raise Exception(err)
         if new_alerts_present:
             import json
-            alerts_list, err = alerts.load_alerts(last_n=5)
+            alerts_list, err = alerts.get_alerts(last_n=5)
             if err:
                 raise Exception(err)
             if not alerts_list:

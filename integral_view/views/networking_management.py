@@ -1,7 +1,7 @@
 import django
 import django.template
 
-from integralstor_common import networking, audit, command, common
+from integralstor_common import networking, audit, command, common, unicode_utils
 from django.contrib.auth.decorators import login_required
 
 import socket
@@ -222,7 +222,7 @@ def update_interface_address(request):
             if err:
                 raise Exception(err)
             ip, err = networking.get_ip_info(
-                common.convert_unicode_to_string(cd['name']))
+                unicode_utils.convert_unicode_to_string(cd['name']))
             if err:
                 raise Exception(err)
             audit_str = 'Changed the address of %s. New values are IP : %s, netmask: %s' % (

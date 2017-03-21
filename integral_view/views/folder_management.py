@@ -255,7 +255,8 @@ def create_aces(request):
                 if for_share:
                     share_index = cd['share_index']
                     share_name = cd['share_name']
-                ret, err = acl.add_ace_entries(path, users, groups, recursive)
+                ret, err = acl.create_ace_entries(
+                    path, users, groups, recursive)
                 if err:
                     raise Exception(err)
             else:
@@ -420,7 +421,7 @@ def update_aces(request):
                 if for_share:
                     share_index = cd['share_index']
                     share_name = cd['share_name']
-                ret, err = acl.set_ace_entries(path, cd)
+                ret, err = acl.update_ace_entries(path, cd)
                 if err:
                     raise Exception(err)
             else:
@@ -987,7 +988,7 @@ def update_dir_permissions(request):
                 return_dict["form"] = form
                 if form.is_valid():
                     cd = form.cleaned_data
-                    ret, err = file_processing.set_dir_ownership_and_permissions(
+                    ret, err = file_processing.update_dir_ownership_and_permissions(
                         cd)
                     if not ret:
                         if err:

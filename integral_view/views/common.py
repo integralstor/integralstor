@@ -282,7 +282,7 @@ def view_dashboard(request, page):
             load_avg_ok = False
         return_dict['load_avg_ok'] = load_avg_ok
 
-        shares_list, err = cifs_common.load_shares_list()
+        shares_list, err = cifs_common.get_shares_list()
         if err:
             raise Exception(err)
         return_dict['num_cifs_shares'] = len(shares_list)
