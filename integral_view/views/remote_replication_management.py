@@ -72,7 +72,7 @@ def create_remote_replication(request):
                 py_scripts_path, source_dataset, destination_ip, destination_username, destination_pool)
             description = 'Replication of %s to pool %s on machine %s' % (
                 source_dataset, destination_pool, destination_ip)
-            cron_task_id, err = scheduler_utils.add_cron_task(
+            cron_task_id, err = scheduler_utils.create_cron_task(
                 cmd, description, schedule[0], schedule[1], schedule[2], schedule[3], schedule[4])
             if err:
                 raise Exception(err)
@@ -134,7 +134,7 @@ def update_remote_replication(request):
             cmd = '%s/add_remote_replication_task.py %s %s %s %s' % (
                 py_scripts_path, replications[0]['source_dataset'], replications[0]['destination_ip'], replications[0]['destination_user_name'], replications[0]['destination_pool'])
             # print cmd
-            new_cron_task_id, err = scheduler_utils.add_cron_task(
+            new_cron_task_id, err = scheduler_utils.create_cron_task(
                 cmd, description, schedule[0], schedule[1], schedule[2], schedule[3], schedule[4])
             if err:
                 raise Exception(err)

@@ -311,7 +311,7 @@ def update_https_mode(request):
         redirect_url = redirect_url + \
             request.META["HTTP_HOST"] + \
             "/view_https_mode?ack=set_to_%s" % change_to
-        restart, err = scheduler_utils.add_task('Chaging IntegralView access mode', [
+        restart, err = scheduler_utils.create_task('Chaging IntegralView access mode', [
                                                 {'Restarting Web Server': 'service nginx restart'}], 2)
         if err:
             raise Exception(err)
