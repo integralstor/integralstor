@@ -46,7 +46,7 @@ def remove_bond():
             else:
                 is_name = True
 
-        ret, err = networking.remove_bond(bond_name)
+        ret, err = networking.delete_bond(bond_name)
         if not ret:
             if err:
                 raise Exception('Error removing bond: %s' % err)

@@ -39,7 +39,7 @@ def delete_background_task(request):
         if err:
             raise Exception(err)
 
-        ret, err = scheduler_utils.remove_task(request.REQUEST['task_id'])
+        ret, err = scheduler_utils.delete_task(request.REQUEST['task_id'])
         if err:
             raise Exception(err)
 
@@ -150,7 +150,7 @@ def remove_cron_job(request):
   try:
     cron_name = request.POST.get('cron_name')
 
-    delete,err = scheduler_utils.remove_cron(int(cron_name))
+    delete,err = scheduler_utils.delete_cron(int(cron_name))
     if err:
       raise Exception(err)
     if delete:

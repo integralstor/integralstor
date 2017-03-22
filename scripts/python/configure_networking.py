@@ -148,7 +148,7 @@ def configure_interface():
                 d['ip'] = ip
                 d['netmask'] = netmask
                 d['default_gateway'] = gateway
-            ret, err = networking.set_interface_ip_info(ifname, d)
+            ret, err = networking.update_interface_ip(ifname, d)
             if not ret:
                 if err:
                     raise Exception(

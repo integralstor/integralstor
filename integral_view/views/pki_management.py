@@ -158,7 +158,7 @@ def upload_ssh_user_key(request):
                 with open('/%s/authorized_keys' % (pki._get_ssh_dir(user)), 'ab') as destination:
                     for chunk in authorized_key.chunks():
                         destination.write(chunk)
-                perm, err = pki.ssh_dir_permissions(user)
+                perm, err = pki.update_ssh_dir_permissions(user)
                 if err:
                     raise Exception(err)
                 ack_message = "key_added"
@@ -213,7 +213,7 @@ def upload_ssh_host_key(request):
                 # print data
                 with open(hosts_file, 'ab') as key:
                     key.write(ip + " " + data)
-                perm, err = pki.ssh_dir_permissions(user)
+                perm, err = pki.update_ssh_dir_permissions(user)
                 if err:
                     raise Exception(err)
                 ack_message = "host_added"

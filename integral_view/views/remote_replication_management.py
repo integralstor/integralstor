@@ -143,7 +143,7 @@ def update_remote_replication(request):
             if err:
                 raise Exception(err)
 
-            cron_remove, err = scheduler_utils.remove_cron(
+            cron_remove, err = scheduler_utils.delete_cron(
                 int(replication['cron_task_id']))
             if err:
                 raise Exception(err)
@@ -183,7 +183,7 @@ def delete_remote_replication(request):
             return django.shortcuts.render_to_response("delete_zfs_replication_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
 
-            cron_remove, err = scheduler_utils.remove_cron(
+            cron_remove, err = scheduler_utils.delete_cron(
                 int(request.REQUEST['cron_task_id']))
             if err:
                 raise Exception(err)
