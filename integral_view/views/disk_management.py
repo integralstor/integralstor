@@ -2,7 +2,7 @@ import django
 import django.template
 
 from integralstor_utils import common, disks, command, audit, zfs, manifest_status, scheduler_utils
-from integralstor_unicell import system_info
+from integralstor import system_info
 
 
 def view_disks(request):

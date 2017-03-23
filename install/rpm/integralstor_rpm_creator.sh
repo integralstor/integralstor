@@ -41,7 +41,7 @@ fi
 echo
 echo "Creating UniCELL specific Directories..."
 
-DIR_LIST="/root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor/pki /root/unicell_rpm/integralstor-unicell-${version_number}/run/samba /root/unicell_rpm/integralstor-unicell-${version_number}/var/log/integralstor/integralstor_unicell /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor/integralstor_unicell/tmp /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor/integralstor_unicell/config/status /root/unicell_rpm/integralstor-unicell-${version_number}/etc/nginx/sites-enabled /root/unicell_rpm/integralstor-unicell-${version_number}/etc/uwsgi/vassals"
+DIR_LIST="/root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor/pki /root/unicell_rpm/integralstor-unicell-${version_number}/run/samba /root/unicell_rpm/integralstor-unicell-${version_number}/var/log/integralstor/integralstor /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor/integralstor/tmp /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor/integralstor/config/status /root/unicell_rpm/integralstor-unicell-${version_number}/etc/nginx/sites-enabled /root/unicell_rpm/integralstor-unicell-${version_number}/etc/uwsgi/vassals"
 
 for dir in $DIR_LIST; do
     if [[ ! -d "$dir" ]]; then
@@ -53,7 +53,7 @@ done
 echo
 echo "Creating UniCELL specific Files..."
 
-FILE_LIST="/root/unicell_rpm/integralstor-unicell-${version_number}/var/log/integralstor/integralstor_unicell/integral_view.log /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor/ramdisks.conf /root/unicell_rpm/integralstor-unicell-${version_number}/var/log/integralstor/integralstor_unicell/ramdisks"
+FILE_LIST="/root/unicell_rpm/integralstor-unicell-${version_number}/var/log/integralstor/integralstor/integral_view.log /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor/ramdisks.conf /root/unicell_rpm/integralstor-unicell-${version_number}/var/log/integralstor/integralstor/ramdisks"
 for file in $FILE_LIST; do
     if [[ ! -e "$file" ]]; then
         echo "'$file' File Does Not Exist Creating..."
@@ -63,9 +63,9 @@ done
 
 ### MANAGE FILE ###
 cp -rf /root/unicell_rpm/integralstor_utils /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor
-cp -rf /root/unicell_rpm/integralstor_unicell /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor
+cp -rf /root/unicell_rpm/integralstor /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor
 
-cp -rf /root/unicell_rpm/integralstor_unicell_tar_installs.tar.gz /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor
+cp -rf /root/unicell_rpm/integralstor_tar_installs.tar.gz /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor
 cp -rf /root/unicell_rpm/integralstor_rpm_post.sh /root/unicell_rpm/integralstor-unicell-$version_number/opt/integralstor #comment if its in repo
 cp -rf /root/unicell_rpm/initial_setup.sh /root/unicell_rpm/integralstor-unicell-$version_number/opt/integralstor #comment if its in repo
 
@@ -76,7 +76,7 @@ yes | cp -rf /root/unicell_rpm/integralstor-unicell-${version_number}/ /root/uni
 yes | cp -rf /root/unicell_rpm/integralstor-unicell-${version_number}.tar.gz /root/unicell_rpm/rpmbuild/SOURCES/
 
 # INSERT THE .spec FILE INTO ~/rpmbuild/SPECS/
-cat <<EOF > /root/unicell_rpm/rpmbuild/SPECS/integralstor_unicell.spec
+cat <<EOF > /root/unicell_rpm/rpmbuild/SPECS/integralstor.spec
 
 # Don't try fancy stuff like debuginfo, which is useless on binary-only
 # packages. Don't strip binary too
@@ -136,7 +136,7 @@ sleep 2
 chmod 700 /opt/integralstor/integralstor_rpm_post.sh
 chmod +x /opt/integralstor/integralstor_rpm_post.sh
 
-#sh /opt/integralstor/integralstor_unicell/install/rpm/integralstor_rpm_post.sh >/tmp/rpm_post_script_log
+#sh /opt/integralstor/integralstor/install/rpm/integralstor_rpm_post.sh >/tmp/rpm_post_script_log
 sh /opt/integralstor/integralstor_rpm_post.sh >/tmp/rpm_post_script_log
 if [ $? -ne 0 ]; then
 echo "CRITICAL: Running post install script Failed!"
@@ -156,7 +156,7 @@ sleep 2
 EOF
 
 ### To create a rpm
-rpmbuild -ba /root/unicell_rpm/rpmbuild/SPECS/integralstor_unicell.spec
+rpmbuild -ba /root/unicell_rpm/rpmbuild/SPECS/integralstor.spec
 
 if [ $? -ne 0 ]; then
   echo "CRITICAL: RPM creation Failed!!!"
@@ -165,12 +165,12 @@ else
   echo "Successfully created IntegralSTOR UNICell RPM!"
   echo "Location:'/root/unicell_rpm/rpmbuild/RPMS/$arch/'"
   ls /root/unicell_rpm/rpmbuild/RPMS/$arch/
-  yes | cp -rf /root/unicell_rpm/rpmbuild/RPMS/$arch/integralstor-unicell-${version_number}-${release_number}.$arch.rpm /root/unicell_rpm/integralstor_unicell_rpms
+  yes | cp -rf /root/unicell_rpm/rpmbuild/RPMS/$arch/integralstor-unicell-${version_number}-${release_number}.$arch.rpm /root/unicell_rpm/integralstor_rpms
   cd /root/unicell_rpm/
   mkdir -p /root/unicell_rpm/unicell_rpm_files/${version_number}-${release_number}
   yes | cp -rf /root/unicell_rpm/rpmbuild/RPMS/$arch/integralstor-unicell-${version_number}-${release_number}.$arch.rpm /root/unicell_rpm/unicell_rpm_files/${version_number}-${release_number}
   yes | cp -rf /root/unicell_rpm/rpmbuild/SRPMS/integralstor-unicell-${version_number}-${release_number}.src.rpm /root/unicell_rpm/unicell_rpm_files/${version_number}-${release_number}
-  tar -czf integralstor_unicell_tar_installs.tar.gz integralstor_unicell_tar_installs
-  cp /root/unicell_rpm/initial_setup.sh /root/unicell_rpm/integralstor_unicell_rpms
-  tar -czf integralstor_unicell_rpms.tar.gz integralstor_unicell_rpms/
+  tar -czf integralstor_tar_installs.tar.gz integralstor_tar_installs
+  cp /root/unicell_rpm/initial_setup.sh /root/unicell_rpm/integralstor_rpms
+  tar -czf integralstor_rpms.tar.gz integralstor_rpms/
 fi 

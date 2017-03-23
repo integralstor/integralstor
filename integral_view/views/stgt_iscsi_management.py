@@ -1,6 +1,6 @@
 
 from integralstor_utils import audit, zfs
-from integralstor_unicell import iscsi_stgt
+from integralstor import iscsi_stgt
 
 from integral_view.forms import iscsi_stgt_forms
 

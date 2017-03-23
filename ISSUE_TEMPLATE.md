@@ -3,7 +3,7 @@ Thank you for reporting an issue.
 
 *IMPORTANT* - Please search our issue tracker *before* making a new issue.
 If you cannot find a similar issue, then create a new issue.
-https://github.com/integralstor/integralstor_unicell/issues
+https://github.com/integralstor/integralstor/issues
 
 *IMPORTANT* - This issue tracker is for *bugs* and *issues* only.
 

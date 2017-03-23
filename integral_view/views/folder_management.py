@@ -14,7 +14,7 @@ import integral_view
 from integral_view.forms import samba_shares_forms, folder_management_forms
 
 from integralstor_utils import audit, zfs, acl
-from integralstor_unicell import cifs as cifs_unicell, local_users, nfs
+from integralstor import cifs as cifs_unicell, local_users, nfs
 
 
 def _sticky_bit_enabled(path):

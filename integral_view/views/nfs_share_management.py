@@ -2,7 +2,7 @@ import django
 import django.template
 
 from integralstor_utils import zfs, audit
-from integralstor_unicell import nfs
+from integralstor import nfs
 
 import integral_view
 from integral_view.forms import nfs_shares_forms

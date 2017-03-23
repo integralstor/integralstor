@@ -32,7 +32,7 @@ cat <<EOF > /etc/yum.repos.d/fractalio.repo
 [fractalio]
 enabled=1
 name= Fractalio - Base
-baseurl=file:///opt/integralstor/integralstor_unicell_rpms
+baseurl=file:///opt/integralstor/integralstor_rpms
 gpgcheck=0
 EOF
 

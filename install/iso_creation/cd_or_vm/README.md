@@ -7,11 +7,11 @@ You can follow the traditional method to install this iso as we use any iso for 
 
 To convert this iso image into a bootable USB stick is as easy as running the command;
 
-"livecd-iso-to-disk --resetmbr --format /path/to/integralstor_unicell.iso /dev/sdN"
+"livecd-iso-to-disk --resetmbr --format /path/to/integralstor.iso /dev/sdN"
 
 Here you need to install 'livecd tools'.
 
-where, /dev/sdN is the USB drive you want to use. This will create a single ext3 partition on the USB stick and copy the necessary files onto that partition, including a complete copy of the integralstor_unicell iso you are using. You can boot a system with a USB stick prepared in this manner and go through the usual install wizard.
+where, /dev/sdN is the USB drive you want to use. This will create a single ext3 partition on the USB stick and copy the necessary files onto that partition, including a complete copy of the integralstor iso you are using. You can boot a system with a USB stick prepared in this manner and go through the usual install wizard.
 
 - You can also setup your own partitions rather than having the tool do the formatting, Ex., Using a 16 GB USB stick, and do the following prep work:
 

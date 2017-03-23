@@ -58,17 +58,17 @@ mkisofs -R -J -T -v -no-emul-boot \
     -c isolinux/boot.cat \
     -x "lost+found" \
     --joliet-long \
-    -o /tmp/centos7/integralstor_unicell.iso .
+    -o /tmp/centos7/integralstor.iso .
 
 if [ $? -ne 0 ]; then
     echo "CRITICAL: Creating RPM Failed!"
     exit 1
 else
     echo
-    echo "ISO Created!! Find it in /tmp/centos7/integralstor_unicell.iso"
+    echo "ISO Created!! Find it in /tmp/centos7/integralstor.iso"
     echo
 fi
 
 ### unmount original iso after creating custom iso
 umount /mnt
-md5sum /tmp/centos7/integralstor_unicell.iso >/tmp/centos7/checksum_unicell.txt
+md5sum /tmp/centos7/integralstor.iso >/tmp/centos7/checksum_unicell.txt

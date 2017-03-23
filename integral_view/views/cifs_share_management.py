@@ -9,8 +9,8 @@ from integral_view.forms import samba_shares_forms
 from integralstor_utils import audit, zfs, acl
 from integralstor_utils import cifs as cifs_common
 
-from integralstor_unicell import cifs as cifs_unicell
-from integralstor_unicell import local_users
+from integralstor import cifs as cifs_unicell
+from integralstor import local_users
 
 
 def view_cifs_shares(request):

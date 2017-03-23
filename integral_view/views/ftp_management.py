@@ -3,7 +3,7 @@ import django.template
 import os
 
 from integralstor_utils import audit, zfs, certificates, vsftp
-from integralstor_unicell import local_users
+from integralstor import local_users
 from integral_view.forms import ftp_management_forms
 
 

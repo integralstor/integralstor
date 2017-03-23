@@ -11,7 +11,7 @@ import django.http
 from integralstor_utils import command, audit, alerts, zfs, stats, common
 from integralstor_utils import cifs as cifs_common, services_management
 
-from integralstor_unicell import system_info, iscsi_stgt, nfs
+from integralstor import system_info, iscsi_stgt, nfs
 
 
 @login_required

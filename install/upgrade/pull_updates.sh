@@ -8,7 +8,7 @@ read -t 30 -p "Press 'yes' to Confirm: " confirm
 if [ "$confirm" == "yes" ]; then
 
 	cd /tmp
-	wget -c http://$input/netboot/distros/centos/6.6/x86_64/integralstor_unicell/v1.0/updater.sh
+	wget -c http://$input/netboot/distros/centos/6.6/x86_64/integralstor/v1.0/updater.sh
 	chmod +x /tmp/updater.sh
 	/tmp/updater.sh $input
 	# Needs checking to see if updater was successful. echo $? ?

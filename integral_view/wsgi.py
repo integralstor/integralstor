@@ -15,7 +15,7 @@ framework.
 """
 import os
 import sys
-sys.path.append('/opt/integralstor/integralstor_unicell')
+sys.path.append('/opt/integralstor/integralstor')
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "integral_view.settings")
 

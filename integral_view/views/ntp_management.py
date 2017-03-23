@@ -7,7 +7,7 @@ from django.http import HttpResponse
 import shutil
 
 from integralstor_utils import ntp, services_management
-from integralstor_unicell import system_info
+from integralstor import system_info
 
 import integral_view
 from integral_view.forms import common_forms
