@@ -14,7 +14,7 @@ import integral_view
 from integral_view.forms import samba_shares_forms, folder_management_forms
 
 from integralstor_utils import audit, zfs, acl
-from integralstor import cifs as cifs_unicell, local_users, nfs
+from integralstor import cifs as cifs_integralstor, local_users, nfs
 
 
 def _sticky_bit_enabled(path):
@@ -204,10 +204,10 @@ def create_aces(request):
         aces, err = acl.get_all_aces(path)
         if err:
             raise Exception(err)
-        user_list, err = cifs_unicell.get_user_list()
+        user_list, err = cifs_integralstor.get_user_list()
         if err:
             raise Exception(err)
-        group_list, err = cifs_unicell.get_group_list()
+        group_list, err = cifs_integralstor.get_group_list()
         if err:
             raise Exception(err)
         new_users, err = acl.get_new_ug_list(aces, user_list, 'user')

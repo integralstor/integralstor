@@ -52,14 +52,14 @@ fi
 echo "######################	End of Active Interfaces		######################"
 echo "######################	Hostname				######################"
 STRING=$(ifconfig | grep eth0 | head -1 | awk '{print $5}' | awk -F ':' '{print tolower($5 $6)}')
-hnpart="unicell-"$STRING
+hnpart="integralstor-"$STRING
 name="$hnpart.integralstor.lan"
 grep $name /etc/sysconfig/network >>/tmp/tmp_host_name || echo "Error setting Hostname"
 echo "######################	End of Hostname				######################"
 echo "######################	Hosts					######################"
 ip=$(ifconfig | awk -F':' '/inet addr/&&!/127.0.0.1/{split($2,_," ");print _[1]}')
 STRING=$(ifconfig | grep eth0 | head -1 | awk '{print $5}' | awk -F ':' '{print tolower($5 $6)}')
-hnpart="unicell-"$STRING
+hnpart="integralstor-"$STRING
 name="$hnpart.integralstor.lan"
 #grep $ip /etc/hosts >>/tmp/tmp_hosts || echo "No Host's IP is Set"
 grep $name /etc/hosts >>/tmp/tmp_hosts || echo "No Host's NAME is Set"

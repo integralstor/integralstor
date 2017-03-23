@@ -8,7 +8,7 @@ The key points to be noted here...
 
     2. Script will install required tools: Ie., yum -y install rsync yum-utils createrepo genisoimage isomd5sum yum-downloadonly
 
-    3. You need to have all the packages(from PXE) in directory /root/unicell_packages/ and zip files in /root/tar_files and the config files if any in /root/conf_files
+    3. You need to have all the packages(from PXE) in directory /root/integralstor_packages/ and zip files in /root/tar_files and the config files if any in /root/conf_files
 
     4. And the file/s you modified or the Directory you want to have like ks, isolinux.cfg for custom menu, splash.jpg etc...(copy these files into /root )
 

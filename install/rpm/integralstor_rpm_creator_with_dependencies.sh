@@ -22,10 +22,10 @@ if [[ $EUID != 0 ]]; then
   exit -1
 fi
 
-### Changing dir to /tmp/unicell_rpm dir ###
-cd /tmp/unicell_rpm
-rm -rf /tmp/unicell_rpm/integralstor
-rm -rf /tmp/unicell_rpm/integralstor_utils
+### Changing dir to /tmp/integralstor_rpm dir ###
+cd /tmp/integralstor_rpm
+rm -rf /tmp/integralstor_rpm/integralstor
+rm -rf /tmp/integralstor_rpm/integralstor_utils
 
 ### To clone the integralstor.git and integralstor_utils.git ###
 git clone https://github.com/fractalio/integralstor_utils.git
@@ -41,7 +41,7 @@ read input1
 	echo "Download BRANCH or TAG for integralstor_utils??? If branch, enter 'branch' else 'tag'"
 	read input2
 	if [[ $input2 == "branch" ]] ; then
-	    	cd /tmp/unicell_rpm/integralstor_utils
+	    	cd /tmp/integralstor_rpm/integralstor_utils
 	    echo "Available Git Branches for integralstor_utils:"
 	    echo
 	    	git branch -a
@@ -49,21 +49,21 @@ read input1
 	    read -p "Please enter the branch name for integralstor_utils: " branchcmmn	# change the branch name as per the requirement
 	    echo
 	    	git checkout $branchcmmn 
-	    	touch /tmp/unicell_rpm/integralstor_utils/version
-	    echo "$branchcmmn" > /tmp/unicell_rpm/integralstor_utils/version	
+	    	touch /tmp/integralstor_rpm/integralstor_utils/version
+	    echo "$branchcmmn" > /tmp/integralstor_rpm/integralstor_utils/version	
 	    echo "Downloaded from Branch:"
 	    	git branch
 	elif [[ $input2 == "tag" ]] ; then
-	    	cd /tmp/unicell_rpm/integralstor_utils
+	    	cd /tmp/integralstor_rpm/integralstor_utils
 	    echo "Available Git Tags for integralstor_utils:"
 	    echo
 	    	git tag -l
 	    echo
 	    read -p "Please enter the tag name for integrlator_common: " tagcmmn	# change the branch name as per the requirement
-	    	cd /tmp/unicell_rpm/integralstor_utils/
+	    	cd /tmp/integralstor_rpm/integralstor_utils/
 	    	git checkout tags/$tagcmmn 
-	    	touch /tmp/unicell_rpm/integralstor_utils/version
-	    echo "$tagcmmn" > /tmp/unicell_rpm/integralstor_utils/version	
+	    	touch /tmp/integralstor_rpm/integralstor_utils/version
+	    echo "$tagcmmn" > /tmp/integralstor_rpm/integralstor_utils/version	
 	    echo "Downloaded from Tag: $tagcmmn"
 	else
 		"Go back and enter appropriate input."
@@ -71,7 +71,7 @@ read input1
 	echo "Download BRANCH or TAG integralstor??? If branch, enter 'branch' else 'tag'"
 	read input3
 	if [[ $input3 == "branch" ]] ; then
-	    	cd /tmp/unicell_rpm/integralstor
+	    	cd /tmp/integralstor_rpm/integralstor
 	    echo "Available Git Branches for integralstor:"
 	    echo
 	    	git branch -a
@@ -79,20 +79,20 @@ read input1
 	    read -p "Please enter the branch name for integralstor: " branchuni # change the branch name as per the requirement
 	    echo
 	    	git checkout $branchuni
-	    	touch /tmp/unicell_rpm/integralstor/version
-	    echo "$branchuni" > /tmp/unicell_rpm/integralstor/version	
+	    	touch /tmp/integralstor_rpm/integralstor/version
+	    echo "$branchuni" > /tmp/integralstor_rpm/integralstor/version	
 	    echo "Downloaded from Branch:"
 	    	git branch
 	elif [[ $input3 == "tag" ]] ; then
-	    	cd /tmp/unicell_rpm/integralstor
+	    	cd /tmp/integralstor_rpm/integralstor
 	    echo "Available Git Tags for integralstor:"
 	    	git tag -l
 	    echo
-	    read -p "Please enter the tag name for integrlator_unicell: " taguni	# change the branch name as per the requirement
-	    	cd /tmp/unicell_rpm/integralstor/
+	    read -p "Please enter the tag name for integrlator_integralstor: " taguni	# change the branch name as per the requirement
+	    	cd /tmp/integralstor_rpm/integralstor/
 	    	git checkout tags/$taguni
-	    	touch /tmp/unicell_rpm/integralstor/version
-	    echo "$taguni" > /tmp/unicell_rpm/integralstor/version	
+	    	touch /tmp/integralstor_rpm/integralstor/version
+	    echo "$taguni" > /tmp/integralstor_rpm/integralstor/version	
 	    echo "Downloaded from Tag: $taguni"
 	else
 		"Go back and enter appropriate input."
@@ -100,18 +100,18 @@ read input1
 
     elif [[ $input1 == "n" || $input1 == "N" || $input1 == "no" || $input1 == "No" || $input1 == "NO" || $input1 == "" || $input1 == " " ]] ; then
 
-	cd /tmp/unicell_rpm/integralstor_utils
+	cd /tmp/integralstor_rpm/integralstor_utils
         TAGCMMN=$(git describe $(git rev-list --tags --max-count=1))
 	git checkout tags/$TAGCMMN
-	touch /tmp/unicell_rpm/integralstor_utils/version
-	echo "$TAGCMMN" > /tmp/unicell_rpm/integralstor_utils/version	
+	touch /tmp/integralstor_rpm/integralstor_utils/version
+	echo "$TAGCMMN" > /tmp/integralstor_rpm/integralstor_utils/version	
 	echo "Downloaded from Tag: $TAGCMMN"
 	
-	cd /tmp/unicell_rpm/integralstor
+	cd /tmp/integralstor_rpm/integralstor
         TAGUNI=$(git describe $(git rev-list --tags --max-count=1))
 	git checkout tags/$TAGUNI
-	touch /tmp/unicell_rpm/integralstor/version
-	echo "$TAGUNI" > /tmp/unicell_rpm/integralstor/version	
+	touch /tmp/integralstor_rpm/integralstor/version
+	echo "$TAGUNI" > /tmp/integralstor_rpm/integralstor/version	
 	echo "Downloaded from Tag: $TAGUNI"
     else
 	"Go back and enter appropriate input."
@@ -133,30 +133,30 @@ EOF
 
 
 # Directory creation
-mkdir /tmp/unicell_rpm/integralstor-1.0
-mkdir -p /tmp/unicell_rpm/integralstor-1.0/opt/integralstor
-mkdir -p /tmp/unicell_rpm/integralstor-1.0/opt/integralstor/pki
-mkdir -p /tmp/unicell_rpm/integralstor-1.0/run/samba
-mkdir -p /tmp/unicell_rpm/integralstor-1.0/var/log/integralstor/integralstor
-mkdir -p /tmp/unicell_rpm/integralstor-1.0/opt/integralstor/integralstor/tmp
-mkdir -p /tmp/unicell_rpm/integralstor-1.0/opt/integralstor/integralstor/config/status
-mkdir -p /tmp/unicell_rpm/integralstor-1.0/etc/nginx/sites-enabled
-mkdir -p /tmp/unicell_rpm/integralstor-1.0/etc/uwsgi/vassals
-touch /tmp/unicell_rpm/integralstor-1.0/var/log/integralstor/integralstor/integral_view.log
-touch /tmp/unicell_rpm/integralstor-1.0/opt/integralstor/ramdisks.conf
-touch /tmp/unicell_rpm/integralstor-1.0/var/log/integralstor/integralstor/ramdisks
+mkdir /tmp/integralstor_rpm/integralstor-1.0
+mkdir -p /tmp/integralstor_rpm/integralstor-1.0/opt/integralstor
+mkdir -p /tmp/integralstor_rpm/integralstor-1.0/opt/integralstor/pki
+mkdir -p /tmp/integralstor_rpm/integralstor-1.0/run/samba
+mkdir -p /tmp/integralstor_rpm/integralstor-1.0/var/log/integralstor/integralstor
+mkdir -p /tmp/integralstor_rpm/integralstor-1.0/opt/integralstor/integralstor/tmp
+mkdir -p /tmp/integralstor_rpm/integralstor-1.0/opt/integralstor/integralstor/config/status
+mkdir -p /tmp/integralstor_rpm/integralstor-1.0/etc/nginx/sites-enabled
+mkdir -p /tmp/integralstor_rpm/integralstor-1.0/etc/uwsgi/vassals
+touch /tmp/integralstor_rpm/integralstor-1.0/var/log/integralstor/integralstor/integral_view.log
+touch /tmp/integralstor_rpm/integralstor-1.0/opt/integralstor/ramdisks.conf
+touch /tmp/integralstor_rpm/integralstor-1.0/var/log/integralstor/integralstor/ramdisks
 
 # MANAGE.PY FILE 
-cp -rf /tmp/unicell_rpm/integralstor_utils /tmp/unicell_rpm/integralstor-1.0/opt/integralstor
-cp -rf /tmp/unicell_rpm/integralstor /tmp/unicell_rpm/integralstor-1.0/opt/integralstor
-cp -rf /tmp/unicell_rpm/integralstor_rpms.tar.gz /tmp/unicell_rpm/integralstor-1.0/opt/integralstor
-cp -rf /tmp/unicell_rpm/integralstor_tar_installs.tar.gz /tmp/unicell_rpm/integralstor-1.0/opt/integralstor
+cp -rf /tmp/integralstor_rpm/integralstor_utils /tmp/integralstor_rpm/integralstor-1.0/opt/integralstor
+cp -rf /tmp/integralstor_rpm/integralstor /tmp/integralstor_rpm/integralstor-1.0/opt/integralstor
+cp -rf /tmp/integralstor_rpm/integralstor_rpms.tar.gz /tmp/integralstor_rpm/integralstor-1.0/opt/integralstor
+cp -rf /tmp/integralstor_rpm/integralstor_tar_installs.tar.gz /tmp/integralstor_rpm/integralstor-1.0/opt/integralstor
 
-# NOW MOVE THE /tmp/unicell_rpm/integralstor-1.0/ to where ?
-cd /tmp/unicell_rpm/
+# NOW MOVE THE /tmp/integralstor_rpm/integralstor-1.0/ to where ?
+cd /tmp/integralstor_rpm/
 tar -cvzf integralstor-1.0.tar.gz integralstor-1.0/
-cp -rf /tmp/unicell_rpm/integralstor-1.0/ ~/rpmbuild/SOURCES/
-cp -rf /tmp/unicell_rpm/integralstor-1.0.tar.gz ~/rpmbuild/SOURCES/
+cp -rf /tmp/integralstor_rpm/integralstor-1.0/ ~/rpmbuild/SOURCES/
+cp -rf /tmp/integralstor_rpm/integralstor-1.0.tar.gz ~/rpmbuild/SOURCES/
 # INSERT THE .spec FILE INTO ~/rpmbuild/SPECS/
 
 cat <<EOF > /root/rpmbuild/SPECS/integralstor.spec
@@ -237,7 +237,7 @@ echo "replicator    ALL=(ALL)    NOPASSWD: /sbin/zfs" >> /etc/sudoers
 
 ### Setting hostname ###
 STRING=$(ifconfig | grep eth0 | head -1 | awk '{print $5}' | awk -F ':' '{print tolower($5 $6)}')
-hnpart="unicell-"$STRING
+hnpart="integralstor-"$STRING
 hostname="$hnpart.integralstor.lan"
 echo "Hostname will be : " $hostname ; echo
 echo "HOSTNAME=$hostname" > /etc/sysconfig/network
@@ -307,7 +307,7 @@ rm -rf /etc/init.d/uwsgi
 ln -s /opt/integralstor/integralstor_utils/scripts/init/uwsgi /etc/init.d/
 
 ### Configure ramdisks ###
-#Change the ramdisks conf file name and location, move it into /opt/integralstor so it can be common to unicell and gridcell
+#Change the ramdisks conf file name and location, move it into /opt/integralstor so it can be common to integralstor and gridcell
 rm -rf /etc/init.d/ramdisk
 ln -fs /opt/integralstor/integralstor_utils/install/scripts/ramdisk /etc/init.d/
 chmod +x /etc/init.d/ramdisk
@@ -374,7 +374,7 @@ rpmbuild -ba /root/rpmbuild/SPECS/integralstor.spec
 echo "Successfully created the IntegralSTOR UniCELL RPM!"
 ls /root/rpmbuild/RPMS/x86_64/
 #echo "Deleting the /tmp/integralstor"
-#if [ -e "/tmp/unicell_rpm/integralstor" ] ; then
+#if [ -e "/tmp/integralstor_rpm/integralstor" ] ; then
 #  cp -r /tmp/integralstor/configuration_management/login_menu/* /srv/salt/conf_files/
 #  #rm -rf /tmp/integralstor
 #  echo "The /tmp/integralstor got deleted."

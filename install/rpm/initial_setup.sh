@@ -15,15 +15,15 @@ echo -n "Enter hardware vendor(ex., dell) else press <ENTER>:"
 read vend
 
 if [[ -n "$vend" ]]; then
-  echo { \"platform\": \"unicell\", > /tmp/platform
+  echo { \"platform\": \"integralstor\", > /tmp/platform
   echo \"hardware_vendor\" : \"$vend\" } >> /tmp/platform
   echo ""
   echo -n "Entered vendor is: $vend" 
   echo ""
 else
-  echo { \"platform\": \"unicell\" } > /tmp/platform
+  echo { \"platform\": \"integralstor\" } > /tmp/platform
   echo ""
-  echo -n "platform is 'unicell'" 
+  echo -n "platform is 'integralstor'" 
   echo ""
 fi
 
@@ -91,7 +91,7 @@ else
     echo "Enabling all required repositories...Done"
 fi
 
-### Install required dependencies for unicell rpm
+### Install required dependencies for integralstor rpm
 echo "Installing all other required dependencies..."
 yum install -y yum-utils-1.1.31 sg3_utils-1.37 perl-Config-General-2.61 scsi-target-utils-1.0.55 nfs-utils-1.3.0 smartmontools-6.2 samba-client-4.2.10 samba-4.2.10 samba-winbind-4.2.10 samba-winbind-clients-4.2.10 ipmitool-1.8.13 OpenIPMI-2.0.19 zfs-0.6.5.7 krb5-workstation-1.13.2 perl-5.16.3 python-setuptools-0.9.8 python2-pip-8.1.2 ypbind-1.37.1 ypserv-2.31 ntp-4.2.6p5 nginx-1.6.3 uwsgi-2.0.12 python-devel-2.7.5 gcc-4.8.5 vsftpd-3.0.2 xinetd-2.3.15 shellinabox-2.19 urbackup-server-2.0.38.1660 bind-utils-9.9.4 rsync-3.0.9 telnet-0.17 vim-enhanced-7.4.160 iptraf-ng-1.1.4
 

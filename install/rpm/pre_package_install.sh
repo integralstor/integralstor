@@ -99,6 +99,6 @@ rm -rf /opt/integralstor/integralstor_*
 
 echo "Successfully installed Non RPM installs."
 
-echo "Intiating Integralstor_unicell RPM..."
+echo "Intiating Integralstor_integralstor RPM..."
 
 yum-config-manager --disable "*"
