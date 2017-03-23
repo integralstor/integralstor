@@ -29,7 +29,7 @@ cd /tmp
 echo "Please type your github.com username"
 read github_username
 echo
-git clone https://$github_username@github.com/fractalio/integralstor-unicell.git
+git clone https://$github_username@github.com/fractalio/integralstor.git
 
 # To change the branch
 echo "Enter your branch name to checkout : "

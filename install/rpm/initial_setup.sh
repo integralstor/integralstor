@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Installing Dependencies for integralstor-unicell rpm..."
+echo "Installing Dependencies for integralstor rpm..."
 
 ### Disable selinux and firewall
 echo "Disabling selinux..."
@@ -104,5 +104,5 @@ fi
 
 sleep 2
 
-echo "Installing Dependencies for integralstor-unicell rpm...Done"
-echo "Run 'rpm -ivh integralstor-unicell-*.rpm to install integralstor-unicell."
+echo "Installing Dependencies for integralstor rpm...Done"
+echo "Run 'rpm -ivh integralstor-*.rpm to install integralstor."

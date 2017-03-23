@@ -152,7 +152,7 @@ cp -rf /tmp/unicell_rpm/integralstor /tmp/unicell_rpm/integralstor-1.0/opt/integ
 
 # NOW MOVE THE /tmp/unicell_rpm/integralstor-1.0/ to where ?
 cd /tmp/unicell_rpm/
-tar -cvzf integralstor-1.0.tar.gz integralstor-unicell-1.0/
+tar -cvzf integralstor-1.0.tar.gz integralstor-1.0/
 cp -rf /tmp/unicell_rpm/integralstor-1.0/ ~/rpmbuild/SOURCES/
 cp -rf /tmp/unicell_rpm/integralstor-1.0.tar.gz ~/rpmbuild/SOURCES/
 # INSERT THE .spec FILE INTO ~/rpmbuild/SPECS/
@@ -370,16 +370,16 @@ rpmbuild -ba /root/rpmbuild/SPECS/integralstor.spec
 
 echo "Successfully created the IntegralSTOR UniCELL RPM!"
 ls /root/rpmbuild/RPMS/x86_64/
-#echo "Deleting the /tmp/integralstor-unicell"
+#echo "Deleting the /tmp/integralstor"
 #if [ -e "/tmp/unicell_rpm/integralstor" ] ; then
-#  cp -r /tmp/integralstor-unicell/configuration_management/login_menu/* /srv/salt/conf_files/
-#  #rm -rf /tmp/integralstor-unicell
-#  echo "The /tmp/integralstor-unicell got deleted."
-#  echo "Executing ls -l /tmp/integralstor-unicell : " 
-#  ls -l /tmp/integralstor-unicell
+#  cp -r /tmp/integralstor/configuration_management/login_menu/* /srv/salt/conf_files/
+#  #rm -rf /tmp/integralstor
+#  echo "The /tmp/integralstor got deleted."
+#  echo "Executing ls -l /tmp/integralstor : " 
+#  ls -l /tmp/integralstor
 #
 #else
-#  rm -rf "Directory /tmp/integralstor-unicell cannot be deleted. "
+#  rm -rf "Directory /tmp/integralstor cannot be deleted. "
 #fi
                
 
