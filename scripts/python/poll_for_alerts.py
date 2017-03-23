@@ -2,7 +2,7 @@
 import sys
 import time
 
-from integralstor_common import common, alerts, lock, db
+from integralstor_utils import common, alerts, lock, db
 
 import atexit
 import time

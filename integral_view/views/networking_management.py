@@ -1,7 +1,7 @@
 import django
 import django.template
 
-from integralstor_common import networking, audit, command, common, unicode_utils
+from integralstor_utils import networking, audit, command, common, unicode_utils
 from django.contrib.auth.decorators import login_required
 
 import socket

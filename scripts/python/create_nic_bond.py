@@ -1,6 +1,6 @@
 import os
 import sys
-from integralstor_common import networking
+from integralstor_utils import networking
 
 
 def create_bond():

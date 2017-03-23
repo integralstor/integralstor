@@ -125,8 +125,8 @@ view_node_config(){
 }
 
 generate_manifest_and_status(){
-  python /opt/integralstor/integralstor_common/scripts/python/generate_manifest.py
-  python /opt/integralstor/integralstor_common/scripts/python/generate_status.py
+  python /opt/integralstor/integralstor_utils/scripts/python/generate_manifest.py
+  python /opt/integralstor/integralstor_utils/scripts/python/generate_status.py
   pause
 }
 

@@ -1,6 +1,6 @@
 from django import forms
 import logging
-from integralstor_common import common
+from integralstor_utils import common
 
 
 class DownloadLogsForm(forms.Form):

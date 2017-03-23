@@ -1,7 +1,7 @@
 import django
 import django.template
 
-from integralstor_common import zfs, audit, common, remote_replication, scheduler_utils
+from integralstor_utils import zfs, audit, common, remote_replication, scheduler_utils
 
 
 def view_remote_replications(request):

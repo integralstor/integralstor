@@ -8,8 +8,8 @@ import django
 from django.contrib.auth.decorators import login_required
 import django.http
 
-from integralstor_common import command, audit, alerts, zfs, stats, common
-from integralstor_common import cifs as cifs_common, services_management
+from integralstor_utils import command, audit, alerts, zfs, stats, common
+from integralstor_utils import cifs as cifs_common, services_management
 
 from integralstor_unicell import system_info, iscsi_stgt, nfs
 
@@ -46,7 +46,7 @@ def update_manifest(request):
     return_dict = {}
     try:
         if request.method == "GET":
-            from integralstor_common import manifest_status as iu
+            from integralstor_utils import manifest_status as iu
             mi, err = iu.generate_manifest_info()
             # print mi, err
             if err:
@@ -355,7 +355,7 @@ def view_dashboard(request, page):
             if hw_platform:
                 return_dict['hw_platform'] = hw_platform
                 if hw_platform == 'dell':
-                    from integralstor_common.platforms import dell
+                    from integralstor_utils.platforms import dell
                     idrac_url, err = dell.get_idrac_addr()
                     if idrac_url:
                         return_dict['idrac_url'] = idrac_url

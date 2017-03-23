@@ -76,7 +76,7 @@ grep enabled=0 /etc/yum.repos.d/CentOS-Base.repo >> /tmp/tmp_Base_repo || echo "
 echo "######################	End of CentOS-Base repo status		######################"
 echo "######################	Directory and File Creation check	######################"
 
-DIR_LIST="/opt/integralstor /opt/integralstor/pki /opt/integralstor/integralstor_unicell/tmp /run/samba /var/log/integralstor/integralstor_unicell /opt/integralstor/integralstor_unicell/config/status /opt/integralstor/integralstor_unicell /opt/integralstor/integralstor_common /usr/lib/python2.6/site-packages/integralstor_common /usr/lib/python2.6/site-packages/integralstor_unicell /etc/nginx/sites-enabled /etc/uwsgi/vassals /lib/modules/2.6.32-504.el6.x86_64/extra/mv94xx"
+DIR_LIST="/opt/integralstor /opt/integralstor/pki /opt/integralstor/integralstor_unicell/tmp /run/samba /var/log/integralstor/integralstor_unicell /opt/integralstor/integralstor_unicell/config/status /opt/integralstor/integralstor_unicell /opt/integralstor/integralstor_utils /usr/lib/python2.6/site-packages/integralstor_utils /usr/lib/python2.6/site-packages/integralstor_unicell /etc/nginx/sites-enabled /etc/uwsgi/vassals /lib/modules/2.6.32-504.el6.x86_64/extra/mv94xx"
 
 for path in $DIR_LIST; do
     if [[ ! -d "$path" ]]; then

@@ -25,10 +25,10 @@ fi
 ### Changing dir to /tmp/unicell_rpm dir ###
 cd /tmp/unicell_rpm
 rm -rf /tmp/unicell_rpm/integralstor_unicell
-rm -rf /tmp/unicell_rpm/integralstor_common
+rm -rf /tmp/unicell_rpm/integralstor_utils
 
-### To clone the integralstor_unicell.git and integralstor_common.git ###
-git clone https://github.com/fractalio/integralstor_common.git
+### To clone the integralstor_unicell.git and integralstor_utils.git ###
+git clone https://github.com/fractalio/integralstor_utils.git
 git clone https://github.com/fractalio/integralstor_unicell.git
 echo
 
@@ -38,32 +38,32 @@ echo "Press 'YES' else press <ENTER> to Download the latest tag for Both Unicell
 read input1
     if [[ $input1 == "y" || $input1 == "Y" || $input1 == "yes" || $input1 == "Yes" || $input1 == "YES" ]] ; then
 
-	echo "Download BRANCH or TAG for integralstor_common??? If branch, enter 'branch' else 'tag'"
+	echo "Download BRANCH or TAG for integralstor_utils??? If branch, enter 'branch' else 'tag'"
 	read input2
 	if [[ $input2 == "branch" ]] ; then
-	    	cd /tmp/unicell_rpm/integralstor_common
-	    echo "Available Git Branches for integralstor_common:"
+	    	cd /tmp/unicell_rpm/integralstor_utils
+	    echo "Available Git Branches for integralstor_utils:"
 	    echo
 	    	git branch -a
 	    echo
-	    read -p "Please enter the branch name for integralstor_common: " branchcmmn	# change the branch name as per the requirement
+	    read -p "Please enter the branch name for integralstor_utils: " branchcmmn	# change the branch name as per the requirement
 	    echo
 	    	git checkout $branchcmmn 
-	    	touch /tmp/unicell_rpm/integralstor_common/version
-	    echo "$branchcmmn" > /tmp/unicell_rpm/integralstor_common/version	
+	    	touch /tmp/unicell_rpm/integralstor_utils/version
+	    echo "$branchcmmn" > /tmp/unicell_rpm/integralstor_utils/version	
 	    echo "Downloaded from Branch:"
 	    	git branch
 	elif [[ $input2 == "tag" ]] ; then
-	    	cd /tmp/unicell_rpm/integralstor_common
-	    echo "Available Git Tags for integralstor_common:"
+	    	cd /tmp/unicell_rpm/integralstor_utils
+	    echo "Available Git Tags for integralstor_utils:"
 	    echo
 	    	git tag -l
 	    echo
 	    read -p "Please enter the tag name for integrlator_common: " tagcmmn	# change the branch name as per the requirement
-	    	cd /tmp/unicell_rpm/integralstor_common/
+	    	cd /tmp/unicell_rpm/integralstor_utils/
 	    	git checkout tags/$tagcmmn 
-	    	touch /tmp/unicell_rpm/integralstor_common/version
-	    echo "$tagcmmn" > /tmp/unicell_rpm/integralstor_common/version	
+	    	touch /tmp/unicell_rpm/integralstor_utils/version
+	    echo "$tagcmmn" > /tmp/unicell_rpm/integralstor_utils/version	
 	    echo "Downloaded from Tag: $tagcmmn"
 	else
 		"Go back and enter appropriate input."
@@ -100,11 +100,11 @@ read input1
 
     elif [[ $input1 == "n" || $input1 == "N" || $input1 == "no" || $input1 == "No" || $input1 == "NO" || $input1 == "" || $input1 == " " ]] ; then
 
-	cd /tmp/unicell_rpm/integralstor_common
+	cd /tmp/unicell_rpm/integralstor_utils
         TAGCMMN=$(git describe $(git rev-list --tags --max-count=1))
 	git checkout tags/$TAGCMMN
-	touch /tmp/unicell_rpm/integralstor_common/version
-	echo "$TAGCMMN" > /tmp/unicell_rpm/integralstor_common/version	
+	touch /tmp/unicell_rpm/integralstor_utils/version
+	echo "$TAGCMMN" > /tmp/unicell_rpm/integralstor_utils/version	
 	echo "Downloaded from Tag: $TAGCMMN"
 	
 	cd /tmp/unicell_rpm/integralstor_unicell
@@ -147,7 +147,7 @@ touch /tmp/unicell_rpm/integralstor_unicell-1.0/opt/integralstor/ramdisks.conf
 touch /tmp/unicell_rpm/integralstor_unicell-1.0/var/log/integralstor/integralstor_unicell/ramdisks
 
 # MANAGE.PY FILE 
-cp -rf /tmp/unicell_rpm/integralstor_common /tmp/unicell_rpm/integralstor_unicell-1.0/opt/integralstor
+cp -rf /tmp/unicell_rpm/integralstor_utils /tmp/unicell_rpm/integralstor_unicell-1.0/opt/integralstor
 cp -rf /tmp/unicell_rpm/integralstor_unicell /tmp/unicell_rpm/integralstor_unicell-1.0/opt/integralstor
 
 # NOW MOVE THE /tmp/unicell_rpm/integralstor_unicell-1.0/ to where ?
@@ -271,7 +271,7 @@ sed -i '/\[extras\]/a enabled=0' /etc/yum.repos.d/CentOS-Base.repo
 sed -i '/\[centosplus\]/a enabled=0' /etc/yum.repos.d/CentOS-Base.repo
 sed -i '/\[contrib\]/a enabled=0' /etc/yum.repos.d/CentOS-Base.repo
 
-ln -s /opt/integralstor/integralstor_common/site-packages/integralstor_common /usr/lib/python2.6/site-packages/integralstor_common
+ln -s /opt/integralstor/integralstor_utils/site-packages/integralstor_utils /usr/lib/python2.6/site-packages/integralstor_utils
 ln -s /opt/integralstor/integralstor_unicell/site-packages/integralstor_unicell /usr/lib/python2.6/site-packages/integralstor_unicell
 
 ln -s /opt/integralstor/integralstor_unicell/platform /opt/integralstor
@@ -301,12 +301,12 @@ ln -s /opt/integralstor/integralstor_unicell/integral_view/integral_view_uwsgi.i
 echo "/usr/bin/uwsgi --emperor /etc/uwsgi/vassals --uid root --gid root >/var/log/integralstor/integralstor_unicell/integral_view.log 2>&1 &" >> /etc/rc.local
 sed -i "/\/usr\/local\/bin\/uwsgi --emperor \/etc\/uwsgi\/vassals --uid root --gid root/d" /etc/rc.local
 rm -rf /etc/init.d/uwsgi
-ln -s /opt/integralstor/integralstor_common/scripts/init/uwsgi /etc/init.d/
+ln -s /opt/integralstor/integralstor_utils/scripts/init/uwsgi /etc/init.d/
 
 ### Configure ramdisks ###
 #Change the ramdisks conf file name and location, move it into /opt/integralstor so it can be common to unicell and gridcell
 rm -rf /etc/init.d/ramdisk
-ln -fs /opt/integralstor/integralstor_common/install/scripts/ramdisk /etc/init.d/
+ln -fs /opt/integralstor/integralstor_utils/install/scripts/ramdisk /etc/init.d/
 chmod +x /etc/init.d/ramdisk
 
 ### copying kmod-mv94xx directory to systems kernel Directory(This is spesific to Marvel servers) ###
@@ -317,16 +317,16 @@ onfigure crontab ###
 (crontab -l 2>/dev/null; echo 'MAILTO=""') | crontab -
 (crontab -l 2>/dev/null; echo "SHELL=/bin/sh") | crontab -
 (crontab -l 2>/dev/null; echo "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin") | crontab -
-(crontab -l 2>/dev/null; echo "*/1 * * * * /opt/integralstor/integralstor_common/scripts/python/generate_status.py > /tmp/out_status >> /tmp/err_status") | crontab -
+(crontab -l 2>/dev/null; echo "*/1 * * * * /opt/integralstor/integralstor_utils/scripts/python/generate_status.py > /tmp/out_status >> /tmp/err_status") | crontab -
 (crontab -l 2>/dev/null; echo "*/10 * * * * /usr/lib64/sa/sa1 1 1 -S DISK > /tmp/out_status >> /tmp/err_status") | crontab -
-(crontab -l 2>/dev/null; echo "10,40 * * * * /usr/bin/python -c 'from integralstor_common import zfs; zfs.execute_remote_replication()' > /tmp/replication_alerts >> /tmp/replication_errors") | crontab -
-(crontab -l 2>/dev/null; echo "*/1 * * * * /opt/integralstor/integralstor_common/scripts/python/poll_for_alerts.py > /tmp/out_alerts >> /tmp/err_alerts") | crontab -
-(crontab -l 2>/dev/null; echo "* * * * * /usr/bin/python -c 'from integralstor_common import scheduler_utils; scheduler_utils.run_from_shell()' > /tmp/scheduler_alerts >> /tmp/scheduler_errors") | crontab -
-(crontab -l 2>/dev/null; echo "0 0 * * * /usr/bin/python -c 'from integralstor_common import logs; logs.auto_rotate_logs()' > /tmp/auto_rotate_logs_alerts >> /tmp/auto_rotate_errors") | crontab -
+(crontab -l 2>/dev/null; echo "10,40 * * * * /usr/bin/python -c 'from integralstor_utils import zfs; zfs.execute_remote_replication()' > /tmp/replication_alerts >> /tmp/replication_errors") | crontab -
+(crontab -l 2>/dev/null; echo "*/1 * * * * /opt/integralstor/integralstor_utils/scripts/python/poll_for_alerts.py > /tmp/out_alerts >> /tmp/err_alerts") | crontab -
+(crontab -l 2>/dev/null; echo "* * * * * /usr/bin/python -c 'from integralstor_utils import scheduler_utils; scheduler_utils.run_from_shell()' > /tmp/scheduler_alerts >> /tmp/scheduler_errors") | crontab -
+(crontab -l 2>/dev/null; echo "0 0 * * * /usr/bin/python -c 'from integralstor_utils import logs; logs.auto_rotate_logs()' > /tmp/auto_rotate_logs_alerts >> /tmp/auto_rotate_errors") | crontab -
 
 ###configure ZFS ###
 rm -f /etc/modprobe.d/zfs.conf
-ln -fs /opt/integralstor/integralstor_common/install/conf_files/zfs.conf /etc/modprobe.d
+ln -fs /opt/integralstor/integralstor_utils/install/conf_files/zfs.conf /etc/modprobe.d
 cp -rf /opt/integralstor/integralstor_unicell/install/conf_files/zed.rc /etc/zfs/zed.d
 
 ### configuring Vsftpd ###

@@ -4,7 +4,7 @@ import os
 
 import urllib
 
-from integralstor_common import audit, services_management
+from integralstor_utils import audit, services_management
 from integralstor_unicell import local_users
 
 

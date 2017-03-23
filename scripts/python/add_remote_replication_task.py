@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import sys
-from integralstor_common import remote_replication, zfs
+from integralstor_utils import remote_replication, zfs
 from datetime import datetime
 
 

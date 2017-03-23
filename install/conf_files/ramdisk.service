@@ -3,7 +3,7 @@ Description=Ramdisk
 After=syslog.target network.target
 
 [Service]
-ExecStart=/opt/integralstor/integralstor_common/install/scripts/ramdisk start 
+ExecStart=/opt/integralstor/integralstor_utils/install/scripts/ramdisk start 
 User=root
 TasksMax=infinity
 

@@ -62,7 +62,7 @@ for file in $FILE_LIST; do
 done
 
 ### MANAGE FILE ###
-cp -rf /root/unicell_rpm/integralstor_common /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor
+cp -rf /root/unicell_rpm/integralstor_utils /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor
 cp -rf /root/unicell_rpm/integralstor_unicell /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor
 
 cp -rf /root/unicell_rpm/integralstor_unicell_tar_installs.tar.gz /root/unicell_rpm/integralstor-unicell-${version_number}/opt/integralstor

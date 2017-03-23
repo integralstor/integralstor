@@ -1,7 +1,7 @@
 # Integral View's internal logging module that is an extention to the
 # python/django loggin module
 
-from integralstor_common import db, common
+from integralstor_utils import db, common
 
 
 import logging

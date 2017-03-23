@@ -1,7 +1,7 @@
 import django
 import os
 
-from integralstor_common import rsync, zfs, audit
+from integralstor_utils import rsync, zfs, audit
 from integral_view.forms import rsync_forms
 
 

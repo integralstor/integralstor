@@ -1,7 +1,7 @@
 import django
 import django.template
 
-from integralstor_common import common, disks, command, audit, zfs, manifest_status, scheduler_utils
+from integralstor_utils import common, disks, command, audit, zfs, manifest_status, scheduler_utils
 from integralstor_unicell import system_info
 
 
@@ -22,7 +22,7 @@ def view_disks(request):
         if hw_platform:
             return_dict['hw_platform'] = hw_platform
             if hw_platform == 'dell':
-                from integralstor_common.platforms import dell
+                from integralstor_utils.platforms import dell
                 idrac_url, err = dell.get_idrac_addr()
                 if idrac_url:
                     return_dict['idrac_url'] = idrac_url
@@ -54,7 +54,7 @@ def identify_disk(request):
             channel = request.REQUEST['channel']
             enclosure_id = request.REQUEST['enclosure_id']
             target_id = request.REQUEST['target_id']
-            from integralstor_common.platforms import dell
+            from integralstor_utils.platforms import dell
             result, err = dell.blink_unblink_disk(
                 action, 0, channel, enclosure_id, target_id)
             if not result:

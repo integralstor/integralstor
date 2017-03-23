@@ -8,8 +8,8 @@ from integral_view.samba import samba_settings, local_users
 
 import salt.client
 
-import integralstor_common
-from integralstor_common import audit, networking
+import integralstor_utils
+from integralstor_utils import audit, networking
 
 
 def display_shares(request):

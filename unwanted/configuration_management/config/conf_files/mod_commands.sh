@@ -1,4 +1,4 @@
-chmod +x /opt/integralstor/integralstor_common/bin/fpctl
+chmod +x /opt/integralstor/integralstor_utils/bin/fpctl
 mkdir -p /run/samba
 modprobe ipmi_devintf
 echo "modprobe ipmi_devintf" >> /etc/rc.local

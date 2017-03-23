@@ -1,5 +1,5 @@
 
-from integralstor_common import common
+from integralstor_utils import common
 
 
 def get_version(request):
