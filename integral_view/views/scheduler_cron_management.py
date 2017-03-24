@@ -6,7 +6,7 @@ import django.http
 import os
 import os.path
 
-from integralstor_common import scheduler_utils, common, command, audit
+from integralstor_utils import scheduler_utils, common, command, audit
 
 
 def view_background_tasks(request):

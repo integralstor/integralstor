@@ -1,7 +1,7 @@
 import django
 import django.template
 
-from integralstor_common import zfs, audit
+from integralstor_utils import zfs, audit
 from integralstor_unicell import nfs
 
 import integral_view

@@ -33,7 +33,7 @@ Please respect other contributors and first read the [Code of conduct](CODE_OF_C
 Please go through this document to understand what IntegralSTOR does and how it is built
 
 ##How do I get the source code?
-If you would like to start exploring the code, then [fork IntegralSTOR](https://help.github.com/articles/fork-a-repo) onto your computer. The source code consists of two repositories. The main IntegralSTOR repository is located [here](https://github.com/integralstor/integralstor_unicell) and the IntagralSTOR common repository which contains utility functions is located [here](https://github.com/integralstor/integralstor_common). The reason for the IntegralSTOR common repository is that a lot of the code here is also used by [IntegralSTOR GRIDCell](https://github.com/integralstor/integralstor_gridcell) which is a scale out NAS based on glusterfs.
+If you would like to start exploring the code, then [fork IntegralSTOR](https://help.github.com/articles/fork-a-repo) onto your computer. The source code consists of two repositories. The main IntegralSTOR repository is located [here](https://github.com/integralstor/integralstor_unicell) and the IntagralSTOR utils repository which contains utility functions is located [here](https://github.com/integralstor/integralstor_utils). The reason for the IntegralSTOR utils repository is that a lot of the code here is also used by [IntegralSTOR GRIDCell](https://github.com/integralstor/integralstor_gridcell) which is a scale out NAS based on glusterfs.
 
 ##How is the code origanized?
 The IntegralSTOR repository is structured as:
@@ -53,7 +53,7 @@ The IntegralSTOR repository is structured as:
 * scripts/shell/ - All shell scripts that are typically run from the cron
 * site-packages/ - IntegralSTOR specific utility functions
 
-The IntegralSTOR common repository is structured as:
+The IntegralSTOR utils repository is structured as:
 * scripts/python/ - All shared python scripts that are typically run from the cron
 * scripts/shell/ - All shared shell scripts that are typically run from the cron
 * site-packages/ - shared utility functions

@@ -10,7 +10,7 @@ import os
 import integral_view
 from integral_view.forms import admin_forms, pki_forms
 from integral_view.utils import iv_logging
-from integralstor_common import audit, mail, common, certificates, nginx, command, scheduler_utils
+from integralstor_utils import audit, mail, common, certificates, nginx, command, scheduler_utils
 
 
 def login(request):

@@ -5,11 +5,11 @@ echo "Pulling IntegralView updates"
 # Setup IntegralStor Common
 mkdir /opt/integralstor/integralstor_unicell/install/upgrade
 cd /tmp
-/bin/tar xzf integralstor_common.tar.gz
-yes | cp -rf /tmp/integralstor_common/site-packages/integralstor_common/* /opt/integralstor/integralstor_common/site-packages/integralstor_common
-yes | cp -rf /tmp/integralstor_common/scripts /opt/integralstor/integralstor_common
+/bin/tar xzf integralstor_utils.tar.gz
+yes | cp -rf /tmp/integralstor_utils/site-packages/integralstor_utils/* /opt/integralstor/integralstor_utils/site-packages/integralstor_utils
+yes | cp -rf /tmp/integralstor_utils/scripts /opt/integralstor/integralstor_utils
 
-rm -rf /tmp/integralstor_common
+rm -rf /tmp/integralstor_utils
 
 # Setup IntegralStor UNICell
 cd /tmp

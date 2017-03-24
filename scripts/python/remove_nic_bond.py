@@ -1,6 +1,6 @@
 import os
 import sys
-from integralstor_common import networking, common, command
+from integralstor_utils import networking, common, command
 
 
 def remove_bond():
