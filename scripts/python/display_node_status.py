@@ -11,7 +11,7 @@ def display_status():
 
     try:
         hostname = socket.gethostname()
-        use_salt, err =config.use_salt()
+        use_salt, err = config.use_salt()
         if err:
             raise Exception(err)
         if use_salt:

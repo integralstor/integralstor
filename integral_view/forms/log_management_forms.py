@@ -8,7 +8,7 @@ class DownloadLogsForm(forms.Form):
 
     ch = [('boot', 'Boot log'), ('dmesg', 'Dmesg log'), ('message', 'Message log'), ('smb', 'Samba logs'),
           ('winbind', 'Samba Winbind logs'), ('alerts', 'Alerts log'), ('audit', 'Audit log')]
-    hw_platform, err =config.get_hardware_platform()
+    hw_platform, err = config.get_hardware_platform()
     if hw_platform and hw_platform == 'dell':
         ch.append(('hardware', 'Hardware log'))
     log_type = forms.ChoiceField(choices=ch)
@@ -18,7 +18,7 @@ class ViewLogsForm(forms.Form):
     """ Form to get the info about which log to view"""
 
     ch = [('alerts', 'Alerts log'), ('audit', 'Audit log')]
-    hw_platform, err =config.get_hardware_platform()
+    hw_platform, err = config.get_hardware_platform()
     if hw_platform and hw_platform == 'dell':
         ch.append(('hardware', 'Hardware log'))
     log_type = forms.ChoiceField(choices=ch)

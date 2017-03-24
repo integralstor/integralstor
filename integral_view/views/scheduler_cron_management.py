@@ -68,7 +68,7 @@ def view_task_details(request, task_id):
         return_dict["subtasks"] = subtasks
         # print subtasks, err
         task_output = ""
-        log_path, err =config.get_log_folder_path()
+        log_path, err = config.get_log_folder_path()
         if err:
             raise Exception(err)
         log_dir = '%s/task_logs' % log_path

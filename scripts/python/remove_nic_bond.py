@@ -57,13 +57,13 @@ def remove_bond():
 
         print
         print 'Regenerating manifest and status.'
-        python_scripts_path, err =config.get_python_scripts_path()
+        python_scripts_path, err = config.get_python_scripts_path()
         if err:
             raise Exception(err)
-        common_python_scripts_path, err =config.get_common_python_scripts_path()
+        common_python_scripts_path, err = config.get_common_python_scripts_path()
         if err:
             raise Exception(err)
-        status_path, err =config.get_system_status_path()
+        status_path, err = config.get_system_status_path()
         if err:
             raise Exception(err)
 

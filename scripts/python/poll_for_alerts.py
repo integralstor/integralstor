@@ -21,7 +21,7 @@ def main():
         alert_list = []
         now = int(time.time())
 
-        db_path, err =config.get_db_path()
+        db_path, err = config.get_db_path()
         if err:
             raise Exception(err)
 

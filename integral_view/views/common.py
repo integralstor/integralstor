@@ -56,10 +56,10 @@ def update_manifest(request):
             return_dict["mi"] = mi[mi.keys()[0]]  # Need the hostname here.
             return django.shortcuts.render_to_response("update_manifest.html", return_dict, context_instance=django.template.context.RequestContext(request))
         elif request.method == "POST":
-            common_python_scripts_path, err =config.get_common_python_scripts_path()
+            common_python_scripts_path, err = config.get_common_python_scripts_path()
             if err:
                 raise Exception(err)
-            ss_path, err =config.get_system_status_path()
+            ss_path, err = config.get_system_status_path()
             if err:
                 raise Exception(err)
             #(ret,rc), err = command.execute_with_rc("python %s/generate_manifest.py %s"%(common_python_scripts_path, ss_path))
@@ -95,7 +95,7 @@ def flag_node(request):
 
         node_name = request.GET["node"]
         blink_time = 255
-        use_salt, err =config.use_salt()
+        use_salt, err = config.use_salt()
         if use_salt:
             import salt.client
             client = salt.client.LocalClient()
@@ -351,7 +351,7 @@ def view_dashboard(request, page):
             return_dict['tab'] = 'system_health_tab'
             return_dict["error"] = 'Error loading system health data'
             template = "view_dashboard.html"
-            hw_platform, err =config.get_hardware_platform()
+            hw_platform, err = config.get_hardware_platform()
             if hw_platform:
                 return_dict['hw_platform'] = hw_platform
                 if hw_platform == 'dell':

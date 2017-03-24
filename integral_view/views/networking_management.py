@@ -395,13 +395,13 @@ def create_bond(request):
                     raise Exception(err)
                 else:
                     raise Exception('Bond creation failed!')
-            python_scripts_path, err =config.get_python_scripts_path()
+            python_scripts_path, err = config.get_python_scripts_path()
             if err:
                 raise Exception(err)
-            common_python_scripts_path, err =config.get_common_python_scripts_path()
+            common_python_scripts_path, err = config.get_common_python_scripts_path()
             if err:
                 raise Exception(err)
-            status_path, err =config.get_system_status_path()
+            status_path, err = config.get_system_status_path()
             if err:
                 raise Exception(err)
 
@@ -449,13 +449,13 @@ def delete_bond(request):
                 else:
                     raise Exception(err)
 
-            python_scripts_path, err =config.get_python_scripts_path()
+            python_scripts_path, err = config.get_python_scripts_path()
             if err:
                 raise Exception(err)
-            common_python_scripts_path, err =config.get_common_python_scripts_path()
+            common_python_scripts_path, err = config.get_common_python_scripts_path()
             if err:
                 raise Exception(err)
-            status_path, err =config.get_system_status_path()
+            status_path, err = config.get_system_status_path()
             if err:
                 raise Exception(err)
 
@@ -539,7 +539,8 @@ def update_hostname(request):
             domain_name = None
             if 'domain_name' in cd:
                 domain_name = cd['domain_name']
-            result, err = networking.update_hostname(cd['hostname'], domain_name)
+            result, err = networking.update_hostname(
+                cd['hostname'], domain_name)
             if not result:
                 if err:
                     raise Exception(err)
@@ -551,13 +552,13 @@ def update_hostname(request):
                     raise Exception(err)
                 else:
                     raise Exception('Error setting domain name')
-            python_scripts_path, err =config.get_python_scripts_path()
+            python_scripts_path, err = config.get_python_scripts_path()
             if err:
                 raise Exception(err)
-            common_python_scripts_path, err =config.get_common_python_scripts_path()
+            common_python_scripts_path, err = config.get_common_python_scripts_path()
             if err:
                 raise Exception(err)
-            ss_path, err =config.get_system_status_path()
+            ss_path, err = config.get_system_status_path()
             if err:
                 raise Exception(err)
 

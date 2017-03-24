@@ -64,7 +64,7 @@ def create_remote_replication(request):
                 raise Exception(
                     "A replication schedule already exists with matching entires/options.")
 
-            py_scripts_path, err =config.get_python_scripts_path()
+            py_scripts_path, err = config.get_python_scripts_path()
             if err:
                 raise Exception(err)
 
@@ -127,7 +127,7 @@ def update_remote_replication(request):
             description = 'Replication of %s to pool %s on machine %s' % (
                 replication['source_dataset'], replication['destination_pool'], replication['destination_ip'])
 
-            py_scripts_path, err =config.get_python_scripts_path()
+            py_scripts_path, err = config.get_python_scripts_path()
             if err:
                 raise Exception(err)
 

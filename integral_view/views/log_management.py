@@ -57,7 +57,7 @@ def view_log(request):
                     return_dict["audit_list"] = al
                     return django.shortcuts.render_to_response('view_audit_trail.html', return_dict, context_instance=django.template.context.RequestContext(request))
                 elif log_type == 'hardware':
-                    hw_platform, err =config.get_hardware_platform()
+                    hw_platform, err = config.get_hardware_platform()
                     if err:
                         raise Exception(err)
                     if not hw_platform or hw_platform != 'dell':
@@ -137,7 +137,7 @@ def download_log(request):
                             response.flush()
                     elif log_type == 'hardware':
                         response['Content-disposition'] = 'attachment; filename=hardware_logs.txt'
-                        hw_platform, err =config.get_hardware_platform()
+                        hw_platform, err = config.get_hardware_platform()
                         if not hw_platform or hw_platform != 'dell':
                             raise Exception('Unknown hardware platform')
                         if hw_platform == 'dell':
@@ -235,7 +235,7 @@ def rotate_log(request, log_type=None):
 def download_sys_info(request):
     return_dict = {}
     try:
-        display_name, err =config.get_config_dir()
+        display_name, err = config.get_config_dir()
         if err:
             raise Exception(err)
         zf_name = "system_info.zip"
@@ -281,7 +281,7 @@ def upload_sys_info(request):
     try:
         if request.method == "POST":
             status, path = _handle_uploaded_file(request.FILES['file_field'])
-            display_name, err =config.get_config_dir()
+            display_name, err = config.get_config_dir()
             if err:
                 raise Exception(err)
             if path:
@@ -297,7 +297,7 @@ def upload_sys_info(request):
                 for dir in os.listdir("/tmp/upload"):
                     if dir and os.path.isdir("/tmp/upload/" + dir):
                         _copy_and_overwrite(
-                            "/tmp/upload/" + dir,config.get_config_dir()[0] + "/" + dir)
+                            "/tmp/upload/" + dir, config.get_config_dir()[0] + "/" + dir)
                 return django.http.HttpResponseRedirect("/view_system_info/")
         else:
             form = common_forms.FileUploadForm()
@@ -392,7 +392,7 @@ def refresh_alerts(request, random=None):
         cmd = ["INSERT OR REPLACE INTO admin_alerts (user, last_refresh_time) values (?,?);", (
             request.user.username, timezone.now())]
         cmd_list.append(cmd)
-        db_path, err =config.get_db_path()
+        db_path, err = config.get_db_path()
         if err:
             raise Exception(err)
         test, err = db.execute_iud(db_path, cmd_list)
