@@ -1,11 +1,11 @@
 
-from integralstor_utils import common
+from integralstor_utils import config
 
 
 def get_version(request):
     version = None
     try:
-        version, err = common.get_version()
+        version, err =config.get_version()
         if err:
             raise Exception('Error retrieving version number')
     except Exception, e:

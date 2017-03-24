@@ -2,7 +2,7 @@
 import sys
 import time
 
-from integralstor_utils import common, alerts, lock, db
+from integralstor_utils import config, alerts, lock, db
 
 import atexit
 import time
@@ -21,7 +21,7 @@ def main():
         alert_list = []
         now = int(time.time())
 
-        db_path, err = common.get_db_path()
+        db_path, err =config.get_db_path()
         if err:
             raise Exception(err)
 

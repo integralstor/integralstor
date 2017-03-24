@@ -34,7 +34,7 @@ echo
 
 ### Letting user to checkout branch or tag or default will be last tag ###
 echo "Do you want to Download specific Branch or Tag...???"
-echo "Press 'YES' else press <ENTER> to Download the latest tag for Both Unicell and common"
+echo "Press 'YES' else press <ENTER> to Download the latest tag for both integralstor and integralstor_utils"
 read input1
     if [[ $input1 == "y" || $input1 == "Y" || $input1 == "yes" || $input1 == "Yes" || $input1 == "YES" ]] ; then
 
@@ -59,7 +59,7 @@ read input1
 	    echo
 	    	git tag -l
 	    echo
-	    read -p "Please enter the tag name for integrlator_common: " tagcmmn	# change the branch name as per the requirement
+	    read -p "Please enter the tag name for integralstor_utils: " tagcmmn	# change the branch name as per the requirement
 	    	cd /tmp/integralstor_rpm/integralstor_utils/
 	    	git checkout tags/$tagcmmn 
 	    	touch /tmp/integralstor_rpm/integralstor_utils/version

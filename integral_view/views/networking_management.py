@@ -1,7 +1,7 @@
 import django
 import django.template
 
-from integralstor_utils import networking, audit, command, common, unicode_utils
+from integralstor_utils import networking, audit, command, config, unicode_utils
 from django.contrib.auth.decorators import login_required
 
 import socket
@@ -395,13 +395,13 @@ def create_bond(request):
                     raise Exception(err)
                 else:
                     raise Exception('Bond creation failed!')
-            python_scripts_path, err = common.get_python_scripts_path()
+            python_scripts_path, err =config.get_python_scripts_path()
             if err:
                 raise Exception(err)
-            common_python_scripts_path, err = common.get_common_python_scripts_path()
+            common_python_scripts_path, err =config.get_common_python_scripts_path()
             if err:
                 raise Exception(err)
-            status_path, err = common.get_system_status_path()
+            status_path, err =config.get_system_status_path()
             if err:
                 raise Exception(err)
 
@@ -449,13 +449,13 @@ def delete_bond(request):
                 else:
                     raise Exception(err)
 
-            python_scripts_path, err = common.get_python_scripts_path()
+            python_scripts_path, err =config.get_python_scripts_path()
             if err:
                 raise Exception(err)
-            common_python_scripts_path, err = common.get_common_python_scripts_path()
+            common_python_scripts_path, err =config.get_common_python_scripts_path()
             if err:
                 raise Exception(err)
-            status_path, err = common.get_system_status_path()
+            status_path, err =config.get_system_status_path()
             if err:
                 raise Exception(err)
 
@@ -551,13 +551,13 @@ def update_hostname(request):
                     raise Exception(err)
                 else:
                     raise Exception('Error setting domain name')
-            python_scripts_path, err = common.get_python_scripts_path()
+            python_scripts_path, err =config.get_python_scripts_path()
             if err:
                 raise Exception(err)
-            common_python_scripts_path, err = common.get_common_python_scripts_path()
+            common_python_scripts_path, err =config.get_common_python_scripts_path()
             if err:
                 raise Exception(err)
-            ss_path, err = common.get_system_status_path()
+            ss_path, err =config.get_system_status_path()
             if err:
                 raise Exception(err)
 

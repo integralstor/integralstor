@@ -1,7 +1,7 @@
 import django
 import django.template
 
-from integralstor_utils import common, disks, command, audit, zfs, manifest_status, scheduler_utils
+from integralstor_utils import config, disks, command, audit, zfs, manifest_status, scheduler_utils
 from integralstor import system_info
 
 
@@ -18,7 +18,7 @@ def view_disks(request):
             raise Exception(err)
         if not si:
             raise Exception('Error loading system configuration')
-        hw_platform, err = common.get_hardware_platform()
+        hw_platform, err =config.get_hardware_platform()
         if hw_platform:
             return_dict['hw_platform'] = hw_platform
             if hw_platform == 'dell':
@@ -85,7 +85,7 @@ def replace_disk(request):
         return_dict['system_config_list'] = si
 
         template = 'logged_in_error.html'
-        use_salt, err = common.use_salt()
+        use_salt, err =config.use_salt()
         if err:
             raise Exception(err)
 
@@ -227,7 +227,7 @@ def replace_disk(request):
                         old_id = request.POST["old_id"]
                         new_id = request.POST["new_id"]
                         new_serial_number = request.POST["new_serial_number"]
-                        common_python_scripts_path, err = common.get_common_python_scripts_path()
+                        common_python_scripts_path, err =config.get_common_python_scripts_path()
                         if err:
                             raise Exception(err)
                         cmd_list = []

@@ -83,7 +83,7 @@ cp -rf /tmp/bin/* /tmp/fractalio_integral_view-0.2/opt/fractalio/bin/
 cp -rf /tmp/integral-view/scripts/*  /tmp/fractalio_integral_view-0.2/opt/fractalio/scripts/
 
 # COPYING TO SITE PACKAGES
-cp -rf /tmp/integral-view/common/python/fractalio /tmp/fractalio_integral_view-0.2/usr/lib/python2.6/site-packages/        
+cp -rf /tmp/integral-view/config/python/fractalio /tmp/fractalio_integral_view-0.2/usr/lib/python2.6/site-packages/        
 
 # COPYING SALT MODULES
 cp -rf /tmp/integral-view/salt /tmp/fractalio_integral_view-0.2/srv/

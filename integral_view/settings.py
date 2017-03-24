@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 import integralstor_utils
-from integralstor_utils import common
-platform_root, err = common.get_platform_root()
+from integralstor_utils import config
+platform_root, err =config.get_platform_root()
 STATIC_DIR_PATH = '%s/integral_view/static' % platform_root
 TEMPLATE_DIR_PATH = "%s/integral_view/templates" % platform_root
 LOGIN_URL = '/login/'
