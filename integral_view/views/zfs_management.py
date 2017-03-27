@@ -942,7 +942,7 @@ def update_zfs_dataset(request):
             elif cd['quota_size'] == 0:
                 new_quota = 'none'
             else:
-                new_quota = '%d%s'%(cd['quota_size'], cd['quota_unit'])
+                new_quota = '%d%s' % (cd['quota_size'], cd['quota_unit'])
             print 'new quota is ', new_quota
             if orig_quota != new_quota:
                 result, err = zfs.update_property(name, 'quota', new_quota)
@@ -950,7 +950,7 @@ def update_zfs_dataset(request):
                     result_str += ' Error setting property quota'
                     if not err:
                         results += ' : %s' % str(e)
-                audit_str += " property 'quota' set to '%s'" %new_quota
+                audit_str += " property 'quota' set to '%s'" % new_quota
                 success = True
             if success:
                 audit.audit("edit_zfs_dataset", audit_str, request.META)
@@ -1068,8 +1068,9 @@ def create_zfs_dataset(request):
                 properties['compression'] = 'on'
             if 'dedup' in cd and cd['dedup']:
                 properties['dedup'] = 'on'
-            if 'quota_size' in cd and cd['quota_size'] and int(cd['quota_size']) > 0 :
-                properties['quota'] = '%d%s'%(int(cd['quota_size']), cd['quota_unit'])
+            if 'quota_size' in cd and cd['quota_size'] and int(cd['quota_size']) > 0:
+                properties['quota'] = '%d%s' % (
+                    int(cd['quota_size']), cd['quota_unit'])
             result, err = zfs.create_dataset(
                 cd['pool'], cd['name'], properties)
             if not result:
