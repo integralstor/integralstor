@@ -12,7 +12,7 @@ from integral_view.views.admin_auth import login, logout, update_admin_password,
 
 from integral_view.views.pki_management import view_ssl_certificates, delete_ssl_certificate, create_self_signed_ssl_certificate, upload_ssl_certificate, view_known_hosts_ssh_keys, view_user_ssh_keys, upload_ssh_user_key, upload_ssh_host_key
 
-from integral_view.views.config import view_dashboard, access_shell, view_backup, update_manifest, flag_node, view_system_info
+from integral_view.views.common import view_dashboard, access_shell, view_backup, update_manifest, flag_node, view_system_info
 
 from integral_view.views.log_management import download_log, rotate_log, view_rotated_log_list, view_rotated_log_file, download_sys_info, upload_sys_info, refresh_alerts, view_alerts, view_log
 
