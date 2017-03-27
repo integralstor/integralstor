@@ -53,7 +53,15 @@
           {%if pname in exposed_properties %}
             <tr>
               <td> 
-                {%if pname == 'creation'%} Created on {%elif pname == 'usedbychildren'%} Space used by children {%elif pname == 'usedbydataset'%} Space used by this dataset {%else%}{{pname|title}}{%endif%}
+                {%if pname == 'creation'%} 
+                    Created on 
+                {%elif pname == 'quota'%} 
+                    Space consumption limit
+                {%elif pname == 'usedbychildren'%} 
+                    Space used by children 
+                {%elif pname == 'usedbydataset'%} 
+                    Space used by this dataset 
+                {%else%}{{pname|title}}{%endif%}
               </td>
               <td> {{p.value}}</td>
               <td> 

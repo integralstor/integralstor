@@ -7,6 +7,9 @@ class DatasetForm(forms.Form):
     readonly = forms.BooleanField(required=False)
     compression = forms.BooleanField(required=False)
     dedup = forms.BooleanField(required=False)
+    quota_size = forms.IntegerField()
+    ch = [('G', 'GB'), ('M', 'MB')]
+    quota_unit = forms.ChoiceField(choices=ch)
 
 
 class CreateDatasetForm(forms.Form):
@@ -14,6 +17,9 @@ class CreateDatasetForm(forms.Form):
     readonly = forms.BooleanField(required=False)
     compression = forms.BooleanField(required=False)
     dedup = forms.BooleanField(required=False)
+    quota_size = forms.IntegerField()
+    ch = [('G', 'GB'), ('M', 'MB')]
+    quota_unit = forms.ChoiceField(choices=ch)
     pool = forms.CharField()
 
 

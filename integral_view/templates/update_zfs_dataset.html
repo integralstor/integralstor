@@ -35,6 +35,24 @@
         <td> {{ form.dedup }} </td>
         <td> {{ form.dedup.errors }} </td>
       </tr>
+      {%if type.value == 'filesystem' %}
+        <tr>
+            <th> Current space consumption limit : </th>
+            <th colspan=2> {{quota}} </th>
+        </tr>
+        <tr>
+          <th> New space consumption limit :</th>
+          <td>  
+              <input type="text"  name="quota_size" class="form-control" id="id_quota_size" placeholder="Enter the space limit" />
+              <select id="id_quota_unit" name="quota_unit" class="form-control" >
+                {% for choice in form.quota_unit.field.choices %}
+                  <option value="{{choice.0}}" {%if choice.0 == form.initial.quota_unit %} selected{%endif%} >{{choice.1}}</option>
+                {%endfor%}
+              </select>
+          </td>
+          <td> {{ form.quota_size.errors }} {{form.quota_unit.errors}} </td>
+        </tr>
+      {%endif%}
     </table>
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <a href="/view_zfs_dataset/?name={{form.name.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
