@@ -20,7 +20,7 @@
     <table  class="table " style="width:800px">
       {% if not replication %} 
         <tr>
-          <td>Select a dataset of replication </td>
+          <th>Source dataset or block device volume for replication </th>
           <td>
             <select id="id_source_dataset" name="source_dataset" class="form-control"> 
               {% for dataset in datasets %}
