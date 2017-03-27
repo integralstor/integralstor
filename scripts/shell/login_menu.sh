@@ -102,25 +102,25 @@ restart_nfs(){
 
 configure_network_interface(){
   #echo "configure networking called"
-  python /opt/integralstor/integralstor_unicell/scripts/python/configure_networking.py interface
+  python /opt/integralstor/integralstor/scripts/python/configure_networking.py interface
 }
 
 create_nic_bond(){
-  python /opt/integralstor/integralstor_unicell/scripts/python/create_nic_bond.py 
+  python /opt/integralstor/integralstor/scripts/python/create_nic_bond.py 
   pause
 }
 
 remove_nic_bond(){
-  python /opt/integralstor/integralstor_unicell/scripts/python/remove_nic_bond.py 
+  python /opt/integralstor/integralstor/scripts/python/remove_nic_bond.py 
   pause
 }
 
 view_node_status(){
-  python /opt/integralstor/integralstor_unicell/scripts/python/display_node_status.py
+  python /opt/integralstor/integralstor/scripts/python/display_node_status.py
   pause
 }
 view_node_config(){
-  python /opt/integralstor/integralstor_unicell/scripts/python/display_node_config.py
+  python /opt/integralstor/integralstor/scripts/python/display_node_config.py
   pause
 }
 

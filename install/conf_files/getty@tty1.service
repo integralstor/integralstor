@@ -26,7 +26,7 @@ ConditionPathExists=/dev/tty0
 [Service]
 # the VT is cleared by TTYVTDisallocate
 Type=idle
-ExecStart=/usr/bin/bash /opt/integralstor/integralstor_unicell/scripts/shell/login_menu.sh --noclear %I $TERM
+ExecStart=/usr/bin/bash /opt/integralstor/integralstor/scripts/shell/login_menu.sh --noclear %I $TERM
 StandardInput = tty
 StandardOutput = tty
 TTYPath = /dev/tty1

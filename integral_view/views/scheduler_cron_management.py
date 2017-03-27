@@ -6,7 +6,7 @@ import django.http
 import os
 import os.path
 
-from integralstor_utils import scheduler_utils, common, command, audit
+from integralstor_utils import scheduler_utils, config, command, audit
 
 
 def view_background_tasks(request):
@@ -68,7 +68,7 @@ def view_task_details(request, task_id):
         return_dict["subtasks"] = subtasks
         # print subtasks, err
         task_output = ""
-        log_path, err = common.get_log_folder_path()
+        log_path, err = config.get_log_folder_path()
         if err:
             raise Exception(err)
         log_dir = '%s/task_logs' % log_path
@@ -131,7 +131,7 @@ def download_cron_log(request):
     cron_name = request.POST.get('cron_name')
     response['Content-disposition'] = 'attachment; filename='+cron_name.replace(" ","_")+'.log'
     response['Content-type'] = 'application/x-compressed'
-    log_folder_path, err = common.get_log_folder_path()
+    log_folder_path, err =config.get_log_folder_path()
     if err:
       raise Exception(err)
     with open(log_folder_path+"/"+cron_name.replace(" ","_")+".log", 'rb') as f:

@@ -3,7 +3,7 @@ import socket
 import re
 import sys
 import time
-from integralstor_utils import networking, command, common
+from integralstor_utils import networking, command, config
 
 
 def configure_interface():
@@ -181,7 +181,7 @@ def configure_interface():
                     else:
                         raise Exception("Couldn't restart.")
 
-                use_salt, err = common.use_salt()
+                use_salt, err = config.use_salt()
                 if err:
                     raise Exception(err)
                 if use_salt:

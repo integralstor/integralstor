@@ -20,10 +20,10 @@ echo ""
 cd /opt/integralstor
 echo "Started installing NON-RPM installs..."
 echo ""
-tar xzf integralstor_unicell_tar_installs.tar.gz
+tar xzf integralstor_tar_installs.tar.gz
 
-if [[ -d "integralstor_unicell_tar_installs" ]]; then
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+if [[ -d "integralstor_tar_installs" ]]; then
+    cd /opt/integralstor/integralstor_tar_installs
 
     echo "Installing sysstat..."
     cd sysstat-11.0.5
@@ -40,11 +40,11 @@ if [[ -d "integralstor_unicell_tar_installs" ]]; then
 	echo "********************************"
     fi
     sleep 1
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     rm -rf sysstat-11.0.5
 
     echo "Installing setuptools..."
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     tar xzf setuptools-11.3.1.tar.gz
     cd setuptools-11.3.1
     python setup.py install
@@ -58,11 +58,11 @@ if [[ -d "integralstor_unicell_tar_installs" ]]; then
 	echo "********************************"
     fi
     sleep 1
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     rm -rf setuptools-11.3.1.tar.gz
 
     echo "Installing uwsgi..."
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     tar xzf uwsgi-2.0.9.tar.gz
     cd uwsgi-2.0.9
     python setup.py install
@@ -76,11 +76,11 @@ if [[ -d "integralstor_unicell_tar_installs" ]]; then
 	echo "********************************"
     fi
     sleep 1
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     rm -rf uwsgi-2.0.9.tar.gz
 
     echo "Installing netifaces..."
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     tar xzf netifaces-0.10.4.tar.gz
     cd netifaces-0.10.4
     python setup.py install
@@ -94,11 +94,11 @@ if [[ -d "integralstor_unicell_tar_installs" ]]; then
 	echo "********************************"
     fi
     sleep 1
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     rm -rf netifaces-0.10.4.tar.gz
 
     echo "Installing six..."
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     tar xzf six-1.10.0.tar.gz
     cd six-1.10.0
     python setup.py install
@@ -112,11 +112,11 @@ if [[ -d "integralstor_unicell_tar_installs" ]]; then
 	echo "********************************"
     fi
     sleep 1
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     rm -rf six-1.10.0.tar.gz
     
     echo "Installing python-dateutil..."
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     tar xzf python-dateutil-2.4.2.tar.gz
     cd python-dateutil-2.4.2
     python setup.py install
@@ -130,11 +130,11 @@ if [[ -d "integralstor_unicell_tar_installs" ]]; then
 	echo "********************************"
     fi
     sleep 1
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     rm -rf python-dateutil-2.4.2.tar.gz
 
     echo "Installing python-crontab..."
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     tar xzf python-crontab-1.9.3.tar.gz
     cd python-crontab-1.9.3
     python setup.py install
@@ -148,11 +148,11 @@ if [[ -d "integralstor_unicell_tar_installs" ]]; then
 	echo "********************************"
     fi
     sleep 1
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     rm -rf python-crontab-1.9.3.tar.gz
 
     echo "Installing mbuffer..."
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     tar xzf mbuffer-20161115.tgz
     cd mbuffer-20161115
     ./configure
@@ -167,11 +167,11 @@ if [[ -d "integralstor_unicell_tar_installs" ]]; then
 	echo "********************************"
     fi
     sleep 1
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     rm -rf mbuffer-20161115.tgz
 
     echo "Installing zfs-auto-snapdhot..."
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     tar xzf zfs-auto-snapshot.tar.gz
     cd zfs-auto-snapshot
     make install
@@ -185,11 +185,11 @@ if [[ -d "integralstor_unicell_tar_installs" ]]; then
 	echo "********************************"
     fi
     sleep 1
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     rm -rf zfs-auto-snapshot.tar.gz
 
     echo "Installing Django..."
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     tar xzf Django-1.8.16.tar.gz
     cd Django-1.8.16
     python setup.py install
@@ -203,11 +203,11 @@ if [[ -d "integralstor_unicell_tar_installs" ]]; then
 	echo "********************************"
     fi
     sleep 1
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     rm -rf Django-1.8.16.tar.gz
 
     echo "Installing cron_descriptor..."
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     tar xzf cron_descriptor-1.2.6.tar.gz
     cd cron_descriptor-1.2.6
     python setup.py install
@@ -221,11 +221,11 @@ if [[ -d "integralstor_unicell_tar_installs" ]]; then
 	echo "********************************"
     fi
     sleep 1
-    cd /opt/integralstor/integralstor_unicell_tar_installs
+    cd /opt/integralstor/integralstor_tar_installs
     rm -rf cron_descriptor-1.2.6.tar.gz
 
 else
-    echo "'integralstor_unicell_tar_installs' Directory Does Not Exist so exiting..."
+    echo "'integralstor_tar_installs' Directory Does Not Exist so exiting..."
     exit 1
 fi
 
@@ -293,53 +293,53 @@ mkdir -p /etc/logrotate.d_old
 
 ### Linking integralstor code to respective paths
 ln -s /opt/integralstor/integralstor_utils/site-packages/integralstor_utils /usr/lib/python2.7/site-packages/integralstor_utils
-ln -s /opt/integralstor/integralstor_unicell/site-packages/integralstor_unicell /usr/lib/python2.7/site-packages/integralstor_unicell
+ln -s /opt/integralstor/integralstor/site-packages/integralstor /usr/lib/python2.7/site-packages/integralstor
 
 ### Updating platform file
 ln -s /tmp/platform /opt/integralstor
-ln -fs /opt/integralstor/platform /opt/integralstor/integralstor_unicell
+ln -fs /opt/integralstor/platform /opt/integralstor/integralstor
 
 ### Shellinabox file updates
 mv /etc/sysconfig/shellinaboxd /etc/sysconfig/shellinaboxd.bak
-ln -s /opt/integralstor/integralstor_unicell/config/shellinabox/shellinaboxd /etc/sysconfig
+ln -s /opt/integralstor/integralstor/config/shellinabox/shellinaboxd /etc/sysconfig
 
 ### Chhanging scripts files for appropriate permission
-chmod 755 /opt/integralstor/integralstor_unicell/scripts/python/*
-chmod 755 /opt/integralstor/integralstor_unicell/scripts/shell/*
-mkdir /opt/integralstor/integralstor_unicell/config/logs/cron_logs
-mkdir /opt/integralstor/integralstor_unicell/config/logs/task_logs
-chmod 777 /opt/integralstor/integralstor_unicell/config/logs/cron_logs
-chmod 777 /opt/integralstor/integralstor_unicell/config/logs/task_logs
+chmod 755 /opt/integralstor/integralstor/scripts/python/*
+chmod 755 /opt/integralstor/integralstor/scripts/shell/*
+mkdir /opt/integralstor/integralstor/config/logs/cron_logs
+mkdir /opt/integralstor/integralstor/config/logs/task_logs
+chmod 777 /opt/integralstor/integralstor/config/logs/cron_logs
+chmod 777 /opt/integralstor/integralstor/config/logs/task_logs
 
 ### changing anacron to start cron jobs between 12AM-1AM
 sed -i 's/RANDOM_DELAY=45/RANDOM_DELAY=5/' /etc/anacrontab
 sed -i 's/START_HOURS_RANGE=3-22/START_HOURS_RANGE=0-1/' /etc/anacrontab
 
 rm -rf /etc/nsswitch.conf
-cp /opt/integralstor/integralstor_unicell/install/conf_files/nsswitch.conf /etc
+cp /opt/integralstor/integralstor/install/conf_files/nsswitch.conf /etc
 
 ### Configure nginx ###
-ln -s /opt/integralstor/integralstor_unicell/integral_view/integral_view_nginx.conf /etc/nginx/sites-enabled/
+ln -s /opt/integralstor/integralstor/integral_view/integral_view_nginx.conf /etc/nginx/sites-enabled/
 cp -rf /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
-yes | cp -rf /opt/integralstor/integralstor_unicell_tar_installs/nginx.conf /etc/nginx
+yes | cp -rf /opt/integralstor/integralstor_tar_installs/nginx.conf /etc/nginx
 sed -i 's/conf.d/sites-enabled/g' /etc/nginx/nginx.conf
 
 ### Cinfigure xinetd ###
 cd /etc/xinetd.d/
 mv rsync rsync.bak
-ln -s /opt/integralstor/integralstor_unicell/install/conf_files/rsync /etc/xinetd.d/
+ln -s /opt/integralstor/integralstor/install/conf_files/rsync /etc/xinetd.d/
 #sed -i 's/disable = yes/disable = no/' /etc/xinetd.d/rsync
 
 ### Configure uwsgi ###
-ln -s /opt/integralstor/integralstor_unicell/integral_view/integral_view_uwsgi.ini /etc/uwsgi/vassals/
+ln -s /opt/integralstor/integralstor/integral_view/integral_view_uwsgi.ini /etc/uwsgi/vassals/
 cd /usr/lib/systemd/system
-yes | cp -f /opt/integralstor/integralstor_unicell_tar_installs/uwsginew.service .
+yes | cp -f /opt/integralstor/integralstor_tar_installs/uwsginew.service .
 ln -s /usr/lib/systemd/system/uwsginew.service /etc/systemd/system/multi-user.target.wants/
 
 ### Configure ramdisks ###
-#Change the ramdisks conf file name and location, move it into /opt/integralstor so it can be common to unicell and gridcell
+#Change the ramdisks conf file name and location, move it into /opt/integralstor so it can be common to integralstor and gridcell
 touch /opt/integralstor/ramdisks.conf
-touch /var/log/integralstor/integralstor_unicell/ramdisks
+touch /var/log/integralstor/integralstor/ramdisks
 #ln -fs /opt/integralstor/integralstor_utils/install/scripts/ramdisk /etc/init.d/
 ln -s /usr/lib/systemd/system/ramdisk.service /etc/systemd/system/multi-user.target.wants/
 
@@ -350,7 +350,7 @@ ln -s /usr/lib/systemd/system/ramdisk.service /etc/systemd/system/multi-user.tar
 (crontab -l 2>/dev/null; echo "*/1 * * * * /opt/integralstor/integralstor_utils/scripts/python/generate_status.py > /tmp/out_status >> /tmp/err_status") | crontab -
 (crontab -l 2>/dev/null; echo "*/10 * * * * /usr/lib64/sa/sa1 1 1 -S DISK > /tmp/out_status >> /tmp/err_status") | crontab -
 (crontab -l 2>/dev/null; echo "*/1 * * * * /opt/integralstor/integralstor_utils/scripts/python/poll_for_alerts.py > /tmp/out_alerts >> /tmp/err_alerts") | crontab -
-(crontab -l 2>/dev/null; echo "*/1 * * * * /opt/integralstor/integralstor_unicell/scripts/python/poll_for_alerts.py > /tmp/out_unicell_alerts >> /tmp/err_unicell_alerts") | crontab -
+(crontab -l 2>/dev/null; echo "*/1 * * * * /opt/integralstor/integralstor/scripts/python/poll_for_alerts.py > /tmp/out_integralstor_alerts >> /tmp/err_integralstor_alerts") | crontab -
 (crontab -l 2>/dev/null; echo "*/1 * * * * /usr/bin/python /opt/integralstor/integralstor_utils/scripts/python/task_processor.py > /tmp/out_task_processor >> /tmp/err_task_processor") | crontab -
 (crontab -l 2>/dev/null; echo "0 0 * * * /usr/bin/python -c 'from integralstor_utils import logs; logs.auto_rotate_logs()' > /tmp/auto_rotate_logs_alerts >> /tmp/auto_rotate_errors") | crontab -
 (crontab -l 2>/dev/null; echo "@reboot /usr/sbin/modprobe ipmi_devintf > /tmp/logs-ipmi_devinfo_modprobe >> /tmp/errors-ipmi_devinfo_modprobe") | crontab -
@@ -359,18 +359,18 @@ ln -s /usr/lib/systemd/system/ramdisk.service /etc/systemd/system/multi-user.tar
 ###configure ZFS ###
 rm -f /etc/modprobe.d/zfs.conf
 ln -fs /opt/integralstor/integralstor_utils/install/conf_files/zfs.conf /etc/modprobe.d
-cp -rf /opt/integralstor/integralstor_unicell/install/conf_files/zed.rc /etc/zfs/zed.d
+cp -rf /opt/integralstor/integralstor/install/conf_files/zed.rc /etc/zfs/zed.d
 
 ### configuring Vsftpd ###
 rm -f /etc/vsftpd/vsftpd.conf
-ln -fs /opt/integralstor/integralstor_unicell/install/conf_files/vsftpd.conf /etc/vsftpd
+ln -fs /opt/integralstor/integralstor/install/conf_files/vsftpd.conf /etc/vsftpd
 
 #Log rotation 
 cp -f /etc/logrotate.d/* /etc/logrotate.d_old/
-cp -f /opt/integralstor/integralstor_unicell/install/log_rotate_files/* /etc/logrotate.d/
+cp -f /opt/integralstor/integralstor/install/log_rotate_files/* /etc/logrotate.d/
 
 ### configuring zed for zfs ###
-ln -s /opt/integralstor/integralstor_unicell/install/conf_files/zed.conf /etc/init/
+ln -s /opt/integralstor/integralstor/install/conf_files/zed.conf /etc/init/
 
 ### Configure rc.local ###
 modprobe ipmi_devintf
@@ -384,7 +384,7 @@ else
 fi
 
 ### Removing install files after install
-cd /opt/integralstor/integralstor_unicell_tar_installs
+cd /opt/integralstor/integralstor_tar_installs
 yes | cp -rf getty\@tty* /etc/systemd/system/getty.target.wants/
 
 if [ $? -ne 0 ]; then
@@ -393,7 +393,7 @@ if [ $? -ne 0 ]; then
 else
     echo "Successfully installed TTY files."
     echo "Removing installation files..."
-    rm -rf /opt/integralstor/integralstor_unicell_*
+    rm -rf /opt/integralstor/integralstor_*
     echo "Removing installation files...Done"
 
 fi

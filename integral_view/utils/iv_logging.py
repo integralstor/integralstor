@@ -1,7 +1,7 @@
 # Integral View's internal logging module that is an extention to the
 # python/django loggin module
 
-from integralstor_utils import db, common
+from integralstor_utils import db, config
 
 
 import logging
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def set_log_level(level):
     try:
-        db_path, err = common.get_db_path()
+        db_path, err = config.get_db_path()
         if err:
             raise Exception(err)
         if level not in [logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL]:

@@ -5,7 +5,7 @@ import os
 import urllib
 
 from integralstor_utils import audit, services_management
-from integralstor_unicell import local_users
+from integralstor import local_users
 
 
 def view_services(request):

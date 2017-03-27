@@ -8,10 +8,10 @@ import django
 from django.contrib.auth.decorators import login_required
 import django.http
 
-from integralstor_utils import command, audit, alerts, zfs, stats, common
+from integralstor_utils import command, audit, alerts, zfs, stats, config
 from integralstor_utils import cifs as cifs_common, services_management
 
-from integralstor_unicell import system_info, iscsi_stgt, nfs
+from integralstor import system_info, iscsi_stgt, nfs
 
 
 @login_required
@@ -56,10 +56,10 @@ def update_manifest(request):
             return_dict["mi"] = mi[mi.keys()[0]]  # Need the hostname here.
             return django.shortcuts.render_to_response("update_manifest.html", return_dict, context_instance=django.template.context.RequestContext(request))
         elif request.method == "POST":
-            common_python_scripts_path, err = common.get_common_python_scripts_path()
+            common_python_scripts_path, err = config.get_common_python_scripts_path()
             if err:
                 raise Exception(err)
-            ss_path, err = common.get_system_status_path()
+            ss_path, err = config.get_system_status_path()
             if err:
                 raise Exception(err)
             #(ret,rc), err = command.execute_with_rc("python %s/generate_manifest.py %s"%(common_python_scripts_path, ss_path))
@@ -68,7 +68,7 @@ def update_manifest(request):
             # print 'mani', ret, err
             if err:
                 raise Exception(err)
-            #(ret,rc), err = command.execute_with_rc("python %s/generate_status.py %s"%(common.get_python_scripts_path(), common.get_system_status_path()))
+            #(ret,rc), err = command.execute_with_rc("python %s/generate_status.py %s"%(config.get_python_scripts_path(),config.get_system_status_path()))
             ret, err = command.get_command_output(
                 "python %s/generate_status.py %s" % (common_python_scripts_path, ss_path))
             # print 'stat', ret, err
@@ -95,7 +95,7 @@ def flag_node(request):
 
         node_name = request.GET["node"]
         blink_time = 255
-        use_salt, err = common.use_salt()
+        use_salt, err = config.use_salt()
         if use_salt:
             import salt.client
             client = salt.client.LocalClient()
@@ -351,7 +351,7 @@ def view_dashboard(request, page):
             return_dict['tab'] = 'system_health_tab'
             return_dict["error"] = 'Error loading system health data'
             template = "view_dashboard.html"
-            hw_platform, err = common.get_hardware_platform()
+            hw_platform, err = config.get_hardware_platform()
             if hw_platform:
                 return_dict['hw_platform'] = hw_platform
                 if hw_platform == 'dell':

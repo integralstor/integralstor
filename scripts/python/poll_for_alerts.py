@@ -2,17 +2,17 @@
 import sys
 import time
 
-from integralstor_utils import common, alerts, lock, db
+from integralstor_utils import config, alerts, lock, db
 
 import atexit
 import time
 import datetime
-atexit.register(lock.release_lock, 'unicell_poll_for_alerts')
+atexit.register(lock.release_lock, 'integralstor_poll_for_alerts')
 
 
 def main():
     try:
-        lck, err = lock.get_lock('unicell_poll_for_alerts')
+        lck, err = lock.get_lock('integralstor_poll_for_alerts')
         if err:
             raise Exception(err)
         if not lck:
@@ -21,7 +21,7 @@ def main():
         alert_list = []
         now = int(time.time())
 
-        db_path, err = common.get_db_path()
+        db_path, err = config.get_db_path()
         if err:
             raise Exception(err)
 
@@ -42,7 +42,7 @@ def main():
         if alert_list:
             alerts.raise_alert(alert_list)
 
-        lock.release_lock('unicell_poll_for_alerts')
+        lock.release_lock('integralstor_poll_for_alerts')
 
     except Exception, e:
         print "Error generating alerts : %s ! Exiting." % str(e)

@@ -6,7 +6,7 @@ import integral_view
 from integral_view.forms import local_user_forms
 
 from integralstor_utils import audit
-from integralstor_unicell import local_users
+from integralstor import local_users
 
 
 def view_local_users(request):

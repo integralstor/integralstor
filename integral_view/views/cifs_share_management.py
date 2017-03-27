@@ -9,8 +9,8 @@ from integral_view.forms import samba_shares_forms
 from integralstor_utils import audit, zfs, acl
 from integralstor_utils import cifs as cifs_common
 
-from integralstor_unicell import cifs as cifs_unicell
-from integralstor_unicell import local_users
+from integralstor import cifs as cifs_integralstor
+from integralstor import local_users
 
 
 def view_cifs_shares(request):
@@ -110,10 +110,10 @@ def update_cifs_share(request):
 
     return_dict = {}
     try:
-        user_list, err = cifs_unicell.get_user_list()
+        user_list, err = cifs_integralstor.get_user_list()
         if err:
             raise Exception(err)
-        group_list, err = cifs_unicell.get_group_list()
+        group_list, err = cifs_integralstor.get_group_list()
         if err:
             raise Exception(err)
 
@@ -175,7 +175,7 @@ def update_cifs_share(request):
                     share_id, name, comment, False, read_only, path, browseable, None, None)
                 if err:
                     raise Exception(err)
-                ret, err = cifs_unicell.generate_smb_conf()
+                ret, err = cifs_integralstor.generate_smb_conf()
                 if err:
                     raise Exception(err)
 
@@ -214,7 +214,7 @@ def delete_cifs_share(request):
             ret, err = cifs_common.delete_share(share_id)
             if err:
                 raise Exception(err)
-            ret, err = cifs_unicell.generate_smb_conf()
+            ret, err = cifs_integralstor.generate_smb_conf()
             if err:
                 raise Exception(err)
 
@@ -320,10 +320,10 @@ def create_cifs_share(request):
 
                 guest_ok = True
                 ret, err = cifs_common.create_share(
-                    name, comment, True, read_only, path, path, browseable, None, None, "unicell_novol")
+                    name, comment, True, read_only, path, path, browseable, None, None, "integralstor_novol")
                 if err:
                     raise Exception(err)
-                ret, err = cifs_unicell.generate_smb_conf()
+                ret, err = cifs_integralstor.generate_smb_conf()
                 if err:
                     raise Exception(err)
 
@@ -364,7 +364,7 @@ def update_auth_method(request):
             ret, err = cifs_common.update_auth_method(security)
             if err:
                 raise Exception(err)
-            ret, err = cifs_unicell.generate_smb_conf()
+            ret, err = cifs_integralstor.generate_smb_conf()
             if err:
                 raise Exception(err)
 
@@ -445,19 +445,19 @@ def update_samba_server_settings(request):
                     ret, err = cifs_common.generate_krb5_conf()
                     if err:
                         raise Exception(err)
-                ret, err = cifs_unicell.generate_smb_conf()
+                ret, err = cifs_integralstor.generate_smb_conf()
                 if err:
                     raise Exception(err)
                 if cd["security"] == "ads":
-                    rc, err = cifs_unicell.kinit(
+                    rc, err = cifs_integralstor.kinit(
                         "administrator", cd["password"], cd["realm"])
                     if err:
                         raise Exception(err)
-                    rc, err = cifs_unicell.net_ads_join(
+                    rc, err = cifs_integralstor.net_ads_join(
                         "administrator", cd["password"], cd["password_server"])
                     if err:
                         raise Exception(err)
-                ret, err = cifs_unicell.reload_configuration()
+                ret, err = cifs_integralstor.reload_configuration()
                 if err:
                     raise Exception(err)
             else:

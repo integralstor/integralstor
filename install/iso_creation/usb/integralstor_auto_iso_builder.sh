@@ -2,13 +2,13 @@
 
 ### Prepare the env ###
 echo "Clearing ISO Directory..."
-rm -rf /root/usb/unicell_iso_usb/*
+rm -rf /root/usb/integralstor_iso_usb/*
 cd /root
 yum -y install rsync yum-utils createrepo genisoimage isomd5sum yum-downloadonly
 
 ### Setup the env ###
-mkdir /root/usb/unicell_iso_usb
-cd /root/usb/unicell_iso_usb
+mkdir /root/usb/integralstor_iso_usb
+cd /root/usb/integralstor_iso_usb
 
 ### mount the Base Os ###
 echo "Mounting Base ISO..."
@@ -17,11 +17,11 @@ rsync -av /mnt/ .
 find . -name TRANS.TBL -exec rm -f {} \;
 
 ### copy all the Packages and createrepo for ur software(*Make sure you dont get any deppendancy error here) ###
-cp /root/unicell_packages/*.rpm /root/usb/unicell_iso_usb/Packages
-#cp /root/zfs_new_rpms/*.rpm /root/unicell_iso_usb/Packages
-rpm --initdb --dbpath /root/usb/unicell_iso_usb/Packages/
-rpm -ivh --test --dbpath /root/usb/unicell_iso_usb/Packages/ /root/usb/unicell_iso_usb/Packages/*.rpm
-cd /root/usb/unicell_iso_usb
+cp /root/integralstor_packages/*.rpm /root/usb/integralstor_iso_usb/Packages
+#cp /root/zfs_new_rpms/*.rpm /root/integralstor_iso_usb/Packages
+rpm --initdb --dbpath /root/usb/integralstor_iso_usb/Packages/
+rpm -ivh --test --dbpath /root/usb/integralstor_iso_usb/Packages/ /root/usb/integralstor_iso_usb/Packages/*.rpm
+cd /root/usb/integralstor_iso_usb
 
 echo "Repodata..."
 echo
@@ -35,20 +35,20 @@ ls repodata/
 
 ### Copying the files you wanted fot install ###
 cd /root
-cp /root/usb/ks.cfg /root/usb/unicell_iso_usb/
-chmod 755 /root/usb/unicell_iso_usb
-chmod +x /root/usb/unicell_iso_usb
-cp -rf /root/usb/isolinux.cfg /root/usb/unicell_iso_usb/isolinux
-#cp -rf /root/usb/splash.jpg /root/usb/unicell_iso_usb/isolinux
-#cp -rf /root/BOOTX64.conf /root/unicell_iso_usb/EFI/BOOT
-#cp -rf /root/plash.jpg /root/unicell_iso_usb/EFI/BOOT
-cp -rf /root/tar_files /root/usb/unicell_iso_usb
-cp -rf /root/conf_files /root/usb/unicell_iso_usb
-chmod 755 /root/usb/unicell_iso_usb/isolinux/isolinux.cfg 
-chmod +x /root/usb/unicell_iso_usb/isolinux/isolinux.cfg
+cp /root/usb/ks.cfg /root/usb/integralstor_iso_usb/
+chmod 755 /root/usb/integralstor_iso_usb
+chmod +x /root/usb/integralstor_iso_usb
+cp -rf /root/usb/isolinux.cfg /root/usb/integralstor_iso_usb/isolinux
+#cp -rf /root/usb/splash.jpg /root/usb/integralstor_iso_usb/isolinux
+#cp -rf /root/BOOTX64.conf /root/integralstor_iso_usb/EFI/BOOT
+#cp -rf /root/plash.jpg /root/integralstor_iso_usb/EFI/BOOT
+cp -rf /root/tar_files /root/usb/integralstor_iso_usb
+cp -rf /root/conf_files /root/usb/integralstor_iso_usb
+chmod 755 /root/usb/integralstor_iso_usb/isolinux/isolinux.cfg 
+chmod +x /root/usb/integralstor_iso_usb/isolinux/isolinux.cfg
 
 ### Creating ISO with all the files containing Directory ###
-cd /root/usb/unicell_iso_usb
+cd /root/usb/integralstor_iso_usb
 
 echo "Creating ISO... "
 echo

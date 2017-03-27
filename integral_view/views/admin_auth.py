@@ -10,7 +10,7 @@ import os
 import integral_view
 from integral_view.forms import admin_forms, pki_forms
 from integral_view.utils import iv_logging
-from integralstor_utils import audit, mail, common, certificates, nginx, command, scheduler_utils
+from integralstor_utils import audit, mail, config, certificates, nginx, command, scheduler_utils
 
 
 def login(request):
@@ -290,7 +290,7 @@ def update_https_mode(request):
                     return django.shortcuts.render_to_response("update_https_mode.html", return_dict, context_instance=django.template.context.RequestContext(request))
                 cd = form.cleaned_data
             if change_to == 'secure':
-                pki_dir, err = common.get_pki_dir()
+                pki_dir, err = config.get_pki_dir()
                 if err:
                     raise Exception(err)
                 cert_loc = '%s/%s/%s.cert' % (pki_dir,
@@ -312,7 +312,7 @@ def update_https_mode(request):
             request.META["HTTP_HOST"] + \
             "/view_https_mode?ack=set_to_%s" % change_to
         restart, err = scheduler_utils.create_task('Chaging IntegralView access mode', [
-                                                {'Restarting Web Server': 'service nginx restart'}], 2)
+            {'Restarting Web Server': 'service nginx restart'}], 2)
         if err:
             raise Exception(err)
         return django.http.HttpResponseRedirect(redirect_url)

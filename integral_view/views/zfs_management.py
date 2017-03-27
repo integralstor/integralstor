@@ -1,9 +1,9 @@
 import django
 import django.template
 
-from integralstor_utils import zfs, audit, ramdisk, common, command, db
+from integralstor_utils import zfs, audit, ramdisk, config, command, db
 from integralstor_utils import cifs as common_cifs
-from integralstor_unicell import nfs, local_users, iscsi_stgt, system_info
+from integralstor import nfs, local_users, iscsi_stgt, system_info
 
 from integral_view.forms import zfs_forms
 

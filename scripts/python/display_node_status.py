@@ -4,14 +4,14 @@ import os
 import socket
 import sys
 
-from integralstor_utils import common
+from integralstor_utils import config
 
 
 def display_status():
 
     try:
         hostname = socket.gethostname()
-        use_salt, err = common.use_salt()
+        use_salt, err = config.use_salt()
         if err:
             raise Exception(err)
         if use_salt:

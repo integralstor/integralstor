@@ -52,14 +52,14 @@ fi
 echo "######################	End of Active Interfaces		######################"
 echo "######################	Hostname				######################"
 STRING=$(ifconfig | grep eth0 | head -1 | awk '{print $5}' | awk -F ':' '{print tolower($5 $6)}')
-hnpart="unicell-"$STRING
+hnpart="integralstor-"$STRING
 name="$hnpart.integralstor.lan"
 grep $name /etc/sysconfig/network >>/tmp/tmp_host_name || echo "Error setting Hostname"
 echo "######################	End of Hostname				######################"
 echo "######################	Hosts					######################"
 ip=$(ifconfig | awk -F':' '/inet addr/&&!/127.0.0.1/{split($2,_," ");print _[1]}')
 STRING=$(ifconfig | grep eth0 | head -1 | awk '{print $5}' | awk -F ':' '{print tolower($5 $6)}')
-hnpart="unicell-"$STRING
+hnpart="integralstor-"$STRING
 name="$hnpart.integralstor.lan"
 #grep $ip /etc/hosts >>/tmp/tmp_hosts || echo "No Host's IP is Set"
 grep $name /etc/hosts >>/tmp/tmp_hosts || echo "No Host's NAME is Set"
@@ -76,7 +76,7 @@ grep enabled=0 /etc/yum.repos.d/CentOS-Base.repo >> /tmp/tmp_Base_repo || echo "
 echo "######################	End of CentOS-Base repo status		######################"
 echo "######################	Directory and File Creation check	######################"
 
-DIR_LIST="/opt/integralstor /opt/integralstor/pki /opt/integralstor/integralstor_unicell/tmp /run/samba /var/log/integralstor/integralstor_unicell /opt/integralstor/integralstor_unicell/config/status /opt/integralstor/integralstor_unicell /opt/integralstor/integralstor_utils /usr/lib/python2.6/site-packages/integralstor_utils /usr/lib/python2.6/site-packages/integralstor_unicell /etc/nginx/sites-enabled /etc/uwsgi/vassals /lib/modules/2.6.32-504.el6.x86_64/extra/mv94xx"
+DIR_LIST="/opt/integralstor /opt/integralstor/pki /opt/integralstor/integralstor/tmp /run/samba /var/log/integralstor/integralstor /opt/integralstor/integralstor/config/status /opt/integralstor/integralstor /opt/integralstor/integralstor_utils /usr/lib/python2.6/site-packages/integralstor_utils /usr/lib/python2.6/site-packages/integralstor /etc/nginx/sites-enabled /etc/uwsgi/vassals /lib/modules/2.6.32-504.el6.x86_64/extra/mv94xx"
 
 for path in $DIR_LIST; do
     if [[ ! -d "$path" ]]; then
@@ -84,7 +84,7 @@ for path in $DIR_LIST; do
     fi
 done
 
-FILE_LIST="/opt/integralstor/ramdisks.conf /opt/integralstor/platform /var/log/integralstor/integralstor_unicell/integral_view.log /etc/init/start-ttys.conf /etc/init/integralstor_unicell_menu.conf /etc/nginx/sites-enabled/integral_view_nginx.conf /etc/uwsgi/vassals/integral_view_uwsgi.ini /etc/init.d/ramdisk /etc/vsftpd/vsftpd.conf /etc/modprobe.d/zfs.conf /etc/sysconfig/shellinaboxd /etc/nsswitch.conf /etc/nginx/sites-enabled/integral_view_nginx.conf /etc/xinetd.d/rsync /etc/uwsgi/vassals/integral_view_uwsgi.ini /etc/init.d/uwsgi /etc/init.d/ramdisk /etc/modprobe.d/zfs.conf /etc/zfs/zed.d/zed.rc /etc/vsftpd/vsftpd.conf"
+FILE_LIST="/opt/integralstor/ramdisks.conf /opt/integralstor/platform /var/log/integralstor/integralstor/integral_view.log /etc/init/start-ttys.conf /etc/init/integralstor_menu.conf /etc/nginx/sites-enabled/integral_view_nginx.conf /etc/uwsgi/vassals/integral_view_uwsgi.ini /etc/init.d/ramdisk /etc/vsftpd/vsftpd.conf /etc/modprobe.d/zfs.conf /etc/sysconfig/shellinaboxd /etc/nsswitch.conf /etc/nginx/sites-enabled/integral_view_nginx.conf /etc/xinetd.d/rsync /etc/uwsgi/vassals/integral_view_uwsgi.ini /etc/init.d/uwsgi /etc/init.d/ramdisk /etc/modprobe.d/zfs.conf /etc/zfs/zed.d/zed.rc /etc/vsftpd/vsftpd.conf"
 
 for path in $FILE_LIST; do
     if [[ ! -e "$path" ]]; then
@@ -118,7 +118,7 @@ grep nsswitch.conf /etc/nsswitch.conf >> /tmp/tmp_nsswitch || echo "No nsswitch.
 echo "######################		end of /etc/nsswitch		######################"
 
 echo "######################	rc.local of /usr/bin/uwsgi		######################"
-grep /var/log/integralstor/integralstor_unicell/integral_view.log /etc/rc.local >> /tmp/tmp_rc.local || echo "'rc.local' not written /usr/bin/uwsgi"
+grep /var/log/integralstor/integralstor/integral_view.log /etc/rc.local >> /tmp/tmp_rc.local || echo "'rc.local' not written /usr/bin/uwsgi"
 grep /sbin/zed /etc/rc.local >> /tmp/tmp_rc.local || echo "'rc.local' not written /sbin/zed"
 grep "modprobe ipmi_devintf" /etc/rc.local >> /tmp/tmp_rc.local || echo "'rc.local' not written modprobe ipmi_devintf"
 grep "/sbin/modprobe zfs" /etc/rc.local >> /tmp/tmp_rc.local || echo "'rc.local' not written '/sbin/modprobe zfs'"
