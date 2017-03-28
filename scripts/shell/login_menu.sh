@@ -131,11 +131,6 @@ generate_manifest_and_status(){
 }
 
 
-goto_shell() {
-  su -l integralstor
-  pause
-}
-
 do_reboot() {
   reboot now
   pause
@@ -146,6 +141,7 @@ do_shutdown() {
   shutdown -h now
   pause
 }
+
 
 show_menu() {
   clear
@@ -164,6 +160,7 @@ show_menu() {
   echo "    | 85. Restart NTP   86. Restart IntegralView services 87. Restart FTP     88. Restart NFS"
   echo "9.  Create NIC Bond"
   echo "10. Remove NIC Bond"
+  echo "11. Exit"
   echo
 
 }
@@ -181,6 +178,7 @@ read_input(){
     7) update_ntp_date;;
     9) create_nic_bond;;
    10) remove_nic_bond;;
+   11) logout;;
    81) smb_restart;;
    82) winbind_restart;;
    83) restart_iscsi;;
@@ -189,17 +187,19 @@ read_input(){
    86) integralview_restart;;
    87) restart_vsftpd;;
    88) restart_nfs;;
-   96) goto_shell;;
     *)  echo "Not a Valid INPUT" && sleep 2
   esac
 }
  
-trap '' SIGINT SIGQUIT SIGTSTP
- 
-while true
-do
-  echo "The integralstor console menu has started" > /tmp/out
-  show_menu
-  read_input
-  echo "The integralstor console menu has stopped" >> /tmp/out
-done
+user_name=`id -un`
+if [[ ("$user_name" != "root") && ("$user_name" != "integralstor") ]]
+then
+  trap '' SIGINT SIGQUIT SIGTSTP
+  while true
+  do
+    echo "The integralstor console menu has started" > /tmp/out
+    show_menu
+    read_input
+    echo "The integralstor console menu has stopped" >> /tmp/out
+  done
+fi
