@@ -54,6 +54,26 @@
         {%endif%}
       </td>
     </tr>
+    <tr>
+      <th> Allow from </th>
+      <td>
+        {% if share.hosts_allow %}
+          {{share.hosts_allow}}
+        {%else%}
+           All hosts
+        {%endif%}
+      </td>
+    </tr>
+    <tr>
+      <th> Deny from </th>
+      <td>
+        {% if share.hosts_deny %}
+          {{share.hosts_deny}}
+        {%else%}
+           None
+        {%endif%}
+      </td>
+    </tr>
   </table>
   <hr>
   {% include 'ace_management.html' %}

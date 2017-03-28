@@ -26,7 +26,9 @@ CREATE TABLE "samba_shares" (
   comment varchar(100),
   read_only bool not null,
   guest_ok bool not null,
-  browseable bool not null
+  browseable bool not null,
+  hosts_allow varchar2(200), 
+  hosts_deny varchar2(200)
 );
 
 CREATE TABLE "global_params" (

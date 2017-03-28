@@ -20,6 +20,8 @@
             <th> Share name </th>
             <th> Share path </th>
             <th> Description </th>
+            <th> Allow from </th>
+            <th> Deny from </th>
             <th> &nbsp; </th>
           </tr>
         </thead>
@@ -28,6 +30,20 @@
             <td> {{d.name}} </td>
             <td> {{d.display_path}} </td>
             <td> {{d.comment}} </td>
+            <td>
+              {% if d.hosts_allow %}
+                {{d.hosts_allow}}
+              {%else%}
+                 All hosts
+              {%endif%}
+            </td>
+            <td>
+              {% if d.hosts_deny %}
+                {{d.hosts_deny}}
+              {%else%}
+                 None
+              {%endif%}
+            </td>
             <td>
               <div class="btn-group btn-group-xs" >
                 <a class="btn btn-default pull-left dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>

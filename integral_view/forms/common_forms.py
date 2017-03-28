@@ -15,9 +15,14 @@ class MultipleServerField(forms.CharField):
         return ok
 
     def clean(self, value):
+        super(MultipleServerField, self).validate(value)
+        '''
         if not value:
             raise forms.ValidationError(
                 "Enter atleast one IP address or hostname")
+        '''
+        if not value:
+            return None
         if ',' in value:
             servers = value.lower().split(',')
         else:

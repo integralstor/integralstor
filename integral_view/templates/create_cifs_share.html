@@ -78,6 +78,42 @@
         <td> {{ form.browseable.errors }} </td>
         <td> &nbsp;</td>
       </tr>
+      <tr>
+        <th> Allow access from hosts :</th>
+        <td>
+          <select name="hosts_allow_choice" class="form-control" id="id_hosts_allow_choice">
+            {% for choice in form.hosts_allow_choice.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.hosts_allow_choice.value %} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.hosts_allow_choice.errors }} </td>
+      </tr>
+      <tr>
+        <th> Specific allowed hosts list : <br/> (Enter a comma separated list of hostnames or IP addresses)</th>
+        <td>
+          <input type="text" name="hosts_allow" class="form-control" id="id_hosts_allow" />
+        </td>
+        <td> {{ form.hosts_allow.errors }} </td>
+      </tr>
+      <tr>
+        <th> Deny access from hosts : </th>
+        <td>
+          <select name="hosts_deny_choice" class="form-control" id="id_hosts_deny_choice">
+            {% for choice in form.hosts_deny_choice.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.hosts_deny_choice.value %} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.hosts_deny_choice.errors }} </td>
+      </tr>
+      <tr>
+        <th> Specific denied hosts list : <br/>(Enter a comma separated list of hostnames or IP addresses)</th>
+        <td>
+          <input type="text" name="hosts_deny" class="form-control" id="id_hosts_deny" />
+        </td>
+        <td> {{ form.hosts_deny.errors }} </td>
+      </tr>
     </table>
 
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
@@ -147,6 +183,34 @@
       folder_val = $("#id_new_folder").val();
       document.forms["create_form"].elements["final_path"].value = selected_path+'/'+folder_val;
     }
+    $(document).ready(function(){
+      $("#id_hosts_allow").attr('disabled','enabled');
+      $("#id_hosts_deny").attr('disabled','enabled');
+      var hosts_allow_val = $("#id_hosts_allow_choice").val();
+      if (hosts_allow_val == "restricted")
+          $("#id_hosts_allow").removeAttr('disabled');
+      var hosts_deny_val = $("#id_hosts_deny_choice").val();
+      if (hosts_deny_val == "restricted")
+          $("#id_hosts_deny").removeAttr('disabled');
+      $("#id_hosts_allow_choice").on('change',function(){
+        var val = $(this).val();
+        if (val == "restricted"){
+          $("#id_hosts_allow").removeAttr('disabled');
+        }
+	else {
+          $("#id_hosts_allow").attr('disabled','enabled');
+	}
+      })
+      $("#id_hosts_deny_choice").on('change',function(){
+        var val = $(this).val();
+        if (val == "restricted"){
+          $("#id_hosts_deny").removeAttr('disabled');
+        }
+	else {
+          $("#id_hosts_deny").attr('disabled','enabled');
+	}
+      })
+    });
   </script>
 
 {%endblock%}
@@ -166,9 +230,12 @@
   <li>Read only : Setting this prevents all changes to files within this share.</li>
   <li>Browseable : Setting this will result in this share being displayed when someone browses the IntegralStor storage.</li>
   <li>Guest ok : Setting this will allow anyone to view and make changes to the contents of this share.</li>
-  <li>Permitted users : The list of users who have access to this share. If the authentication method is set to Active Directory then this list is pulled from Active Directory itself. If the authentication method is set to Local Users then this list is pulled from the list of local users created on IntegralView. </li>
-  <li>Permitted groups : The list of groups who have access to this share. If the authentication method is set to Active Directory then this list is pulled from Active Directory itself. </li>
+  <li>Allow access from hosts : Select "All hosts" if you want to allow all hosts or else select "Specified hosts" to enable the form field to specify the list of allowed hosts.</li>
+  <li>Specific allowed access host list: The list of hosts from which access to this share is allowed (white list) in the form of a comma separated list of IP addresses of hostnames.</li>
+  <li>Deny access from hosts : Select "None" if you want to do not want to deny access from any host or else select "Specified hosts" to enable the form field to specify the list of denied hosts.</li>
+  <li>Specific denied access host list: The list of hosts from which access to this share is denied (black list) in the form of a comma separated list of IP addresses of hostnames.</li>
   </ul>
+  If there is a clash between the allowed access list and denied access list then the allowed access list takes precedence.
 {%endblock%}
 
 {% block tab_active %}

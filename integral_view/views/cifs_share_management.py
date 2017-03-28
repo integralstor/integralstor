@@ -132,17 +132,23 @@ def update_cifs_share(request):
             initial["share_id"] = share_dict["share_id"]
             initial["name"] = share_dict["name"]
             initial["path"] = share_dict["path"]
-            '''
-      if share_dict["guest_ok"]:
-        initial["guest_ok"] = True
-      else:
-        initial["guest_ok"] = False
-      '''
             if share_dict["browseable"]:
                 initial["browseable"] = True
             else:
                 initial["browseable"] = False
             initial["comment"] = share_dict["comment"]
+            # print share_dict
+            initial["hosts_allow"] = share_dict["hosts_allow"]
+            initial["hosts_deny"] = share_dict["hosts_deny"]
+            if not share_dict['hosts_allow']:
+                initial['hosts_allow_choice'] = 'all'
+            else:
+                initial['hosts_allow_choice'] = 'restricted'
+            if not share_dict['hosts_deny']:
+                initial['hosts_deny_choice'] = 'none'
+            else:
+                initial['hosts_deny_choice'] = 'restricted'
+            # print initial
 
             form = samba_shares_forms.EditShareForm(initial=initial)
 
@@ -171,8 +177,26 @@ def update_cifs_share(request):
                     browseable = cd["browseable"]
                 else:
                     browseable = False
+
+                if 'hosts_allow_choice' in cd and cd['hosts_allow_choice'] == 'restricted':
+                    if 'hosts_allow' not in cd or not cd['hosts_allow']:
+                        raise Exception(
+                            'Please enter a valid list of allowed hosts')
+                    hosts_allow = cd['hosts_allow']
+                else:
+                    hosts_allow = None
+                # print hosts_allow
+
+                if 'hosts_deny_choice' in cd and cd['hosts_deny_choice'] == 'restricted':
+                    if 'hosts_deny' not in cd or not cd['hosts_deny']:
+                        raise Exception(
+                            'Please enter a valid list of denied hosts')
+                    hosts_deny = cd['hosts_deny']
+                else:
+                    hosts_deny = None
+                # print hosts_deny
                 ret, err = cifs_common.update_share(
-                    share_id, name, comment, False, read_only, path, browseable, None, None)
+                    share_id, name, comment, False, read_only, path, browseable, None, None, hosts_allow=hosts_allow, hosts_deny=hosts_deny)
                 if err:
                     raise Exception(err)
                 ret, err = cifs_integralstor.generate_smb_conf()
@@ -280,7 +304,6 @@ def create_cifs_share(request):
             return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
             # Form submission so create
-            return_dict = {}
             form = samba_shares_forms.CreateShareForm(
                 request.POST, initial=initial, dataset_list=ds_list)
             return_dict["form"] = form
@@ -318,9 +341,27 @@ def create_cifs_share(request):
                 else:
                     browseable = None
 
+                if 'hosts_allow_choice' in cd and cd['hosts_allow_choice'] == 'restricted':
+                    if 'hosts_allow' not in cd or not cd['hosts_allow']:
+                        raise Exception(
+                            'Please enter a valid list of allowed hosts')
+                    hosts_allow = cd['hosts_allow']
+                else:
+                    hosts_allow = None
+                # print hosts_allow
+
+                if 'hosts_deny_choice' in cd and cd['hosts_deny_choice'] == 'restricted':
+                    if 'hosts_deny' not in cd or not cd['hosts_deny']:
+                        raise Exception(
+                            'Please enter a valid list of denied hosts')
+                    hosts_deny = cd['hosts_deny']
+                else:
+                    hosts_deny = None
+                # print hosts_deny
+
                 guest_ok = True
                 ret, err = cifs_common.create_share(
-                    name, comment, True, read_only, path, path, browseable, None, None, "integralstor_novol")
+                    name, comment, True, read_only, path, path, browseable, None, None, "integralstor_novol", hosts_allow=hosts_allow, hosts_deny=hosts_deny)
                 if err:
                     raise Exception(err)
                 ret, err = cifs_integralstor.generate_smb_conf()
@@ -412,10 +453,13 @@ def update_samba_server_settings(request):
                 for k in d.keys():
                     if d[k]:
                         ini[k] = d[k]
+            else:
+                ini['security'] = 'users'
             if d and d["security"] == "ads":
                 form = samba_shares_forms.AuthADSettingsForm(initial=ini)
             else:
                 form = samba_shares_forms.AuthUsersSettingsForm(initial=ini)
+            print 'c'
             return_dict["form"] = form
             return django.shortcuts.render_to_response('update_samba_server_settings.html', return_dict, context_instance=django.template.context.RequestContext(request))
         else:
@@ -436,7 +480,7 @@ def update_samba_server_settings(request):
 
             if form.is_valid():
                 cd = form.cleaned_data
-                print "Calling auth save settings"
+                # print "Calling auth save settings"
                 ret, err = cifs_common.update_auth_settings(cd)
                 print "save settings done"
                 if err:

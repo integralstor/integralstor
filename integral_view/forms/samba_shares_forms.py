@@ -1,5 +1,6 @@
 from django import forms
 import integralstor_utils
+import common_forms
 from integralstor_utils import networking
 from integral_view.forms import folder_management_forms
 
@@ -35,6 +36,12 @@ class CreateShareForm(folder_management_forms.DirForm):
     browseable = forms.BooleanField(required=False, initial=True)
     read_only = forms.BooleanField(required=False)
     new_folder = forms.CharField(required=False)
+    ch = [('all', 'All hosts'), ('restricted', 'Specified hosts')]
+    hosts_allow_choice = forms.ChoiceField(choices=ch)
+    ch = [('none', 'None'), ('restricted', 'Specified hosts')]
+    hosts_deny_choice = forms.ChoiceField(choices=ch)
+    hosts_allow = common_forms.MultipleServerField(required=False)
+    hosts_deny = common_forms.MultipleServerField(required=False)
 
     def __init__(self, *args, **kwargs):
         if kwargs:
@@ -48,6 +55,16 @@ class CreateShareForm(folder_management_forms.DirForm):
                 ch.append(tup)
         self.fields['dataset'] = forms.ChoiceField(
             widget=forms.Select, choices=ch)
+
+    def clean(self):
+        cd = super(CreateShareForm, self).clean()
+        if cd['hosts_allow_choice'] == 'restricted' and (('hosts_allow' not in cd) or (not cd['hosts_allow'])):
+            self._errors['hosts_allow'] = self.error_class(
+                ["Please specify a valid set of IP addresses or hostnames"])
+        if cd['hosts_deny_choice'] == 'restricted' and (('hosts_deny' not in cd) or (not cd['hosts_deny'])):
+            self._errors["hosts_deny"] = self.error_class(
+                ["Please specify a valid set of IP addresses or hostnames"])
+        return cd
 
 
 class AddShareAcesForm(folder_management_forms.AddAcesForm):
@@ -73,7 +90,22 @@ class EditShareForm(forms.Form):
     comment = forms.CharField(required=False)
     browseable = forms.BooleanField(required=False)
     read_only = forms.BooleanField(required=False)
-    #guest_ok = forms.BooleanField(required=False)
+    ch = [('all', 'All hosts'), ('restricted', 'Specified hosts')]
+    hosts_allow_choice = forms.ChoiceField(choices=ch)
+    ch = [('none', 'None'), ('restricted', 'Specified hosts')]
+    hosts_deny_choice = forms.ChoiceField(choices=ch)
+    hosts_allow = common_forms.MultipleServerField(required=False)
+    hosts_deny = common_forms.MultipleServerField(required=False)
+
+    def clean(self):
+        cd = super(EditShareForm, self).clean()
+        if cd['hosts_allow_choice'] == 'restricted' and (('hosts_allow' not in cd) or (not cd['hosts_allow'])):
+            self._errors['hosts_allow'] = self.error_class(
+                ["Please specify a valid set of IP addresses or hostnames"])
+        if cd['hosts_deny_choice'] == 'restricted' and (('hosts_deny' not in cd) or (not cd['hosts_deny'])):
+            self._errors["hosts_deny"] = self.error_class(
+                ["Please specify a valid set of IP addresses or hostnames"])
+        return cd
 
     '''
   def __init__(self, *args, **kwargs):
