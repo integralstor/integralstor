@@ -74,9 +74,9 @@
 
       {%if properties.type.value == 'filesystem' and quotas %}
         <hr>
-        <h5> Dataset quotas </h5>
+        <h5> User/group quotas for this data set </h5>
         {% if not quotas.users and not quotas.groups%}
-          <p>No quotas appear to have been set for this dataset. </p>
+          <p>No user or group quotas have been set for this dataset. </p>
         {%else %}
           <table  class="table table-bordered">
             <tr>

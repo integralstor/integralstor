@@ -18,7 +18,7 @@ def configure_interface():
             raise Exception('No interfaces detected')
         print
         print
-        print 'Integralstor Unicell interface configuration'
+        print 'IntegralSTOR interface configuration'
         print '--------------------------------------------'
         print
         print
