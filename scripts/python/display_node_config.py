@@ -57,7 +57,7 @@ if __name__ == '__main__':
     print
     print
     print
-    print "Integralstor Node configuration"
+    print "IntegralSTOR Node configuration"
     print "----------------------------------"
     rc = display_config()
     print

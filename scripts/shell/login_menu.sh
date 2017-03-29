@@ -12,11 +12,11 @@ update_ntp_date(){
   echo
   echo
   echo 'Stopping NTP service..'
-  systemctl stop ntpd
+  sudo systemctl stop ntpd
   echo 'Synchronizing date..'
-  ntpdate -b $server
+  sudo ntpdate -b $server
   echo 'Starting NTP service..'
-  systemctl start ntpd
+  sudo systemctl start ntpd
   pause
 }
 
@@ -26,7 +26,7 @@ winbind_restart(){
   echo
   read -p "That this could cause a short data access disruption! Proceed (y/n) : " input
   case $input in
-    y)echo "Restarting Windows winbind service... ";systemctl restart winbind;pause;;
+    y)echo "Restarting Windows winbind service... ";sudo systemctl restart winbind;pause;;
   esac
 }
 
@@ -36,7 +36,7 @@ smb_restart(){
   echo
   read -p "That this could cause a short data access disruption! Proceed (y/n) : " input
   case $input in
-    y)echo "Restarting Windows smb service... ";systemctl restart smb;pause;;
+    y)echo "Restarting Windows smb service... ";sudo systemctl restart smb;pause;;
   esac
 }
 
@@ -46,7 +46,7 @@ ntpd_restart(){
   echo
   read -p "That this could cause a short data access disruption! Proceed (y/n) : " input
   case $input in
-    y)echo "Restarting time service... ";systemctl restart ntpd;pause;;
+    y)echo "Restarting time service... ";sudo systemctl restart ntpd;pause;;
   esac
 }
 
@@ -56,7 +56,7 @@ integralview_restart(){
   echo
   read -p "This could cause a short disruption in access to IntegralView. Proceed (y/n)? : " input
   case $input in
-    y)echo "Restarting IntegralView services... ";systemctl restart uwsginew;systemctl restart nginx;pause;;
+    y)echo "Restarting IntegralView services... ";sudo systemctl restart uwsginew;sudo systemctl restart nginx;pause;;
   esac
 }
 
@@ -66,7 +66,7 @@ restart_iscsi(){
   echo
   read -p "This could cause a short disruption in access to iscsi. Proceed (y/n)? : " input
   case $input in
-    y)echo "Restarting iscsi services... ";systemctl restart tgtd;pause;;
+    y)echo "Restarting iscsi services... ";sudo systemctl restart tgtd;pause;;
   esac
 }
 
@@ -76,7 +76,7 @@ restart_vsftpd(){
   echo
   read -p "This could cause a short disruption in access to FTP. Proceed (y/n)? : " input
   case $input in
-    y)echo "Restarting ftp services... ";systemctl restart vsftpd;pause;;
+    y)echo "Restarting ftp services... ";sudo systemctl restart vsftpd;pause;;
   esac
 }
 
@@ -86,7 +86,7 @@ restart_shellinabox(){
   echo
   read -p "This could cause a short disruption in shell access in UI. Proceed (y/n)? : " input
   case $input in
-    y)echo "Restarting shell services... ";systemctl restart shellinaboxd;pause;;
+    y)echo "Restarting shell services... ";sudo systemctl restart shellinaboxd;pause;;
   esac
 }
 
@@ -96,49 +96,49 @@ restart_nfs(){
   echo
   read -p "This could cause a short disruption in access to NFS data. Proceed (y/n)? : " input
   case $input in
-    y)echo "Restarting nfs services... ";systemctl restart nfs;pause;;
+    y)echo "Restarting nfs services... ";sudo systemctl restart nfs;pause;;
   esac
 }
 
 configure_network_interface(){
   #echo "configure networking called"
-  python /opt/integralstor/integralstor/scripts/python/configure_networking.py interface
+  sudo python /opt/integralstor/integralstor/scripts/python/configure_networking.py interface
 }
 
 create_nic_bond(){
-  python /opt/integralstor/integralstor/scripts/python/create_nic_bond.py 
+  sudo python /opt/integralstor/integralstor/scripts/python/create_nic_bond.py 
   pause
 }
 
 remove_nic_bond(){
-  python /opt/integralstor/integralstor/scripts/python/remove_nic_bond.py 
+  sudo python /opt/integralstor/integralstor/scripts/python/remove_nic_bond.py 
   pause
 }
 
-view_node_status(){
-  python /opt/integralstor/integralstor/scripts/python/display_node_status.py
+view_services_status(){
+  sudo python /opt/integralstor/integralstor/scripts/python/display_services_status.py
   pause
 }
 view_node_config(){
-  python /opt/integralstor/integralstor/scripts/python/display_node_config.py
+  sudo python /opt/integralstor/integralstor/scripts/python/display_node_config.py
   pause
 }
 
 generate_manifest_and_status(){
-  python /opt/integralstor/integralstor_utils/scripts/python/generate_manifest.py
-  python /opt/integralstor/integralstor_utils/scripts/python/generate_status.py
+  sudo python /opt/integralstor/integralstor_utils/scripts/python/generate_manifest.py
+  sudo python /opt/integralstor/integralstor_utils/scripts/python/generate_status.py
   pause
 }
 
 
 do_reboot() {
-  reboot now
+  sudo reboot now
   pause
 }
 
 
 do_shutdown() {
-  shutdown -h now
+  sudo shutdown -h now
   pause
 }
 
@@ -146,13 +146,13 @@ do_shutdown() {
 show_menu() {
   clear
   echo "-------------------------------"	
-  echo " IntegralSTOR UNIcell - Menu"
+  echo " IntegralSTOR - Menu"
   echo "-------------------------------"
   echo "  1.  Configure a network interface"
   echo "  2.  Reboot"
   echo "  3.  Shutdown"
   echo "  4.  View configuration"
-  echo "  5.  View process status"
+  echo "  5.  View services status"
   echo "  6.  Scan system configuration"
   echo "  7.  Update date using NTP"
   echo "  8.  Restart services"
@@ -173,7 +173,7 @@ read_input(){
     2) do_reboot;;
     3) do_shutdown;;
     4) view_node_config;;
-    5) view_node_status;;
+    5) view_services_status;;
     6) generate_manifest_and_status;;
     7) update_ntp_date;;
     9) create_nic_bond;;

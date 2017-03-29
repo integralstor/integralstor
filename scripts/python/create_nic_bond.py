@@ -13,7 +13,7 @@ def create_bond():
         if not interfaces:
             raise Exception('No interfaces detected')
 
-        print '\n\nIntegralstor Unicell NIC Bonding'
+        print '\n\nIntegralSTOR NIC Bonding'
         print '---------------------------------\n\n'
         print 'Available interfaces: \n'
 

@@ -91,7 +91,7 @@ if __name__ == '__main__':
     print
     print
     print
-    print "Integralstor Unicell configuration"
+    print "IntegralSTOR configuration"
     print "----------------------------------"
     rc = display_status()
     print

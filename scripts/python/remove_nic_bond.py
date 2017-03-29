@@ -15,7 +15,7 @@ def remove_bond():
 
         print
         print
-        print 'Integralstor Unicell NIC Bonding'
+        print 'IntegralSTOR NIC Bonding'
         print '---------------------------------'
         print
         print
