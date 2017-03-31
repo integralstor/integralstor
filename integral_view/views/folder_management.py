@@ -274,7 +274,7 @@ def create_aces(request):
                 audit_str += ', for CIFS share %s' % share_name
             else:
                 audit_str += ', for path %s' % path
-            audit.audit("add_aces", audit_str, request.META)
+            audit.audit("add_aces", audit_str, request)
             if for_share:
                 return django.http.HttpResponseRedirect('/view_cifs_share?access_mode=by_id&index=%s&ack=aces_added' % share_index)
             else:
@@ -434,7 +434,7 @@ def update_aces(request):
                 audit_str = 'Modified ACL entries for CIFS share %s: ' % share_name
             else:
                 audit_str = 'Modified ACL entries for directory %s: ' % path
-            audit.audit("edit_aces", audit_str, request.META)
+            audit.audit("edit_aces", audit_str, request)
             if for_share:
                 return django.http.HttpResponseRedirect('/view_cifs_share?access_mode=by_id&index=%s&ack=aces_modified' % share_index)
             else:
@@ -499,7 +499,7 @@ def delete_ace(request):
             else:
                 audit_str = "Removed ACL entry %s (%s) for directory %s" % (
                     name, type, path)
-            audit.audit("delete_ace", audit_str, request.META)
+            audit.audit("delete_ace", audit_str, request)
             if for_share:
                 return django.http.HttpResponseRedirect('/view_cifs_share?access_mode=by_id&index=%s&ack=ace_deleted' % share_index)
             else:
@@ -552,7 +552,7 @@ def create_dir(request):
                 os.chown(directory, 1000, 1000)
                 audit_str = "Created new directory '%s' in '%s'" % (
                     dir_name, path)
-                audit.audit("create_dir", audit_str, request.META)
+                audit.audit("create_dir", audit_str, request)
                 return django.http.HttpResponseRedirect('/view_dir_manager/?ack=created_dir')
             else:
                 return_dict['form'] = form
@@ -615,7 +615,7 @@ def delete_dir(request):
 
                 shutil.rmtree(path, ignore_errors=True)
                 audit_str = "Deleted directory '%s'" % path
-                audit.audit("delete_dir", audit_str, request.META)
+                audit.audit("delete_dir", audit_str, request)
 
                 return django.http.HttpResponseRedirect('/view_dir_manager/?ack=deleted_dir')
             else:
@@ -832,7 +832,7 @@ def update_dir_owner(request):
                 group_name = grp.getgrgid(int(cd['gid']))[0]
                 audit_str = "Set owner user to %s and owner group to %s for directory %s" % (
                     user_name, group_name, cd["path"])
-                audit.audit("modify_dir_owner", audit_str, request.META)
+                audit.audit("modify_dir_owner", audit_str, request)
                 return django.http.HttpResponseRedirect('/view_dir_ownership_permissions?path=%s&ack=modified_ownership' % cd['path'])
             else:
                 return django.shortcuts.render_to_response('update_dir_ownership.html', return_dict, context_instance=django.template.context.RequestContext(request))
@@ -956,7 +956,7 @@ def update_dir_permissions(request):
                     os.makedirs(directory)
                     audit_str = "Creating %s" % directory
                     audit.audit("modify_dir_owner_permissions",
-                                audit_str, request.META)
+                                audit_str, request)
             elif request.POST.get("action") == "delete_folder":
                 delete = "false"
                 if len(path.split("/")) > 2:
@@ -978,7 +978,7 @@ def update_dir_permissions(request):
                     # shutil.rmtree(path,ignore_errors=True)
                     audit_str = "Deleting directory %s" % path
                     audit.audit("modify_dir_owner_permissions",
-                                audit_str, request.META)
+                                audit_str, request)
                 else:
                     raise Exception(
                         "Cannot delete folder. It is either a dataset of a share")
@@ -999,7 +999,7 @@ def update_dir_permissions(request):
 
                     audit_str = "Modified directory ownsership/permissions for %s" % cd["path"]
                     audit.audit("modify_dir_owner_permissions",
-                                audit_str, request.META)
+                                audit_str, request)
 
             return django.http.HttpResponseRedirect('/update_dir_permissions/?ack=set_permissions')
 
@@ -1061,7 +1061,7 @@ def update_sticky_bit(request):
                     os.chmod(path, (s.st_mode & ~stat.S_ISVTX))
                     audit_str += 'for path %s' % path
                     # print audit_str
-                audit.audit("modify_dir_sticky_bit", audit_str, request.META)
+                audit.audit("modify_dir_sticky_bit", audit_str, request)
                 return django.http.HttpResponseRedirect('/view_dir_ownership_permissions?path=%s&ack=modified_sticky_bit' % cd['path'])
             else:
                 return django.shortcuts.render_to_response('update_dir_ownership.html', return_dict, context_instance=django.template.context.RequestContext(request))

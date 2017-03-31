@@ -120,3 +120,12 @@ CREATE TABLE "remote_replications" (
   "cron_task_id" NOT NULL,
   FOREIGN KEY(cron_task_id) REFERENCES cron_tasks(cron_task_id)
 );
+
+CREATE TABLE "audit" (
+  "audit_id" integer NOT NULL PRIMARY KEY,
+  "audit_time" datetime NOT NULL,
+  "username" varchar(100) NOT NULL,
+  "source_ip" varchar(100) NOT NULL,
+  "audit_code" varchar(100) NOT NULL,
+  "audit_str" varchar(150) NOT NULL
+);

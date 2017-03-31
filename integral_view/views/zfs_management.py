@@ -214,7 +214,7 @@ def update_zfs_quota(request):
                 raise Exception(err)
             audit_str = "Set ZFS quota for %s %s for %s to %s%s" % (
                 cd['ug_type'], cd['ug_name'], cd['path'], cd['size'], cd['unit'])
-            audit.audit("set_zfs_quota", audit_str, request.META)
+            audit.audit("set_zfs_quota", audit_str, request)
             if path_type == 'pool':
                 return django.http.HttpResponseRedirect('/view_zfs_pool?ack=set_quota&name=%s&view=quotas' % pool_name)
             else:
@@ -261,7 +261,7 @@ def delete_zfs_quota(request):
 
             audit_str = "Removed ZFS quota for %s %s for %s" % (
                 ug_type, ug_name, path)
-            audit.audit("remove_zfs_quota", audit_str, request.META)
+            audit.audit("remove_zfs_quota", audit_str, request)
             if path_type == 'pool':
                 return django.http.HttpResponseRedirect('/view_zfs_pool?ack=removed_quota&name=%s&view=quotas' % pool_name)
             else:
@@ -295,7 +295,7 @@ def export_zfs_pool(request):
                     raise Exception(err)
 
             audit_str = 'Exported ZFS pool "%s"' % pool_name
-            audit.audit("export_zfs_pool", audit_str, request.META)
+            audit.audit("export_zfs_pool", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_pools?ack=pool_exported')
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -345,7 +345,7 @@ def import_zfs_pool(request):
             if err:
                 raise Exception(err)
             audit_str = 'Imported a ZFS pool named "%s" ' % (cd['name'])
-            audit.audit("import_zfs_pool", audit_str, request.META)
+            audit.audit("import_zfs_pool", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_pools?ack=imported_pool')
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -422,7 +422,7 @@ def create_zfs_pool(request):
 
             audit_str = "Created a ZFS pool named %s of type %s" % (
                 cd['name'], cd['pool_type'])
-            audit.audit("create_zfs_pool", audit_str, request.META)
+            audit.audit("create_zfs_pool", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_pools?ack=created_pool')
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -453,7 +453,7 @@ def expand_zfs_pool(request):
             if err:
                 raise Exception(err)
             audit_str = "Expanded the ZFS pool named %s" % pool_name
-            audit.audit("expand_zfs_pool", audit_str, request.META)
+            audit.audit("expand_zfs_pool", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_pool?ack=expanded_pool&name=%s&view=components' % pool_name)
 
     except Exception, e:
@@ -485,7 +485,7 @@ def scrub_zfs_pool(request):
                     raise Exception(err)
 
             audit_str = "ZFS pool scrub initiated on pool %s" % name
-            audit.audit("scrub_zfs_pool", audit_str, request.META)
+            audit.audit("scrub_zfs_pool", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_pool?ack=pool_scrub_initiated&name=%s' % name)
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -548,7 +548,7 @@ def delete_zfs_pool(request):
                     raise Exception(err)
 
             audit_str = "Deleted ZFS pool %s" % name
-            audit.audit("delete_zfs_pool", audit_str, request.META)
+            audit.audit("delete_zfs_pool", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_pools?ack=pool_deleted')
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -650,14 +650,14 @@ def update_zfs_slog(request):
                                 '/mnt/ramdisk_%s' % cd['pool'], cd['pool'])
                             raise Exception(err)
                         audit.audit("edit_zfs_slog", 'Changed the write log for pool %s to a RAM disk of size %dGB' % (
-                            cd['pool'], cd['ramdisk_size']), request.META)
+                            cd['pool'], cd['ramdisk_size']), request)
             else:
                 # Flash drive
                 result, err = zfs.update_pool_log_vdev(cd['pool'], cd['disk'])
                 if err:
                     raise Exception(err)
                 audit.audit("edit_zfs_slog", 'Changed the write log for pool %s to a flash drive' % (
-                    cd['pool']), request.META)
+                    cd['pool']), request)
             return django.http.HttpResponseRedirect('/view_zfs_pool?ack=changed_slog&name=%s&view=components' % pool_name)
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -699,7 +699,7 @@ def delete_zfs_slog(request):
                     raise Exception(err)
 
             audit_str = "Removed ZFS write cache for pool %s" % pool
-            audit.audit("remove_zfs_slog", audit_str, request.META)
+            audit.audit("remove_zfs_slog", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&ack=slog_deleted&view=components' % pool)
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -755,7 +755,7 @@ def update_zfs_l2arc(request):
             if err:
                 raise Exception(err)
             ret, err = audit.audit("edit_zfs_l2arc", 'Changed the read cache for pool %s to a flash drive' % (
-                cd['pool']), request.META)
+                cd['pool']), request)
             return django.http.HttpResponseRedirect('/view_zfs_pool?ack=changed_l2arc&name=%s&view=components' % pool_name)
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -795,7 +795,7 @@ def delete_zfs_l2arc(request):
                     raise Exception(err)
 
             audit_str = "Removed ZFS read cache for pool %s" % pool
-            ret, err = audit.audit("remove_zfs_l2arc", audit_str, request.META)
+            ret, err = audit.audit("remove_zfs_l2arc", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&ack=l2arc_deleted&view=components' % pool)
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -953,7 +953,7 @@ def update_zfs_dataset(request):
                 audit_str += " property 'quota' set to '%s'" % new_quota
                 success = True
             if success:
-                audit.audit("edit_zfs_dataset", audit_str, request.META)
+                audit.audit("edit_zfs_dataset", audit_str, request)
 
             return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&ack=modified_dataset_properties' % name)
     except Exception, e:
@@ -1022,11 +1022,11 @@ def delete_zfs_dataset(request):
 
             if type == 'dataset':
                 audit_str = "Deleted ZFS dataset %s" % name
-                audit.audit("delete_zfs_dataset", audit_str, request.META)
+                audit.audit("delete_zfs_dataset", audit_str, request)
                 return django.http.HttpResponseRedirect('/view_zfs_pool?ack=dataset_deleted&name=%s' % pool_name)
             else:
                 audit_str = "Deleted ZFS block device volume %s" % name
-                audit.audit("delete_zfs_zvol", audit_str, request.META)
+                audit.audit("delete_zfs_zvol", audit_str, request)
                 return django.http.HttpResponseRedirect('/view_zfs_pool?ack=zvol_deleted&name=%s&view=datasets_and_zvols' % pool_name)
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -1081,7 +1081,7 @@ def create_zfs_dataset(request):
 
             audit_str = "Created a ZFS dataset named %s/%s" % (
                 cd['pool'], cd['name'])
-            audit.audit("create_zfs_dataset", audit_str, request.META)
+            audit.audit("create_zfs_dataset", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&ack=created_dataset&view=datasets_and_zvols' % pool)
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -1139,7 +1139,7 @@ def create_zfs_zvol(request):
             else:
                 audit_str = "Created a ZFS block device volume named %s/%s with size %s%s" % (
                     cd['pool'], cd['name'], cd['size'], cd['unit'])
-            audit.audit("create_zfs_zvol", audit_str, request.META)
+            audit.audit("create_zfs_zvol", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_pool?ack=created_zvol&name=%s&view=datasets_and_zvols' % pool)
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -1276,7 +1276,7 @@ def create_zfs_snapshot(request):
 
             audit_str = "Created a ZFS snapshot named %s for target %s" % (
                 cd['name'], cd['target'])
-            audit.audit("create_zfs_snapshot", audit_str, request.META)
+            audit.audit("create_zfs_snapshot", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_snapshots?ack=created')
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -1310,7 +1310,7 @@ def delete_zfs_snapshot(request):
                     raise Exception(err)
 
             audit_str = "Deleted ZFS snapshot %s" % name
-            audit.audit("delete_zfs_snapshot", audit_str, request.META)
+            audit.audit("delete_zfs_snapshot", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_snapshots?ack=deleted')
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -1344,7 +1344,7 @@ def rollback_zfs_snapshot(request):
                     raise Exception(err)
 
             audit_str = "Rolled back to ZFS snapshot %s" % name
-            audit.audit("rollback_zfs_snapshot", audit_str, request.META)
+            audit.audit("rollback_zfs_snapshot", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_snapshots?ack=rolled_back')
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -1388,7 +1388,7 @@ def rename_zfs_snapshot(request):
 
             audit_str = "Renamed  ZFS snapshot for %s from %s to %s" % (
                 cd['ds_name'], cd['snapshot_name'], cd['new_snapshot_name'])
-            audit.audit("rename_zfs_snapshot", audit_str, request.META)
+            audit.audit("rename_zfs_snapshot", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_snapshots?ack=renamed')
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -1471,7 +1471,7 @@ def schedule_zfs_snapshot(request):
             if err:
                 raise Exception(err)
 
-            audit.audit("schedule_zfs_snapshot", audit_str, request.META)
+            audit.audit("schedule_zfs_snapshot", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_snapshot_schedules?ack=scheduled')
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -1514,7 +1514,7 @@ def create_zfs_spares(request):
                 raise Exception(err)
             audit_str = "Added %s spare drive(s) to pool %s" % (
                 num_spares, pool_name)
-            audit.audit("add_zfs_spares", audit_str, request.META)
+            audit.audit("add_zfs_spares", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_pool?ack=added_spares&name=%s&view=components' % pool_name)
 
     except Exception, e:
@@ -1546,7 +1546,7 @@ def delete_zfs_spare(request):
             if err:
                 raise Exception(err)
             audit_str = "Removed a  spare drive from pool %s" % pool_name
-            audit.audit("remove_zfs_spare", audit_str, request.META)
+            audit.audit("remove_zfs_spare", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_pool?ack=removed_spare&name=%s&view=components' % pool_name)
 
     except Exception, e:

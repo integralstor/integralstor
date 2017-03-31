@@ -87,7 +87,7 @@ def create_remote_replication(request):
                 raise Exception(err)
             description += ' Scheduled for %s' % crons[0]['schedule_description']
 
-            audit.audit("create_remote_replication", description, request.META)
+            audit.audit("create_remote_replication", description, request)
 
             return django.http.HttpResponseRedirect('/view_remote_replications?ack=created')
     except Exception as e:
@@ -152,7 +152,7 @@ def update_remote_replication(request):
                 raise Exception(err)
             description += ' Scheduled for %s' % crons[0]['schedule_description']
 
-            audit.audit("modify_remote_replication", description, request.META)
+            audit.audit("modify_remote_replication", description, request)
             return django.http.HttpResponseRedirect('/view_remote_replications?ack=updated')
     except Exception as e:
         return_dict['base_template'] = "snapshot_replication_base.html"
@@ -193,7 +193,7 @@ def delete_remote_replication(request):
             if err:
                 raise Exception(err)
             audit.audit("remove_remote_replication",
-                        replications[0]['description'], request.META)
+                        replications[0]['description'], request)
             return django.http.HttpResponseRedirect('/view_remote_replications?ack=cancelled')
     except Exception as e:
         return_dict['base_template'] = "snapshot_replication_base.html"

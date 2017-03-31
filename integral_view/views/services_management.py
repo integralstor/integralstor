@@ -70,7 +70,7 @@ def update_service_status(request):
 
         audit_str = "Service status change of %s initiated to %s state." % (
             service, action)
-        audit.audit("change_service_status", audit_str, request.META)
+        audit.audit("change_service_status", audit_str, request)
 
         out, err = services_management.update_service_status(service, action)
         if err:

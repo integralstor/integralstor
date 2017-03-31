@@ -124,7 +124,7 @@ def update_admin_password(request):
                                 "Admin password change request successful.")
                             audit_str = "Changed admin password"
                             audit.audit("modify_admin_password",
-                                        audit_str, request.META)
+                                        audit_str, request)
                         else:
                             return_dict['error'] = 'New passwords do not match'
                 # else invalid form or error so existing form data to return_dict and
@@ -305,7 +305,7 @@ def update_https_mode(request):
                 if err:
                     raise Exception(err)
             audit_str = "Changed the IntegralView access mode to '%s'" % change_to
-            audit.audit("set_https_mode", audit_str, request.META)
+            audit.audit("set_https_mode", audit_str, request)
 
         redirect_url = "https://" if change_to == "secure" else "http://"
         redirect_url = redirect_url + \
@@ -343,7 +343,7 @@ def reboot_or_shutdown(request):
             if 'conf' not in request.POST:
                 raise Exception('Unknown action. Please use the menus')
             audit.audit('reboot_shutdown', 'System %s initiated' %
-                        do, request.META)
+                        do, request)
             if do == 'reboot':
                 command.execute_with_rc('shutdown -r +%d' % minutes_to_wait)
             elif do == 'shutdown':
@@ -361,7 +361,7 @@ def reboot_or_shutdown(request):
 def admin_login_required(view):
 
     def new_view(request, *args, **kwargs):
-        if request.user.is_superuser:
+        if request.user.username == 'superadmin':
             return view(request, *args, **kwargs)
         else:
             return django.http.HttpResponseRedirect('/login')

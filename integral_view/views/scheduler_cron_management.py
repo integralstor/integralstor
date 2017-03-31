@@ -44,7 +44,7 @@ def delete_background_task(request):
             raise Exception(err)
 
         audit.audit("remove_background_task",
-                    task['description'], request.META)
+                    task['description'], request)
         return django.http.HttpResponseRedirect('/view_background_tasks?ack=deleted')
     except Exception, e:
         return_dict['base_template'] = "scheduler_base.html"

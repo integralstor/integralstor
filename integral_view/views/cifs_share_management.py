@@ -204,7 +204,7 @@ def update_cifs_share(request):
                     raise Exception(err)
 
                 audit_str = "Modified share %s" % cd["name"]
-                audit.audit("modify_cifs_share", audit_str, request.META)
+                audit.audit("modify_cifs_share", audit_str, request)
 
                 return django.http.HttpResponseRedirect('/view_cifs_share?access_mode=by_id&index=%s&ack=saved' % cd["share_id"])
 
@@ -243,7 +243,7 @@ def delete_cifs_share(request):
                 raise Exception(err)
 
             audit_str = "Deleted CIFS share %s" % name
-            audit.audit("delete_cifs_share", audit_str, request.META)
+            audit.audit("delete_cifs_share", audit_str, request)
             return django.http.HttpResponseRedirect('/view_cifs_shares?ack=deleted')
     except Exception, e:
         return_dict['base_template'] = "shares_base.html"
@@ -322,7 +322,7 @@ def create_cifs_share(request):
                         os.mkdir(path)
                         audit_str = 'Created new directory "%s" in "%s"' % (
                             cd['new_folder'], cd['path'])
-                        audit.audit("create_dir", audit_str, request.META)
+                        audit.audit("create_dir", audit_str, request)
                     except Exception, e:
                         raise Exception('Error creating subfolder %s : %s' % (
                             cd['new_folder'], str(e)))
@@ -369,7 +369,7 @@ def create_cifs_share(request):
                     raise Exception(err)
 
                 audit_str = "Created Samba share %s" % name
-                audit.audit("create_cifs_share", audit_str, request.META)
+                audit.audit("create_cifs_share", audit_str, request)
                 return django.http.HttpResponseRedirect('/view_cifs_shares?ack=created')
             else:
                 return django.shortcuts.render_to_response("create_cifs_share.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -398,7 +398,7 @@ def update_auth_method(request):
                 return_dict["error"] = "Please select an authentication method"
                 return django.shortcuts.render_to_response('update_cifs_auth_method.html', return_dict, context_instance=django.template.context.RequestContext(request))
             security = request.POST["auth_method"]
-            if security == d["security"]:
+            if 'security' in d and security == d["security"]:
                 return_dict["error"] = "Selected authentication method is the same as before."
                 return django.shortcuts.render_to_response('update_cifs_auth_method.html', return_dict, context_instance=django.template.context.RequestContext(request))
 
@@ -508,7 +508,7 @@ def update_samba_server_settings(request):
                 return django.shortcuts.render_to_response('update_samba_server_settings.html', return_dict, context_instance=django.template.context.RequestContext(request))
 
             audit_str = "Modified share authentication settings"
-            audit.audit("modify_samba_settings", audit_str, request.META)
+            audit.audit("modify_samba_settings", audit_str, request)
             return django.http.HttpResponseRedirect('/view_samba_server_settings?ack=saved')
         # return django.shortcuts.render_to_response('logged_in_error.html',
         # return_dict,

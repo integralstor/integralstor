@@ -157,7 +157,7 @@ def replace_disk(request):
                                 raise Exception(err)
                             audit_str = "Replace disk - Disk with serial number %s brought offline" % serial_number
                             audit.audit("replace_disk_offline_disk",
-                                        audit_str, request.META)
+                                        audit_str, request)
                             return_dict["serial_number"] = serial_number
                             return_dict["node"] = node
                             return_dict["pool"] = pool
@@ -247,7 +247,7 @@ def replace_disk(request):
                         audit_str = "Replace disk - Scheduled a task for replacing the old disk with serial number %s with the new disk with serial number %s" % (
                             serial_number, new_serial_number)
                         audit.audit("replace_disk_replaced_disk",
-                                    audit_str, request.META)
+                                    audit_str, request)
                         return_dict["node"] = node
                         return_dict["old_serial_number"] = serial_number
                         return_dict["new_serial_number"] = new_serial_number

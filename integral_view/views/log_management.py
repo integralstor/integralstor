@@ -51,7 +51,7 @@ def view_log(request):
                     return_dict['alerts_list'] = alerts_list
                     return django.shortcuts.render_to_response('view_alerts.html', return_dict, context_instance=django.template.context.RequestContext(request))
                 elif log_type == 'audit':
-                    al, err = audit.get_lines()
+                    al, err = audit.get_entries()
                     if err:
                         raise Exception(err)
                     return_dict["audit_list"] = al

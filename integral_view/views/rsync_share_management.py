@@ -43,7 +43,7 @@ def create_rsync_share(request):
                 raise Exception(err)
             audit_str = "Created RSYNC share with name '%s'. The share is set to be %s and %s" % (
                 cd["name"], "Browsable" if cd["browsable"] else "Not Browsable", "Readonly" if cd["readonly"] else "Read/Write")
-            audit.audit("create_rsync_share", audit_str, request.META)
+            audit.audit("create_rsync_share", audit_str, request)
             return django.http.HttpResponseRedirect('/view_rsync_shares/?ack=created')
     except Exception, e:
         return_dict['base_template'] = "shares_base.html"
@@ -91,7 +91,7 @@ def update_rsync_share(request):
                 audit_str = "Edited RSYNC share with name '%s'. The share was modified to be %s and %s" % (
                     cd["name"], "Browsable" if cd["browsable"] else "Not Browsable", "Readonly" if cd["readonly"] else "Read/Write")
                 #audit_str = "Edited RSYNC share %s"%cd["name"]
-                audit.audit("edit_rsync_share", audit_str, request.META)
+                audit.audit("edit_rsync_share", audit_str, request)
                 return django.http.HttpResponseRedirect('/view_rsync_shares/?ack=saved')
             else:
                 return_dict["form"] = form
@@ -142,7 +142,7 @@ def delete_rsync_share(request):
             if err:
                 raise Exception(err)
             audit_str = "Deleted RSYNC share %s" % name
-            audit.audit("delete_rsync_share", audit_str, request.META)
+            audit.audit("delete_rsync_share", audit_str, request)
             return django.http.HttpResponseRedirect("/view_rsync_shares/?ack=deleted")
     except Exception, e:
         return_dict['base_template'] = "shares_base.html"

@@ -122,7 +122,7 @@ def update_interface_state(request):
 
             audit_str = "Set the state of network interface %s to %s" % (
                 name, state)
-            audit.audit("set_interface_state", audit_str, request.META)
+            audit.audit("set_interface_state", audit_str, request)
             return django.http.HttpResponseRedirect('/view_interfaces?ack=state_%s' % state)
     except Exception, e:
         return_dict['base_template'] = "networking_base.html"
@@ -229,7 +229,7 @@ def update_interface_address(request):
                 cd['name'], ip['ipaddr'], ip['netmask'])
             if 'default_gateway' in ip:
                 audit_str += ', default gateway : %s' % ip['default_gateway']
-            audit.audit("edit_interface_address", audit_str, request.META)
+            audit.audit("edit_interface_address", audit_str, request)
             return django.http.HttpResponseRedirect('/view_interface?name=%s&result=addr_changed' % (name))
     except Exception, e:
         return_dict['base_template'] = "networking_base.html"
@@ -294,7 +294,7 @@ def create_vlan(request):
 
             audit_str = "Created a network VLAN with id  %d on the base interface %s" % (
                 cd['vlan_id'], cd['base_interface'])
-            audit.audit("create_vlan", audit_str, request.META)
+            audit.audit("create_vlan", audit_str, request)
             return django.http.HttpResponseRedirect('/view_interfaces?ack=created_vlan')
     except Exception, e:
         return_dict['base_template'] = "networking_base.html"
@@ -330,7 +330,7 @@ def delete_vlan(request):
                 raise Exception(err)
 
             audit_str = "Removed VLAN %s" % (name)
-            audit.audit("remove_vlan", audit_str, request.META)
+            audit.audit("remove_vlan", audit_str, request)
             return django.http.HttpResponseRedirect('/view_interfaces?ack=removed_vlan')
     except Exception, e:
         return_dict['base_template'] = "networking_base.html"
@@ -417,7 +417,7 @@ def create_bond(request):
 
             audit_str = "Created a network bond named %s with slaves %s" % (
                 cd['name'], ','.join(cd['slaves']))
-            audit.audit("create_bond", audit_str, request.META)
+            audit.audit("create_bond", audit_str, request)
             return django.http.HttpResponseRedirect('/view_interfaces?ack=created_bond')
     except Exception, e:
         return_dict['base_template'] = "networking_base.html"
@@ -470,7 +470,7 @@ def delete_bond(request):
                 raise Exception(err)
 
             audit_str = "Removed network bond %s" % (name)
-            audit.audit("remove_bond", audit_str, request.META)
+            audit.audit("remove_bond", audit_str, request)
             return django.http.HttpResponseRedirect('/view_interfaces?ack=removed_bond')
     except Exception, e:
         return_dict['base_template'] = "networking_base.html"
@@ -573,7 +573,7 @@ def update_hostname(request):
             audit_str = "Hostname set to %s." % cd['hostname']
             if 'domain_name' in cd:
                 audit_str += 'Domain name set to %s' % cd['domain_name']
-            ret, err = audit.audit("edit_hostname", audit_str, request.META)
+            ret, err = audit.audit("edit_hostname", audit_str, request)
             if err:
                 raise Exception(err)
 
@@ -640,7 +640,7 @@ def update_dns_nameservers(request):
                     else:
                         raise Exception('Error updating nameservers')
                 audit_str = "Updated the DNS nameserver list to %s" % nameservers
-                audit.audit("set_dns_nameservers", audit_str, request.META)
+                audit.audit("set_dns_nameservers", audit_str, request)
                 return django.http.HttpResponseRedirect('/view_dns_nameservers?ack=saved')
             else:
                 # invalid form

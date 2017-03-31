@@ -53,7 +53,7 @@ def delete_ssl_certificate(request):
 
             audit_str = "Deleted SSL certificate name '%s'" % name
             audit.audit("delete_certificate", audit_str,
-                        request.META["REMOTE_ADDR"])
+                        request)
             return django.http.HttpResponseRedirect('/view_ssl_certificates?ack=deleted')
     except Exception, e:
         return_dict['base_template'] = "key_management_base.html"
@@ -84,7 +84,7 @@ def create_self_signed_ssl_certificate(request):
 
             audit_str = "Created a self signed SSL certificate named %s" % cd['name']
             audit.audit("create_self_signed_certificate",
-                        audit_str, request.META["REMOTE_ADDR"])
+                        audit_str, request)
             return django.http.HttpResponseRedirect('/view_ssl_certificates?ack=created_self_signed_cert')
     except Exception, e:
         return_dict['base_template'] = "key_management_base.html"
@@ -115,7 +115,7 @@ def upload_ssl_certificate(request):
 
             audit_str = "Uploaded a SSL certificate named %s" % cd['name']
             audit.audit("upload_certificate", audit_str,
-                        request.META["REMOTE_ADDR"])
+                        request.META)
             return django.http.HttpResponseRedirect('/view_ssl_certificates?ack=uploaded_cert')
     except Exception, e:
         return_dict['base_template'] = "key_management_base.html"
@@ -140,7 +140,7 @@ def upload_ssh_user_key(request):
                 user = request.POST.get("selected_user")
                 key = request.POST.get("authorized_key")
                 description = "%s" % (user)
-                audit.audit("remove_ssh_user_key", description, request.META)
+                audit.audit("remove_ssh_user_key", description, request)
                 files = open((pki._get_authorized_file(user)), 'r').readlines()
                 authorized_keys = open(pki._get_authorized_file(user), 'w')
                 for file in files:
@@ -153,7 +153,7 @@ def upload_ssh_user_key(request):
                 authorized_key = request.FILES.get('pub_key')
                 user = request.POST.get('user')
                 description = "%s  %s" % (user, authorized_key)
-                audit.audit("upload_ssh_user_key", description, request.META)
+                audit.audit("upload_ssh_user_key", description, request)
 
                 with open('/%s/authorized_keys' % (pki._get_ssh_dir(user)), 'ab') as destination:
                     for chunk in authorized_key.chunks():
@@ -188,7 +188,7 @@ def upload_ssh_host_key(request):
                 user = request.POST.get("selected_user")
                 key = request.POST.get("authorized_key")
                 description = "%s" % (user)
-                audit.audit("remove_ssh_host_key", description, request.META)
+                audit.audit("remove_ssh_host_key", description, request)
 
                 files = open((pki._get_known_hosts(user)), 'r').readlines()
                 authorized_keys = open(pki._get_known_hosts(user), 'w')
@@ -201,7 +201,7 @@ def upload_ssh_host_key(request):
                 ip = request.POST.get('ip')
                 user = request.POST.get('user', 'replicator')
                 description = "%s %s  %s" % (user, ip, authorized_key)
-                audit.audit("upload_ssh_host_key", description, request.META)
+                audit.audit("upload_ssh_host_key", description, request)
 
                 hosts_file = pki._get_known_hosts(user)
                 # print hosts_file
