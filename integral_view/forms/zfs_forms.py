@@ -11,6 +11,12 @@ class DatasetForm(forms.Form):
     ch = [('G', 'GB'), ('M', 'MB')]
     quota_unit = forms.ChoiceField(choices=ch)
 
+class ZvolForm(forms.Form):
+
+    name = forms.CharField()
+    readonly = forms.BooleanField(required=False)
+    compression = forms.BooleanField(required=False)
+    dedup = forms.BooleanField(required=False)
 
 class CreateDatasetForm(forms.Form):
     name = forms.CharField()

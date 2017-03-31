@@ -883,13 +883,26 @@ def update_zfs_dataset(request):
             raise Exception(
                 'Dataset name not specified. Please use the menus.')
         name = request.REQUEST["name"]
+        is_zvol = False
+        
         properties, err = zfs.get_properties(name)
         if not properties and err:
             raise Exception(err)
         elif not properties:
             raise Exception("Error loading ZFS dataset properties")
+
+        zvol_d, err = zfs.get_all_zvols()
+        if err:
+            raise Exception(err)
+        for zvol in zvol_d:
+            if name in zvol['name']:
+                is_zvol = True
+
         return_dict['type'] = properties['type']
-        return_dict['quota'] = properties['quota']['value']
+        if is_zvol is False:
+            return_dict['quota'] = properties['quota']['value']
+        else:
+            return_dict['quota'] = 'none'
 
         if request.method == "GET":
             # Return the conf page
@@ -900,12 +913,17 @@ def update_zfs_dataset(request):
                     initial[p] = False
                 else:
                     initial[p] = True
-
-            form = zfs_forms.DatasetForm(initial=initial)
+            if is_zvol is True:
+                form = zfs_forms.ZvolForm(initial=initial)
+            else:
+                form = zfs_forms.DatasetForm(initial=initial)
             return_dict['form'] = form
             return django.shortcuts.render_to_response("update_zfs_dataset.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            form = zfs_forms.DatasetForm(request.POST)
+            if is_zvol is True:
+                form = zfs_forms.ZvolForm(request.POST)
+            else:
+                form = zfs_forms.DatasetForm(request.POST)
             return_dict['form'] = form
             if not form.is_valid():
                 return django.shortcuts.render_to_response("update_zfs_dataset.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -934,24 +952,26 @@ def update_zfs_dataset(request):
                             p, changed)
                         audit_str += " property '%s' set to '%s'" % (
                             p, changed)
-                        success = True
-            orig_quota = properties['quota']['value']
-            print 'original quota was ', orig_quota
-            if 'quota_size' not in cd or not cd['quota_size']:
-                new_quota = 'none'
-            elif cd['quota_size'] == 0:
-                new_quota = 'none'
-            else:
-                new_quota = '%d%s' % (cd['quota_size'], cd['quota_unit'])
-            print 'new quota is ', new_quota
-            if orig_quota != new_quota:
-                result, err = zfs.update_property(name, 'quota', new_quota)
-                if not result:
-                    result_str += ' Error setting property quota'
-                    if not err:
-                        results += ' : %s' % str(e)
-                audit_str += " property 'quota' set to '%s'" % new_quota
-                success = True
+                        success = True        
+
+            if is_zvol is False:
+                orig_quota = properties['quota']['value']
+                print 'original quota was ', orig_quota
+                if 'quota_size' not in cd or not cd['quota_size']:
+                    new_quota = 'none'
+                elif cd['quota_size'] == 0:
+                    new_quota = 'none'
+                else:
+                    new_quota = '%d%s' % (cd['quota_size'], cd['quota_unit'])
+                print 'new quota is ', new_quota
+                if orig_quota != new_quota:
+                    result, err = zfs.update_property(name, 'quota', new_quota)
+                    if not result:
+                        result_str += ' Error setting property quota'
+                        if not err:
+                            results += ' : %s' % str(e)
+                    audit_str += " property 'quota' set to '%s'" % new_quota
+                    success = True
             if success:
                 audit.audit("edit_zfs_dataset", audit_str, request)
 
