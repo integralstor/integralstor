@@ -69,7 +69,7 @@ CREATE TABLE "rsync_shares" (
 );
 
 CREATE TABLE "tasks" (
-  "task_id" integer NOT NULL PRIMARY KEY,
+  "task_id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "description" varchar(200) NOT NULL,
   "task_type_id" integer NOT NULL,
   "node" varchar(200) NOT NULL,
@@ -85,7 +85,7 @@ CREATE TABLE "tasks" (
 );
 
 CREATE TABLE "subtasks" (
-  "subtask_id" integer NOT NULL PRIMARY KEY,
+  "subtask_id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "description" varchar(100) NOT NULL,
   "command"  varchar(400) NOT NULL,
   "task_id" integer NOT NULL,
@@ -106,13 +106,13 @@ insert into task_types (task_type_id, description) values (3, 'ZFS scrub');
 insert into task_types (task_type_id, description) values (4, 'Remote replication');
 
 CREATE TABLE "cron_tasks" (
-  "cron_task_id" integer NOT NULL PRIMARY KEY,
+  "cron_task_id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "description" varchar(200) NOT NULL,
   "command" varchar(200) NOT NULL
 );
 
 CREATE TABLE "remote_replications" (
-  "remote_replication_id" integer NOT NULL PRIMARY KEY,
+  "remote_replication_id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "source_dataset" varchar(100) NOT NULL,
   "destination_ip" varchar(100) NOT NULL,
   "destination_user_name" varchar(100) NOT NULL,
