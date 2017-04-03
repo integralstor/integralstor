@@ -891,12 +891,8 @@ def update_zfs_dataset(request):
         elif not properties:
             raise Exception("Error loading ZFS dataset properties")
 
-        zvol_d, err = zfs.get_all_zvols()
-        if err:
-            raise Exception(err)
-        for zvol in zvol_d:
-            if name in zvol['name']:
-                is_zvol = True
+        if properties['type']['value'] == 'volume':
+            is_zvol = True
 
         return_dict['type'] = properties['type']
         if is_zvol is False:
@@ -914,16 +910,16 @@ def update_zfs_dataset(request):
                 else:
                     initial[p] = True
             if is_zvol is True:
-                form = zfs_forms.ZvolForm(initial=initial)
+                form = zfs_forms.BaseZvolForm(initial=initial)
             else:
-                form = zfs_forms.DatasetForm(initial=initial)
+                form = zfs_forms.BaseDatasetForm(initial=initial)
             return_dict['form'] = form
             return django.shortcuts.render_to_response("update_zfs_dataset.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
             if is_zvol is True:
-                form = zfs_forms.ZvolForm(request.POST)
+                form = zfs_forms.BaseZvolForm(request.POST)
             else:
-                form = zfs_forms.DatasetForm(request.POST)
+                form = zfs_forms.BaseDatasetForm(request.POST)
             return_dict['form'] = form
             if not form.is_valid():
                 return django.shortcuts.render_to_response("update_zfs_dataset.html", return_dict, context_instance=django.template.context.RequestContext(request))
