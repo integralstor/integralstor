@@ -1,0 +1,69 @@
+{% extends 'logged_in_base.html' %}
+
+{%block tab_header %}
+  Update System and Hardwar Date and Time
+{%endblock%}
+
+{%block inside_content %}
+
+  <form  name="date_time__form" action="/update_date_time/" method="POST">
+ {%csrf_token%}
+
+    <table class="table" style="width:800px">
+    {%if err == True %}
+        <ul class="errorlist" style="color:red">
+            <li>Both the fields are empty Please give at least one field</li>
+        </ul>
+    {%endif%}
+      <tr>
+        <th> Date : </th>
+        <td>
+          <input type="text"  name="date"  class="form-control datepicker" placeholder="Click to Enter Date" />
+        </td>
+        <td> {{ form.date.errors }} </td>
+      </tr>
+       <tr>
+        <th> Time : </th>
+        <td>
+          <input type="text"  name="time" class="form-control timepicker " placeholder="Click to Enter Time" />
+        </td>
+        <td> {{ form.time.errors }} </td>
+      </tr>
+    </table>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_system_info" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary cover-page">Update</button>
+    </div>
+  </form>
+
+<link rel="stylesheet" href="/static/css/timepicki.css" />
+<script src="/static/js/timepicki.js"></script>
+
+<link rel="stylesheet" href="/static/css/jquery-ui.css">
+<script src="/static/js/jquery-ui.js"></script>
+
+<script>
+  $(function() {
+    $( ".datepicker" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+      yearRange: "2000:2050",
+
+    });
+  });
+
+  $('.timepicker').timepicki({
+    show_meridian:false,
+    min_hour_value:0,
+    max_hour_value:23,
+    step_size_minutes:1,
+    overflow_minutes:true,
+    increase_direction:'up',
+  });
+
+</script>
+
+{%endblock%}
+
+
