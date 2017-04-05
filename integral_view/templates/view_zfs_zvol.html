@@ -8,11 +8,11 @@
   <div class="btn-group btn-group-sm pull-right"  >
     <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw" ></i>&nbsp;Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
     <ul class="dropdown-menu">
-      {% if "disabled" in replication_status %}
+      <!-- {% if "disabled" in replication_status %}
     	  <li><a class="action-dropdown" href="/replicate_zfs_dataset?dataset_name={{name}}"><i class="fa fa-copy fa-fw"></i>&nbsp;Enable async replication</a></li>
       {% else %}
     	  <li><a class="action-dropdown" href="/replicate_zfs_dataset?dataset_name={{name}}"><i class="fa fa-copy fa-fw"></i>&nbsp;Modify/Disable async replication</a></li>
-    	{% endif %}
+    	{% endif %} -->
       <li class="divider"></li>
       <li><a class="action-dropdown" href="/delete_zfs_dataset?name={{name}}&type=zvol&pool_name={{pool}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Delete this block device volume  </a></li>
       <li class="divider"></li>
