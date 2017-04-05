@@ -100,6 +100,38 @@ restart_nfs(){
   esac
 }
 
+update_password() {
+  # If an argument is passed to specify an user, changes password for that user
+  # else changes the password for the loggen in user
+  clear
+  if [ -z $1 ]
+  then
+    usr_name=`id -nu`
+  elif [ -n $1 ]
+  then
+    usr_name=$1
+  fi
+  echo 
+  echo "You are logged in as '`id -nu`'"
+  echo
+  read -p "Change password of user '$usr_name'? (y/n) -  " is_change
+  echo 
+  case $is_change in
+    y|Y)
+      echo
+      sudo passwd $usr_name
+      echo
+      pause
+      ;;
+    *)
+      echo
+      echo "Returning without changing password!"
+      echo
+      pause
+      ;;
+  esac
+}
+
 configure_network_interface(){
   #echo "configure networking called"
   sudo python /opt/integralstor/integralstor/scripts/python/configure_networking.py interface
@@ -160,7 +192,8 @@ show_menu() {
   echo "      | 85. Restart NTP   86. Restart IntegralView services 87. Restart FTP     88. Restart NFS"
   echo "  9.  Create NIC Bond"
   echo "  10. Remove NIC Bond"
-  echo "  11. Exit"
+  echo "  11. Update User Password"
+  echo "  12. Exit"
   echo
 
 }
@@ -178,7 +211,8 @@ read_input(){
     7) update_ntp_date;;
     9) create_nic_bond;;
    10) remove_nic_bond;;
-   11) logout;;
+   11) update_password;;
+   12) logout;;
    81) smb_restart;;
    82) winbind_restart;;
    83) restart_iscsi;;
