@@ -38,7 +38,7 @@ from integral_view.views.rsync_share_management import create_rsync_share, updat
 
 from django.contrib.auth.decorators import login_required
 
-from integral_view.views.system_date_time import view_date_time, update_date_time
+from integral_view.views.system import input_date_time, update_system_date_time
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -85,13 +85,15 @@ urlpatterns = patterns('',
                        url(r'^update_auth_method/',
                            login_required(update_auth_method)),
 
+                       # Form views/system.py
+                       url(r'^input_date_time/',
+                           login_required(input_date_time)),
+                       url(r'^update_system_date_time/',
+                           login_required(update_system_date_time)),
+  
+
                        # From views/config.py
-                       url(r'^view_system_info/',
-                           login_required(view_system_info)),
-                       url(r'^view_date_time/',
-                           login_required(view_date_time)),
-                       url(r'^update_date_time/',
-                           login_required(update_date_time)),
+                       url(r'^view_system_info/', login_required(view_system_info)),
                        url(r'^update_manifest/', login_required(update_manifest)),
                        url(r'^flag_node/', flag_node),
                        url(r'^view_backup/', login_required(view_backup)),

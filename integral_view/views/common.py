@@ -18,6 +18,14 @@ from integralstor import system_info, iscsi_stgt, nfs
 def view_system_info(request):
     return_dict = {}
     try:
+        if "ack" in request.GET:
+            if request.GET["ack"] == "time":
+                return_dict['ack_message'] = "Time successfully set"
+            elif request.GET["ack"] == "date":
+                return_dict['ack_message'] = "Date successfully set"
+            elif request.GET["ack"] == "datetime":
+                return_dict['ack_message'] = "Date and Time successfully set"
+    
         si, err = system_info.load_system_config()
         if err:
             raise Exception(err)
