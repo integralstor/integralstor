@@ -2,7 +2,7 @@ import django
 import django.template
 
 from integral_view.forms import system_date_time_form
-from integralstor_utils.date_time import update_date_time
+from integralstor_utils.system_date_time import update_date_time
 
 def input_date_time(request):
     return_dict = {}
