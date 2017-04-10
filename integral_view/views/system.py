@@ -19,8 +19,8 @@ def input_date_time(request):
         return django.shortcuts.render_to_response("update_system_date_time.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def update_system_date_time(request):
-        return_dict = {}
-#    try:
+    return_dict = {}
+    try:
         if request.method == 'POST':
             form = system_date_time_forms.DateTimeForm(request.POST)
             if form.is_valid():
@@ -45,11 +45,11 @@ def update_system_date_time(request):
             else:
                 return_dict["form"] = form
                 return django.shortcuts.render_to_response("update_system_date_time.html", return_dict, context_instance=django.template.context.RequestContext(request))
-#    except Exception, e:
-#        return_dict["base_template"] = 'update_system_date_time.html'
-#        return_dict['page_title'] = 'Update system and hardware date and time'
-#        return_dict["error"] = 'Error Performing Date Time Update'
-#        return_dict["error_details"] = str(e)
-#        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-#    else:
-#        return django.http.HttpResponseRedirect("/view_system_info")
+    except Exception, e:
+        return_dict["base_template"] = 'update_system_date_time.html'
+        return_dict['page_title'] = 'Update system and hardware date and time'
+        return_dict["error"] = 'Error Performing Date Time Update'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    else:
+        return django.http.HttpResponseRedirect("/view_system_info")
