@@ -7,8 +7,6 @@ class DateTimeForm(forms.Form):
 
     def clean(self):
         cd = super(DateTimeForm, self).clean()
-        if 'system_time' not in cd:
-            print 'not in cd'
         if ('system_time' not in cd or cd['system_time'] == '') and ('system_date' not in cd or cd['system_date'] == ''):
             raise forms.ValidationError("Atleast date or time should be present")
         else:
