@@ -4,23 +4,14 @@ import django.template
 from integral_view.forms import system_date_time_forms
 from integralstor_utils import system_date_time 
 
-def input_date_time(request):
-    return_dict = {}
-    try:
-        form = system_date_time_forms.DateTimeForm()
-        return_dict['form'] = form
-    except Exception, e:
-        return_dict['base_template'] = "update_system_date_time.html"
-        return_dict["page_title"] = 'Update system and hardware date and time'
-        return_dict["error"] = 'Error viewing date time'
-        return_dict["error_details"] = str(e)
-        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-    else:
-        return django.shortcuts.render_to_response("update_system_date_time.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
 def update_system_date_time(request):
     return_dict = {}
     try:
+        if request.method == 'GET':
+            form = system_date_time_forms.DateTimeForm()
+            return_dict['form'] = form
+            return django.shortcuts.render_to_response("update_system_date_time.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
         if request.method == 'POST':
             form = system_date_time_forms.DateTimeForm(request.POST)
             if form.is_valid():
