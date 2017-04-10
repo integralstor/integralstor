@@ -2,7 +2,7 @@ import django
 import django.template
 
 from integral_view.forms import system_date_time_forms
-from integralstor_utils import date_time 
+from integralstor_utils import system_date_time 
 
 def input_date_time(request):
     return_dict = {}
@@ -25,7 +25,7 @@ def update_system_date_time(request):
             form = system_date_time_forms.DateTimeForm(request.POST)
             if form.is_valid():
                 cd = form.cleaned_data
-                output, err = date_time.update_date_time(cd["system_date"], cd["system_time"])
+                output, err = system_date_time.update_date_time(cd["system_date"], cd["system_time"])
                 if err:
                     raise Exception(err)
                 else:
