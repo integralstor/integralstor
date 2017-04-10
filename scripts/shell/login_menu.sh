@@ -226,7 +226,7 @@ read_input(){
 }
  
 user_name=`id -un`
-if [[ ("$user_name" != "root") && ("$user_name" != "integralstor") ]]
+if [[ ("$user_name" != "root") && ("$user_name" != "integralstor") && ("$user_name" != "replicator")]]
 then
   trap '' SIGINT SIGQUIT SIGTSTP
   while true
