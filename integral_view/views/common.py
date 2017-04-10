@@ -25,7 +25,7 @@ def view_system_info(request):
                 return_dict['ack_message'] = "Date successfully updated"
             elif request.GET["ack"] == "system_datetime_set":
                 return_dict['ack_message'] = "Date and Time successfully updated"
-    
+
         si, err = system_info.load_system_config()
         if err:
             raise Exception(err)

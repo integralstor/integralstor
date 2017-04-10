@@ -88,10 +88,11 @@ urlpatterns = patterns('',
                        # Form views/system.py
                        url(r'^update_system_date_time/',
                            login_required(update_system_date_time)),
-  
+
 
                        # From views/config.py
-                       url(r'^view_system_info/', login_required(view_system_info)),
+                       url(r'^view_system_info/',
+                           login_required(view_system_info)),
                        url(r'^update_manifest/', login_required(update_manifest)),
                        url(r'^flag_node/', flag_node),
                        url(r'^view_backup/', login_required(view_backup)),
