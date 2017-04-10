@@ -21,15 +21,12 @@ def update_system_date_time(request):
                     raise Exception(err)
                 else:
                     if "date_set" in output and "time_set" in output:
-                        print "datetime"
                         if output["date_set"] == True and output["time_set"] == True:
                             url = "/view_system_info?ack=system_datetime_set"
                     elif "time_set" in output:
-                        print "time"
                         if output["time_set"] == True:
                             url="/view_system_info?ack=system_time_set"
                     elif "date_set" in output:
-                        print "date"
                         if output["date_set"] == True:
                             url="/view_system_info?ack=system_date_set"
                     return django.http.HttpResponseRedirect(url)
@@ -37,7 +34,7 @@ def update_system_date_time(request):
                 return_dict["form"] = form
                 return django.shortcuts.render_to_response("update_system_date_time.html", return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
-        return_dict["base_template"] = 'update_system_date_time.html'
+        return_dict["base_template"] = 'system_base.html'
         return_dict['page_title'] = 'Update system and hardware date and time'
         return_dict["error"] = 'Error Performing Date Time Update'
         return_dict["error_details"] = str(e)
