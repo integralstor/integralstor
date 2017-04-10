@@ -38,6 +38,8 @@ from integral_view.views.rsync_share_management import create_rsync_share, updat
 
 from django.contrib.auth.decorators import login_required
 
+from integral_view.views.system import update_system_date_time
+
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
@@ -82,6 +84,11 @@ urlpatterns = patterns('',
                            login_required(update_samba_server_settings)),
                        url(r'^update_auth_method/',
                            login_required(update_auth_method)),
+
+                       # Form views/system.py
+                       url(r'^update_system_date_time/',
+                           login_required(update_system_date_time)),
+
 
                        # From views/config.py
                        url(r'^view_system_info/',

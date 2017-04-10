@@ -1,0 +1,64 @@
+{% extends 'system_base.html' %}
+
+{%block tab_header %}
+  Update system and hardware date and time
+{%endblock%}
+
+{%block inside_content %}
+
+  <form  name="date_time_form" action="/update_system_date_time/" method="POST">
+ {%csrf_token%}
+    {{form.errors}}
+    <table class="table" style="width:800px">
+      <tr>
+        <th> Date : </th>
+        <td>
+          <input type="text"  name="system_date" id="id_system_date"  class="form-control datepicker" placeholder="Click to enter date" />
+        </td>
+        <td> {{ form.system_date.errors }} </td>
+      </tr>
+       <tr>
+        <th> Time : </th>
+        <td>
+          <input type="text"  name="system_time" id="id_system_time" class="form-control timepicker " placeholder="Click to enter time" />
+        </td>
+        <td> {{ form.system_time.errors }} </td>
+      </tr>
+    </table>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_system_info" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary cover-page">Update</button>
+    </div>
+  </form>
+
+<link rel="stylesheet" href="/static/css/timepicker.css" />
+<script src="/static/js/timepicker.js"></script>
+
+<link rel="stylesheet" href="/static/css/jquery-ui.css">
+<script src="/static/js/jquery-ui.js"></script>
+
+<script>
+  $(function() {
+    $( ".datepicker" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+      yearRange: "2017:2050",
+
+    });
+  });
+
+  $('.timepicker').timepicki({
+    show_meridian:false,
+    min_hour_value:0,
+    max_hour_value:23,
+    step_size_minutes:1,
+    overflow_minutes:true,
+    increase_direction:'up',
+  });
+
+</script>
+
+{%endblock%}
+
+
