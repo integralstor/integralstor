@@ -742,8 +742,14 @@ def view_dir_ownership_permissions(request):
 
         uid = stat_info.st_uid
         gid = stat_info.st_gid
-        username = pwd.getpwuid(uid)[0]
-        grpname = grp.getgrgid(gid)[0]
+        try:
+            username = pwd.getpwuid(uid)[0]
+        except Exception, e:
+            username = 'Unknown'
+        try:
+            grpname = grp.getgrgid(gid)[0]
+        except Exception, e:
+            grpname = 'Unknown'
         sticky_bit_enabled, err = _sticky_bit_enabled(path)
         if err:
             raise Exception(err)
