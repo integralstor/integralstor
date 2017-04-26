@@ -11,7 +11,10 @@
     <div class="btn-group btn-group-sm pull-right"  >
       <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
       <ul class="dropdown-menu">
-        <li><a href="/update_zfs_dataset?name={{name}}&pool_name={{pool}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Change {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} properties</a> </li>
+        {%if request.user.username == 'superadmin'%} 
+          <li><a href="/update_zfs_dataset?name={{name}}&pool_name={{pool}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Update {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} basic properties</a> </li>
+          <li><a href="/update_zfs_dataset_advanced_properties?name={{name}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Update {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} advanced properties</a> </li>
+        {%endif%}
         {%if properties.type.value == 'filesystem'%}
           <li><a href="/view_dir_ownership_permissions?path={{properties.mountpoint.value}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Change ownership and permissions</a></li>
         {%endif%}
@@ -47,28 +50,14 @@
         <tr>
           <th> Property name </th>
           <th> Property value </th>
-          <th> Property information </th>
         </tr>
-        {%for pname, p in properties.items %}
-          {%if pname in exposed_properties %}
+        {%for property in ordered_exposed_properties%}
             <tr>
               <td> 
-                {%if pname == 'creation'%} 
-                    Created on 
-                {%elif pname == 'quota'%} 
-                    Space consumption limit
-                {%elif pname == 'usedbychildren'%} 
-                    Space used by children 
-                {%elif pname == 'usedbydataset'%} 
-                    Space used by this dataset 
-                {%else%}{{pname|title}}{%endif%}
+                {{property.prop_dict.short_desc}}({{property.prop_name}})
               </td>
-              <td> {{p.value}}</td>
-              <td> 
-                {%if p.source == 'local' %} Explicitly set {%elif p.source == '-'%} Informational only {%else%}{{p.source|title}}{%endif%}
-              </td>
+              <td> {{property.prop_dict.value}}</td>
             </tr>
-          {%endif%}
         {%endfor%}
       </table>
 
