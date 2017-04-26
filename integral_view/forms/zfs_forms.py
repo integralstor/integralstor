@@ -31,12 +31,12 @@ class AdvancedDatasetZvolPropertiesForm(forms.Form):
     property_value = forms.CharField()
 
     def __init__(self, *args, **kwargs):
-        if kwargs and 'modifyable_properties' in kwargs:
-            modifyable_properties = kwargs.pop('modifyable_properties')
+        if kwargs and 'modifiable_properties' in kwargs:
+            modifiable_properties = kwargs.pop('modifiable_properties')
         super(AdvancedDatasetZvolPropertiesForm,
               self).__init__(*args, **kwargs)
         ch = []
-        for property_name, property in modifyable_properties.items():
+        for property_name, property in modifiable_properties.items():
             ch.append((property_name, '%s(%s) - currently %s' %
                        (property['short_desc'], property_name, property['value'])))
         self.fields['property_name'] = forms.ChoiceField(choices=ch)

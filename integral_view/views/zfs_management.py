@@ -1015,12 +1015,12 @@ def update_zfs_dataset_advanced_properties(request):
             initial = {}
             initial['name'] = name
             form = zfs_forms.AdvancedDatasetZvolPropertiesForm(
-                modifyable_properties=prop_dict['modifyable_properties'], initial=initial)
+                modifiable_properties=prop_dict['modifiable_properties'], initial=initial)
             return_dict['form'] = form
             return django.shortcuts.render_to_response("update_zfs_dataset_zvol_advanced_properties.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
             form = zfs_forms.AdvancedDatasetZvolPropertiesForm(
-                request.POST, modifyable_properties=prop_dict['modifyable_properties'])
+                request.POST, modifiable_properties=prop_dict['modifiable_properties'])
             return_dict['form'] = form
             if not form.is_valid():
                 return django.shortcuts.render_to_response("update_zfs_dataset_zvol_advanced_properties.html", return_dict, context_instance=django.template.context.RequestContext(request))
