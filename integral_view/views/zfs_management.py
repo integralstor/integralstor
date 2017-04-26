@@ -989,12 +989,14 @@ def update_zfs_dataset(request):
 def update_zfs_dataset_advanced_properties(request):
     return_dict = {}
     try:
-        name, err = django_utils.get_request_parameter_value(request, 'name')
+        param_dict, err = django_utils.get_request_parameter_values(request, [
+                                                                    'name'])
         if err:
             raise Exception(err)
-        if not name:
+        if 'name' not in param_dict.keys() or not param_dict['name']:
             raise Exception(
                 'Dataset name not specified. Please use the menus.')
+        name = param_dict['name']
 
         properties, err = zfs.get_properties(name)
         if not properties and err:
@@ -1045,12 +1047,14 @@ def update_zfs_dataset_advanced_properties(request):
 def update_zfs_dataset_properties(request):
     return_dict = {}
     try:
-        name, err = django_utils.get_request_parameter_value(request, 'name')
+        param_dict, err = django_utils.get_request_parameter_values(request, [
+                                                                    'name'])
         if err:
             raise Exception(err)
-        if not name:
+        if 'name' not in param_dict.keys() or not param_dict['name']:
             raise Exception(
                 'Dataset name not specified. Please use the menus.')
+        name = param_dict['name']
 
         is_zvol = False
 
