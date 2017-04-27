@@ -2,7 +2,7 @@ import django
 import django.template
 
 from integralstor_utils import zfs, audit, ramdisk, config, command, db
-from integralstor_utils import cifs as common_cifs
+from integralstor_utils import cifs as common_cifs, django_utils
 from integralstor import nfs, local_users, iscsi_stgt, system_info
 
 from integral_view.forms import zfs_forms
@@ -844,7 +844,9 @@ def view_zfs_dataset(request):
         if err:
             raise Exception(err)
 
+        is_zvol = True
         if properties['type']['value'] == 'filesystem':
+            is_zvol = False
             quotas, err = zfs.get_all_quotas(dataset_name)
             if err:
                 raise Exception(err)
@@ -860,8 +862,11 @@ def view_zfs_dataset(request):
             return_dict['children'] = children
         return_dict['name'] = dataset_name
         return_dict['properties'] = properties
-        return_dict['exposed_properties'] = ['compression', 'compressratio',
-                                             'dedup',  'type', 'usedbychildren', 'usedbydataset', 'creation', 'quota']
+        prop_dict, err = zfs.get_exposed_ds_zvol_properties(properties)
+        if err:
+            raise Exception(err)
+        return_dict['exposed_properties'] = prop_dict['exposed_properties']
+        return_dict['ordered_exposed_properties'] = prop_dict['ordered_exposed_properties']
         if 'result' in request.GET:
             return_dict['result'] = request.GET['result']
 
@@ -884,7 +889,7 @@ def update_zfs_dataset(request):
                 'Dataset name not specified. Please use the menus.')
         name = request.REQUEST["name"]
         is_zvol = False
-        
+
         properties, err = zfs.get_properties(name)
         if not properties and err:
             raise Exception(err)
@@ -948,7 +953,7 @@ def update_zfs_dataset(request):
                             p, changed)
                         audit_str += " property '%s' set to '%s'" % (
                             p, changed)
-                        success = True        
+                        success = True
 
             if is_zvol is False:
                 orig_quota = properties['quota']['value']
@@ -960,6 +965,174 @@ def update_zfs_dataset(request):
                 else:
                     new_quota = '%d%s' % (cd['quota_size'], cd['quota_unit'])
                 print 'new quota is ', new_quota
+                if orig_quota != new_quota:
+                    result, err = zfs.update_property(name, 'quota', new_quota)
+                    if not result:
+                        result_str += ' Error setting property quota'
+                        if not err:
+                            results += ' : %s' % str(e)
+                    audit_str += " property 'quota' set to '%s'" % new_quota
+                    success = True
+            if success:
+                audit.audit("edit_zfs_dataset", audit_str, request)
+
+            return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&ack=modified_dataset_properties' % name)
+    except Exception, e:
+        return_dict['base_template'] = "storage_base.html"
+        return_dict["page_title"] = 'Modify ZFS dataset properties'
+        return_dict['tab'] = 'view_zfs_pools_tab'
+        return_dict["error"] = 'Error modifying ZFS dataset properties'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def update_zfs_dataset_advanced_properties(request):
+    return_dict = {}
+    try:
+        param_dict, err = django_utils.get_request_parameter_values(request, [
+                                                                    'name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in param_dict.keys() or not param_dict['name']:
+            raise Exception(
+                'Dataset name not specified. Please use the menus.')
+        name = param_dict['name']
+
+        properties, err = zfs.get_properties(name)
+        if not properties and err:
+            raise Exception(err)
+        elif not properties:
+            raise Exception("Error loading ZFS dataset properties")
+
+        return_dict['type'] = properties['type']
+
+        prop_dict, err = zfs.get_exposed_ds_zvol_properties(properties)
+        if err:
+            raise Exception(err)
+
+        if request.method == "GET":
+            # Return the conf page
+            initial = {}
+            initial['name'] = name
+            form = zfs_forms.AdvancedDatasetZvolPropertiesForm(
+                modifiable_properties=prop_dict['modifiable_properties'], initial=initial)
+            return_dict['form'] = form
+            return django.shortcuts.render_to_response("update_zfs_dataset_zvol_advanced_properties.html", return_dict, context_instance=django.template.context.RequestContext(request))
+        else:
+            form = zfs_forms.AdvancedDatasetZvolPropertiesForm(
+                request.POST, modifiable_properties=prop_dict['modifiable_properties'])
+            return_dict['form'] = form
+            if not form.is_valid():
+                return django.shortcuts.render_to_response("update_zfs_dataset_zvol_advanced_properties.html", return_dict, context_instance=django.template.context.RequestContext(request))
+            cd = form.cleaned_data
+            result_str = ""
+            result, err = zfs.update_property(
+                name, cd['property_name'], cd['property_value'])
+            if err:
+                raise Exception(err)
+            audit_str = "Updated the dataset/volume property %s for dataset %s to %s : " % (
+                cd['property_name'], name, cd['property_value'])
+            audit.audit("edit_zfs_dataset", audit_str, request)
+
+            return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&ack=modified_dataset_properties' % name)
+    except Exception, e:
+        return_dict['base_template'] = "storage_base.html"
+        return_dict["page_title"] = 'Modify ZFS advance dataset/volume properties'
+        return_dict['tab'] = 'view_zfs_pools_tab'
+        return_dict["error"] = 'Error modifying ZFS advanced dataset/volume properties'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def update_zfs_dataset_properties(request):
+    return_dict = {}
+    try:
+        param_dict, err = django_utils.get_request_parameter_values(request, [
+                                                                    'name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in param_dict.keys() or not param_dict['name']:
+            raise Exception(
+                'Dataset name not specified. Please use the menus.')
+        name = param_dict['name']
+
+        is_zvol = False
+
+        properties, err = zfs.get_properties(name)
+        if not properties and err:
+            raise Exception(err)
+        elif not properties:
+            raise Exception("Error loading ZFS dataset properties")
+
+        if properties['type']['value'] == 'volume':
+            is_zvol = True
+
+        return_dict['type'] = properties['type']
+        if is_zvol is False:
+            return_dict['quota'] = properties['quota']['value']
+        else:
+            return_dict['quota'] = 'none'
+
+        if request.method == "GET":
+            # Return the conf page
+            initial = {}
+            initial['name'] = name
+            for p in ['compression', 'dedup', 'readonly']:
+                if properties[p]['value'] == 'off':
+                    initial[p] = False
+                else:
+                    initial[p] = True
+            if is_zvol is True:
+                form = zfs_forms.BaseZvolForm(initial=initial)
+            else:
+                form = zfs_forms.BaseDatasetForm(initial=initial)
+            return_dict['form'] = form
+            return django.shortcuts.render_to_response("update_zfs_dataset.html", return_dict, context_instance=django.template.context.RequestContext(request))
+        else:
+            if is_zvol is True:
+                form = zfs_forms.BaseZvolForm(request.POST)
+            else:
+                form = zfs_forms.BaseDatasetForm(request.POST)
+            return_dict['form'] = form
+            if not form.is_valid():
+                return django.shortcuts.render_to_response("update_zfs_dataset.html", return_dict, context_instance=django.template.context.RequestContext(request))
+            cd = form.cleaned_data
+            result_str = ""
+            audit_str = "Changed the following dataset properties for dataset %s : " % name
+            success = False
+            # Do this for all boolean values
+            to_change = []
+            for p in ['compression', 'dedup', 'readonly']:
+                orig = properties[p]['value']
+                if cd[p]:
+                    changed = 'on'
+                else:
+                    changed = 'off'
+                # print 'property %s orig %s changed %s'%(p, orig, changed)
+                if orig != changed:
+                    result, err = zfs.update_property(name, p, changed)
+                    # print err
+                    if not result:
+                        result_str += ' Error setting property %s' % p
+                        if not err:
+                            results += ' : %s' % str(e)
+                    else:
+                        result_str += ' Successfully set property %s to %s' % (
+                            p, changed)
+                        audit_str += " property '%s' set to '%s'" % (
+                            p, changed)
+                        success = True
+
+            if is_zvol is False:
+                orig_quota = properties['quota']['value']
+                # print 'original quota was ', orig_quota
+                if 'quota_size' not in cd or not cd['quota_size']:
+                    new_quota = 'none'
+                elif cd['quota_size'] == 0:
+                    new_quota = 'none'
+                else:
+                    new_quota = '%d%s' % (cd['quota_size'], cd['quota_unit'])
+                # print 'new quota is ', new_quota
                 if orig_quota != new_quota:
                     result, err = zfs.update_property(name, 'quota', new_quota)
                     if not result:

@@ -15,13 +15,31 @@ class BaseDatasetForm(CommonPropertiesForm):
     ch = [('G', 'GB'), ('M', 'MB')]
     quota_unit = forms.ChoiceField(choices=ch)
 
+
 class BaseZvolForm(CommonPropertiesForm):
 
     pass
 
+
 class CreateDatasetForm(BaseDatasetForm):
 
     pool = forms.CharField()
+
+
+class AdvancedDatasetZvolPropertiesForm(forms.Form):
+    name = forms.CharField()
+    property_value = forms.CharField()
+
+    def __init__(self, *args, **kwargs):
+        if kwargs and 'modifiable_properties' in kwargs:
+            modifiable_properties = kwargs.pop('modifiable_properties')
+        super(AdvancedDatasetZvolPropertiesForm,
+              self).__init__(*args, **kwargs)
+        ch = []
+        for property_name, property in modifiable_properties.items():
+            ch.append((property_name, '%s(%s) - currently %s' %
+                       (property['short_desc'], property_name, property['value'])))
+        self.fields['property_name'] = forms.ChoiceField(choices=ch)
 
 
 class CreateZvolForm(BaseZvolForm):
