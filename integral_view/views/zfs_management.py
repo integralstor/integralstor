@@ -942,7 +942,8 @@ def update_zfs_dataset(request):
                     changed = 'off'
                 # print 'property %s orig %s changed %s'%(p, orig, changed)
                 if orig != changed:
-                    result, err = zfs.update_property(name, p, changed)
+                    result, err = zfs.update_dataset_zvol_property(
+                        name, p, changed)
                     # print err
                     if not result:
                         result_str += ' Error setting property %s' % p
@@ -966,7 +967,8 @@ def update_zfs_dataset(request):
                     new_quota = '%d%s' % (cd['quota_size'], cd['quota_unit'])
                 print 'new quota is ', new_quota
                 if orig_quota != new_quota:
-                    result, err = zfs.update_property(name, 'quota', new_quota)
+                    result, err = zfs.update_dataset_zvol_property(
+                        name, 'quota', new_quota)
                     if not result:
                         result_str += ' Error setting property quota'
                         if not err:
@@ -1026,7 +1028,7 @@ def update_zfs_dataset_advanced_properties(request):
                 return django.shortcuts.render_to_response("update_zfs_dataset_zvol_advanced_properties.html", return_dict, context_instance=django.template.context.RequestContext(request))
             cd = form.cleaned_data
             result_str = ""
-            result, err = zfs.update_property(
+            result, err = zfs.update_dataset_zvol_property(
                 name, cd['property_name'], cd['property_value'])
             if err:
                 raise Exception(err)
@@ -1110,7 +1112,8 @@ def update_zfs_dataset_properties(request):
                     changed = 'off'
                 # print 'property %s orig %s changed %s'%(p, orig, changed)
                 if orig != changed:
-                    result, err = zfs.update_property(name, p, changed)
+                    result, err = zfs.update_dataset_zvol_property(
+                        name, p, changed)
                     # print err
                     if not result:
                         result_str += ' Error setting property %s' % p
@@ -1134,7 +1137,8 @@ def update_zfs_dataset_properties(request):
                     new_quota = '%d%s' % (cd['quota_size'], cd['quota_unit'])
                 # print 'new quota is ', new_quota
                 if orig_quota != new_quota:
-                    result, err = zfs.update_property(name, 'quota', new_quota)
+                    result, err = zfs.update_dataset_zvol_property(
+                        name, 'quota', new_quota)
                     if not result:
                         result_str += ' Error setting property quota'
                         if not err:
