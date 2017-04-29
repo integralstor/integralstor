@@ -8,6 +8,8 @@
 
   <form class="form-horizontal" role="form"name="create_form" action="" method="post">
     {%csrf_token%}
+
+    {% if is_iface_avail == False %} <h5>Atleast one unused Ethernet interface must be available to create an NIC Bond</h5> {% endif %}
     <table  class="table " style="width:800px">
       <tr>
         <th> Bond name: </th>
@@ -42,10 +44,20 @@
 
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <a href="/view_interfaces" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-      <button type="submit" class="btn btn-primary cover-page" > Create </button>
+      <button type="submit" id="id_submit" class="btn btn-primary cover-page" > Create </button>
     </div>
   </form>
 
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var is_iface = "{{is_iface_avail}}";
+      if (is_iface == "False"){
+        $("#id_name").attr('disabled','disabled');
+        $("#id_mode").attr('disabled','disabled');
+        $("#id_submit").attr('disabled','disabled');
+      }
+    });
+  </script>
 {%endblock%}
 
 {%block help_header%}

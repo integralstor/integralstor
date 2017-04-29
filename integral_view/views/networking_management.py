@@ -353,36 +353,35 @@ def create_bond(request):
                 "Error loading network interface information : No interfaces found")
 
         bm, err = networking.get_bonding_masters()
-        print 'bm: ', bm
         if err:
             raise Exception(err)
         bid, err = networking.get_bonding_info_all()
-        print 'bid: ', bid
         if err:
             raise Exception(err)
 
         return_dict['interfaces'] = interfaces
-        if_list = []
+        iface_list = []
         existing_bonds = []
         for if_name, iface in interfaces.items():
-            #ret, err = networking.get_ip_info (if_name)
-            # if ret:
-                # continue
             if if_name.startswith('lo') or if_name in bid['by_slave']:
                 continue
             if if_name in bm:
                 existing_bonds.append(if_name)
                 continue
-            if_list.append(if_name)
+            iface_list.append(if_name)
+
+        return_dict['is_iface_avail'] = False
+        if iface_list:
+            return_dict['is_iface_avail'] = True
 
         if request.method == "GET":
             form = networking_forms.CreateBondForm(
-                interfaces=if_list, existing_bonds=existing_bonds)
+                interfaces=iface_list, existing_bonds=existing_bonds)
             return_dict['form'] = form
             return django.shortcuts.render_to_response("create_bond.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
             form = networking_forms.CreateBondForm(
-                request.POST, interfaces=if_list, existing_bonds=existing_bonds)
+                request.POST, interfaces=iface_list, existing_bonds=existing_bonds)
             return_dict['form'] = form
             if not form.is_valid():
                 return django.shortcuts.render_to_response("create_bond.html", return_dict, context_instance=django.template.context.RequestContext(request))
