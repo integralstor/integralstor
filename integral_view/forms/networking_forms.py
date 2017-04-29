@@ -11,16 +11,18 @@ class EditHostnameForm(forms.Form):
 
     def clean(self):
         cd = super(EditHostnameForm, self).clean()
-        hostname = cd['hostname']
-        if '.' in hostname:
-            self._errors["hostname"] = self.error_class(
-                ["Please enter a hostname without the domain name component (no '.'s allowed)"])
-        valid, err = networking.validate_hostname(hostname)
-        if err:
-            self._errors["hostname"] = self.error_class([err])
-        elif not valid:
-            self._errors["hostname"] = self.error_class(
-                ['Invalid hostname. Only alphabets, digits and hyphens permitted.'])
+        hostname = cd.get("hostname")
+        if hostname is not None:
+            if hostname and '.' in hostname:
+                self._errors["hostname"] = self.error_class(
+                    ["Please enter a hostname without the domain name component (no '.'s allowed)"])
+            valid, err = networking.validate_hostname(hostname)
+            if err:
+                self._errors["hostname"] = self.error_class(
+                    ['%s. \tOnly alphabets, digits and hyphens permitted.' % err])
+            elif not valid:
+                self._errors["hostname"] = self.error_class(
+                    ['Invalid hostname. Only alphabets, digits and hyphens permitted.'])
         return cd
 
 
@@ -30,21 +32,22 @@ class DNSNameServersForm(forms.Form):
 
     def clean(self):
         cd = super(DNSNameServersForm, self).clean()
-        nameservers = cd['nameservers']
-        if ',' in nameservers:
-            slist = nameservers.split(',')
-        else:
-            slist = nameservers.split(' ')
-        for server in slist:
-            valid, err = networking.validate_ip(server)
-            if err:
-                self._errors["nameservers"] = self.error_class(
-                    ["Error validating DNS server IP address %s : %s" % (server, err)])
-                break
-            elif not valid:
-                self._errors["nameservers"] = self.error_class(
-                    ["Invalid DNS server IP address : %s" % server])
-                break
+        nameservers = cd.get("nameservers")
+        if nameservers is not None:
+            if nameservers and ',' in nameservers:
+                slist = nameservers.split(',')
+            else:
+                slist = nameservers.split(' ')
+            for server in slist:
+                valid, err = networking.validate_ip(server)
+                if err:
+                    self._errors["nameservers"] = self.error_class(
+                        ["Error validating DNS server IP address %s : %s" % (server, err)])
+                    break
+                elif not valid:
+                    self._errors["nameservers"] = self.error_class(
+                        ["Invalid DNS server IP address : %s" % server])
+                    break
         return cd
 
 
@@ -123,10 +126,12 @@ class CreateBondForm(forms.Form):
 
     def clean(self):
         cd = super(CreateBondForm, self).clean()
-        name = cd['name']
-        if name in self.existing_bonds:
-            self._errors["name"] = self.error_class(
-                ["A bond or interface of this name already exists. Please choose another name."])
+        #name = cd['name']
+        name = cd.get("name")
+        if name is not None:
+            if name and name in self.existing_bonds:
+                self._errors["name"] = self.error_class(
+                    ["A Bond or interface of this name already exists. Please choose another name."])
         return cd
 
 
