@@ -6,7 +6,7 @@ import os
 import integral_view
 from integral_view.forms import samba_shares_forms
 
-from integralstor_utils import audit, zfs, acl
+from integralstor_utils import audit, zfs, acl, django_utils
 from integralstor_utils import cifs as cifs_common
 
 from integralstor import cifs as cifs_integralstor
@@ -275,15 +275,19 @@ def create_cifs_share(request):
             raise Exception(
                 'No ZFS datasets available. Please create a dataset before creating shares.')
 
-        if 'dataset' in request.REQUEST:
-            dataset = request.REQUEST['dataset']
-        else:
+        dataset = path = None
+        ret, err = django_utils.get_request_parameter_values(
+            request, ['dataset', 'path'])
+        if err:
+            raise Exception(err)
+        if 'dataset' not in ret:
             dataset = ds_list[0][0]
-
-        if 'path' in request.REQUEST:
-            path = request.REQUEST['path']
-        else:
+        elif 'dataset' in ret:
+            dataset = ret['dataset']
+        if 'path' not in ret:
             path = dataset
+        elif 'path' in ret:
+            path = ret['path']
 
         return_dict['path'] = path
         return_dict["dataset"] = ds_list
@@ -427,8 +431,10 @@ def view_samba_server_settings(request):
             raise Exception(err)
 
         return_dict["samba_global_dict"] = d
-
-        if "ack" in request.REQUEST and request.REQUEST["ack"] == "saved":
+        ret, err = django_utils.get_request_parameter_values(request, ['ack'])
+        if err:
+            raise Exception(err)
+        if 'ack' in ret and ret['ack'] == 'saved':
             return_dict["ack_message"] = "Information updated successfully"
         return django.shortcuts.render_to_response('view_samba_server_settings.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:

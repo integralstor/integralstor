@@ -1,7 +1,7 @@
 import django
 import django.template
 
-from integralstor_utils import zfs, audit, config, remote_replication, scheduler_utils
+from integralstor_utils import zfs, audit, config, remote_replication, scheduler_utils, django_utils
 
 
 def view_remote_replications(request):
@@ -103,9 +103,14 @@ def update_remote_replication(request):
     return_dict = {}
     try:
 
-        if 'remote_replication_id' not in request.REQUEST:
-            raise Exception('Invalid request. Please use the menus.')
-        remote_replication_id = request.REQUEST['remote_replication_id']
+        ret, err = django_utils.get_request_parameter_values(
+            request, ['remote_replication_id'])
+        if err:
+            raise Exception(err)
+        if 'remote_replication_id' not in ret:
+            raise Exception(
+                "Requested remote replication not found, please use the menus.")
+        remote_replication_id = ret['remote_replication_id']
         replications, err = remote_replication.get_remote_replications(
             remote_replication_id)
         if err:
@@ -166,9 +171,14 @@ def update_remote_replication(request):
 def delete_remote_replication(request):
     return_dict = {}
     try:
-        if 'remote_replication_id' not in request.REQUEST:
-            raise Exception('Invalid request. Please use the menus.')
-        remote_replication_id = request.REQUEST['remote_replication_id']
+        ret, err = django_utils.get_request_parameter_values(
+            request, ['remote_replication_id'])
+        if err:
+            raise Exception(err)
+        if 'remote_replication_id' not in ret:
+            raise Exception(
+                "Requested remote replication not found, please use the menus.")
+        remote_replication_id = ret['remote_replication_id']
         return_dict['remote_replication_id'] = remote_replication_id
         replications, err = remote_replication.get_remote_replications(
             remote_replication_id)
@@ -182,9 +192,16 @@ def delete_remote_replication(request):
             return_dict['replication'] = replications[0]
             return django.shortcuts.render_to_response("delete_zfs_replication_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
+            ret, err = django_utils.get_request_parameter_values(
+                request, ['cron_task_id'])
+            if err:
+                raise Exception(err)
+            if 'cron_task_id' not in ret:
+                raise Exception("Request not found, please use the menus.")
+            cron_task_id = ret['cron_task_id']
 
             cron_remove, err = scheduler_utils.delete_cron(
-                int(request.REQUEST['cron_task_id']))
+                int(cron_task_id))
             if err:
                 raise Exception(err)
 

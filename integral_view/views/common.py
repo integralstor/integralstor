@@ -8,7 +8,7 @@ import django
 from django.contrib.auth.decorators import login_required
 import django.http
 
-from integralstor_utils import command, audit, alerts, zfs, stats, config
+from integralstor_utils import command, audit, alerts, zfs, stats, config, django_utils
 from integralstor_utils import cifs as cifs_common, services_management
 from integralstor_utils import system_date_time
 
@@ -481,8 +481,13 @@ def show(request, page, info = None):
         return_dict["error"] = str(e)
       else:
         return_dict["log_level_str"] = log_level
-      if "saved" in request.REQUEST:
-        return_dict["saved"] = request.REQUEST["saved"]
+
+      ret, err = django_utils.get_request_parameter_values(request,['saved'])
+      if err:
+        raise Exception(err)
+      if 'saved' not in ret:
+        raise Exception("Request not found, please use the menus.")
+      return_dict["saved"] = ret['saved']
 
     return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:

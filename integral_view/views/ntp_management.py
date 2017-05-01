@@ -6,7 +6,7 @@ from django.http import HttpResponse
 
 import shutil
 
-from integralstor_utils import ntp, services_management
+from integralstor_utils import ntp, services_management, django_utils
 from integralstor import system_info
 
 import integral_view
@@ -22,11 +22,16 @@ def view_ntp_settings(request):
         if err:
             raise Exception(err)
         return_dict["ntp_servers"] = ntp_servers
-        if "ack" in request.REQUEST and request.REQUEST['ack'] == 'saved':
+
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['ack', 'server_used'])
+        if err:
+            raise Exception(err)
+        if 'ack' in req_ret and req_ret['ack'] == 'saved':
             return_dict["ack_message"] = 'NTP settings have successfully been updated.'
-        elif "ack" in request.REQUEST and request.REQUEST['ack'] == 'ntp_synced':
-            if 'server_used' in request.REQUEST:
-                return_dict["ack_message"] = 'One time ntp sync with server %s successfully completed.' % request.REQUEST['server_used']
+        elif 'ack' in req_ret and req_ret['ack'] == 'ntp_synced':
+            if 'server_used' in req_ret:
+                return_dict["ack_message"] = 'One time ntp sync with server %s successfully completed.' % req_ret['server_used']
         return django.shortcuts.render_to_response('view_ntp_settings.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = "services_base.html"

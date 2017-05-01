@@ -6,7 +6,7 @@ import django.http
 import os
 import os.path
 
-from integralstor_utils import scheduler_utils, config, command, audit
+from integralstor_utils import scheduler_utils, config, command, audit, django_utils
 
 
 def view_background_tasks(request):
@@ -32,14 +32,18 @@ def view_background_tasks(request):
 def delete_background_task(request):
     return_dict = {}
     try:
-        if 'task_id' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'task_id'])
+        if err:
+            raise Exception(err)
+        if 'task_id' not in req_ret:
             raise Exception('Invalid request. Please use the menus.')
 
-        task, err = scheduler_utils.get_task(request.REQUEST['task_id'])
+        task, err = scheduler_utils.get_task(req_ret['task_id'])
         if err:
             raise Exception(err)
 
-        ret, err = scheduler_utils.delete_task(request.REQUEST['task_id'])
+        ret, err = scheduler_utils.delete_task(req_ret['task_id'])
         if err:
             raise Exception(err)
 

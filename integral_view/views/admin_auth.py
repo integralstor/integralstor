@@ -10,7 +10,7 @@ import os
 import integral_view
 from integral_view.forms import admin_forms, pki_forms
 from integral_view.utils import iv_logging
-from integralstor_utils import audit, mail, config, certificates, nginx, command, scheduler_utils
+from integralstor_utils import audit, mail, config, certificates, nginx, command, scheduler_utils, django_utils
 
 
 def login(request):
@@ -167,12 +167,16 @@ def view_email_settings(request):
             else:
                 d["email_alerts"] = False
             return_dict["email_settings"] = d
-        if "ack" in request.REQUEST and request.REQUEST['ack'] == 'saved':
+        ret, err = django_utils.get_request_parameter_values(
+            request, ['ack', 'err', 'sent_mail'])
+        if err:
+            raise Exception(err)
+        if 'ack' in ret and ret['ack'] == 'saved':
             return_dict["ack_message"] = 'Email settings have successfully been updated.'
-        if "err" in request.REQUEST:
-            return_dict["err"] = request.REQUEST["err"]
-        if "sent_mail" in request.REQUEST:
-            return_dict["sent_mail"] = request.REQUEST["sent_mail"]
+        if 'err' in ret:
+            return_dict["err"] = ret['err']
+        if 'sent_mail' in ret:
+            return_dict["sent_mail"] = ret['sent_mail']
         return django.shortcuts.render_to_response('view_email_settings.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = "system_base.html"
@@ -260,10 +264,13 @@ def view_https_mode(request):
 def update_https_mode(request):
     return_dict = {}
     try:
-
-        if 'change_to' not in request.REQUEST:
-            raise Exception("Invalid request. Please use the menus")
-        change_to = request.REQUEST['change_to']
+        ret, err = django_utils.get_request_parameter_values(request, [
+                                                             'change_to'])
+        if err:
+            raise Exception(err)
+        if 'change_to' not in ret:
+            raise Exception("Invalid request, please use the menus.")
+        change_to = ret['change_to']
         return_dict['change_to'] = change_to
 
         cert_list, err = certificates.get_certificates()
@@ -332,11 +339,13 @@ def reboot_or_shutdown(request):
     try:
         minutes_to_wait = 1
         return_dict['minutes_to_wait'] = minutes_to_wait
-        if 'do' not in request.REQUEST:
-            raise Exception('Unknown action. Please use the menus')
-        else:
-            do = request.REQUEST['do']
-            return_dict['do'] = do
+        ret, err = django_utils.get_request_parameter_values(request, ['do'])
+        if err:
+            raise Exception(err)
+        if 'do' not in ret:
+            raise Exception("Invalid request, please use the menus.")
+        do = ret['do']
+        return_dict['do'] = do
         if request.method == "GET":
             return django.shortcuts.render_to_response("reboot_or_shutdown.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:

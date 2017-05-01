@@ -1,7 +1,7 @@
 import django
 import django.template
 
-from integralstor_utils import networking, audit, command, config, unicode_utils
+from integralstor_utils import networking, audit, command, config, unicode_utils, django_utils
 from django.contrib.auth.decorators import login_required
 
 import socket
@@ -53,11 +53,14 @@ def view_interface(request):
     return_dict = {}
     try:
         template = 'logged_in_error.html'
-        if 'name' not in request.REQUEST:
-            raise Exception(
-                "Error loading network interface information : No interface name specified.")
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception('Invalid request, please use the menus')
 
-        name = request.REQUEST['name']
+        name = req_ret['name']
         interfaces, err = networking.get_interfaces()
         if err:
             raise Exception(err)
@@ -97,16 +100,16 @@ def update_interface_state(request):
 
     return_dict = {}
     try:
-        if 'name' not in request.REQUEST:
-            raise Exception(
-                "No interface name specified. Please use the menus")
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['name', 'state'])
+        if err:
+            raise Exception(err)
+        if ('name' and 'state') not in req_ret:
+            raise Exception('Invalid request, please use the menus')
 
-        if 'state' not in request.REQUEST:
-            raise Exception("No state specified. Please use the menus")
-
-        name = request.REQUEST["name"]
+        name = req_ret['name']
         return_dict["name"] = name
-        state = request.REQUEST["state"]
+        state = req_ret['state']
         return_dict["state"] = state
 
         if request.method == "GET" and state == 'down':
@@ -137,10 +140,14 @@ def view_bond(request):
     return_dict = {}
     try:
         template = 'logged_in_error.html'
-        if 'name' not in request.REQUEST:
-            raise Exception("No bond name specified.")
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception('Invalid request, please use the menus')
 
-        name = request.REQUEST['name']
+        name = req_ret['name']
 
         interfaces, err = networking.get_interfaces()
         if err:
@@ -172,11 +179,14 @@ def view_bond(request):
 def update_interface_address(request):
     return_dict = {}
     try:
-        if 'name' not in request.REQUEST:
-            raise Exception(
-                "Interface name not specified. Please use the menus.")
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception('Invalid request, please use the menus')
 
-        name = request.REQUEST["name"]
+        name = req_ret['name']
         interfaces, err = networking.get_interfaces()
         if err:
             raise Exception(err)
@@ -243,10 +253,12 @@ def update_interface_address(request):
 def create_vlan(request):
     return_dict = {}
     try:
-
-        if 'nic' not in request.REQUEST:
-            raise Exception(
-                'No base network interface specified. Please use the menus.')
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'nic'])
+        if err:
+            raise Exception(err)
+        if 'nic' not in req_ret:
+            raise Exception('Invalid request, please use the menus')
 
         interfaces, err = networking.get_interfaces()
         if err:
@@ -269,7 +281,7 @@ def create_vlan(request):
                     existing_vlans.append(int(comps[1]))
         if request.method == "GET":
             form = networking_forms.CreateVLANForm(existing_vlans=existing_vlans, initial={
-                                                   'base_interface': request.REQUEST['nic']})
+                                                   'base_interface': req_ret['nic']})
             return_dict['form'] = form
             return django.shortcuts.render_to_response("create_vlan.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
@@ -308,10 +320,13 @@ def create_vlan(request):
 def delete_vlan(request):
     return_dict = {}
     try:
-        if 'name' not in request.REQUEST:
-            raise Exception("No VLAN name specified. Please use the menus")
-
-        name = request.REQUEST["name"]
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception('Invalid request, please use the menus')
+        name = req_ret['name']
         return_dict["name"] = name
 
         if request.method == "GET":
@@ -431,10 +446,13 @@ def delete_bond(request):
 
     return_dict = {}
     try:
-        if 'name' not in request.REQUEST:
-            raise Exception("No bond name specified. Please use the menus")
-
-        name = request.REQUEST["name"]
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception('Invalid request, please use the menus')
+        name = req_ret['name']
         return_dict["name"] = name
 
         if request.method == "GET":

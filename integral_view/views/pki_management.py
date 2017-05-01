@@ -1,7 +1,7 @@
 import django
 import django.template
 
-from integralstor_utils import audit, pki
+from integralstor_utils import audit, pki, django_utils
 from integral_view.forms import pki_forms
 
 import os
@@ -36,10 +36,12 @@ def delete_ssl_certificate(request):
 
     return_dict = {}
     try:
-        if 'name' not in request.REQUEST:
-            raise Exception(
-                "No certificate name specified. Please use the menus")
-        name = request.REQUEST["name"]
+        ret, err = django_utils.get_request_parameter_values(request, ['name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in ret:
+            raise Exception("Invalid request, please use the menus.")
+        name = ret['name']
         return_dict["name"] = name
 
         if request.method == "GET":
