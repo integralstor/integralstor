@@ -72,8 +72,12 @@ def view_zfs_pool(request):
     return_dict = {}
     try:
         template = 'logged_in_error.html'
-        if 'name' not in request.REQUEST:
-            raise Exception("No pool specified.")
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'view', 'name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
 
         if "ack" in request.GET:
             if request.GET["ack"] == "saved":
@@ -108,12 +112,12 @@ def view_zfs_pool(request):
                 return_dict['ack_message'] = "Successfully added spare disks to the pool"
             elif request.GET["ack"] == "removed_spare":
                 return_dict['ack_message'] = "Successfully removed a spare disk from the pool"
-        if 'view' in request.REQUEST:
-            view = request.REQUEST['view']
+        if 'view' in req_ret:
+            view = req_ret['view']
         else:
             view = 'basic'
 
-        pool_name = request.REQUEST['name']
+        pool_name = req_ret['name']
         pool, err = zfs.get_pool(pool_name)
 
         if err:
@@ -169,12 +173,16 @@ def view_zfs_pool(request):
 def update_zfs_quota(request):
     return_dict = {}
     try:
-        if 'path' not in request.REQUEST or 'ug_type' not in request.REQUEST or 'path_type' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['path', 'path_type', 'ug_type', 'pool_name'])
+        if err:
+            raise Exception(err)
+        if ('path' and 'path_type' and 'pool_name' and 'ug_type') not in req_ret:
             raise Exception("Malformed request. Please use the menus")
-        path_type = request.REQUEST["path_type"]
-        path = request.REQUEST["path"]
-        ug_type = request.REQUEST["ug_type"]
-        pool_name = request.REQUEST["pool_name"]
+        path_type = req_ret['path_type']
+        path = req_ret['path']
+        ug_type = req_ret['ug_type']
+        pool_name = req_ret['pool_name']
         if ug_type not in ['user', 'group']:
             raise Exception("Malformed request. Please use the menus")
         if ug_type == 'user':
@@ -231,13 +239,17 @@ def update_zfs_quota(request):
 def delete_zfs_quota(request):
     return_dict = {}
     try:
-        if 'path' not in request.REQUEST or 'ug_name' not in request.REQUEST or 'ug_type' not in request.REQUEST or 'path_type' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['path', 'path_type', 'ug_type', 'ug_name', 'pool_name'])
+        if err:
+            raise Exception(err)
+        if ('path' and 'path_type' and 'ug_name' and 'ug_type' and 'pool_name') not in req_ret:
             raise Exception("Malformed request. Please use the menus")
-        path = request.REQUEST["path"]
-        path_type = request.REQUEST["path_type"]
-        pool_name = request.REQUEST["pool_name"]
-        ug_name = request.REQUEST["ug_name"]
-        ug_type = request.REQUEST["ug_type"]
+        path_type = req_ret['path_type']
+        path = req_ret['path']
+        ug_type = req_ret['ug_type']
+        ug_name = req_ret['ug_type']
+        pool_name = req_ret['pool_name']
 
         return_dict["path"] = path
         return_dict["pool_name"] = pool_name
@@ -278,9 +290,13 @@ def delete_zfs_quota(request):
 def export_zfs_pool(request):
     return_dict = {}
     try:
-        if 'pool_name' not in request.REQUEST:
-            raise Exception("Malformed request. Please use the menus")
-        pool_name = request.REQUEST["pool_name"]
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'pool_name'])
+        if err:
+            raise Exception(err)
+        if 'pool_name' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        pool_name = req_ret['pool_name']
 
         return_dict["pool_name"] = pool_name
         if request.method == "GET":
@@ -436,9 +452,13 @@ def create_zfs_pool(request):
 def expand_zfs_pool(request):
     return_dict = {}
     try:
-        if 'pool_name' not in request.REQUEST:
-            raise Exception('Pool not specified. Please use the menus.')
-        pool_name = request.REQUEST['pool_name']
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'pool_name'])
+        if err:
+            raise Exception(err)
+        if 'pool_name' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        pool_name = req_ret['pool_name']
         if request.method == 'GET':
             (can_expand, new_pool_type), err = zfs.can_expand_pool(pool_name)
             if err:
@@ -469,9 +489,13 @@ def scrub_zfs_pool(request):
 
     return_dict = {}
     try:
-        if 'name' not in request.REQUEST:
-            raise Exception("No pool specified. Please use the menus")
-        name = request.REQUEST["name"]
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        name = req_ret['name']
         return_dict["name"] = name
         if request.method == "GET":
             # Return the conf page
@@ -500,9 +524,13 @@ def delete_zfs_pool(request):
 
     return_dict = {}
     try:
-        if 'name' not in request.REQUEST:
-            raise Exception("No pool specified. Please use the menus")
-        name = request.REQUEST["name"]
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        name = req_ret['name']
         nfs_shares, err = nfs.get_shares_on_subpath('%s/' % name)
         if err:
             raise Exception(err)
@@ -565,10 +593,13 @@ def update_zfs_slog(request):
 
         template = 'logged_in_error.html'
 
-        if 'pool' not in request.REQUEST:
-            raise Exception("No pool specified.")
-
-        pool_name = request.REQUEST["pool"]
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'pool'])
+        if err:
+            raise Exception(err)
+        if 'pool' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        pool_name = req_ret['pool']
 
         pool, err = zfs.get_pool(pool_name)
 
@@ -672,14 +703,16 @@ def delete_zfs_slog(request):
 
     return_dict = {}
     try:
-        if 'pool' not in request.REQUEST:
-            raise Exception("No pool specified. Please use the menus")
-        if 'device' not in request.REQUEST:
-            raise Exception("No device specified. Please use the menus")
-        pool = request.REQUEST["pool"]
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['pool', 'device', 'type'])
+        if err:
+            raise Exception(err)
+        if ('pool' and 'device' and 'type') not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        pool = req_ret['pool']
+        device = req_ret['device']
         return_dict["pool"] = pool
-        device = request.REQUEST["device"]
-        type = request.REQUEST["type"]
+        type = req_ret["type"]
         return_dict["device"] = device
         return_dict["type"] = type
         if request.method == "GET":
@@ -714,10 +747,13 @@ def update_zfs_l2arc(request):
     return_dict = {}
     try:
 
-        if 'pool' not in request.REQUEST:
-            raise Exception("No pool specified.")
-
-        pool_name = request.REQUEST["pool"]
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'pool'])
+        if err:
+            raise Exception(err)
+        if 'pool' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        pool_name = req_ret['pool']
 
         pool, err = zfs.get_pool(pool_name)
 
@@ -771,16 +807,16 @@ def delete_zfs_l2arc(request):
     return_dict = {}
     try:
 
-        if 'pool' not in request.REQUEST:
-            raise Exception("No pool specified. Please use the menus")
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['pool', 'device'])
+        if err:
+            raise Exception(err)
+        if ('pool' and 'device') not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        pool = req_ret['pool']
+        device = req_ret['device']
 
-        if 'device' not in request.REQUEST:
-            raise Exception("No device specified. Please use the menus")
-
-        pool = request.REQUEST["pool"]
         return_dict["pool"] = pool
-
-        device = request.REQUEST["device"]
         return_dict["device"] = device
 
         if request.method == "GET":
@@ -811,8 +847,12 @@ def view_zfs_dataset(request):
     try:
         template = 'logged_in_error.html'
 
-        if 'name' not in request.REQUEST:
-            raise Exception("Malformed request. Please use the menus.")
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
 
         if "ack" in request.GET:
             if request.GET["ack"] == "set_quota":
@@ -826,7 +866,7 @@ def view_zfs_dataset(request):
             elif request.GET["ack"] == "created_dataset":
                 return_dict['ack_message'] = "ZFS dataset successfully created"
 
-        dataset_name = request.REQUEST['name']
+        dataset_name = req_ret['name']
         if '/' in dataset_name:
             pos = dataset_name.find('/')
             pool = dataset_name[:pos]
@@ -884,10 +924,14 @@ def view_zfs_dataset(request):
 def update_zfs_dataset(request):
     return_dict = {}
     try:
-        if 'name' not in request.REQUEST:
-            raise Exception(
-                'Dataset name not specified. Please use the menus.')
-        name = request.REQUEST["name"]
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+
+        name = req_ret['name']
         is_zvol = False
 
         properties, err = zfs.get_properties(name)
@@ -1050,15 +1094,19 @@ def delete_zfs_dataset(request):
 
     return_dict = {}
     try:
-        if 'name' not in request.REQUEST:
-            raise Exception(
-                "Error deleting ZFS dataset- No dataset specified. Please use the menus")
-        if 'type' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['name', 'type', 'pool_name'])
+        if err:
+            raise Exception(err)
+        if ('name' and 'pool_name') not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+
+        name = req_ret['name']
+        pool_name = req_ret['pool_name']
+        if 'type' not in req_ret:
             type = 'filesystem'
         else:
-            type = request.REQUEST['type']
-        name = request.REQUEST["name"]
-        pool_name = request.REQUEST["pool_name"]
+            type = req_ret['type']
         nfs_shares, err = nfs.get_shares_on_subpath('%s/' % name)
         if err:
             raise Exception(err)
@@ -1121,9 +1169,14 @@ def delete_zfs_dataset(request):
 def create_zfs_dataset(request):
     return_dict = {}
     try:
-        if 'pool' not in request.REQUEST:
-            raise Exception("No parent pool provided. Please use the menus.")
-        pool = request.REQUEST['pool']
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'pool'])
+        if err:
+            raise Exception(err)
+        if 'pool' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        pool = req_ret['pool']
+
         datasets, err = zfs.get_children_datasets(pool)
         if err:
             raise Exception("Could not retrieve the list of existing datasets")
@@ -1176,9 +1229,14 @@ def create_zfs_dataset(request):
 def create_zfs_zvol(request):
     return_dict = {}
     try:
-        if 'pool' not in request.REQUEST:
-            raise Exception("No parent pool provided. Please use the menus.")
-        pool = request.REQUEST['pool']
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'pool'])
+        if err:
+            raise Exception(err)
+        if 'pool' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        pool = req_ret['pool']
+
         return_dict['pool'] = pool
 
         if request.method == "GET":
@@ -1235,10 +1293,14 @@ def view_zfs_zvol(request):
     return_dict = {}
     try:
         template = 'logged_in_error.html'
-        if 'name' not in request.REQUEST:
-            raise Exception("No block device volume specified.")
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        name = req_ret['name']
 
-        name = request.REQUEST['name']
         if '/' in name:
             pos = name.find('/')
             pool = name[:pos]
@@ -1372,12 +1434,16 @@ def delete_zfs_snapshot(request):
 
     return_dict = {}
     try:
-        if 'name' not in request.REQUEST:
-            raise Exception("No snapshot name specified. Please use the menus")
-        name = request.REQUEST["name"]
-        if 'display_name' in request.REQUEST:
-            return_dict["display_name"] = request.REQUEST['display_name']
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['name', 'display_name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        name = req_ret['name']
         return_dict["name"] = name
+        if 'display_name' in req_ret:
+            return_dict["display_name"] = req_ret['display_name']
 
         if request.method == "GET":
             # Return the conf page
@@ -1406,12 +1472,16 @@ def rollback_zfs_snapshot(request):
 
     return_dict = {}
     try:
-        if 'name' not in request.REQUEST:
-            raise Exceptio("No snapshot name specified. Please use the menus")
-        name = request.REQUEST["name"]
-        if 'display_name' in request.REQUEST:
-            return_dict["display_name"] = request.REQUEST['display_name']
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['name', 'display_name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        name = req_ret['name']
         return_dict["name"] = name
+        if 'display_name' in req_ret:
+            return_dict["display_name"] = req_ret['display_name']
 
         if request.method == "GET":
             # Return the conf page
@@ -1566,9 +1636,13 @@ def schedule_zfs_snapshot(request):
 def create_zfs_spares(request):
     return_dict = {}
     try:
-        if 'pool_name' not in request.REQUEST:
-            raise Exception('No pool specified. Please use the menus')
-        pool_name = request.REQUEST['pool_name']
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'pool_name'])
+        if err:
+            raise Exception(err)
+        if 'pool_name' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        pool_name = req_ret['pool_name']
         free_drives, err = zfs.get_free_disks_for_spares(pool_name)
         if err:
             raise Exception(err)
@@ -1610,9 +1684,13 @@ def create_zfs_spares(request):
 def delete_zfs_spare(request):
     return_dict = {}
     try:
-        if 'pool_name' not in request.REQUEST:
-            raise Exception('No pool specified. Please use the menus')
-        pool_name = request.REQUEST['pool_name']
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'pool_name'])
+        if err:
+            raise Exception(err)
+        if 'pool_name' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        pool_name = req_ret['pool_name']
         spares, err = zfs.get_pool_spares(pool_name)
         if err:
             raise Exception(err)

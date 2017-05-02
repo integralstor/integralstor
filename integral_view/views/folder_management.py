@@ -13,7 +13,7 @@ import json
 import integral_view
 from integral_view.forms import samba_shares_forms, folder_management_forms
 
-from integralstor_utils import audit, zfs, acl
+from integralstor_utils import audit, zfs, acl, django_utils
 from integralstor import cifs as cifs_integralstor, local_users, nfs
 
 
@@ -187,7 +187,14 @@ def create_aces(request):
     return_dict = {}
     try:
         for_share = False
-        if 'for' in request.REQUEST and request.REQUEST['for'] == 'share':
+        share_index = None
+        share_name = None
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['for', 'path', 'share_index', 'share_name'])
+        if err:
+            raise Exception(err)
+
+        if 'for' in req_ret and req_ret['for'] == 'share':
             for_share = True
         if for_share:
             return_dict['base_template'] = "shares_base.html"
@@ -196,9 +203,10 @@ def create_aces(request):
             return_dict['base_template'] = "storage_base.html"
             return_dict['tab'] = 'dir_permissions_tab'
 
-        if 'path' not in request.REQUEST:
-            raise Exception('Invalid request. Please use the menus.')
-        path = request.REQUEST["path"]
+        if 'path' not in req_ret:
+            raise Exception(
+                'Invalid request, please use the menus.')
+        path = req_ret['path']
         return_dict["path"] = path
 
         aces, err = acl.get_all_aces(path)
@@ -223,10 +231,10 @@ def create_aces(request):
             initial = {}
             initial['path'] = path
             if for_share:
-                if 'share_index' not in request.REQUEST or 'share_name' not in request.REQUEST:
+                if 'share_index' not in req_ret or 'share_name' not in req_ret:
                     raise Exception('Invalid request. Please use the menus.')
-                share_index = request.REQUEST["share_index"]
-                share_name = request.REQUEST["share_name"]
+                share_index = req_ret['share_index']
+                share_name = req_ret['share_name']
                 initial['share_index'] = share_index
                 initial['share_name'] = share_name
                 form = samba_shares_forms.AddShareAcesForm(
@@ -290,8 +298,16 @@ def update_aces(request):
     return_dict = {}
     try:
         for_share = False
-        if 'for' in request.REQUEST and request.REQUEST['for'] == 'share':
+        share_index = None
+        share_name = None
+        path = None
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['for', 'path', 'share_index', 'share_name'])
+        if err:
+            raise Exception(err)
+        if 'for' in req_ret and req_ret['for'] == 'share':
             for_share = True
+
         if for_share:
             return_dict['base_template'] = "shares_base.html"
             return_dict['tab'] = 'view_cifs_shares_tab'
@@ -299,17 +315,18 @@ def update_aces(request):
             return_dict['base_template'] = "storage_base.html"
             return_dict['tab'] = 'dir_permissions_tab'
 
-        if 'path' not in request.REQUEST:
-            raise Exception('Invalid request. Please use the menus.')
+        if 'path' not in req_ret:
+            raise Exception(
+                'Invalid request, please use the menus.')
         if for_share:
-            if 'share_index' not in request.REQUEST or 'share_name' not in request.REQUEST:
+            if 'share_index' not in req_ret or 'share_name' not in req_ret:
                 raise Exception('Invalid request. Please use the menus.')
-            share_index = request.REQUEST["share_index"]
-            share_name = request.REQUEST["share_name"]
+            share_index = req_ret['share_index']
+            share_name = req_ret['share_name']
             return_dict["share_index"] = share_index
             return_dict["share_name"] = share_name
 
-        path = request.REQUEST["path"]
+        path = req_ret['path']
         return_dict["path"] = path
 
         aces, err = acl.get_all_aces(path)
@@ -451,7 +468,16 @@ def delete_ace(request):
     return_dict = {}
     try:
         for_share = False
-        if 'for' in request.REQUEST and request.REQUEST['for'] == 'share':
+        name = None
+        share_index = None
+        share_name = None
+        ace_type = None
+
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['for', 'path', 'name', 'type', 'share_index', 'share_name', 'recursive'])
+        if err:
+            raise Exception(err)
+        if 'for' in req_ret and req_ret['for'] == 'share':
             for_share = True
         if for_share:
             return_dict['base_template'] = "shares_base.html"
@@ -460,21 +486,22 @@ def delete_ace(request):
             return_dict['base_template'] = "storage_base.html"
             return_dict['tab'] = 'dir_permissions_tab'
 
-        if 'path' not in request.REQUEST or 'name' not in request.REQUEST or 'type' not in request.REQUEST:
-            raise Exception('Invalid request. Please use the menus.')
+        if ('path' and 'name' and 'type') not in req_ret:
+            raise Exception(
+                'Invalid request, please use the menus.')
         if for_share:
-            if 'share_name' not in request.REQUEST or 'share_index' not in request.REQUEST:
+            if 'share_name' not in req_ret or 'share_index' not in req_ret:
                 raise Exception('Invalid request. Please use the menus.')
-            share_name = request.REQUEST["share_name"]
-            share_index = request.REQUEST["share_index"]
+            share_name = req_ret['share_name']
+            share_index = req_ret['share_index']
             return_dict["share_name"] = share_name
             return_dict["share_index"] = share_index
 
-        path = request.REQUEST["path"]
-        name = request.REQUEST["name"]
-        type = request.REQUEST["type"]
+        path = req_ret['path']
+        name = req_ret['name']
+        ace_type = req_ret['type']
         return_dict["name"] = name
-        return_dict["type"] = type
+        return_dict["type"] = ace_type
         return_dict["path"] = path
 
         if request.method == "GET":
@@ -484,21 +511,20 @@ def delete_ace(request):
             else:
                 return django.shortcuts.render_to_response("delete_dir_ace_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            if 'recursive' in request.REQUEST and request.REQUEST['recursive']:
+            if 'recursive' in req_ret and req_ret['recursive']:
                 recursive = True
             else:
                 recursive = False
-            type = request.REQUEST["type"]
-            ret, err = acl.delete_ace(path, name, type, recursive)
+            ret, err = acl.delete_ace(path, name, ace_type, recursive)
             if err:
                 raise Exception(err)
 
             if for_share:
                 audit_str = "Removed ACL entry %s (%s) for CIFS share %s" % (
-                    name, type, share_name)
+                    name, ace_type, share_name)
             else:
                 audit_str = "Removed ACL entry %s (%s) for directory %s" % (
-                    name, type, path)
+                    name, ace_type, path)
             audit.audit("delete_ace", audit_str, request)
             if for_share:
                 return django.http.HttpResponseRedirect('/view_cifs_share?access_mode=by_id&index=%s&ack=ace_deleted' % share_index)
@@ -514,6 +540,7 @@ def delete_ace(request):
 def create_dir(request):
     return_dict = {}
     try:
+        path = None
         if not "error" in return_dict:
             if "ack" in request.GET:
                 if request.GET["ack"] == "ace_deleted":
@@ -522,10 +549,15 @@ def create_dir(request):
                     return_dict['ack_message'] = "ACL entries successfully added"
                 elif request.GET["ack"] == "aces_modified":
                     return_dict['ack_message'] = "ACL entries successfully modified"
-        if 'path' not in request.REQUEST:
+
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'path'])
+        if err:
+            raise Exception(err)
+        if 'path' not in req_ret:
             raise Exception(
                 'Unspecified base directory. Please use the menus.')
-        path = request.REQUEST['path']
+        path = req_ret['path']
         try:
             stat_info = os.stat(path)
         except Exception, e:
@@ -569,9 +601,13 @@ def create_dir(request):
 def delete_dir(request):
     return_dict = {}
     try:
-        if 'path' not in request.REQUEST:
-            raise Exception('Invalid request. Please use the menus')
-        path = request.REQUEST['path']
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'path'])
+        if err:
+            raise Exception(err)
+        if 'path' not in req_ret:
+            raise Exception('Invalid request, please use the menus')
+        path = req_ret['path']
         pools, err = zfs.get_pools()
         ds_list = []
         for pool in pools:
@@ -687,8 +723,12 @@ def view_dir_manager(request):
                     return_dict['ack_message'] = "Directory ownership successfully modified"
 
         initial = {}
-        if 'pool' in request.REQUEST:
-            pool = request.REQUEST['pool']
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'pool'])
+        if err:
+            raise Exception(err)
+        if 'pool' in req_ret:
+            pool = req_ret['pool']
             initial['pool'] = pool
 
         pools, err = zfs.get_pools()
@@ -729,10 +769,14 @@ def view_dir_ownership_permissions(request):
                 elif request.GET["ack"] == "modified_sticky_bit":
                     return_dict['ack_message'] = "Directory sticky bit settings successfully modified"
 
-        if 'path' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'path'])
+        if err:
+            raise Exception(err)
+        if 'path' not in req_ret:
             raise Exception('No directory specified. Please use the menus.')
         else:
-            path = request.REQUEST['path']
+            path = req_ret['path']
 
         return_dict['path'] = path
         try:
@@ -891,10 +935,14 @@ def update_dir_permissions(request):
             raise Exception(
                 'No ZFS datasets available. Please create a dataset before creating shares.')
 
-        if 'path' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'path'])
+        if err:
+            raise Exception(err)
+        if 'path' not in req_ret:
             path = "/" + pools[0]["datasets"][0]["name"]
         else:
-            path = request.REQUEST['path']
+            path = req_ret['path']
         try:
             stat_info = os.stat(path)
         except Exception, e:
@@ -1024,9 +1072,13 @@ def update_sticky_bit(request):
     return_dict = {}
     try:
 
-        if 'path' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'path'])
+        if err:
+            raise Exception(err)
+        if 'path' not in req_ret:
             raise Exception('Invalid request. Please use the menus.')
-        path = request.REQUEST['path']
+        path = req_ret['path']
 
         sticky_bit_enabled, err = _sticky_bit_enabled(path)
         if err:

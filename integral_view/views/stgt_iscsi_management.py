@@ -1,5 +1,5 @@
 
-from integralstor_utils import audit, zfs
+from integralstor_utils import audit, zfs, django_utils
 from integralstor import iscsi_stgt
 
 from integral_view.forms import iscsi_stgt_forms
@@ -118,11 +118,15 @@ def create_iscsi_target(request):
 def delete_iscsi_target(request):
     return_dict = {}
     try:
-        if 'target_name' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'target_name'])
+        if err:
+            raise Exception(err)
+        if 'target_name' not in req_ret:
             raise Exception(
-                "Malformed request. No target specified. Please use the menus.")
+                "Invalid request, please use the menus.")
 
-        target_name = request.REQUEST['target_name']
+        target_name = req_ret['target_name']
 
         if request.method == "GET":
             return_dict["target_name"] = target_name
@@ -150,10 +154,15 @@ def delete_iscsi_target(request):
 def create_iscsi_lun(request):
     return_dict = {}
     try:
-        if 'target_name' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'target_name'])
+        if err:
+            raise Exception(err)
+        if 'target_name' not in req_ret:
             raise Exception(
-                "Malformed request. No target specified. Please use the menus.")
-        target_name = request.REQUEST['target_name']
+                "Invalid request, please use the menus.")
+
+        target_name = req_ret['target_name']
         zvols, err = zfs.get_all_zvols()
         if err:
             raise Exception(err)
@@ -199,15 +208,16 @@ def create_iscsi_lun(request):
 def delete_iscsi_lun(request):
     return_dict = {}
     try:
-        if 'target_name' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['target_name', 'store'])
+        if err:
+            raise Exception(err)
+        if ('target_name' and 'store') not in req_ret:
             raise Exception(
-                "Malformed request. No target specified. Please use the menus.")
-        if 'store' not in request.REQUEST:
-            raise Exception(
-                "Malformed request. No LUN specified. Please use the menus.")
+                "Invalid request, please use the menus.")
 
-        store = request.REQUEST['store']
-        target_name = request.REQUEST['target_name']
+        store = req_ret['store']
+        target_name = req_ret['target_name']
 
         if request.method == "GET":
             return_dict["target_name"] = target_name
@@ -237,15 +247,16 @@ def delete_iscsi_lun(request):
 def create_iscsi_user_authentication(request):
     return_dict = {}
     try:
-        if 'authentication_type' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['target_name', 'authentication_type'])
+        if err:
+            raise Exception(err)
+        if ('target_name' and 'authentication_type') not in req_ret:
             raise Exception(
-                "Malformed request. No user type specified. Please use the menus.")
-        if 'target_name' not in request.REQUEST:
-            raise Exception(
-                "Malformed request. No target specified. Please use the menus.")
+                "Invalid request, please use the menus.")
 
-        authentication_type = request.REQUEST['authentication_type']
-        target_name = request.REQUEST['target_name']
+        authentication_type = req_ret['authentication_type']
+        target_name = req_ret['target_name']
 
         if authentication_type not in ['incoming', 'outgoing']:
             raise Exception("Invalid user type. Please use the menus.")
@@ -297,19 +308,17 @@ def create_iscsi_user_authentication(request):
 def delete_iscsi_user_authentication(request):
     return_dict = {}
     try:
-        if 'authentication_type' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['target_name', 'authentication_type', 'username'])
+        if err:
+            raise Exception(err)
+        if ('target_name' and 'authentication_type' and 'username') not in req_ret:
             raise Exception(
-                "Malformed request. No user type specified. Please use the menus.")
-        if 'target_name' not in request.REQUEST:
-            raise Exception(
-                "Malformed request. No target namespecified. Please use the menus.")
-        if 'username' not in request.REQUEST:
-            raise Exception(
-                "Malformed request. No user name specified. Please use the menus.")
+                "Invalid request, please use the menus.")
 
-        authentication_type = request.REQUEST['authentication_type']
-        target_name = request.REQUEST['target_name']
-        username = request.REQUEST['username']
+        authentication_type = req_ret['authentication_type']
+        target_name = req_ret['target_name']
+        username = req_ret['username']
 
         if authentication_type not in ['incoming', 'outgoing']:
             raise Exception("Invalid user type. Please use the menus.")
@@ -350,11 +359,16 @@ def delete_iscsi_user_authentication(request):
 def create_iscsi_acl(request):
     return_dict = {}
     try:
-        if 'target_name' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'target_name'])
+        if err:
+            raise Exception(err)
+        if 'target_name' not in req_ret:
             raise Exception(
-                "Malformed request. No target specified. Please use the menus.")
+                "Invalid request, please use the menus.")
 
-        target_name = request.REQUEST['target_name']
+        target_name = req_ret['target_name']
+
         target, err = iscsi_stgt.get_target(target_name)
         if err:
             raise Exception(err)
@@ -400,15 +414,16 @@ def create_iscsi_acl(request):
 def delete_iscsi_acl(request):
     return_dict = {}
     try:
-        if 'acl' not in request.REQUEST:
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['target_name', 'acl'])
+        if err:
+            raise Exception(err)
+        if ('target_name' and 'acl') not in req_ret:
             raise Exception(
-                "Malformed request. No ACL specified. Please use the menus.")
-        if 'target_name' not in request.REQUEST:
-            raise Exception(
-                "Malformed request. No target specified. Please use the menus.")
+                "Invalid request, please use the menus.")
 
-        acl = request.REQUEST['acl']
-        target_name = request.REQUEST['target_name']
+        target_name = req_ret['target_name']
+        acl = req_ret['acl']
 
         if request.method == "GET":
             return_dict["target_name"] = target_name

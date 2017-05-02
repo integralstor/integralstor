@@ -5,7 +5,7 @@ import django.template
 import integral_view
 from integral_view.forms import local_user_forms
 
-from integralstor_utils import audit
+from integralstor_utils import audit, django_utils
 from integralstor import local_users
 
 
@@ -157,10 +157,15 @@ def update_local_user_group_membership(request):
         t_group_list, err = local_users.get_local_groups()
         if err:
             raise Exception(err)
-        if 'username' not in request.REQUEST:
-            raise Exception("Unknown user specified")
 
-        username = request.REQUEST["username"]
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'username'])
+        if err:
+            raise Exception(err)
+        if 'username' not in req_ret:
+            raise Exception('Invalid request, please use the menus.')
+
+        username = req_ret['username']
         ud, err = local_users.get_local_user(username)
         if err:
             raise Exception(err)
@@ -313,10 +318,14 @@ def create_local_group(request):
 def delete_local_group(request):
     return_dict = {}
     try:
-        if "grpname" not in request.REQUEST:
-            raise Exception("Invalid request. No group name specified.")
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'grpname'])
+        if err:
+            raise Exception(err)
+        if 'grpname' not in req_ret:
+            raise Exception('Invalid request, please use the menus.')
 
-        gd, err = local_users.get_local_group(request.REQUEST['grpname'])
+        gd, err = local_users.get_local_group(req_ret['grpname'])
         if err or (not gd):
             if err:
                 raise Exception(err)
@@ -357,8 +366,12 @@ def delete_local_user(request):
 
     return_dict = {}
     try:
-        if "username" not in request.REQUEST:
-            raise Exception("Invalid request. No user name specified.")
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'username'])
+        if err:
+            raise Exception(err)
+        if 'username' not in req_ret:
+            raise Exception('Invalid request, please use the menus.')
 
         if request.method == "GET":
             # Return the form
@@ -416,8 +429,8 @@ def update_local_user_password(request):
 
                 audit_str = "Changed password for local user %s" % cd["username"]
                 ret, err = audit.audit("change_local_user_password",
-                            audit_str, request)
-                #print ret, err
+                                       audit_str, request)
+                # print ret, err
                 if err:
                     raise Exception(err)
                 return django.http.HttpResponseRedirect('/view_local_users?ack=changed_password')
@@ -440,10 +453,14 @@ def update_group_membership(request):
             if request.GET["ack"] == "created":
                 return_dict['ack_message'] = "Local group successfully created"
 
-        if "grpname" not in request.REQUEST:
-            raise Exception("Invalid request. No group name specified.")
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'grpname'])
+        if err:
+            raise Exception(err)
+        if 'grpname' not in req_ret:
+            raise Exception('Invalid request, please use the menus.')
 
-        gd, err = local_users.get_local_group(request.REQUEST['grpname'])
+        gd, err = local_users.get_local_group(req_ret['grpname'])
         if err or (not gd):
             if err:
                 raise Exception(err)
@@ -534,10 +551,13 @@ def edit_local_user_gid(request):
     group_list,err = local_users.get_local_groups()
     if err:
       raise Exception(err)
-    if 'username' not in request.REQUEST:
-      raise Exception("Unknown user specified")
+    req_ret, err = django_utils.get_request_parameter_values(request,['username'])
+    if err:
+        raise Exception(err)
+    if 'username' not in req_ret:
+        raise Exception('Invalid request, please use the menus.')
 
-    username = request.REQUEST["username"]
+    username = req_ret['username']
     ud,err = local_users.get_local_user(username)
     if err:
       raise Exception(err)

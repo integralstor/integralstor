@@ -1,7 +1,7 @@
 import django
 import django.template
 
-from integralstor_utils import zfs, audit
+from integralstor_utils import zfs, audit, django_utils
 from integralstor import nfs
 
 import integral_view
@@ -169,13 +169,17 @@ def create_nfs_share(request):
             raise Exception(
                 'No ZFS datasets available. Please create a dataset before creating shares.')
 
-        if 'dataset' in request.REQUEST:
-            dataset = request.REQUEST['dataset']
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['dataset', 'path'])
+        if err:
+            raise Exception(err)
+
+        if 'dataset' in req_ret:
+            dataset = req_ret['dataset']
         else:
             dataset = ds_list[0]['mountpoint']
-
-        if 'path' in request.REQUEST:
-            path = request.REQUEST['path']
+        if 'path' in req_ret:
+            dataset = req_ret['path']
         else:
             path = dataset
 

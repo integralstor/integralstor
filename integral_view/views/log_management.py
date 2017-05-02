@@ -8,7 +8,7 @@ from django.contrib import auth
 from django.core.files.storage import default_storage
 from django.contrib.auth.decorators import login_required
 
-from integralstor_utils import config, audit, alerts, db
+from integralstor_utils import config, audit, alerts, db, django_utils
 
 import integral_view
 from integral_view.forms import log_management_forms, common_forms
@@ -426,11 +426,14 @@ def raise_alert(request):
 
   return_dict = {}
   template = "logged_in_error.html"
-  if "msg" not in request.REQUEST:
+  req_ret, err = django_utils.get_request_parameter_values(request,['msg'])
+  if err:
+    raise Exception(err)
+  if 'msg' not in req_ret:
     return_dict["error"] = "No alert message specified."
   else:
     try:
-      msg = request.REQUEST["msg"]
+      msg = req_ret['msg']
       ret, err = alerts.raise_alert(msg)
       if err:
         raise Exception(err)
