@@ -1,7 +1,7 @@
 {% extends 'users_groups_base.html' %}
 
 {%block tab_header %}
-  Modify the group membership of local user {{form.username.value}}
+  Add local user "{{form.username.value}}" to additional groups
 {%endblock%}
 
 {% block inside_content %}
@@ -15,12 +15,12 @@
       <tr>
         <th  style="max-width:60px;word-wrap: break-word">  User name: </th>
         <td> {{ form.username.value }} </td>
-        <td> &nbsp; </td>
       </tr>
       -->
       <tr>
         <th >  Group name </th>
-        <th style="text-align:center"> Selection </th>
+        <th style="text-align:center" > Selection </th>
+        <th >  &nbsp;</th>
       </tr>
       {% for choice in form.groups.field.choices %}
       <tr>
@@ -30,6 +30,11 @@
         </td>
       </tr>
       {%endfor%}
+      <tr>
+	<td colspan=2>
+            {%if form.groups.errors %} Groups - {{form.groups.errors}} {%endif%}
+        </td>
+      </tr>
     </table>
     </div>
     <br>

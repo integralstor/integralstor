@@ -31,10 +31,26 @@ class LocalUserForm(forms.Form):
                 del cd["password"]
                 del cd["password_conf"]
 
-        if "'" in cd["name"] or '"' in cd["name"]:
+        if not cd['username'].isalnum():
+            self._errors["username"] = self.error_class(
+                ["The userid cannot contain special characters."])
+            del cd["username"]
+
+        if 'username' in cd and cd['username'][0].isdigit():
+            self._errors["username"] = self.error_class(
+                ["The userid cannot start with a number."])
+            del cd["username"]
+
+        if not cd['name'].isalnum():
             self._errors["name"] = self.error_class(
                 ["The name cannot contain special characters."])
             del cd["name"]
+
+        if 'name' in cd and cd['name'][0].isdigit():
+            self._errors["name"] = self.error_class(
+                ["The name cannot start with a number."])
+            del cd["name"]
+
         if "name" in cd:
             n = cd["name"]
             cd["name"] = "_".join(n.split())
@@ -43,6 +59,19 @@ class LocalUserForm(forms.Form):
 
 class LocalGroupForm(forms.Form):
     grpname = forms.CharField()
+
+    def clean(self):
+        cd = super(LocalGroupForm, self).clean()
+        if not cd['grpname'].isalnum():
+            self._errors["grpname"] = self.error_class(
+                ["The group name cannot contain special characters."])
+            del cd["grpname"]
+
+        if 'grpname' in cd and cd['grpname'][0].isdigit():
+            self._errors["grpname"] = self.error_class(
+                ["The group name cannot start with a number."])
+            del cd["grpname"]
+        return cd
 
 
 class EditLocalUserGidForm(forms.Form):
@@ -75,7 +104,7 @@ class EditLocalUserGroupMembershipForm(forms.Form):
                 tup = (group['grpname'], group['grpname'])
                 ch.append(tup)
         self.fields["groups"] = forms.MultipleChoiceField(
-            widget=forms.CheckboxSelectMultiple(), choices=ch, required=False)
+            widget=forms.CheckboxSelectMultiple(), choices=ch)
 
 
 class ModifyGroupMembershipForm(forms.Form):
