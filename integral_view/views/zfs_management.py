@@ -408,6 +408,7 @@ def create_zfs_pool(request):
             form = zfs_forms.CreatePoolForm(
                 request.POST, pool_types=pool_types, num_free_disks=len(free_disks))
             return_dict['form'] = form
+            return_dict['num_disks'] = len(free_disks)
             if not form.is_valid():
                 return django.shortcuts.render_to_response("create_zfs_pool.html", return_dict, context_instance=django.template.context.RequestContext(request))
             cd = form.cleaned_data
