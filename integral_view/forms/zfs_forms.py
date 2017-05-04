@@ -164,21 +164,23 @@ class CreatePoolForm(forms.Form):
             if ('num_raid_disks' not in cd) or (not cd['num_raid_disks']):
                 self._errors["num_raid_disks"] = self.error_class(
                     ["The number of RAID disks is required for a RAID pool"])
-            if cd['num_raid_disks'] > num_disks:
-                self._errors["num_raid_disks"] = self.error_class(
-                    ["The number of RAID disks exceeds the available number of disks. Only %d disks available" % num_disks])
-            if cd['pool_type'] in ['raid10', 'raid50', 'raid60']:
-                if ('stripe_width' not in cd) or (not cd['stripe_width']):
-                    self._errors["stripe_width"] = self.error_class(
-                        ["Stripe width is required for the specified type of pool"])
-                stripe_width = int(cd['stripe_width'])
-                if cd['pool_type'] == 'raid10':
-                    multiplier = 2
-                else:
-                    multiplier = int(cd['num_raid_disks'])
-                if (stripe_width * multiplier) > num_disks:
-                    self._errors["stripe_width"] = self.error_class(
-                        ["The number of disks with the stripe width and RAID disks combination exceeds the number of available disks. Only %d disks available" % num_disks])
+            else:
+                if cd['num_raid_disks'] > num_disks:
+                    self._errors["num_raid_disks"] = self.error_class(
+                        ["The number of RAID disks exceeds the available number of disks. Only %d disks available" % num_disks])
+                if cd['pool_type'] in ['raid10', 'raid50', 'raid60']:
+                    if ('stripe_width' not in cd) or (not cd['stripe_width']):
+                        self._errors["stripe_width"] = self.error_class(
+                            ["Stripe width is required for the specified type of pool"])
+                    else:
+                        stripe_width = int(cd['stripe_width'])
+                        if cd['pool_type'] == 'raid10':
+                            multiplier = 2
+                        else:
+                            multiplier = int(cd['num_raid_disks'])
+                        if (stripe_width * multiplier) > num_disks:
+                            self._errors["stripe_width"] = self.error_class(
+                                ["The number of disks with the stripe width and RAID disks combination exceeds the number of available disks. Only %d disks available" % num_disks])
         return cd
 
 
