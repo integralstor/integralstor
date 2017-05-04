@@ -26,7 +26,11 @@ def view_local_users(request):
             elif request.GET["ack"] == "deleted":
                 return_dict['ack_message'] = "Local user successfully deleted"
             elif request.GET["ack"] == "changed_password":
-                return_dict['ack_message'] = "Successfully update password"
+                return_dict['ack_message'] = "Successfully updated password"
+            elif request.GET["ack"] == "groups_changed":
+                return_dict['ack_message'] = "Successfully updated group membership"
+            elif request.GET["ack"] == "gid_changed":
+                return_dict['ack_message'] = "Local user's group successfully updated"
 
         return django.shortcuts.render_to_response('view_local_users.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
@@ -214,7 +218,7 @@ def update_local_user_group_membership(request):
                 audit.audit("modify_local_user_grp_membership",
                             audit_str, request)
 
-                return django.http.HttpResponseRedirect('/view_local_user?username=%s&searchby=username&ack=groups_changed' % cd["username"])
+                return django.http.HttpResponseRedirect('/view_local_users?ack=groups_changed')
 
             else:
                 # Invalid form
@@ -530,7 +534,7 @@ def update_group_membership(request):
                     raise Exception('Error setting group membership: %s' % err)
                 #assert False
                 audit.audit("set_group_membership", audit_str, request)
-                url = '/view_local_group?grpname=%s&searchby=grpname&ack=set_membership' % cd['grpname']
+                url = '/view_local_groups?ack=set_membership'
                 return django.http.HttpResponseRedirect(url)
             else:
                 return django.shortcuts.render_to_response("update_group_membership.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -594,7 +598,7 @@ def edit_local_user_gid(request):
         audit_str = "Modified local user's primary group %s"%cd["username"]
         audit.audit("modify_local_user_gid", audit_str, request)
   
-        return django.http.HttpResponseRedirect('/view_local_user?username=%s&searchby=username&ack=gid_changed'%cd["username"])
+        return django.http.HttpResponseRedirect('/view_local_users?ack=gid_changed')
   
       else:
         #Invalid form
