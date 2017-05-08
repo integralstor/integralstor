@@ -8,6 +8,20 @@ class CommonPropertiesForm(forms.Form):
     compression = forms.BooleanField(required=False)
     dedup = forms.BooleanField(required=False)
 
+    def clean(self):
+        cd = super(CommonPropertiesForm, self).clean()
+        if not cd['name'].isalnum():
+            self._errors["name"] = self.error_class(
+                ["The name cannot contain special characters."])
+            del cd["name"]
+
+        if 'name' in cd and cd['name'][0].isdigit():
+            self._errors["name"] = self.error_class(
+                ["The name cannot start with a number."])
+            del cd["name"]
+
+        return cd
+
 
 class BaseDatasetForm(CommonPropertiesForm):
 
@@ -181,6 +195,15 @@ class CreatePoolForm(forms.Form):
                         if (stripe_width * multiplier) > num_disks:
                             self._errors["stripe_width"] = self.error_class(
                                 ["The number of disks with the stripe width and RAID disks combination exceeds the number of available disks. Only %d disks available" % num_disks])
+        if not cd['name'].isalnum():
+            self._errors["name"] = self.error_class(
+                ["The pool name cannot contain special characters."])
+            del cd["name"]
+
+        if 'name' in cd and cd['name'][0].isdigit():
+            self._errors["name"] = self.error_class(
+                ["The pool name cannot start with a number."])
+            del cd["name"]
         return cd
 
 
