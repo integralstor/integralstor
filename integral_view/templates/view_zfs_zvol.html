@@ -8,6 +8,10 @@
   <div class="btn-group btn-group-sm pull-right"  >
     <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw" ></i>&nbsp;Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
     <ul class="dropdown-menu">
+      {%if request.user.username == 'superadmin'%} 
+        <li><a href="/update_zfs_dataset?name={{name}}&pool_name={{pool}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Update {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} basic properties</a> </li>
+        <li><a href="/update_zfs_dataset_advanced_properties?name={{name}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Update {%if properties.type.value == 'filesystem'%} dataset {%elif properties.type.value == 'volume'%} block device volume {%endif%} advanced properties</a> </li>
+      {%endif%}
       <!-- {% if "disabled" in replication_status %}
     	  <li><a class="action-dropdown" href="/replicate_zfs_dataset?dataset_name={{name}}"><i class="fa fa-copy fa-fw"></i>&nbsp;Enable async replication</a></li>
       {% else %}

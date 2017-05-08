@@ -56,7 +56,20 @@
               <td> 
                 {{property.prop_dict.short_desc}}({{property.prop_name}})
               </td>
-              <td> {{property.prop_dict.value}}</td>
+              <td> 
+                {% if properties.type.value == 'volume'%}
+                  {%if property.prop_name == 'refreservation' %}
+                    {%if property.prop_dict.value == 'none' %}
+                      Enabled({{property.prop_dict.value}})
+                    {%else%}
+                      Disabled({{property.prop_dict.value}})
+                    {%endif%}
+                  {%else%}
+                    {{property.prop_dict.value}}</td>
+                  {%endif%}
+                {%else%}
+                  {{property.prop_dict.value}}</td>
+                {%endif%}
             </tr>
         {%endfor%}
       </table>
