@@ -136,6 +136,10 @@ def update_cifs_share(request):
                 initial["browseable"] = True
             else:
                 initial["browseable"] = False
+            if share_dict["read_only"]:
+                initial["read_only"] = True
+            else:
+                initial["read_only"] = False
             initial["comment"] = share_dict["comment"]
             # print share_dict
             initial["hosts_allow"] = share_dict["hosts_allow"]
