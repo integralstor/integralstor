@@ -128,10 +128,20 @@ class CreateBondForm(forms.Form):
         cd = super(CreateBondForm, self).clean()
         #name = cd['name']
         name = cd.get("name")
+
         if name is not None:
             if name and name in self.existing_bonds:
                 self._errors["name"] = self.error_class(
                     ["A Bond or interface of this name already exists. Please choose another name."])
+            if not name.isalnum():
+                self._errors["name"] = self.error_class(
+                    ["The name cannot contain special characters."])
+                del cd["name"]
+
+            if 'name' in cd and name[0].isdigit():
+                self._errors["name"] = self.error_class(
+                    ["The name cannot start with a number."])
+                del cd["name"]
         return cd
 
 
