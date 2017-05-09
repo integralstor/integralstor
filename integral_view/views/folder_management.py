@@ -13,7 +13,7 @@ import json
 import integral_view
 from integral_view.forms import samba_shares_forms, folder_management_forms
 
-from integralstor_utils import audit, zfs, acl, django_utils
+from integralstor_utils import audit, zfs, acl, django_utils, config
 from integralstor import cifs as cifs_integralstor, local_users, nfs
 
 
@@ -581,7 +581,20 @@ def create_dir(request):
                     raise Exception('The specified directory already exists')
 
                 os.makedirs(directory)
-                os.chown(directory, 1000, 1000)
+
+                owner_dict, err = config.get_default_file_dir_owner()
+                if err:
+                    raise Exception(err)
+                owner_uid, err = config.get_system_uid_gid(
+                    owner_dict['user'], 'user')
+                if err:
+                    raise Exception(err)
+                owner_gid, err = config.get_system_uid_gid(
+                    owner_dict['group'], 'group')
+                if err:
+                    raise Exception(err)
+
+                os.chown(directory, owner_uid, owner_gid)
                 audit_str = "Created new directory '%s' in '%s'" % (
                     dir_name, path)
                 audit.audit("create_dir", audit_str, request)

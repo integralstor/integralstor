@@ -5,7 +5,7 @@ import django.template
 import integral_view
 from integral_view.forms import local_user_forms
 
-from integralstor_utils import audit, django_utils
+from integralstor_utils import audit, django_utils, config
 from integralstor import local_users
 
 
@@ -252,8 +252,16 @@ def create_local_user(request):
             if form.is_valid():
                 cd = form.cleaned_data
                 #ret, err = local_users.create_local_user(cd["username"], cd["name"], cd["password"], cd['gid'])
+                group_name, err = config.get_users_default_group()
+                if err:
+                    raise Exception(err)
+                default_gid, err = config.get_system_uid_gid(
+                    group_name, 'group')
+                if err:
+                    raise Exception(err)
+
                 ret, err = local_users.create_local_user(
-                    cd["username"], cd["name"], cd["password"], 1000)
+                    cd["username"], cd["name"], cd["password"], default_gid)
                 if not ret:
                     if err:
                         raise Exception(err)
