@@ -6,7 +6,7 @@ import os
 import integral_view
 from integral_view.forms import samba_shares_forms
 
-from integralstor_utils import audit, zfs, acl, django_utils
+from integralstor_utils import audit, zfs, acl, django_utils, config
 from integralstor_utils import cifs as cifs_common
 
 from integralstor import cifs as cifs_integralstor
@@ -136,6 +136,10 @@ def update_cifs_share(request):
                 initial["browseable"] = True
             else:
                 initial["browseable"] = False
+            if share_dict["read_only"]:
+                initial["read_only"] = True
+            else:
+                initial["read_only"] = False
             initial["comment"] = share_dict["comment"]
             # print share_dict
             initial["hosts_allow"] = share_dict["hosts_allow"]
@@ -330,7 +334,20 @@ def create_cifs_share(request):
                     except Exception, e:
                         raise Exception('Error creating subfolder %s : %s' % (
                             cd['new_folder'], str(e)))
-                os.chown(path, 1000, 1000)
+
+                owner_dict, err = config.get_default_file_dir_owner()
+                if err:
+                    raise Exception(err)
+                owner_uid, err = config.get_system_uid_gid(
+                    owner_dict['user'], 'user')
+                if err:
+                    raise Exception(err)
+                owner_gid, err = config.get_system_uid_gid(
+                    owner_dict['group'], 'group')
+                if err:
+                    raise Exception(err)
+
+                os.chown(path, owner_uid, owner_gid)
 
                 if "comment" in cd:
                     comment = cd["comment"]

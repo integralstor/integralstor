@@ -1,5 +1,7 @@
 from django import forms
 
+from integralstor_utils import config
+
 
 class AddAcesForm(forms.Form):
     path = forms.CharField(widget=forms.HiddenInput)
@@ -118,21 +120,31 @@ class ModifyOwnershipForm(DirForm):
             user_list = kwargs.pop("user_list")
             group_list = kwargs.pop("group_list")
         super(ModifyOwnershipForm, self).__init__(*args, **kwargs)
+        owner_dict, err = config.get_default_file_dir_owner()
+        if err:
+            raise Exception(err)
+        owner_uid, err = config.get_system_uid_gid(owner_dict['user'])
+        if err:
+            raise Exception(err)
         ch = []
         if group_list:
             for group in group_list:
                 tup = (group['gid'], group['grpname'])
                 ch.append(tup)
-        ch.append((1000, 'integralstor'))
+        ch.append((owner_uid, owner_dict['user']))
         self.fields['gid'] = forms.ChoiceField(
             widget=forms.Select, choices=ch, required=False)
+
+        owner_gid, err = config.get_system_uid_gid(owner_dict['group'])
+        if err:
+            raise Exception(err)
 
         ch = []
         if user_list:
             for user in user_list:
                 tup = (user['uid'], user['username'])
                 ch.append(tup)
-        ch.append((1000, 'integralstor'))
+        ch.append((owner_gid, owner_dict['group']))
         self.fields['uid'] = forms.ChoiceField(
             widget=forms.Select, choices=ch, required=False)
 

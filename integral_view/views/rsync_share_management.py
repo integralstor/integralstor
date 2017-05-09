@@ -1,7 +1,7 @@
 import django
 import os
 
-from integralstor_utils import rsync, zfs, audit
+from integralstor_utils import rsync, zfs, audit, config
 from integral_view.forms import rsync_forms
 
 
@@ -32,7 +32,19 @@ def create_rsync_share(request):
             path = request.POST.get("path")
             if not os.path.exists(path):
                 os.mkdir(path)
-            os.chown(path, 1000, 1000)
+            owner_dict, err = config.get_default_file_dir_owner()
+            if err:
+                raise Exception(err)
+            owner_uid, err = config.get_system_uid_gid(
+                owner_dict['user'], 'user')
+            if err:
+                raise Exception(err)
+            owner_gid, err = config.get_system_uid_gid(
+                owner_dict['group'], 'group')
+            if err:
+                raise Exception(err)
+
+            os.chown(path, owner_uid, owner_gid)
             return_dict['form'] = form
             if not form.is_valid():
                 return django.shortcuts.render_to_response("create_rsync_share.html", return_dict, context_instance=django.template.context.RequestContext(request))
