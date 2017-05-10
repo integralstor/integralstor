@@ -40,7 +40,7 @@
                 {%endif%}
               </td>
               <td>
-                {% if 'AF_INET' in d.addresses  or d.bootproto == 'dhcp'%}
+                {% if 'AF_INET' in d.addresses  or d.bootproto == 'dhcp' or d.addresses.is_sysd_ip4 == True%}
                   Yes
                 {%else%}
                   No
