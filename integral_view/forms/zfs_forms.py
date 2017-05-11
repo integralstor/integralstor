@@ -195,7 +195,7 @@ class CreatePoolForm(forms.Form):
                         if (stripe_width * multiplier) > num_disks:
                             self._errors["stripe_width"] = self.error_class(
                                 ["The number of disks with the stripe width and RAID disks combination exceeds the number of available disks. Only %d disks available" % num_disks])
-        if not cd['name'].isalnum():
+        if ('name' in cd) and (not cd['name'].isalnum()):
             self._errors["name"] = self.error_class(
                 ["The pool name cannot contain special characters."])
             del cd["name"]
