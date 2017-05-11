@@ -179,7 +179,7 @@ def create_nfs_share(request):
         else:
             dataset = ds_list[0]['mountpoint']
         if 'path' in req_ret:
-            dataset = req_ret['path']
+            path = req_ret['path']
         else:
             path = dataset
 
