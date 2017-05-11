@@ -62,11 +62,13 @@
                       <li><a class="action-dropdown" href="/update_interface_address?name={{name}}" ><i class="fa fa-exchange fa-fw"></i>&nbsp;Edit interface address..</a></li>
                     {%endif%}
                     {%if not d.vlan %}
+                      <!--
                       {%if d.up_status == 'up' %}
                         <li><a class="action-dropdown" href="/update_interface_state?name={{name}}&state=down" style="color:red"><i class="fa fa-stop-circle fa-fw"></i>&nbsp;Bring down this interface</a></li>
                       {%else %}
                         <li><a class="action-dropdown" href="/update_interface_state?name={{name}}&state=up"><i class="fa fa-play-circle fa-fw"></i>&nbsp;Bring up this interface</a></li>
                       {%endif%}
+                      -->
                     {%endif%}
                   </ul>
                 </div>
