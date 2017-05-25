@@ -72,8 +72,8 @@
                 <div class="btn-group btn-group-xs pull-right" >
                   <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for disk specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                   <ul class="dropdown-menu">
-                    <li><a  class="action-dropdown" href="/identify_disk?action=blink&hw_platform=dell&controller=0&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to physically identify this disk" > <i class="fa fa-lightbulb-o fa-fw"></i>Blink disk LED</a> 
-                    <li><a  class="action-dropdown" href="/identify_disk?action=unblink&hw_platform=dell&controller=0&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to turn off disk identification LED" > <i class="fa fa-remove fa-fw"></i>Turn off disk LED</a> 
+                    <li><a  class="action-dropdown" href="/identify_disk?action=blink&hw_platform=dell&controller_number={{disk.controller_number}}&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to physically identify this disk" > <i class="fa fa-lightbulb-o fa-fw"></i>Blink disk LED</a> 
+                    <li><a  class="action-dropdown" href="/identify_disk?action=unblink&hw_platform=dell&controller_number={{disk.controller_number}}&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to turn off disk identification LED" > <i class="fa fa-remove fa-fw"></i>Turn off disk LED</a> 
                   </ul>
                 </div>
               </td>

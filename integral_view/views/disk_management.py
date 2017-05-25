@@ -46,9 +46,10 @@ def identify_disk(request):
         action = None
         channel = None
         enclosure_id = None
+        controller_number = None
         target_id = None
         ret, err = django_utils.get_request_parameter_values(
-            request, ['hw_platform', 'action', 'channel', 'enclosure_id', 'target_id'])
+            request, ['hw_platform', 'action', 'controller_number', 'channel', 'enclosure_id', 'target_id'])
         if err:
             raise Exception(err)
 
@@ -58,16 +59,17 @@ def identify_disk(request):
         if 'action' not in ret or ret['action'] not in ['blink', 'unblink']:
             raise Exception(
                 'Unknown action specified so cannot toggle identification LED')
-        if ('channel' and 'enclosure_id' and 'target_id') not in ret:
+        if ('channel' and 'enclosure_id' and 'target_id' and 'controller_number') not in ret:
             raise Exception(
                 'Invalid request, please use the menus.')
         action = ret['action']
         channel = ret['channel']
         enclosure_id = ret['enclosure_id']
         target_id = ret['target_id']
+        controller_number = ret['controller_number']
         from integralstor_utils.platforms import dell
         result, err = dell.blink_unblink_disk(
-            action, 0, channel, enclosure_id, target_id)
+            action, controller_number, channel, enclosure_id, target_id)
         if not result:
             raise Exception(err)
         return django.http.HttpResponseRedirect('/view_disks?ack=%s' % action)

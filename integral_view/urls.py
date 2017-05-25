@@ -1,5 +1,7 @@
 from django.conf.urls import patterns, include, url
 
+from integral_view.views.monitoring import view_read_write_stats
+
 from integral_view.views.scheduler_cron_management import view_background_tasks, view_task_details, delete_background_task
 
 from integral_view.views.disk_management import view_disks, identify_disk, replace_disk
@@ -56,6 +58,7 @@ urlpatterns = patterns('',
                        url(r'^login/', login),
                        url(r'^logout/', logout, name="logout"),
                        url(r'^$', login),
+                       url(r'^view_read_write_stats/', view_read_write_stats),
                        url(r'^update_admin_password/',
                            login_required(update_admin_password)),
                        url(r'^view_email_settings/',
