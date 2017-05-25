@@ -1,0 +1,97 @@
+<html>
+<head>
+</head>
+<body style="font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-weight: 400;font-size: small;line-height: 1.42857143;">
+
+<form id="form_id" method="GET">
+  Refresh page every  
+  <!--<select name="refresh_interval" id="id_refresh_interval" onChange="window.setTimeout(function(){ document.location.reload(true); }, this.options[this.selectedIndex].value*1000);">-->
+  <select name="refresh_interval" id="id_refresh_interval" onChange="window.setTimeout(function(){ document.getElementById('form_id').submit(); }, this.options[this.selectedIndex].value*1000);">
+    <option value="" disabled {%if not refresh_interval %} selected{%endif%}>Make a Selection</option>
+    <option value="5" {% if refresh_interval == "5" %} selected {%endif%}> 5 seconds</option>
+    <option value="10" {% if refresh_interval == "10" %} selected {%endif%}> 10 seconds</option>
+    <option value="20" {% if refresh_interval == "20" %} selected {%endif%}> 20 seconds</option>
+    <option value="30" {% if refresh_interval == "30" %} selected {%endif%}> 30 seconds</option>
+    <option value="60" {% if refresh_interval == "60" %} selected {%endif%}> 1 minute</option>
+  </select><br/><br/>
+  <h3> File access statistics </h3>
+  Get file access statistics for the last 
+  <select name="last_x_seconds" id="id_last_x_seconds" onChange="document.getElementById('form_id').submit();">
+    <option value="" disabled {%if not last_x_seconds %} selected{%endif%}>Make a Selection</option>
+    <option value="60" {% if last_x_seconds == 60 %} selected {%endif%}> 1 minute</option>
+    <option value="120" {% if last_x_seconds == 120 %} selected {%endif%}> 2 minutes</option>
+    <option value="300" {% if last_x_seconds == 300 %} selected {%endif%}> 5 minutes</option>
+    <option value="600" {% if last_x_seconds == 600 %} selected {%endif%}> 10 minutes</option>
+    <option value="900" {% if last_x_seconds == 900 %} selected {%endif%}> 15 minutes</option>
+    <option value="1800" {% if last_x_seconds == 1800 %} selected {%endif%}>30 minutes</option>
+    <option value="3600" {% if last_x_seconds == 3600 %} selected {%endif%}> 1 hour</option>
+  </select>
+  {%if last_x_seconds%}
+
+	<p>Number of reads in the last {{last_x_seconds}} seconds({{last_x_minutes}} minutes) is {{count_dict.access}}.</p>
+	
+	<p>Number of writes in the last {{last_x_seconds}} seconds({{last_x_minutes}} minutes) is {{count_dict.modify}}.</p>
+	<p>Number of creations in the last {{last_x_seconds}} seconds({{last_x_minutes}} minutes) is {{count_dict.create}}.</p>
+	<p>Number of deletions in the last {{last_x_seconds}} seconds({{last_x_minutes}} minutes) is {{count_dict.delete}}.</p>
+	<p>Number of moves in the last {{last_x_seconds}} seconds({{last_x_minutes}} minutes) is {{count_dict.move}}.</p>
+  {%endif%}
+
+</form>
+
+<br/><br/>
+  <h3> CPU usage stats</h3>
+  {%if cpu_iostat_error %}
+    Error retrieving CPU usage stats : {{cpu_iostat_error}}
+  {%else%}
+    {%for line in cpu_iostat_lines %}
+      <span style="white-space: pre;">{{line}}</span><br/>
+    {%endfor%}
+  {%endif%}
+
+<br/><br/>
+  <h3> Pool IO stats</h3>
+  {%if zpool_iostat_error %}
+    Error retrieving pool I/O stats : {{zpool_iostat_error}}
+  {%else%}
+    {%for line in zpool_iostat_lines %}
+      <span style="white-space: pre;">{{line}}</span><br/>
+    {%endfor%}
+  {%endif%}
+
+<br/><br/>
+  <h3> Disk IO stats</h3>
+  {%if iostat_error %}
+    Error retrieving disk I/O stats : {{iostat_error}}
+  {%else%}
+    {%for line in iostat_lines %}
+      <span style="white-space: pre;">{{line}}</span><br/>
+    {%endfor%}
+  {%endif%}
+<br/><br/>
+  <h3> Memory stats</h3>
+
+  {%if mem_error %}
+    Error retrieving memory stats : {{mem_error}}
+  {%else%}
+    {%for line in mem_lines %}
+      <span style="white-space: pre;">{{line}}</span><br/>
+    {%endfor%}
+  {%endif%}
+<br/><br/>
+
+  <h3> ARC and L2ARC stats</h3>
+
+  {%if arc_error %}
+    Error retrieving ARC stats : {{arc_error}}
+  {%else%}
+    {%for line in arc_summary_lines %}
+      <span style="white-space: pre;">{{line}}</span><br/>
+    {%endfor%}
+  {%endif%}
+{%if refresh_interval%}
+<script>
+window.setTimeout(function(){ document.getElementById('form_id').submit(true); }, parseInt({{refresh_interval}})*1000);
+</script>
+{%endif%}
+</body>
+</html>
