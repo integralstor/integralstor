@@ -196,10 +196,10 @@ show_menu() {
   echo "      | 81. Restart smb   82. Restart Winbind               83. Restart iscsi   84. Restart shell service"
   echo "      | 85. Restart NTP   86. Restart IntegralView services 87. Restart FTP     88. Restart NFS"
   echo "  9.  Create NIC bond"
-  echo "  10. Remove NIC bond"
-  echo "  11. Update user password"
-  echo "  12. USB utilities"
-  echo "  13. Exit"
+  echo " 10.  Remove NIC bond"
+  echo " 11.  Update user password"
+  echo " 12.  USB utilities"
+  echo " 13.  Exit"
   echo
 
 }
