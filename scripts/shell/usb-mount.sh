@@ -42,7 +42,7 @@ do_mount()
         LABEL+="-${DEVBASE}"
     fi
     DEV_LABEL="${LABEL}"
-    MOUNT_POINT="/media/${LABEL}"
+    MOUNT_POINT="/media/${DEVBASE}_${LABEL}"
 
     echo "Mount point: ${MOUNT_POINT}"
 
