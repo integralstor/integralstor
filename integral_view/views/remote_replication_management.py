@@ -387,6 +387,15 @@ def update_remote_replication(request):
 
         if request.method == "GET":
             return_dict['replication'] = replications[0]
+            if return_dict['replication']['mode'] == 'rsync':
+                rsync_switches = {}
+                rsync_switches['long'] = return_dict['replication']['rsync'][0]['long_switches']
+                rsync_switches['short'] = return_dict['replication']['rsync'][0]['short_switches']
+
+                return_dict['rsync_switches_description'], err = rsync.form_switches_description(rsync_switches)
+                if err:
+                    raise Exception('Could not parse rsync switches description: %s' % err)
+
             return django.shortcuts.render_to_response('update_remote_replication.html', return_dict, context_instance=django.template.context.RequestContext(request))
         elif request.method == "POST":
             if ('scheduler' and 'cron_task_id') not in request.POST:
@@ -446,6 +455,15 @@ def update_rsync_remote_replication_pause_schedule(request):
 
         if request.method == "GET":
             return_dict['replication'] = replications[0]
+            if return_dict['replication']['mode'] == 'rsync':
+                rsync_switches = {}
+                rsync_switches['long'] = return_dict['replication']['rsync'][0]['long_switches']
+                rsync_switches['short'] = return_dict['replication']['rsync'][0]['short_switches']
+
+                return_dict['rsync_switches_description'], err = rsync.form_switches_description(rsync_switches)
+                if err:
+                    raise Exception('Could not parse rsync switches description: %s' % err)
+
             return django.shortcuts.render_to_response('update_remote_replication_pause_schedule.html', return_dict, context_instance=django.template.context.RequestContext(request))
         elif request.method == "POST":
             scheduler = None

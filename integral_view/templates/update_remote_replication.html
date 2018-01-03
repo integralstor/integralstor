@@ -108,6 +108,24 @@
 		{% endif %}
 
 		<tr>
+                  <th> Rsync flags that were set </th>
+                <td>
+		{% if rsync_switches_description %}
+                  <ul >
+                    {% for k,v in rsync_switches_description.items %}
+                    <li>
+                        {{v.description}} {%if v.is_arg%} [{{v.arg_value}}] {%endif%}
+                    </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                        None
+		{% endif %}
+                </td>
+                </tr>
+
+
+		<tr>
                   <th> Between IntegralSTOR units? </th>
                   <td>
                     {% if replication.rsync.0.is_between_integralstor == 'True' %}
