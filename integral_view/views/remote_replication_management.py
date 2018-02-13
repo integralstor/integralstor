@@ -32,6 +32,8 @@ def view_remote_replications(request):
                 return_dict['ack_message'] = 'Selected replication parameters successfully updated.'
             elif request.GET["ack"] == "pause_schedule_updated":
                 return_dict['ack_message'] = 'Replication pause schedule successfully updated.'
+            elif request.GET["ack"] == "user_comment_updated":
+                return_dict['ack_message'] = 'Replication user comment successfully updated.'
 
         replications, err = remote_replication.get_remote_replications()
         if err:
@@ -361,6 +363,67 @@ def _create_rsync_remote_replication(request, cleaned_data):
         return False, 'Failed creating/scheduling rsync replication: %s' % e
     else:
         return True, None
+
+
+def update_remote_replication_user_comment(request):
+    """Modifies only the user comment, not any other field
+
+    """
+    return_dict = {}
+    try:
+
+        ret, err = django_utils.get_request_parameter_values(
+            request, ['remote_replication_id'])
+        if err:
+            raise Exception(err)
+        if 'remote_replication_id' not in ret:
+            raise Exception(
+                "Requested remote replication not found, please use the menus.")
+        remote_replication_id = ret['remote_replication_id']
+        replications, err = remote_replication.get_remote_replications(
+            remote_replication_id)
+        if err:
+            raise Exception(err)
+        if not replications:
+            raise Exception('Specified replication definition not found')
+
+        if request.method == "GET":
+            return_dict['replication'] = replications[0]
+            if return_dict['replication']['mode'] == 'rsync':
+                rsync_switches = {}
+                rsync_switches['long'] = return_dict['replication']['rsync'][0]['long_switches']
+                rsync_switches['short'] = return_dict['replication']['rsync'][0]['short_switches']
+
+                return_dict['rsync_switches_description'], err = rsync.form_switches_description(rsync_switches)
+                if err:
+                    raise Exception('Could not parse rsync switches description: %s' % err)
+
+            return django.shortcuts.render_to_response('update_remote_replication_user_comment.html', return_dict, context_instance=django.template.context.RequestContext(request))
+        elif request.method == "POST":
+            if ('user_comment') not in request.POST:
+                raise Exception("Incomplete request.")
+            user_comment = request.POST.get('user_comment')
+            description = ''
+            description += 'User comment: %s' % user_comment
+            description += '\nDescription: %s' % replications[0]['description']
+
+            # update comment
+            is_update, err = remote_replication.update_remote_replication_user_comment(
+                remote_replication_id, user_comment)
+            if err:
+                raise Exception(err)
+
+            audit.audit("update_remote_replication_user_comment", description, request)
+
+            return django.http.HttpResponseRedirect('/view_remote_replications?ack=user_comment_updated')
+
+    except Exception as e:
+        return_dict['base_template'] = "snapshot_replication_base.html"
+        return_dict["page_title"] = 'Update remote replication user comment'
+        return_dict['tab'] = 'view_remote_replications_tab'
+        return_dict["error"] = 'Error updating replication comment'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
 def update_remote_replication(request):

@@ -18,7 +18,7 @@
   <form class="form-horizontal" role="form" name="pause_replication_schedule"  method="post">
     {%csrf_token%}
     {% if replication %} 
-    <table  class="table " style="width:800px">
+    <table  class="table " style="width:800px;table-layout:fixed;">
         <style>
           th {
               width:35%;
@@ -158,6 +158,11 @@
             No
             {% endif %}
           </td>
+        </tr>
+
+        <tr>
+          <th> User comment</th>
+          <td style="word-wrap:break-word;"> {{replication.user_comment}} </td>
         </tr>
 
         <tr>

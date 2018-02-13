@@ -15,7 +15,7 @@
 
 {% block inside_content %}
 
-  <form class="form-horizontal" role="form" name="schedule_replication"  method="post">
+  <form class="form-horizontal" role="form" name="update_user_comment"  method="post">
     {%csrf_token%}
     {% if replication %} 
     <table  class="table " style="width:800px;table-layout:fixed;">
@@ -26,7 +26,6 @@
         </style>
 
         <input type="hidden" name="remote_replication_id" value="{{replication.remote_replication_id}}">
-        <input type="hidden" name="cron_task_id" value="{{replication.cron_task_id}}">
 
         {% if replication.mode == 'zfs' %}
 
@@ -138,25 +137,14 @@
         {%endif%}
 
         <tr>
-          <th> User comment</th>
-          <td style="word-wrap:break-word;"> {{replication.user_comment}} </td>
-        </tr>
-
-        <tr>
-          <th> Current replication schedule</th>
+          <th> Replication run schedule</th>
           <td> {{replication.schedule_description}} </td>
         </tr>
         <tr>
-        <th> Select new replication schedule</th>
-        <td>
-          <div id="scheduler" class="form-control" style="border:0px ">
-          </div>
-          <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select time from time selector" type="hidden" required readonly>
-        </td>
+          <th> Replication pause schedule</th>
+          <td> {{replication.pause_schedule_description}} </td>
         </tr>
-        <tr>
-        <td />
-        </tr>
+
         <tr>
           <th> One time replication? </th>
           <td>
@@ -167,11 +155,28 @@
             {% endif %}
           </td>
         </tr>
+
+        <tr>
+          <th> Existing comment</th>
+          <td style="word-wrap:break-word;"> {{replication.user_comment}} </td>
+        </tr>
+
+        <tr>
+        <td />
+        </tr>
+
+        <tr>
+        <th> New comment</th>
+        <td>
+          <input type="text" name="user_comment" class="form-control" id="id_user_comment" placeholder="Specify the desired comment/description">
+        </td>
+        </tr>
+
     </table>
 
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <a href="/view_remote_replications" role="button" class="btn btn-default"> Cancel</a>
-      <button type="submit" class="btn btn-primary" id="start">Configure Replication</button>
+      <button type="submit" class="btn btn-primary" id="start">Update</button>
     </div>
 
     {% else %}
@@ -187,7 +192,7 @@
 {%endblock%}
 
 {%block help_header%}
-  Modify a scheduled remote replication.
+  Update user comment for this remote replication schedule.
 {%endblock%}
 
 {%block help_body%}
@@ -199,19 +204,3 @@
   </script>
 {% endblock %}
 
-{% block js %}
-
-  <script type="text/javascript" src="/static/js/jquery-cron-min.js"></script>
-  <link type="text/css" href="/static/css/jquery-cron.css" rel="stylesheet" />
-  <script>
-    $('#scheduler').cron({
-      onChange: function() {
-        $('#id_scheduler').val($(this).cron("value"));
-      },
-      customValues: {
-        "20 Minutes" : "*/20 * * * *",
-        "30 Minutes" : "*/30 * * * *",
-    }
-     });
-  </script>
-{% endblock %}

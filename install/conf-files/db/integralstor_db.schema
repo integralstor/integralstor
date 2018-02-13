@@ -109,7 +109,8 @@ CREATE TABLE "remote_replications" (
   "mode" varchar(20) NOT NULL,
   "cron_task_id" integer NOT NULL REFERENCES cron_tasks(cron_task_id) ON DELETE CASCADE,
   "pause_cron_task_id" integer NOT NULL DEFAULT -1 REFERENCES cron_tasks(cron_task_id),
-  "is_one_shot" boolean DEFAULT 'False'
+  "is_one_shot" boolean DEFAULT 'False',
+  "user_comment" varchar(200) DEFAULT "N.A"
 );
 
 

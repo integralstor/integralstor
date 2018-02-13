@@ -28,7 +28,7 @@
 
 
   {% if replications %}
-    <table id="remote_replications_list" class="table table-stripped" style="width:800px;">
+    <table id="remote_replications_list" class="table table-stripped" style="width:90%; table-layout:fixed;">
         {% if select_mode == 'zfs' and is_zfs == False  %}
 	There are currently no active  ZFS replications enabled/scheduled.
         {% elif select_mode == 'rsync' and is_rsync == False  %}
@@ -36,6 +36,7 @@
         {% else %}
       <thead>
         <tr>
+          <th> User comment </th>
           <th> Description </th>
           {% if select_mode == "zfs" %}
           <th> Source dataset</th>
@@ -57,7 +58,8 @@
         {% for replication in replications %}
           <tr>
             {% if select_mode == "zfs" and replication.zfs.0 %}
-            <td> {{replication.description}} </td>
+            <td style="word-wrap:break-word;"> {{replication.user_comment}} </td>
+            <td style="word-wrap:break-word;"> {{replication.description}} </td>
             <td> {{replication.zfs.0.source_dataset}} </td>
             <td> {{replication.zfs.0.target_pool}} </td>
             <td> {{replication.zfs.0.target_ip}} </td>
@@ -73,7 +75,8 @@
               </div>
 
             {% elif select_mode == "rsync" and replication.rsync.0 %}
-            <td> {{replication.description}} </td>
+            <td style="word-wrap:break-word; width:20%;"> {{replication.user_comment}} </td>
+            <td style="word-wrap:break-word; width:20%;"> {{replication.description}} </td>
               {% if replication.rsync.0.rsync_type == "push" %}
               <td> {{replication.rsync.0.source_path}} </td>
               <td> Local host </td>
@@ -91,6 +94,8 @@
               <div class="btn-group btn-group-xs pull-right" >
                 <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for pool specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                 <ul class="dropdown-menu">
+                  <li><a class="action-dropdown" href="/update_remote_replication_user_comment?remote_replication_id={{replication.remote_replication_id}}" title="Update user comment for this replication"><i class="fa fa-cog fa-fw"></i>&nbsp;Update user comment </a></li>
+                  <li class="divider"></li>
                   <li> <a class="action-dropdown" href="/update_remote_replication/?remote_replication_id={{replication.remote_replication_id}}" title="Modify the parameters for this replication"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify run schedule </a></li>
                   <li class="divider"></li>
                   <li> <a class="action-dropdown" href="/update_rsync_remote_replication_pause_schedule/?remote_replication_id={{replication.remote_replication_id}}" title="Modify the pause schedule for this replication"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify pause schedule </a></li>

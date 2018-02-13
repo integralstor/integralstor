@@ -12,7 +12,7 @@
 {%block inside_content %}
 
   <div style="width:95%;position: relative; margin: 0px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
-    <table  class="table table-hover">
+    <table  class="table table-hover" style="table-layout:fixed;">
 
       <thead>
         <tr>
@@ -27,7 +27,7 @@
         <tr>
           <td style="text-align:center"> {{d.time}} </td>
           <td style="text-align:center"> {{d.action}} </td>
-          <td> {{d.action_str}} </td>
+          <td style="word-wrap:break-word;"> {{d.action_str}} </td>
           <td style="text-align:center"> {{d.username}} </td>
           <td style="text-align:center">
             {% if d.ip == "0.0.0.0"%}
