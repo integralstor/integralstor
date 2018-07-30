@@ -343,7 +343,7 @@ def delete_zfs_quota(request):
         path_type = req_ret['path_type']
         path = req_ret['path']
         ug_type = req_ret['ug_type']
-        ug_name = req_ret['ug_type']
+        ug_name = req_ret['ug_name']
         pool_name = req_ret['pool_name']
 
         return_dict["path"] = path
