@@ -1,0 +1,34 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  Delete an NFS share - confirmation
+{%endblock%}
+
+{% block inside_content %}
+
+  <p id="p-warning-text">Are you sure you want to delete the NFS share with path  "{{path}}"? </p>
+  <br>
+  <form action="" method="POST">
+    {%csrf_token%}
+    <input type=hidden name="path" value="{{path}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/storage_access/view_nfs_shares'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger cover-page" ">Confirm and delete</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_nfs_shares_tab")
+  </script>
+{% endblock %}
+
+{%block help_header%}
+  Deleting a NFS share
+{%endblock%}
+
+{%block help_body%}
+  <p>Confirming this operation results in the specified NFS share being deleted from the system. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}

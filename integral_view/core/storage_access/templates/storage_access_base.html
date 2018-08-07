@@ -1,0 +1,28 @@
+{% extends 'logged_in_base.html' %}
+
+{%block tab_items %}
+  <li id="view_nfs_shares_tab">
+    <a href="/storage_access/view_nfs_shares/">NFS Exports</a>
+  </li>
+  <li id="view_iscsi_targets_tab">
+    <a href="/storage_access/view_iscsi_targets/">ISCSI Targets</a>
+  </li>
+  <li id="view_rsync_shares_tab">
+    <a href="/storage_access/view_rsync_shares/">RSync shares</a>
+  </li>
+  <li id="view_cifs_shares_tab">
+    <a href="/storage_access/view_cifs_shares/" >Windows Shares</a>
+  </li>
+  <li id="auth_server_settings_tab">
+    <a href="/storage_access/view_samba_server_settings/">Configure Windows access</a>
+  </li>
+  <li id="ftp_service_settings">
+    <a href="/storage_access/view_ftp_configuration/">Configure FTP access</a>
+  </li>
+{%endblock tab_items %}
+
+{% block menu_active %}
+  <script>
+    make_side_menu_active("shares_menu")
+  </script>
+{% endblock %}

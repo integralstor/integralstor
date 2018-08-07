@@ -1,0 +1,8 @@
+  {%if url_access_error%}
+    <p>The backup service could not be reached (Error message "{{url_access_error}}"). </p>
+    <p>Please ensure that the service is started and functioning correctly before accessing this page.</p>
+  {%else%}
+    <iframe width="100%" frameBorder="0" height="800px" src="http://{{url}}"></iframe>
+    Open in a new tab/window : <a href="http://{{url}}" target=_new">http://{{url}}</a>
+  {%endif%}
+

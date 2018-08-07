@@ -1,0 +1,49 @@
+{% extends 'storage_insights_base.html' %}
+
+{%block tab_header %}
+    Storage Insights - Duplicate file sets
+{%endblock%}
+
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click for query actions" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a class="action-dropdown" href="/applications/storage_insights/view_query_types"  title="Back to query list"> <i class="fa fa-angle-double-left fa-fw"></i>Back to query list</a> 
+    </ul>
+  </div>
+{%endblock%}
+
+{% block inside_content %}
+  {% if not results %}
+    <p>No results for this query. </p>
+  {%else %}
+    <div style="width:100%; min-height:400px;overflow:auto;clear:both;padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 0px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+
+    <br><br>
+
+      <table  class="table table-striped" style="width:65%">
+        <tr>
+          <th > File sets size </th>
+          <th > Number of files </th>
+          <th > View files</th>
+        </tr>
+        {%for r in results %}
+          <tr>
+            <td> {{r.size_human_readable}} </td>
+            <td> {{r.dup_count}} </td>
+            <td> <a href="/applications/storage_insights/view_general_query_results?query_type=duplicate_files&param1={{r.checksum}}&scan_configuration_id={{scan_configuration_id}}"> Click to view files in this set </a> </td>
+          </tr>
+        {%endfor%}
+      </table>
+    </div>
+  {%endif%}
+
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+    make_tab_active("query_tab")
+  </script>
+{% endblock %}
+

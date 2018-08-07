@@ -1,0 +1,69 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  Create a ZFS dataset
+{%endblock%}
+
+{%block inside_content %}
+
+  <form id="create_form" name="create_form" action="" method="post">
+    {%csrf_token%}
+    <input type="hidden" name="pool" value="{{pool}}">
+    <table class="table">
+      <tr>
+        <th> Parent pool :</th>
+        <td> {{form.pool.value}} </td>
+        <td> &nbsp; </td>
+      </tr>
+      <tr>
+        <th> Dataset name:</th>
+        <td> 
+          <input type="text"  name="name" class="form-control" id="id_clients" placeholder="Enter the name of the dataset" />
+        </td>
+        <td> {{ form.name.errors }} </td>
+      </tr>
+      <tr>
+        <th> Enable compression:</th>
+        <td> {{ form.compression }} </td>
+        <td> {{ form.compression.errors }} </td>
+      </tr>
+      <tr>
+        <th> Enable deduplication :</th>
+        <td> {{ form.dedup }} </td>
+        <td> {{ form.dedup.errors }} </td>
+      </tr>
+      <tr>
+        <th> Space consumption limit :</th>
+        <td>  
+            <input type="text"  name="quota_size" class="form-control" id="id_quota_size" placeholder="Enter space limit (0 if unlimited)" />
+            <select id="id_quota_unit" name="quota_unit" class="form-control" >
+              {% for choice in form.quota_unit.field.choices %}
+                <option value="{{choice.0}}" {%if choice.0 == form.initial.quota_unit %} selected{%endif%} >{{choice.1}}</option>
+              {%endfor%}
+            </select>
+        </td>
+        <td> {{ form.quota_size.errors }} {{form.quota_unit.errors}} </td>
+      </tr>
+    </table>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/storage/view_zfs_pool?name={{pool}}" role="button" class="btn btn-default cover-page"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Create a  ZFS dataset
+{%endblock%}
+
+{%block help_body%}
+<p>Use this screen to create a ZFS dataset. The settings will take effect upon saving this information.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}

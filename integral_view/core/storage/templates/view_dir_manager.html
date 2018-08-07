@@ -1,0 +1,137 @@
+{% extends 'storage_base.html' %}
+
+{% block tab_header%}
+  Directory manager
+{% endblock tab_header %}
+
+{%block global_actions %}
+        <a class="btn btn-default btn-sm pull-right dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Directory actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+        <ul class="dropdown-menu">
+          <li><a class="action-dropdown"  onClick="create_dir();" title="Create a new sub-directory under the selected directory"> <i class="fa fa-plus fa-fw"></i>&nbsp;Create subdirectory </a></li>
+          <li><a class="action-dropdown" onClick="dir_ownership_and_permissions();" title="View and modify ownership and permissions for the selected directory"> <i class="fa fa-cog fa-fw"></i>&nbsp;Ownership and permissions</a></li>
+          <li class="divider"></li>
+          <li><a class="action-dropdown" onClick="delete_dir();" style="color:red" title="Delete the selected directory"> <i class="fa fa-trash fa-fw"></i>&nbsp;Delete </a></li>
+        </ul>
+{% endblock global_actions %}
+
+{% block inside_content %}
+    <form action="." class="form-horizontal" method="GET"> 
+      <div class="col-sm-8 form-group">
+          <label for="inputPassword" class="col-sm-6 control-label"> Select an underlying ZFS pool : </label>
+          <div class="col-sm-6">
+            <select id = "id_pool" name="pool" class="form-control" onchange="this.form.submit()">
+              {% for choice in form.pool.field.choices %}
+        		    <option value="{{choice.0}}" onclick="option_selected(this)" {%if form.initial.pool == choice.0%} selected="selected" {%endif%}>{{choice.0}}</option>
+              {%endfor%}
+            </select>
+          </div>
+      </div>
+    <div style="clear:both">
+    </div>
+
+    <b> Browse and select a directory below :</b>
+    <section style="width:100%;height:250px;border:0px solid;min-height:250px;margin:5px;">
+      <div id="pathdiv" style="overflow:auto;float:left;border:1px solid #f4f4f4;padding:5px 5px 5px 5px;min-width:47%;max-width:47%;height:250px;min-height:250px;"> </div>
+      <div id="detailsdiv" style="overflow:auto;border:1px solid #f4f4f4;padding:5px;min-height:250px;height:250px;min-width:47%;max-width:47%"> Please select a directory in the left pane to view its contents.</div>
+    </section>
+    <br>
+
+    <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+      <div class="col-sm-12 form-group" style="border:0px solid">
+        <form class="form-horizontal"> 
+          <label class="col-sm-3 control-label" style="border:0px solid">Selected directory : </label>
+          <div class="col-sm-9" style="border:0px solid">
+            <input type="text" name="path" class="form-control" id="id_path" readonly value="{{form.path.value|default_if_none:""}}"> <br/>
+          </div>
+        </form>
+      </div>
+    </div>
+  </form>
+
+
+  <script src="/static/jstree/dist/jstree.js"></script>
+  <script>
+    function create_dir() {
+      var path_val = document.getElementById('id_path').value;
+      if (path_val == "") { 
+        alert("Please select a base directory under which to create the new sub-directory");
+      } else {
+        var pathv = '/storage/create_dir?path='+document.getElementById('id_path').value;
+        //alert(pathv);
+        window.location.href=pathv;return true
+      }
+    }
+    function dir_ownership_and_permissions() {
+      var path_val = document.getElementById('id_path').value;
+      if (path_val == "") { 
+        alert("Please first select a directory for which you want to view/change ownership and permissions");
+      } else {
+        var pathv = '/storage/view_dir_ownership_permissions?path='+document.getElementById('id_path').value;
+        //alert(pathv);
+        window.location.href=pathv;return true
+      }
+    }
+    function delete_dir() {
+      var path_val = document.getElementById('id_path').value;
+      if (path_val == "") { 
+        alert("Please select the directory to be deleted.");
+      } else {
+        var pathv = '/storage/delete_dir?path='+document.getElementById('id_path').value;
+        //alert(pathv);
+        window.location.href=pathv;return true
+      }
+    }
+    function displayTree() {
+      document.getElementById("pathdiv").style.display = "block";
+      $('#pathdiv').jstree({ 'core' : {
+        'multiple':false,
+        'data' : {
+          'url' : function (node) {
+            var e = document.getElementById("id_pool")
+            var v = e.options[e.selectedIndex].value
+            return node.id === '#' ? 
+              '/storage/view_dir_contents?first=1' : 
+              '/storage/view_dir_contents'; 
+          },
+          'data' : function (node) {
+            var e = document.getElementById("id_pool")
+            if (node.data) {
+              return {'dir' : node.data['dir'] , 'id':node.id, "from":"pool", "pool_name": e.value};
+            }
+            else
+              return { 'dir' : node.text , 'id':node.id, "from":"pool", "pool_name": e.value};
+          }
+        }
+      }
+      });
+      $(function () {
+        $('#pathdiv').on('changed.jstree', function (e, data) {
+          var i, j, r = [];
+          r = data.instance.get_node(data.selected[0]).text;
+          rfp = data.instance.get_node(data.selected[0]).data["dir"];
+          var erfp = encodeURIComponent(rfp)
+          path = '/storage/view_dir_listing?path='+erfp
+          $('#detailsdiv').load(path);
+          document.getElementById('id_path').value = rfp;
+          return False;
+          //document.getElementById("pathdiv").style.display = "none";
+        })
+        .jstree();
+      });
+    }
+    displayTree();
+  </script>
+{% endblock inside_content %}
+{%block help_header%}
+  Directory manager
+{%endblock%}
+
+{%block help_body%}
+  <p>This screen helps you view and manage directories in the integralstor system. </p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("dir_manager_tab")
+  </script>
+{% endblock %}

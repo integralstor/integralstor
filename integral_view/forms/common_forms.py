@@ -2,7 +2,42 @@
 from django import forms
 
 from integralstor import networking
+from email.utils import parseaddr
 
+class MultipleEmailField(forms.CharField):
+
+    def _is_valid_email(self, email):
+        try:
+            email = email.strip()
+            t = parseaddr(email)
+            if t[0] or t[1]:
+                if not '@' in t[1]:
+                    raise Exception('Invalid email address.')
+                if not re.match('^[A-Za-z0-9._%+-]+@[A-Za-z0-9\.\-]+', email):
+                    raise Exception('Invalid email address.')
+            else:
+                raise Exception('Invalid email address.')
+        except Exception, e:
+            return False, 'Error validating email address : %s' % str(e)
+        else:
+            return True, None
+
+    def clean(self, value):
+        if not value:
+            raise forms.ValidationError("Enter atleast one email address")
+        if ',' in value:
+            emails = value.lower().split(',')
+        else:
+            emails = value.lower().split(' ')
+        for email in emails:
+            ret, err = self._is_valid_email(email)
+            if err:
+                raise forms.ValidationError(err)
+            if not ret:
+                raise forms.ValidationError(
+                    "%s is not a valid email address" % email)
+
+        return value.lower()
 
 class MultipleServerField(forms.CharField):
 
@@ -34,22 +69,6 @@ class MultipleServerField(forms.CharField):
         return value.lower()
 
 
-class ConfigureNTPForm(forms.Form):
-
-    server_list = MultipleServerField()
-
-
-class AddNodesForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        if kwargs:
-            pml = kwargs.pop('pending_minions_list')
-        super(AddNodesForm, self).__init__(*args, **kwargs)
-        ch = []
-        for minion in pml:
-            tup = (minion, minion)
-            ch.append(tup)
-        self.fields["nodes"] = forms.MultipleChoiceField(
-            widget=forms.CheckboxSelectMultiple, choices=ch)
 
 
 class FileUploadForm(forms.Form):

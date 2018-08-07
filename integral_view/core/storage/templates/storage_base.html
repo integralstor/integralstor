@@ -1,0 +1,30 @@
+{% extends 'logged_in_base.html' %}
+
+{%block tab_items %}
+  <li id="view_data_disks_tab">
+    <a href="/storage/view_disks?type=data">Data disks</a>
+  </li>
+  <li id="view_os_disks_tab">
+    <a href="/storage/view_disks?type=os">OS Disks</a>
+  </li>
+  <li id="view_zfs_pools_tab">
+    <a href="/storage/view_zfs_pools/" >Storage pools</a>
+  </li>
+  <li id="view_zfs_snapshots_tab">
+    <a href="/storage/view_zfs_snapshots/">Snapshots</a>
+  </li>
+  <li id="zfs_snapshots_schedule_tab">
+    <a href="/storage/view_zfs_snapshot_schedules/">Snapshot schedules</a>
+  </li>
+  <li id="dir_manager_tab">
+    <a href="/storage/view_dir_manager/">Directory manager</a>
+  </li>
+
+{%endblock tab_items %}
+
+{% block menu_active %}
+  <script>
+    make_side_menu_active("storage_menu")
+  </script>
+{% endblock %}
+

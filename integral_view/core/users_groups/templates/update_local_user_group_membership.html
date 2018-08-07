@@ -1,0 +1,63 @@
+{% extends 'users_groups_base.html' %}
+
+{%block tab_header %}
+  Add local user "{{form.username.value}}" to additional groups
+{%endblock%}
+
+{% block inside_content %}
+
+  <form id="edit_form" name="edit_form" action="" method="post">
+    {%csrf_token%}
+    {{form.username}}
+    <div class="table-responsive" style=";width:100%;padding:0px 5px 0px 5px;margin-left:00px;margin-right:20px;border:1px solid #f4f4f4;height:300px;-webkit-overflow-scrolling: touch;">
+    <table class="table table-striped">
+      <!--
+      <tr>
+        <th  style="max-width:60px;word-wrap: break-word">  User name: </th>
+        <td> {{ form.username.value }} </td>
+      </tr>
+      -->
+      <tr>
+        <th >  Group name </th>
+        <th style="text-align:center" > Selection </th>
+        <th >  &nbsp;</th>
+      </tr>
+      {% for choice in form.groups.field.choices %}
+      <tr>
+        <td>  {{choice.0}}</td>
+        <td style="text-align:center">
+              <input type="checkbox" name="groups" id="{{choice.0}}" value="{{choice.0}}" {%if choice.0 in form.initial.groups %} checked="checked"{%endif%} > 
+        </td>
+      </tr>
+      {%endfor%}
+      <tr>
+	<td colspan=2>
+            {%if form.groups.errors %} Groups - {{form.groups.errors}} {%endif%}
+        </td>
+      </tr>
+    </table>
+    </div>
+    <br>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <!--<a href="/users_groups/view_local_user?searchby=username&username={{form.username.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;-->
+      <a href="/users_groups/view_local_users" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary">Save </button>
+    </div>
+</form>
+
+{%endblock%}
+
+{%block help_header%}
+  Edit a local user's additional groups information 
+{%endblock%}
+
+{%block help_body%}
+<p>Use this screen to add or remove additional group memberships for this local user. The settings will take effect upon saving this information.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_local_users_tab")
+  </script>
+{% endblock %}

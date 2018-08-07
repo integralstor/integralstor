@@ -1,0 +1,101 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  NFS export details
+{%endblock%}
+
+{%block global_actions %}
+  <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+    <div class="col-sm-3  pull-right"  style="border:0px solid">
+      <a class="btn btn-default btn-sm pull-right dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+        <li><a class="action-dropdown" href="/storage_access/view_nfs_shares" ><i class="fa fa-list fa-fw">&nbsp; </i>NFS Shares list</a>
+        <li><a class="action-dropdown" href="/storage_access/update_nfs_share?path={{share_info.path}}"><i class="fa fa-cog fa-fw">&nbsp; </i>Modify</a>
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/storage_access/delete_nfs_share?path={{share_info.path}}" style="color:red"><i class="fa fa-trash fa-fw">&nbsp; </i>Delete this NFS share</a>
+      </ul>
+    </div>
+  </div>
+{%endblock%}
+
+{% block inside_content %}
+  <p style="color:red;"> {{form.errors}}</p>
+
+  <table class="table table-bordered">
+    <tr>
+      <th> Share path: </th>
+      <td> {{ share_info.path }} </td>
+    </tr>
+    {%if share_info.options%}
+      <tr>
+        <th> Default client options: </th>
+        <td>
+          {% for o in share_info.options %}
+            {%if o == 'rw' %} Read/Write,
+            {%elif o == 'ro' %} Read only,
+            {%elif o == 'sync' %} Synchronous,
+            {%elif o ==  'async'%} Asynchronous,
+            {%elif o ==  'subtree_check'%} Subtree checking,
+            {%elif o ==  'root_squash'%} Root squash,
+            {%elif o ==  'no_root_squash'%} No root squash,
+            {%elif o ==  'all_squash'%} All squash,
+            {%elif o ==  'no_all_squash'%} No all squash,
+            {%elif o ==  'insecure'%} Accept insecure ports,
+            {%elif 'anonuid' in o%} Map client anonymously with local NFS user,
+            {%endif%}
+          {%endfor%}
+        </td>
+      </tr>
+    {%endif%}
+    {% if share_info.clients %}
+      <tr>
+        <td colspan=2> &nbsp; </td>
+      </tr>
+      <tr>
+        <th > Client </th>
+        <th > Options </th>
+      </tr>
+      {%for c in share_info.clients %}
+        <tr>
+          <td > {{c.name}} </td>
+          <td >
+            {%if c.options%}
+              {%for o in c.options %}
+                {%if o == 'rw' %} Read/Write,
+                {%elif o == 'ro' %} Read only,
+                {%elif o == 'sync' %} Synchronous,
+                {%elif o ==  'async'%} Asynchronous,
+                {%elif o ==  'subtree_check'%} Subtree checking,
+                {%elif o ==  'root_squash'%} Root squash,
+                {%elif o ==  'no_root_squash'%} No root squash,
+                {%elif o ==  'all_squash'%} All squash,
+                {%elif o ==  'no_all_squash'%} No all squash,
+                {%elif o ==  'insecure'%} Accept insecure ports,
+                {%elif 'anonuid' in o%} Map client anonymously with local NFS user,
+                {%endif%}
+              {%endfor%}
+            {%else%}
+              None
+            {%endif%}
+          </td>
+        </tr>
+      {%endfor%}
+    {%endif%}
+  </table>
+
+
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_nfs_shares_tab")
+  </script>
+{% endblock %}
+
+{%block help_header%}
+  NFS Share details
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to view details about a particular NFS share that has been created. </p>
+{%endblock%}

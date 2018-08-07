@@ -1,0 +1,44 @@
+{% extends 'users_groups_base.html' %}
+
+{%block tab_header %}
+  Local user group details
+{%endblock%}
+
+{% block inside_content %}
+
+  <table class="table table-striped">
+    <tr>
+      <th> Group name: </th>
+      <td> {{ group.grpname }} </td>
+    </tr>
+    <tr>
+      <th> Members : </th>
+      <td>
+        {%for m in  group.members %}
+          {{m}},
+        {%endfor%}
+      </td>
+    </tr>
+  </table>
+
+  <div class="btn-group btn-group-sm" role="group" aria-label="...">
+    <a href="/users_groups/view_local_groups" role="button" class="btn btn-default"> <i class="fa fa-list fa-fw"></i>&nbsp;Back to group list</a>
+    <a href="/users_groups/update_group_membership?grpname={{group.grpname}}" role="button" class="btn btn-default"> <i class="fa fa-cog fa-fw"></i>&nbsp;Modify group membership</a>
+    <a href="/users_groups/delete_local_group?grpname={{group.grpname}}" role="button" class="btn btn-danger"> <i class="fa fa-trash fa-fw"></i>&nbsp;Delete this group</a>
+  </div>
+
+{%endblock%}
+
+{%block help_header%}
+  Local group details
+{%endblock%}
+
+{%block help_body%}
+<p>Use this screen to view details about a particular group that has been created. </p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_local_groups_tab")
+  </script>
+{% endblock %}

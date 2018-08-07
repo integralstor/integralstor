@@ -1,0 +1,56 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  Create an ISCSI LUN
+{%endblock%}
+
+{% block inside_content %}
+
+  <form id="create_form" name="create_form" action="" method="post">
+    {%csrf_token%}
+    {{form.target_name}}
+    <table class="table">
+      <tr>
+        <th  style="max-width:60px;word-wrap: break-word">  
+          Target :
+        </th>
+        <td> {{form.target_name.value}} </td>
+        <td> &nbsp; </td>
+      </tr>
+      <tr>
+        <th  style="max-width:60px;word-wrap: break-word">  
+          Backing storage volume :
+        </th>
+        <td>
+          <select name="path" class="form-control">
+            {% for choice in form.path.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.initial.path %} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.path.errors }} </td>
+      </tr>
+    </table>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/storage_access/view_iscsi_target?name={{form.target_name.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary">Create</button>
+    </div>
+
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Create an ISCSI LUN
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to create an ISCSI LUN. The settings will take effect upon saving this information.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+     make_tab_active("view_iscsi_targets_tab")
+  </script>
+{% endblock %}

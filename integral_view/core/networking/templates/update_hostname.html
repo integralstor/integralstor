@@ -1,0 +1,53 @@
+{% extends 'networking_base.html' %}
+
+{%block tab_header %}
+  Modify the system's hostname
+{%endblock%}
+
+{% block inside_content %}
+
+  <form id="edit_form" name="edit_form" action="" method="post">
+    {%csrf_token%}
+    <table class="table" style="width:800px">
+      <tr>
+        <th> Hostname (without domain name component): </th>
+        <td>
+          <input type="text"  name="hostname" class="form-control" id="id_hostname" placeholder="Enter hostname" value="{%if form.initial.hostname%}{{form.initial.hostname}}{%else%}{{form.hostname.value}}{%endif%}"/>
+        </td>
+        <td>
+          {{ form.hostname.errors }}
+        </td>
+      </tr>
+      <tr>
+        <th> Domain name: </th>
+        <td>
+          <input type="text"  name="domain_name" class="form-control" id="id_domain_name" placeholder="Enter domain name" value="{%if form.initial.domain_name%}{{form.initial.domain_name}}{%else%}{{form.domain_name.value}}{%endif%}"/>
+        </td>
+        <td>
+          {{ form.domain_name.errors }}
+        </td>
+      </tr>
+    </table>
+
+    <p> This process may take a few seconds as the system has to reload the system configuration on a hostname change.</p>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/networking/view_hostname" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary cover-page">Save</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Edit the hostname and domain name information
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to change the settings for the hostname and domain name. The settings will take effect upon saving this information.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_hostname_tab")
+  </script>
+{% endblock %}

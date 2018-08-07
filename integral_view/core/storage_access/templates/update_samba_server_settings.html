@@ -1,0 +1,73 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  Modify Windows shares authentication settings
+{%endblock%}
+
+{%block inside_content %}
+
+  <form name="save_form" action="" method="post" >
+    {%csrf_token%}
+    {{form.security}}
+    <input type="hidden" name="netbios_name" value="Fractalio">
+
+    <table class="table" >
+      {%if form.data.security == "ads" or form.initial.security == "ads"%}
+        <tr>
+          <th>  Authentication server DNS name: </th>
+          <td>
+            <input type="text"  name="password_server" class="form-control" id="id_password_server" placeholder="Authentication server DNS name" value="{{form.password_server.value|default_if_none:''}}"> 
+          </td>
+          <td> {{ form.password_server.errors }} </td>
+        </tr>
+        <tr>
+          <th>  Authentication server IP address: </th>
+          <td>
+            <input type="text"  name="password_server_ip" class="form-control" id="id_password_server_ip" placeholder="Authentication server IP Address" value="{{form.password_server_ip.value|default_if_none:''}}"> 
+          </td>
+          <td> {{ form.password_server_ip.errors }}  </td>
+        </tr>
+        <tr>
+          <th> AD Domain/Realm: </th>
+          <td>
+            <input type="text"  name="realm" class="form-control" id="id_realm" placeholder="AD Domain/Realm:" value="{{form.realm.value|default_if_none:''}}"> 
+          </td>
+          <td> {{ form.realm.errors }} </td>
+        </tr>
+        <tr>
+          <td> <b>AD Admininstrator password </b><br> (Never stored. Used only to initially join AD realm) </td>
+          <td>
+            <input type="password"  name="password" class="form-control" id="id_password" placeholder="AD Administrator password"> 
+          </td>
+          <td> {{ form.password.errors }} </td>
+        </tr>
+      {%endif%}
+      <tr>
+        <th> Workgroup: </th>
+        <td>
+          <input type="text"  name="workgroup" class="form-control" id="id_workgroup" placeholder="Workgroup" value="{{form.workgroup.value|default_if_none:''}}"> 
+        </td>
+        <td> {{ form.workgroup.errors }} </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/storage_access/view_samba_server_settings/" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');"> Save </button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Active Directory Authentication settings
+{%endblock%}
+
+{%block help_body%}
+<p> Use this screen to provide information about your Active Directory server against which authentication for share access will happen. Please ensure that you provide the correct server name, IP address and administrative user password in order for the authentication to proceed properly.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("auth_server_settings_tab")
+  </script>
+{% endblock %}

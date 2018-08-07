@@ -1,0 +1,178 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  ZFS pool datasets and volumes
+{%endblock%}
+
+{%block inside_content %}
+
+  {% if not pool %}
+    No information for the specified pool. Click <a href="/view_zfs_pools/"> here</a> to view all ZFS storage pools.
+  {%else %}
+
+    <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+      <div class="col-sm-9 form-group">
+        <form class="form-horizontal"> 
+          <label for="inputPassword" class="col-sm-2 control-label">View : </label>
+          <div class="col-sm-8">
+            <select class="form-control" onchange="$('.lightbox').show();location = this.options[this.selectedIndex].value;">
+              <option value="/storage/view_zfs_pool?name={{pool.pool_name}}&view=basic" >Basic information and usage</option>
+              <option value="/storage/view_zfs_pool?name={{pool.pool_name}}&view=components" >Disk components, read & write caches and hot spares</option>
+              <option value="/storage/view_zfs_pool?name={{pool.pool_name}}&view=datasets_and_zvols" selected="selected">Filesystem datasets & block device volumes</option>        
+              <!-- <option value="/storage/view_zfs_pool?name={{pool.pool_name}}&view=quotas">Pool quotas</option> -->
+            </select>
+          </div>
+        </form>
+      </div>
+
+      <form method='POST' action='/storage/clear_zfs_pool/' id='id_clear_pool_form' name='clear_pool_form'>
+        {% csrf_token  %}
+        <input name="pool_name" id="id_pool_name" value="{{pool.pool_name}}" hidden />
+      </form>
+
+      <div class="col-sm-3 btn-group btn-group-sm pull-right"  style="border:0px solid">
+        <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+        <ul class="dropdown-menu">
+          <li><a class="action-dropdown" href="/storage/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}"  title="Create a new file system dataset" > <i class="fa fa-plus fa-fw"></i>Create a new dataset</a> 
+          <li><a class="action-dropdown" href="/storage/create_zfs_zvol?pool={{pool.pool_name}}"  title="Create a new block device volume" > <i class="fa fa-plus fa-fw"></i>Create a new block device volume</a> 
+          <li class="divider"></li>
+          <li> <a class="action-dropdown" href="/storage/scrub_zfs_pool?name={{pool.pool_name}}"><i class="fa fa-lemon-o fa-fw" ></i>Initiate a scrub</a>
+          <li class="divider"></li>
+          <li> <a class="action-dropdown" role="button" onclick="document.clear_pool_form.submit()"><i class="fa fa-lemon-o fa-fw"></i>Clear pool errors</a>
+          <li class="divider"></li>
+          <li><a class="action-dropdown" href="/storage/view_zfs_pool_history_events?pool={{pool.pool_name}}&action=history"  title="View ZFS pool history" > <i class="fa fa-list fa-fw"></i>View pool history</a> 
+          <li><a class="action-dropdown" href="/storage/view_zfs_pool_history_events?pool={{pool.pool_name}}&action=events"  title="View ZFS pool events" > <i class="fa fa-list fa-fw"></i>View pool events</a> 
+          <li class="divider"></li>
+          <li><a class="action-dropdown" href="/storage/export_zfs_pool?pool_name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-cloud-download fa-fw" ></i>Export this pool</a>
+          <li><a class="action-dropdown" href="/storage/delete_zfs_pool?name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-trash-o fa-fw" ></i>Delete this pool</a>
+          <li class="divider"></li>
+          <li> <a class="action-dropdown" href="/storage/view_zfs_pools"><i class="fa fa-list fa-fw" ></i>Back to pool list</a>
+        </ul>
+      </div>
+    </div>
+
+    <hr/>
+
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="heading8">
+          <h5 class="panel-title">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse8" aria-expanded="true" aria-controls="collapse8">
+              Filesystem datasets <span class="caret"></span>
+            </a>
+          </h5>
+        </div>
+        <div id="collapse8" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading8">
+          <div class="panel-body">
+            {% if pool.datasets %}
+              <table  class="table table-striped" style="width:95%">
+                <tr>
+                  <th> Name</th>
+                  <th> Space used</th>
+                  <th> Actions </th>
+                  <th> 
+                    <a class="btn btn-default btn-sm pull-right" href="/storage/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}"> <i class="fa fa-plus-square-o fa-fw "></i> Create a dataset</a>
+                    &nbsp;
+                  </th>
+                </tr>
+                {%for ds in pool.datasets%}
+                  {% if ds.properties.type.value == 'filesystem'%}
+                    <tr>
+                      <td>{{ds.name}}</td>
+                      <td>{{ds.used}}</td> 
+                      <td>
+                        <div class="btn-group btn-group-xs ">
+                          <a class="btn btn-default btn-xs dropdown-toggle " data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw" ></i>&nbsp;Dataset actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                          <ul class="dropdown-menu">
+                            <li><a class="action-dropdown" href="/storage/view_zfs_dataset?name={{ds.name}}" title="View and configure this dataset"><i class="fa fa-cog fa-fw" ></i>View and configure</a></li>
+                          </ul>
+                        </div>
+                      </td>
+                      <td>
+                        &nbsp;
+                      </td>
+
+                    </tr>
+                  {%endif%}
+                {%endfor%}
+              </table>
+            {%else%}
+              <p> No filesystem datasets created </p>
+            {%endif%}
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="heading9">
+          <h5 class="panel-title">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse9" aria-expanded="true" aria-controls="collapse9">
+              Block device volumes <span class="caret"></span>
+            </a>
+          </h5>
+        </div>
+        <div id="collapse9" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading9">
+          <div class="panel-body">
+            {% if pool.datasets %}
+              <table  class="table table-bordered">
+                <tr>
+                  <th colspan=3> Block device volumes in this pool</th>
+                </tr>
+                <tr>
+                  <th> Name</th>
+                  <th> Space used</th>
+                  <th> Actions</th>
+                  <th> 
+                    <a class="btn btn-default btn-sm pull-right" href="/storage/create_zfs_zvol?pool={{pool.pool_name}}&parent={{pool.pool_name}}"> <i class="fa fa-plus-square-o fa-fw "></i> Create a volume</a>
+                    &nbsp;
+                  </th>
+                </tr>
+                {%for ds in pool.datasets%}
+                  {% if ds.properties.type.value == 'volume'%}
+                    <tr>
+                      <td>{{ds.name}}</td>
+                      <td>{{ds.used}}</td> 
+                      <td>
+                        <div class="btn-group btn-group-xs ">
+                          <a class="btn btn-default btn-xs dropdown-toggle " data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw" ></i>&nbsp;Volume actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                          <ul class="dropdown-menu">
+                            <li><a class="action-dropdown" href="/storage/view_zfs_dataset?name={{ds.name}}" title="View and configure this volume"><i class="fa fa-cog fa-fw" ></i>View and configure</a></li>
+                          </ul>
+                        </div>
+                      </td>
+                      <td>&nbsp;</td>
+                    </tr>
+                  {%endif%}
+                {%endfor%}
+              </table>
+            {%else%}
+              <p> No block device volumes created </p>
+            {%endif%}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  {%endif%}
+  
+  <a href="/view_zfs_pools" role="button" class="btn btn-default btn-sm"> <i class="fa fa-list fa-fw" ></i> &nbsp;Back to pool list</a>
+
+{%endblock%}
+
+{%block help_header%}
+  View ZFS pool filesystem datasets and block device volumes
+{%endblock%}
+
+{%block help_body%}
+  <p> This screen allows you to view all filesystem datasets and block device volumes in the selected pool.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}
+
+

@@ -1,0 +1,126 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  ISCSI target details
+{%endblock%}
+
+{%block global_actions %}
+  <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+    <div class="col-sm-3  pull-right"  style="border:0px solid">
+      <a class="btn btn-default btn-sm pull-right dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+        <li><a class="action-dropdown" href="/storage_access/create_iscsi_lun?target_name={{target.iqn}}" role="button" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add a LUN</a></li>
+        <li><a class="action-dropdown" href="/storage_access/create_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=incoming" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add an initiator authentication user</a></li>
+        <li><a class="action-dropdown" href="/storage_access/create_iscsi_user_authentication?target_name={{target.iqn}}&authentication_type=outgoing" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add a target authentication user</a></li>
+        <li><a class="action-dropdown" href="/storage_access/create_iscsi_acl?target_name={{target.iqn}}" role="button" > <i class="fa fa-plus fa-fw"></i>&nbsp;Add an ACL</a></li>
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/storage_access/delete_iscsi_target?target_name={{target.iqn}}" style="color:red"><i class="fa fa-trash fa-fw"></i>&nbsp;Delete this ISCSI target</a></li>
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/storage_access/view_iscsi_targets" role="button" > <i class="fa fa-list fa-fw"></i>&nbsp;Back to targets list</a></li>
+      </ul>
+    </div>
+  </div>
+{%endblock%}
+
+{% block inside_content %}
+
+  <h5> Target details :</h5>
+
+  <table class="table table-bordered">
+    <tr>
+      <th> Target ID: </th>
+      <td> {{ target.tid }} </td>
+    </tr>
+    <tr>
+      <th> Target Name: </th>
+      <td> {{ target.iqn }} </td>
+    </tr>
+  </table>
+
+  <h5> LUNs:</h5>
+
+  {%if target.luns  %}
+    <table class="table table-bordered">
+      <tr>
+        <th> Type </th>
+        <th> Backing storage </th>
+        <th> Action </th>
+      </tr>
+      {%for lun in target.luns %}
+          <tr>
+            <td> {{lun.type}}</td>
+            {%if lun.type == 'disk'%}
+              <td> {{lun.path}} </td>
+              <td>
+                <a href="/storage_access/delete_iscsi_lun?target_name={{target.iqn}}&store={{lun.path}}" role="button" class="btn btn-danger btn-xs"> Remove this LUN </a>
+              </td>
+            {%else%}
+              <td> - </td>
+              <td> - </td>
+            {%endif%}
+          </tr>
+      {%endfor%}
+    </table>
+  {%else%}
+    No LUNs created
+  {%endif%}
+
+
+  <br/><br/>
+  <h5> User based authentication:</h5>
+  {%if target.accounts %}
+    <table class="table table-bordered">
+      <tr>
+        <th> Username </th>
+        <th> Authentication type </th>
+        <th> Action </th>
+      </tr>
+      {%for account in target.accounts %}
+        <tr>
+          <td> {{account.user}} &nbsp; </td>
+          <td>
+            {%if account.type == 'incoming'%}
+              Initiator authentication
+            {%else%}
+              Target authentication
+            {%endif%}
+          </td>
+          <td>
+            <a href="/storage_access/delete_iscsi_user_authentication?target_name={{target.iqn}}&username={{account.user}}&authentication_type={{account.type}}" role="button" class="btn btn-danger btn-xs"> Remove this user </a>
+          </td>
+        </tr>
+      {%endfor%}
+    </table>
+  {%else%}
+    None defined
+  {%endif%}
+  <p>
+
+  <br/><br/>
+  <h5> ACLs (Authorized IPs/Initiators) :</h5>
+  <table class="table table-bordered">
+    {% for acl in target.acl %}
+      <tr>
+        <td> {{acl}} </td>
+        <td>
+          <a href="/storage_access/delete_iscsi_acl?target_name={{target.iqn}}&acl={{acl}}" role="button" class="btn btn-danger btn-xs"> Remove this ACL</a>
+        </td>
+      </tr>
+    {%endfor%}
+  </table>
+
+{%endblock%}
+
+{%block help_header%}
+  ISCSI target details
+{%endblock%}
+
+{%block help_body%}
+<p>Use this screen to view details about a particular ISCSI targetthat has been created. </p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_iscsi_targets_tab")
+  </script>
+{% endblock %}

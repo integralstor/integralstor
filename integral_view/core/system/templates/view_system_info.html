@@ -1,0 +1,241 @@
+{% extends 'system_base.html' %}
+
+{%block tab_header %}
+  System information
+{%endblock%}
+
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click to modify Windows services settings" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a class="action-dropdown" href="/system/update_manifest" role="button" class="cover-page"><i class="fa fa-refresh fa-fw"></i>&nbsp;Scan for hardware changes</a></li>
+      <li><a class="action-dropdown" href="/system/download_sys_info/" id="download_sys_info" class="cover-page" ><i class="fa fa-download fa-fw"></i>&nbsp;Download system configuration</a></li>
+      <li><a class="action-dropdown" href="/system/upload_sys_info/" id="upload_sys_info" class="cover-page" ><i class="fa fa-upload fa-fw"></i>&nbsp;Upload system configuration</a></li>
+      <li><a class="action-dropdown" href="/system/update_system_date_time/" class="cover-page" ><i class="fa fa-clock-o fa-fw"></i>&nbsp;Update date and time</a></li>
+      <li><a class="action-dropdown" href="/system/update_org_info" ><i class="fa fa-exchange fa-fw"></i>&nbsp;Update organization info</a></li>
+      <li class="divider"></li>
+      <li><a class="action-dropdown" href="/system/update_admin_password" ><i class="fa fa-exchange fa-fw"></i>&nbsp;Change IntegralView password</a></li>
+      <li><a class="action-dropdown" href="/system/view_https_mode/" ><i class="fa fa-exchange fa-fw"></i>&nbsp;View & modify IntegralView access mode</a></li>
+      {%if request.user.username == 'superadmin'%}
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/system/reset_to_factory_defaults/" class="cover-page" ><i class="fa fa-clock-o fa-fw"></i>&nbsp;Reset system to factory defaults</a></li>
+      {%endif%}
+    </ul>
+  </div>
+{%endblock%}
+
+{% block inside_content %}
+
+<script>
+  function startTime(milliseconds, h,m,s) {
+    var d = new Date();
+    d.setTime(milliseconds);
+    window.setInterval(function () {
+      d.setSeconds(d.getSeconds() + 1);
+      var h = d.getHours();
+      var m = d.getMinutes();
+      var s = d.getSeconds();
+      m = checkTime(m);
+      s = checkTime(s);
+      document.getElementById('time').innerHTML =
+      h + ":" + m + ":" + s;
+      }, 1000);
+  }
+  function checkTime(i) {
+    if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+    return i;
+  }
+</script>
+
+  <style>
+  th{
+    width: 40%;
+  }
+  </style>
+
+  <table class="table table-bordered table-striped table-hover" style="width:60%">
+    {%if node.hardware_specific_info %}
+      {%if node.hardware_specific_info.system_manufacturer%}
+        <tr>
+          <th> Hardware manufacturer </th>
+          <td>
+            {{node.hardware_specific_info.system_manufacturer}} 
+          </td>
+        </tr>
+      {%endif%}
+      {%if node.hardware_specific_info.product_name%}
+        <tr>
+          <th> Hardware product name </th>
+          <td>
+            {{node.hardware_specific_info.product_name}} 
+          </td>
+        </tr>
+      {%endif%}
+      {%if node.hardware_specific_info.system_version%}
+        <tr>
+          <th> Hardware system version</th>
+          <td>
+            {{node.hardware_specific_info.system_version}} 
+          </td>
+        </tr>
+      {%endif%}
+      {%if node.hardware_specific_info.system_serial_number%}
+        <tr>
+          <th> Hardware system serial number</th>
+          <td>
+            {{node.hardware_specific_info.system_serial_number}} 
+          </td>
+        </tr>
+      {%endif%}
+    {%endif%}
+    <tr>
+      <th> CPU </th>
+      <td>
+        {{node.cpu_model}} {%if node.cpu_cores%} ({{node.cpu_cores}} core(s)){%endif%}
+      </td>
+    </tr>
+    <tr>
+      <th> Memory </th>
+      <td>
+        {{ node.memory.mem_total.value|floatformat:2}} GB
+      </td>
+    </tr>
+    <tr>
+      <th> Operating system </th>
+      <td>
+        {{ node.os_version}} 
+      </td>
+    </tr>
+    <tr>
+      <th> ZFS version</th>
+      <td>
+        {{ node.zfs_version}} 
+      </td>
+    </tr>
+    <tr>
+      <th> IntegralSTOR UUID</th>
+      <td>
+        {{ node.integralstor_uuid.uuid_str}} 
+      </td>
+    </tr>
+    <tr>
+      <th> System date and time </th>
+      <td>
+        {{ date_str}} <span id="time"></span><script> startTime({{milliseconds}}, {{time.hour}}, {{time.minute}},{{time.second}});</script>
+      </td>
+    </tr>
+    <tr>
+        <th> System timezone </th>
+        <td>
+            {{ system_timezone }}
+        </td>
+    </tr>
+    </table>
+
+  <br />
+
+  {% if org_info %}
+  <table class="table table-bordered table-striped table-hover" style="width:60%">
+    <tr>
+        <th> Organization's name </th>
+        <td>
+            {{ org_info.org_name }}
+        </td>
+    </tr>
+    <tr>
+        <th> Unit's name </th>
+        <td>
+            {{ org_info.unit_name }}
+        </td>
+    </tr>
+    <tr>
+        <th> Unit's ID </th>
+        <td>
+            {{ org_info.unit_id }}
+        </td>
+    </tr>
+    <tr>
+        <th> Subunit's name </th>
+        <td>
+            {{ org_info.subunit_name }}
+        </td>
+    </tr>
+    <tr>
+        <th> Subunit's ID </th>
+        <td>
+            {{ org_info.subunit_id }}
+        </td>
+    </tr>
+  </table>
+  {% else %}
+    <br />
+    <a href="/update_org_info"><p id="p-warning-text"> Organization information has not been set, click here to update. </p></a>
+  {% endif %}
+
+
+  <!-- This info is in other tabs anyway so hiding it for now.. 
+  <table class="table table-bordered table-striped table-hover" style="width:60%">
+    <tr>
+      <th colspan=3> Disks </th>
+    </tr>
+    <tr>
+      <th> Name </th>
+      <th> Serial number </th>
+      <th> Capacity </th>
+    </tr>
+    {% for serial_number, d in  node.disks.items%}
+      <tr>
+        <td> {{d.name}} </td>
+        <td> {{serial_number}} </td>
+        <td> {{d.capacity}} </td>
+      </tr>
+    {%endfor%}
+  </table>
+
+  <table class="table table-bordered table-striped table-hover" style="width:60%">
+    <tr>
+      <th colspan=3> Network interfaces </th>
+    </tr>
+    <tr>
+      <th> Name </th>
+      <th> MAC Address </th>
+      <th> IP configuration </th>
+    </tr>
+    {% for if_name, inter in  node.interfaces.items%}
+      <tr>
+        <td> {{if_name}} </td>
+        <td> {{inter.hwaddr}} </td>
+        <td>
+          {% for inet in inter.inet %}
+            (IP Address : {{inet.address}}, Netmask : {{inet.netmask}}) 
+          {%endfor%}
+        </td>
+      </tr>
+    {%endfor%}
+  </table>
+  -->
+
+<script>
+  $("#download_sys_info").on('click',function(){
+    $(this).text("Processing");
+    setInterval(function(){
+      $("#download_sys_info").text("Download Complete System Info");
+      $('.lightbox').hide();
+    },10000);
+  });
+</script>
+{%endblock%}
+
+{%block help_header%}
+  System configuration
+{%endblock%}
+
+{%block help_body%}
+  <p>This page displays the hardware configuration the system for informational purposes.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("system_info_tab")
+  </script>
+{% endblock %}

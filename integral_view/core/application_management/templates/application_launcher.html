@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+  <html lang="en">
+  <head>
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <link rel="icon" href="/static/images/favicon.ico">
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/css/AdminLTE.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/skin-purple.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/fractalio.css">
+    <script src="/static/js/jquery-2.2.3.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js" ></script>
+    <script src="/static/js/app.js"></script>
+    <title> 
+  		{%block title%}
+  			IntegralView administration application console
+  		{%endblock%}
+    </title>
+
+  </head>
+
+  <body class="skin-purple fixed">
+      <!-- Top Menu-->
+      <div>
+      <div>
+      <header class="main-header">
+        <a href="{{brand_website}}" target="_new" class="logo" style="background-color:{{brand_logo_background_color}}">
+          <!-- Add the class icon to your logo image or logo icon to add the margining -->
+          <img class="icon" src="/static/branding/{{brand_name_dir}}/images/{{brand_logo_image_file}}" style="height:{{brand_logo_image_height}}px;" {%if brand_name and brand_website%} %}title="Click to open {{brand_name}}'s home page in a new window"{%endif%} {%if brand_name%} alt="{{brand_name}}"{%endif%} />
+          {%if display_brand_name%}<sub style="font-size:60%;font-weight:bold;">{{brand_name}}</sub>{%endif%}
+        </a>
+        <!-- Header Navbar: style can be found in header.less -->
+        <nav class="navbar navbar-static-top" style="background-color:#51517b" role="navigation">
+          <!--<a href="" class="white margin-left-30 hidden-phone" style="line-height:3em"><b>IntegralSTOR Application - {{application.name}}<sub>&nbsp;&nbsp;By {{application.provider_name}}</sub></b></a>-->
+          <span class="white margin-left-30" style="line-height:3em"><b>IntegralSTOR Application - {{application.name}}<sub>&nbsp;&nbsp;By {{application.provider_name}}</sub></b></span>
+          <div class="navbar-custom-menu">
+            <ul class="nav navbar-nav">
+              <!-- User Account: style can be found in dropdown.less -->
+                  <li class="pull-right"><a href="/application_management" title="Exit application and go back to IntegralView"><i class="fa fa-times-circle fa-lg">&nbsp;</a></i></li>
+                </ul>
+                </div>
+            </nav>
+        </header>
+        </div>
+        <!-- end of top menu -->
+        <div class="row" style="position:relative;float:left;width:100%">
+            <div class="col-lg-12" style="margin-left:1%;margin-top:5%;margin-right:2%;color:#fff">
+              <iframe width="100%" frameBorder="0" height="800px" src="{{url}}"></iframe>
+              <a href="{{url}}">Launch in a new tab/window.</a>
+            </div>
+        </div>
+      <div>
+  </body>
+  <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.6.3/css/font-awesome.css">
+  <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/datatables/css/jquery.dataTables.css">
+  <link rel="stylesheet" type="text/css" href="/static/datatables/css/dataTables.bootstrap.css">
+  <link rel="stylesheet" type="text/css" href="/static/datatables/css/dataTables.responsive.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/modify_bootstrap.css">
+  <script src="/static/datatables/js/jquery.dataTables.js"></script>
+  <script src="/static/datatables/js/dataTables.bootstrap.js"></script>
+  <script src="/static/datatables/js/dataTables.responsive.js"></script>
+  <script src="/static/js/jquery.slimscroll.min.js"></script>
+  <script src="/static/js/fractalio.js"></script>
+
+
+</html>
+

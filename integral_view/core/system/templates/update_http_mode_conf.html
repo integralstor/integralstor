@@ -1,0 +1,32 @@
+{% extends 'system_base.html' %}
+
+{%block tab_header %}
+  Set Integralview access mode - confirmation
+{%endblock%}
+
+{% block inside_content %}
+
+  <form method="POST" action="">
+    {%csrf_token%}
+    <input type="hidden" name="change_to" value="{{change_to}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/system/view_https_mode" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary btn-sm cover-page" > Confirm </button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Set Integralview access mode - confirmation
+{%endblock%}
+
+{%block help_body%}
+  Since you are about to remove the secure access to IntegralView, this screen prompts you for a confirmation before changing to the non-secure HTTP mode. 
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("https_tab")
+  </script>
+{% endblock %}

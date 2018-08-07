@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 from integralstor import config
 platform_root, err = config.get_platform_root()
 STATIC_DIR_PATH = '%s/integral_view/static' % platform_root
-TEMPLATE_DIR_PATH = "%s/integral_view/templates" % platform_root
+TEMPLATE_DIR_PATH_LIST = ["%s/integral_view/templates"%platform_root, "%s/integral_view/core/storage/templates"%platform_root, "%s/integral_view/core/replication/templates"%platform_root, "%s/integral_view/core/tasks/templates"%platform_root, "%s/integral_view/core/keys_certs/templates"%platform_root, "%s/integral_view/core/networking/templates"%platform_root, "%s/integral_view/core/users_groups/templates"%platform_root, "%s/integral_view/core/storage_access/templates"%platform_root, "%s/integral_view/core/system/templates"%platform_root, "%s/integral_view/core/monitoring/templates"%platform_root, "%s/integral_view/core/application_management/templates"%platform_root, "%s/integral_view/applications/urbackup/templates"%platform_root, "%s/integral_view/applications/storage_insights/templates"%platform_root]
 LOGIN_URL = '/login/'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -62,7 +62,7 @@ ROOT_URLCONF = 'integral_view.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATE_DIR_PATH],
+        'DIRS': TEMPLATE_DIR_PATH_LIST,
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,7 +70,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'integral_view.context_processors.get_version'
+                'integral_view.context_processors.get_version',
+                'integral_view.context_processors.get_brand_config'
             ],
         },
     },

@@ -1,0 +1,16 @@
+{% extends 'logged_in_base.html' %}
+
+{%block tab_items %}
+  <li id="view_scheduled_tasks_tab">
+    <a href="/tasks/view_scheduled_tasks/">Scheduled tasks</a>
+  </li>
+  <li id="view_background_tasks_tab">
+    <a href="/tasks/view_background_tasks/">Background tasks</a>
+  </li>
+{%endblock tab_items %}
+
+{% block menu_active %}
+  <script>
+    make_side_menu_active("tasks_menu")
+  </script>
+{% endblock%}

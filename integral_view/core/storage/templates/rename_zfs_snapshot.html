@@ -1,0 +1,54 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  Rename a ZFS pool/dataset snapshot
+{%endblock%}
+
+{%block inside_content%}
+
+  <form id="create_form" name="create_form" action="" method="POST">
+    {%csrf_token%}
+    {{form.ds_name}}
+    {{form.snapshot_name}}
+
+    <table class="table">
+      <tr>
+        <th> Dataset/Pool name </th>
+        <td> {{form.ds_name.value}} </td>
+        <td> &nbsp; </td>
+      </tr>
+      <tr>
+        <th> Current snapshot name </th>
+        <td> {{form.snapshot_name.value}} </td>
+        <td> &nbsp; </td>
+      </tr>
+      <tr>
+        <th> New snapshot name:</th>
+        <td>
+          <input type="text"  name="new_snapshot_name" class="form-control" id="id_clients" placeholder="Enter the new name for this snapshot" />
+        </td>
+        <td> {{ form.new_snapshot_name.errors }} </td>
+      </tr>
+    </table>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/storage/view_zfs_snapshots" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Rename a  ZFS snapshot
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to rename a ZFS snapshot. The settings will take effect upon saving this information.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}

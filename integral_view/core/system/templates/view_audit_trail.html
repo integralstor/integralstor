@@ -1,0 +1,64 @@
+{% extends 'system_base.html' %}
+
+{%block tab_header %}
+  {%if historical %}
+    Rotated system audit trail
+  {%else%}
+    System audit trail
+  {%endif%}
+{%endblock%}
+
+
+{%block inside_content %}
+
+  <div style="width:95%;position: relative; margin: 0px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+    <table  class="table table-hover" style="table-layout:fixed;">
+
+      <thead>
+        <tr>
+          <th style="width:12%;text-align:center"> Time </th>
+          <th style="width:15%;text-align:center"> Action </th>
+          <th style="width:53%;text-align:center"> Details </th>
+          <th style="width:10%;text-align:center"> Modified by </th>
+          <th style="width:10%;text-align:center"> Initiated from </th>
+        </tr>
+      </thead>
+      {%for d in audit_list %}
+        <tr>
+          <td style="text-align:center"> {{d.time}} </td>
+          <td style="text-align:center"> {{d.action}} </td>
+          <td style="word-wrap:break-word;"> {{d.action_str}} </td>
+          <td style="text-align:center"> {{d.username}} </td>
+          <td style="text-align:center">
+            {% if d.ip == "0.0.0.0"%}
+              Batch process
+            {%elif d.ip == "system"%}
+              System
+            {%else%}
+              {{d.ip}}
+            {%endif%}
+          </td>
+        </tr>
+      {%endfor%}
+    </table>
+
+
+  </div>
+
+
+{%endblock%}
+
+{%block help_header%}
+  Audit trail
+{%endblock%}
+
+{%block help_body%}
+  <p>The IntegralView system keeps a record of all system modifications that have been done using Integral View. This audit trail page lists these actions along with the time when they were performed and the IP address from where the action was initiated. This can be used to track down potentially harmful actions.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("audits_tab")
+  </script>
+{% endblock %}
+

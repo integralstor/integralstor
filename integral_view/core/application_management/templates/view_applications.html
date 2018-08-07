@@ -1,0 +1,55 @@
+{% extends 'application_management_base.html' %}
+
+{% block tab_header %}
+  Installed applications
+{% endblock %}
+
+{% block inside_content %}
+
+  {% if applications %}
+    {% load utilities %}
+    <div class="">
+      <table class="table table-striped" style="width:95%">
+        <thead>
+          <tr>
+            <th style="width:60%;"> Application name </th>
+            <th style="width:60%;"> Application provider </th>
+            <th style="width:10%;"> Launch </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app_tag, app in applications.items %}
+            <tr>
+              <td> {{app.name}} </td>
+              <td> {%if app.provider_url%} <a href="{{app.provider_url}}" target="_new">{%endif%}{{app.provider_name}}{%if app.provider_url%} </a>{%endif%} </td>
+              <td>
+                <div class="btn-group btn-group-xs pull-right" >
+                  <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for application specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                  <ul class="dropdown-menu">
+                    <li><a  class="action-dropdown" href="/application_management/launch_application?app_tag={{app_tag}}"  title="Manage this application" > <i class="fa fa-cog fa-fw"></i>Manage this application</a> 
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody> 
+      </table>
+    </div>
+  {% else %}
+      No installed applications.
+  {% endif %}
+{% endblock %}
+
+{%block help_header%}
+  View all installed applications
+{%endblock%}
+
+{%block help_body%}
+  View all installed applications
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active('view_applications_tab');
+  </script>
+{% endblock%}

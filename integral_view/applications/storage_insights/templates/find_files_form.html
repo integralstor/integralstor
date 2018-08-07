@@ -1,0 +1,58 @@
+{% extends 'storage_insights_base.html' %}
+
+{%block tab_header %}
+    Find files
+{%endblock%}
+
+{% block inside_content %}
+
+    <div style="width:60%; min-height:400px;overflow:auto;clear:both;padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 0px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+      <form id="query_form" class="form-horizontal" role="form" name="query_form" action="" method="post">
+        {%csrf_token%}
+        {{form.scan_configuration_id}}
+        <div class="row" style="width:60%;margin:0 auto;border:0px solid">
+          <label class="col-sm-3 control-label" style="vertical-align:center"> Scan directory:</label>
+          <div class="col-sm-6">
+            {{scan_dir}}
+          </div>
+          <div class="col-sm-3">
+            &nbsp;
+          </div>
+        </div>
+        <br/>
+        <div class="row" style="width:60%;margin-right:0;margin:0 auto;border:0px solid">
+          <label class="col-sm-3 control-label" style="vertical-align:center"> File name or pattern:</label>
+          <div class="col-sm-6">
+            <input type="text"  name="file_name_pattern" class="form-control" value={{form.file_name_pattern.value|default_if_none:""}}>
+          </div>
+          <div class="col-sm-3">
+            {{ form.file_name_pattern.errors }}
+          </div>
+        </div>
+        <br/>
+        <div class="row" style="width:60%;margin:0 auto;border:0px solid">
+          <div class="col-sm-2">
+            &nbsp;
+          </div>
+          <div class="col-sm-7 btn-group btn-group-sm">
+            <a href="/applications/storage_insights/view_query_types/" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+              <button type="submit" class="btn btn-primary"> Go </button>
+          </div>
+          <div class="col-sm-3">
+            &nbsp;
+          </div>
+        </div>
+      </form>
+    <br><br>
+  </div>
+
+
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+    make_tab_active("query_tab")
+  </script>
+{% endblock %}
+

@@ -1,0 +1,62 @@
+{% extends 'tasks_base.html' %}
+
+{% block tab_header %}
+  {{task.description}}
+{% endblock %}
+
+{%block global_actions %}
+    <div class="btn-group btn-group-sm pull-right"  >
+      <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+        <li><a class="action-dropdown" href="/tasks/view_background_tasks/" ><i class="fa fa-list fa-fw"></i>&nbsp;Back to tasks list</a></li>
+        {% if task.status == "running" %}
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/tasks/stop_background_task?task_id={{task.task_id}}" style="color:red"> <i class="fa fa-cog fa-fw"></i>&nbsp;Stop this task </a></li>
+        {% endif %}
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/tasks/delete_background_task?task_id={{task.task_id}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Remove this task </a></li>
+      </ul>
+    </div>
+{%endblock%}
+
+{% block inside_content %}
+  {%for subtask in subtasks %}
+    <div class="panel box {%if subtask.return_code == '0' %} box-success {%else%} box-danger{%endif%}">
+      <div class="box-header with-border">
+        <h5 class="box-title">
+          <a class="" aria-expanded="true" data-toggle="collapse" data-parent="#accordion" href="#pool_{{forloop.counter}}">
+            Subtask name : {{subtask.description}}<br>
+          </a> 
+        </h5>
+      </div>
+      <div style="" aria-expanded="true" id="pool_{{forloop.counter}}" class="panel-collapse collapse in">
+        <div class="box-body">
+          <table>
+            <tbody>
+              <!--
+              <tr>
+                <td colspan=1> Command </td>
+                <td> {{subtask.command}} </td>
+              </tr>
+              -->
+              <tr>
+                <td colspan=1> Status </td>
+                <td> {{subtask.status}} </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  <h4> Task output </h4>
+  {{task_output|linebreaksbr}}
+
+{% endblock %}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_background_tasks_tab")
+  </script>
+{% endblock%}
+
