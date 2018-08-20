@@ -284,7 +284,7 @@ def create_iscsi_user_authentication(request):
                 if cd['authentication_type'] == 'incoming':
                     audit_str = "Added ISCSI initiator authentication user %s for target %s" % (
                         cd["username"], cd['target_name'])
-                    url = '/view_iscsi_target?name=%s&ack=added_initiator_authentication' % target_name
+                    url = '/storage_access/view_iscsi_target?name=%s&ack=added_initiator_authentication' % target_name
                 else:
                     audit_str = "Added ISCSI target authentication user %s for target %s" % (
                         cd["username"], cd['target_name'])
@@ -338,7 +338,7 @@ def delete_iscsi_user_authentication(request):
             if authentication_type == 'incoming':
                 audit_str = "Removed ISCSI initiator authentication user %s for target %s" % (
                     username, target_name)
-                url = '/view_iscsi_target?name=%s&ack=removed_initiator_authentication' % target_name
+                url = '/storage_access/view_iscsi_target?name=%s&ack=removed_initiator_authentication' % target_name
             else:
                 audit_str = "Removed ISCSI target authentication user %s for target %s" % (
                     username, target_name)
