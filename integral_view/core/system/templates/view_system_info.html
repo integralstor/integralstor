@@ -14,7 +14,7 @@
       <li><a class="action-dropdown" href="/system/update_system_date_time/" class="cover-page" ><i class="fa fa-clock-o fa-fw"></i>&nbsp;Update date and time</a></li>
       <li><a class="action-dropdown" href="/system/update_org_info" ><i class="fa fa-exchange fa-fw"></i>&nbsp;Update organization info</a></li>
       <li class="divider"></li>
-      <li><a class="action-dropdown" href="/system/update_admin_password" ><i class="fa fa-exchange fa-fw"></i>&nbsp;Change IntegralView password</a></li>
+      <li><a class="action-dropdown" href="/update_admin_password" ><i class="fa fa-exchange fa-fw"></i>&nbsp;Change IntegralView password</a></li>
       <li><a class="action-dropdown" href="/system/view_https_mode/" ><i class="fa fa-exchange fa-fw"></i>&nbsp;View & modify IntegralView access mode</a></li>
       {%if request.user.username == 'superadmin'%}
         <li class="divider"></li>
@@ -169,7 +169,7 @@
   </table>
   {% else %}
     <br />
-    <a href="/update_org_info"><p id="p-warning-text"> Organization information has not been set, click here to update. </p></a>
+    <a href="/system/update_org_info"><p id="p-warning-text"> Organization information has not been set, click here to update. </p></a>
   {% endif %}
 
 

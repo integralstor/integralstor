@@ -58,16 +58,16 @@ def update_email_settings(request):
             if err:
                 raise Exception(err)
             if not d:
-                form = admin_forms.ConfigureEmailForm()
+                form = system_forms.ConfigureEmailForm()
             else:
                 if 'tls' in d and d["tls"]:
                     d["tls"] = True
                 else:
                     d["tls"] = False
-                form = admin_forms.ConfigureEmailForm(initial={'server': d["server"], 'port': d["port"], 'tls': d["tls"], 'username': d[
+                form = system_forms.ConfigureEmailForm(initial={'server': d["server"], 'port': d["port"], 'tls': d["tls"], 'username': d[
                                                       "username"], 'pswd': ""})
         else:
-            form = admin_forms.ConfigureEmailForm(request.POST)
+            form = system_forms.ConfigureEmailForm(request.POST)
             if form.is_valid():
                 cd = form.cleaned_data
                 # print "Saving : "

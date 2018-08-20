@@ -1,4 +1,4 @@
-{% extends 'shares_base.html' %}
+{% extends 'storage_access_base.html' %}
 
 {%block tab_header %}
   Modify Windows ACL entries
@@ -7,7 +7,7 @@
 {%block inside_content %}
 
 
-  <form action="/update_aces/" method="POST">
+  <form action="/storage/update_aces/" method="POST">
     {%csrf_token%}
     {{form.share_index}}
     {{form.share_name}}
@@ -113,7 +113,7 @@
       {%endfor%}
     </table>
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_cifs_share?access_mode=by_id&index={{form.share_index.value}}'"> &nbsp;&nbsp;
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/storage_access/view_cifs_share?access_mode=by_id&index={{form.share_index.value}}'"> &nbsp;&nbsp;
       <button type="submit" class="btn btn-primary cover-page" ">Save </button>
     </div>
   </form>

@@ -71,11 +71,11 @@ def create_self_signed_ssl_certificate(request):
     try:
         if request.method == "GET":
             # Return the conf page
-            form = pki_forms.CreateSelfSignedCertForm()
+            form = keys_certs_forms.CreateSelfSignedCertForm()
             return_dict['form'] = form
             return django.shortcuts.render_to_response("create_self_signed_ssl_certificate.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            form = pki_forms.CreateSelfSignedCertForm(request.POST)
+            form = keys_certs_forms.CreateSelfSignedCertForm(request.POST)
             return_dict['form'] = form
             if not form.is_valid():
                 return django.shortcuts.render_to_response("create_self_signed_ssl_certificate.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -102,11 +102,11 @@ def upload_ssl_certificate(request):
     try:
         if request.method == "GET":
             # Return the conf page
-            form = pki_forms.UploadCertForm()
+            form = keys_certs_forms.UploadCertForm()
             return_dict['form'] = form
             return django.shortcuts.render_to_response("upload_ssl_certificate.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            form = pki_forms.UploadCertForm(request.POST)
+            form = keys_certs_forms.UploadCertForm(request.POST)
             return_dict['form'] = form
             if not form.is_valid():
                 return django.shortcuts.render_to_response("upload_ssl_certificate.html", return_dict, context_instance=django.template.context.RequestContext(request))

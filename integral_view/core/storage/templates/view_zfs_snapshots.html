@@ -83,7 +83,7 @@
     $(function(){
       // bind change event to select
       $('#name_select').on('change', function () {
-        var url = "/view_zfs_snapshots?name="+$(this).val(); // get selected value
+        var url = "/storage/view_zfs_snapshots?name="+$(this).val(); // get selected value
         if (url) { // require a URL
           window.location = url; // redirect
         }

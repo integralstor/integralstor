@@ -1,4 +1,4 @@
-{% extends 'shares_base.html' %}
+{% extends 'storage_access_base.html' %}
 
 {%block tab_header %}
   Delete a Windows ACL entry - confirmation
@@ -9,7 +9,7 @@
 
   <p id="p-warning-text">Are you sure you want to delete the ACL entry for the {%if type == 'user'%} user {%else%} group {%endif%} "{{name}}" for share "{{share_name}}"? </p>
   <br>
-  <form action="/delete_ace/" method="POST">
+  <form action="/storage/delete_ace/" method="POST">
     {%csrf_token%}
     <input type=hidden name="name" value="{{name}}">
     <input type=hidden name="type" value="{{type}}">
@@ -29,7 +29,7 @@
     <br/>
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
 
-      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_cifs_share?access_mode=by_id&index={{share_index}}'"> &nbsp;&nbsp;
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/storage_access/view_cifs_share?access_mode=by_id&index={{share_index}}'"> &nbsp;&nbsp;
       <button type="submit" class="btn btn-danger cover-page" ">Confirm and delete</button>
     </div>
   </form>
