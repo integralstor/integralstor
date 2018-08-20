@@ -19,7 +19,7 @@
   </head>
   <body class="skin-purple fixed">
     <div class="row" style="width:100%;margin:0 auto;border:0px solid;background-color:#000">
-      <div class="col-sm-2" style="background-color:#000000;min-height:50px;">
+      <div class="col-sm-2" style="background-color:{{brand_logo_background_color}};min-height:50px;">
         <!--<img src="/static/images/LOGO-transparent.png" style="height:45px;width45px;margin-right:5px;" alt="Fractalio Data" class="pull-left margin-left-20"/>-->
         <a href="{{brand_website}}" target="_new" class="logo" style="background-color:{{brand_logo_background_color}}">
           <img class="icon" src="/static/branding/{{brand_name_dir}}/images/{{brand_logo_image_file}}" style="height:{{brand_logo_image_height}}px;" {%if brand_name and brand_website%} %}title="Click to open {{brand_name}}'s home page in a new window"{%endif%} {%if brand_name%} alt="{{brand_name}}"{%endif%} />
