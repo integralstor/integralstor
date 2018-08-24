@@ -3,9 +3,7 @@ from django.contrib.auth.decorators import login_required
 
 from integral_view.core.networking.views.networking_management import view_interfaces, view_interface, view_bond, update_interface_state, update_interface_address, delete_interface_connection, create_bond, delete_bond, view_hostname, update_hostname, view_dns_nameservers, update_dns_nameservers, delete_vlan, create_vlan
 
-
-
-urlpatterns = patterns('',
+urlpatterns = [
                        url(r'^$', login_required(view_interfaces)),
 
                        # From views/networking_management.py
@@ -28,7 +26,5 @@ urlpatterns = patterns('',
                            login_required(view_dns_nameservers)),
                        url(r'^update_dns_nameservers/',
                            login_required(update_dns_nameservers)),
-
-
-                        )
+]
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

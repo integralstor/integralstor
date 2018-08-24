@@ -8,8 +8,7 @@ from integral_view.core.storage_access.views.stgt_iscsi_management import view_t
 from integral_view.core.storage_access.views.rsync_share_management import create_rsync_share, update_rsync_share, view_rsync_shares, delete_rsync_share
 
 
-
-urlpatterns = patterns('',
+urlpatterns = [
                        url(r'^$', login_required(view_nfs_shares)),
                        # From views/cifs_share_management.py
                        url(r'^view_cifs_shares/',
@@ -76,6 +75,6 @@ urlpatterns = patterns('',
                            login_required(create_iscsi_acl)),
                        url(r'^delete_iscsi_acl/',
                            login_required(delete_iscsi_acl)),
+]
 
-                        )
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

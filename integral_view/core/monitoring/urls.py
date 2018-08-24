@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 
 from integral_view.core.monitoring.views.monitoring import view_read_write_stats, api_get_status, view_remote_monitoring_servers, update_remote_monitoring_server, delete_remote_monitoring_server, view_remote_monitoring_server_status, refresh_alerts, view_alerts, view_dashboard
 
-urlpatterns = patterns('',
+urlpatterns = [
                        url(r'^$', login_required(view_dashboard)),
 
                        # From views/monitoring.py
@@ -22,7 +22,6 @@ urlpatterns = patterns('',
                        # From views/alerts_management.py
                        url(r'^view_alerts/', login_required(view_alerts)),
                        url(r'^refresh_alerts/([0-9_]*)',
-                           login_required(refresh_alerts)),
-
-                        )
+                           login_required(refresh_alerts))
+]
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

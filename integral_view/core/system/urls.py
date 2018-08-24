@@ -7,8 +7,7 @@ from integral_view.core.system.views.system_management import update_system_date
 from integral_view.core.system.views.scheduled_notification_management import view_scheduled_notifications, create_scheduled_notification, delete_scheduled_notification
 from integral_view.core.system.views.log_management import download_log, view_audits, view_hardware_logs
 
-
-urlpatterns = patterns('',
+urlpatterns = [
                        url(r'^$', login_required(view_system_info)),
 
                        # From views/log_management.py
@@ -64,6 +63,6 @@ urlpatterns = patterns('',
                            create_scheduled_notification),
                        url(r'^delete_scheduled_notification/',
                            delete_scheduled_notification),
+]
 
-                        )
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

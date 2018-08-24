@@ -1,10 +1,10 @@
 import django.template
 import django
 from django.contrib.auth.decorators import login_required
-from integralstor import django_utils
+from integralstor import django_utils, config
 import django.http
 
-applications = {'urbackup': {'name':'Endpoint/Server backup', 'provider_name':'URBackup', 'provider_url':'https://urbackup.org', 'use_launch_url_prefix':True, 'launch_url_port': 55414, 'launch_url_path': None}, 'storage_insights':{'name':'Storage Insights', 'provider_name':'Fractalio Data', 'provider_url':'https://fractalio.com', 'use_launch_url_prefix':False, 'launch_url_path': 'applications/storage_insights'}}
+#applications = {'urbackup': {'name':'Endpoint/Server backup', 'provider_name':'URBackup', 'provider_url':'https://urbackup.org', 'use_launch_url_prefix':True, 'launch_url_port': 55414, 'launch_url_path': None}, 'storage_insights':{'name':'Storage Insights', 'provider_name':'Fractalio Data', 'provider_url':'https://fractalio.com', 'use_launch_url_prefix':False, 'launch_url_path': 'applications/storage_insights'}}
 
 def view_applications(request):
     return_dict = {}
@@ -14,6 +14,9 @@ def view_applications(request):
                 return_dict['ack_message'] = "Scheduled task successfully removed"
             if request.GET["ack"] == "modified":
                 return_dict['ack_message'] = "Scheduled task successfully modified"
+        applications, err = config.get_applications_config()
+        if err:
+            raise Exception(err)
 
         return_dict["applications"] = applications
         return django.shortcuts.render_to_response("view_applications.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -28,6 +31,10 @@ def view_applications(request):
 def launch_application(request):
     return_dict = {}
     try:
+
+        applications, err = config.get_applications_config()
+        if err:
+            raise Exception(err)
         req_params, err = django_utils.get_request_parameter_values(request, [
                                                                  'app_tag'])
         if err:
@@ -56,7 +63,9 @@ def launch_application(request):
                 url = '%s//%s'%(url, host)
             if 'launch_url_port' in application and application['launch_url_port']:
                 url = '%s:%s'%(url, application['launch_url_port'])
-        if 'launch_url_path' in application and application['launch_url_path']:
+        if 'use_default_launch_url_path' in application and application['use_default_launch_url_path']:
+            url = '%s/applications/%s'%(url, req_params['app_tag'])
+        elif 'launch_url_path' in application and application['launch_url_path']:
             url = '%s/%s'%(url, application['launch_url_path'])
         #print url
         

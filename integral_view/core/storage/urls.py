@@ -7,7 +7,7 @@ from integral_view.core.storage.views.folder_management import delete_ace, creat
 
 from integral_view.core.storage.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, update_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, delete_all_zfs_snapshots, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, update_zfs_slog, delete_zfs_slog, scrub_zfs_pool, clear_zfs_pool, create_zfs_zvol, view_zfs_zvol, import_all_zfs_pools, create_zfs_spares, delete_zfs_spare, expand_zfs_pool, delete_zfs_quota, update_zfs_quota, export_zfs_pool, import_zfs_pool, schedule_zfs_snapshot, update_zfs_l2arc, delete_zfs_l2arc, view_zfs_snapshot_schedules, update_zfs_dataset_advanced_properties, api_get_pool_usage_stats, view_zfs_historical_usage, view_zfs_pool_history_events, create_zfs_pool_scrub_schedule, delete_zfs_pool_scrub_schedule
 
-urlpatterns = patterns('',
+urlpatterns = [
                        # From views/disk_management.py
                        url(r'^view_disks/', login_required(view_disks)),
                        url(r'^identify_disk/', login_required(identify_disk)),
@@ -97,5 +97,6 @@ urlpatterns = patterns('',
                            login_required(update_dir_permissions)),
                        url(r'^update_sticky_bit/',
                            login_required(update_sticky_bit)),
-                        )
+]
+
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

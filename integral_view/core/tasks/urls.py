@@ -3,8 +3,7 @@ from django.contrib.auth.decorators import login_required
 
 from integral_view.core.tasks.views.task_management import view_background_tasks, view_task_details, delete_background_task, stop_background_task, view_scheduled_tasks, update_scheduled_task_schedule
 
-
-urlpatterns = patterns('',
+urlpatterns = [
                        url(r'^$', login_required(view_scheduled_tasks)),
 
                        # From views/task_management.py
@@ -20,5 +19,6 @@ urlpatterns = patterns('',
                            login_required(view_scheduled_tasks)),
                        url(r'^update_scheduled_task_schedule/',
                            login_required(update_scheduled_task_schedule)),
-                        )
+]
+
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

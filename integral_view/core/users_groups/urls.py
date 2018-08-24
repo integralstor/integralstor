@@ -3,8 +3,7 @@ from django.contrib.auth.decorators import login_required
 
 from integral_view.core.users_groups.views.local_user_management import view_local_users, create_local_user, update_local_user_password, delete_local_user, view_local_user, view_local_groups, update_local_user_group_membership, view_local_group, create_local_group, delete_local_group, update_group_membership
 
-
-urlpatterns = patterns('',
+urlpatterns = [
                        url(r'^$', login_required(view_local_users)),
 
                        # From views/local_user_management.py
@@ -29,7 +28,6 @@ urlpatterns = patterns('',
                            login_required(update_local_user_password)),
                        url(r'^update_group_membership/',
                            login_required(update_group_membership)),
+]
 
-
-                        )
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

@@ -3,8 +3,7 @@ from django.contrib.auth.decorators import login_required
 
 from integral_view.core.keys_certs.views.keys_certs_management import view_ssl_certificates, delete_ssl_certificate, create_self_signed_ssl_certificate, upload_ssl_certificate, view_known_hosts_ssh_keys, view_user_ssh_keys, upload_ssh_user_key, upload_ssh_host_key
 
-
-urlpatterns = patterns('',
+urlpatterns = [
                        url(r'^$', login_required(view_user_ssh_keys)),
 
                        # From views/keys_certs_management.py
@@ -23,6 +22,6 @@ urlpatterns = patterns('',
                        url(r'^view_user_ssh_keys',
                            login_required(view_user_ssh_keys)),
                        url(r'^view_known_hosts_ssh_keys',
-                           login_required(view_known_hosts_ssh_keys)),
-                        )
+                           login_required(view_known_hosts_ssh_keys))
+]
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

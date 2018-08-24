@@ -1,9 +1,10 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.auth.decorators import login_required
 
-from integral_view.applications.storage_insights.views.scan_management import view_dashboard, view_scans, delete_scan, view_scan_configurations, create_scan_configuration, delete_scan_configuration, update_scan_schedule, delete_scan_schedule, view_query_types, view_files_by_extension, view_general_query_results, find_files, download_file
+from integral_view.applications.storage_insights.views.scan_management import view_scans, delete_scan, view_scan_configurations, create_scan_configuration, delete_scan_configuration, update_scan_schedule, delete_scan_schedule
+from integral_view.applications.storage_insights.views.query_management import view_dashboard, view_query_types, view_files_by_extension, view_general_query_results, find_files, download_file
 
-urlpatterns = patterns('',
+urlpatterns = [
                        url(r'^view_dashboard/', login_required(view_dashboard)),
                        url(r'^view_general_query_results/', login_required(view_general_query_results)),
                        url(r'^view_files_by_extension/', login_required(view_files_by_extension)),
@@ -19,5 +20,5 @@ urlpatterns = patterns('',
                        url(r'^delete_scan_configuration/', login_required(delete_scan_configuration)),
 
                        url(r'^$', login_required(view_dashboard)),
-                        )
+]
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab
