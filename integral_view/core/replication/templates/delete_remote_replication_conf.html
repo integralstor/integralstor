@@ -17,7 +17,7 @@
     {% endif %}
   {% endif %}
 
-  <form action="/delete_remote_replication/" method="POST">
+  <form action="" method="POST">
     {%csrf_token%}
     <input type=hidden name="remote_replication_id" value="{{replication.remote_replication_id}}">
     <input type=hidden name="cron_task_id" value="{{replication.cron_task_id}}">
