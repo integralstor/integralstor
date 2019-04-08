@@ -1,0 +1,46 @@
+{% extends 'storage_base.html' %}
+
+{% block tab_header%}
+  Create a directory
+{% endblock tab_header %}
+
+{% block inside_content %}
+  {{form.errors}}
+  <form action="" method="POST">
+    {%csrf_token%}
+    {{form.path}}
+    <table  class="table " style="width:800px">
+      <tr>
+        <th> Base directory :</th>
+        <td>
+          {{form.path.value}}
+        </td>
+        <td> {{form.path.errors}} </td>
+      </tr>
+      <tr>
+        <th> New directory name:</th>
+        <td>
+          <input type="text"  name="dir_name" class="form-control" id="id_dir_name" placeholder="Enter the name for the new directory" value="{{form.dir_name.value|default_if_none:""}}"> 
+        </td>
+        <td> {{ form.dir_name.errors }} </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/storage/view_dir_manager" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary"> Create </button>
+    </div>
+    
+  </form>
+{% endblock inside_content %}
+{%block help_header%}
+  Create a new sub-directory
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to create a new sub-directory under the selected directory. </p>
+{%endblock%}
+{% block tab_active %}
+  <script>
+    make_tab_active("dir_manager_tab")
+  </script>
+{% endblock %}

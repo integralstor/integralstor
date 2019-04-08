@@ -1,0 +1,42 @@
+{% extends 'networking_base.html' %}
+
+{%block tab_header %}
+  DNS servers
+{%endblock%}
+
+{% block inside_content %}
+
+  {%if not name_servers %}
+    <p id="p-instructional-text"> No name servers have been configured.</p><br>
+    <a href="" role="button" class="btn btn-default btn-sm">Configure DNS Name servers</a>
+  {%else%}
+
+    <table class="table table-bordered" style="width:200px">
+      <tr>
+        <th> Configured DNS nameservers </th>
+      </tr>
+      {% for server in name_servers %}
+        <tr>
+          <td> {{ server}} </td>
+        </tr>
+      {%endfor%}
+    </table>
+
+    <a href="/networking/update_dns_nameservers/" role="button" class="btn btn-default btn-sm"><i class="fa fa-cog fa-fw" ></i>&nbsp;Modify DNS Name servers</a>
+  {%endif%}
+
+{%endblock%}
+
+{%block help_header%}
+  DNS Nameservers
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to view the currently configured list of DNS server's IP addresses.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_dns_nameservers_tab")
+  </script>
+{% endblock %}

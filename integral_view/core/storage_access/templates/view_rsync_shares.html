@@ -1,0 +1,89 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  RSync Shares
+{%endblock%}
+
+{%block global_actions %}
+    <a  class="btn btn-default btn-sm pull-right" href="/storage_access/create_rsync_share/" title="Create a new rsync share" style="color:#000"> <i class="fa fa-plus-square-o  fa-fw"></i>&nbsp;Create new share </a>
+{%endblock%}
+
+{% block inside_content %}
+
+  {% if not shares %}
+   No RSync shares created. 
+  {%else %}
+    <div style="width:95%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th> ShareName </th>
+            <th> Description </th>
+            <th> Path  </th>
+            <th> Browsable </th>
+            <th> Readonly </th>
+            <th> &nbsp; </th>
+          </tr>
+        </thead>
+        {%for share in shares %}
+          <tr>
+            <td> {{share.name}} </td>
+            <td>
+              {%if share.comment%}
+                {{share.comment}}
+              {%else%}
+                -
+              {%endif%}
+            </td>
+            <td> {{share.path}} </td>
+            <td> 
+              {%if share.list %} 
+                Yes
+              {%else%}
+                No
+              {%endif%}
+            </td>
+            <td> 
+              {%if share.readonly %} 
+                Yes
+              {%else%}
+                No
+              {%endif%}
+            </td>
+            <td>
+              <div class="btn-group btn-group-xs" >
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li> <a href="/storage_access/update_rsync_share?name={{share.name}}" role="button" class="action-dropdown" title="Edit the RSync Share"><i class="fa fa-edit fa-fw"></i> Edit</a> </li>
+                  <li> <a href="/storage_access/delete_rsync_share?name={{share.name}}" role="button" class="action-dropdown" title="Delete the RSync Share" style="color:red"> <i class="fa fa-trash fa-fw"></i>  Delete</a> </li>
+                 </ul>
+             
+            </td>
+          </tr>
+        {%endfor%}
+      </table>
+    </div>
+    <br>
+  {%endif%}
+
+{%endblock%}
+
+{%block help_header%}
+  Accessing RSync Shares
+{%endblock%}
+
+{%block help_body%}
+  <p>
+    To copy data to a RSync share, use rsync -avz /path/to/your/files ip::rsync_share_name
+  </p>
+  <p>
+    To copy data from a RSync share, use rsync -avz  ip::rsync_share_name /path/to/copy
+  </p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_rsync_shares_tab")
+  </script>
+{% endblock %}
+

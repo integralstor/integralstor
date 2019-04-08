@@ -1,0 +1,173 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  Modify a Windows share
+{%endblock%}
+
+{%block inside_content %}
+  <form id="edit_form" name="edit_form" action="" method="post">
+    {%csrf_token%}
+    <input name="name" type="hidden" value="{{ form.name.value }}">
+    <input name="share_id" type="hidden" value="{{ form.share_id.value }}">
+    <input name="path" type="hidden" value="{{ form.path.value }}">
+    <table class="table" style="width:800px">
+      <tr>
+        <th> Share name: </th>
+        <td> {{ form.name.value }} </td>
+        <td> &nbsp </td>
+      </tr>
+      <tr>
+        <th> Path :</th>
+        <td> {{ form.path.value }} </td>
+        <td> &nbsp </td>
+      </tr>
+      <tr>
+        <th> Description: </th>
+        <td>
+          <input type="text"  name="comment" class="form-control" id="id_comment" placeholder="Description of this share" value="{{form.comment.value}}"/>
+        </td>
+        <td> {{ form.comment.errors }} </td>
+      </tr>
+      <tr>
+        <th> Readonly:</th>
+        <td> {{ form.read_only }} </td>
+        <td> {{ form.read_only.errors }} </td>
+      </tr>
+      <tr>
+        <th> Browseable:</th>
+        <td> {{ form.browseable }} </td>
+        <td> {{ form.browseable.errors }} </td>
+      </tr>
+      <tr>
+        <th> Allow access from hosts :</th>
+        <td>
+          <select name="hosts_allow_choice" autocomplete="off" class="form-control" id="id_hosts_allow_choice">
+            {% for choice in form.hosts_allow_choice.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.initial.hosts_allow_choice%} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.hosts_allow_choice.errors }} </td>
+      </tr>
+      <tr>
+        <th> Specific allowed hosts list : <br/> (Enter a comma separated list of hostnames or IP addresses)</th>
+        <td>
+          <input type="text" name="hosts_allow" class="form-control" id="id_hosts_allow" value="{{form.initial.hosts_allow|default_if_none:""}}"/>
+        </td>
+        <td> {{ form.hosts_allow.errors }} </td>
+      </tr>
+      <tr>
+        <th> Deny access from hosts : </th>
+        <td>
+          <select name="hosts_deny_choice" class="form-control" autocomplete="off" id="id_hosts_deny_choice">
+            {% for choice in form.hosts_deny_choice.field.choices %}
+		{{choice.0}}
+		{{form.initial.hosts_deny_choice}}
+              <option value="{{choice.0}}" {%if choice.0 == form.initial.hosts_deny_choice%} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.hosts_deny_choice.errors }} </td>
+      </tr>
+      <tr>
+        <th> Specific denied hosts list : <br/>(Enter a comma separated list of hostnames or IP addresses)</th>
+        <td>
+          <input type="text" name="hosts_deny" class="form-control" id="id_hosts_deny" value="{{form.initial.hosts_deny|default_if_none:""}}"/>
+        </td>
+        <td> {{ form.hosts_deny.errors }} </td>
+      </tr>
+    </table>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/storage_access/view_cifs_share?access_mode=by_id&index={{form.share_id.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+
+<script type="text/javascript">
+  function set_select_field_disabled(f, val) {
+    for(var i = 0; i < f.length; i++)
+      f[i].disabled = val
+  }
+  $("form input[name='guest_ok']").click(function () {
+    if (document.getElementById("id_guest_ok").checked) {
+      document.getElementById('guest_help').innerHTML = "Guest Access enabled. Disable to select Users and Groups"
+      set_select_field_disabled(document.getElementsByName('users'), true);
+      set_select_field_disabled(document.getElementsByName('groups'), true);
+    } else {
+      document.getElementById('guest_help').innerHTML = ""
+      set_select_field_disabled(document.getElementsByName('users'),false);
+      set_select_field_disabled(document.getElementsByName('groups'), false);
+    }
+  });
+  $(window).load(function() {
+    if (document.getElementById("id_guest_ok").checked) {
+      document.getElementById('guest_help').innerHTML = "Guest Access enabled. Disable to select Users and Groups"
+      set_select_field_disabled(document.getElementsByName('users'),true);
+      set_select_field_disabled(document.getElementsByName('groups'), true);
+    } else {
+      document.getElementById('guest_help').innerHTML = ""
+      set_select_field_disabled(document.getElementsByName('users'),false);
+      set_select_field_disabled(document.getElementsByName('groups'), false);
+    }
+  });
+    $(document).ready(function(){
+      $("#id_hosts_allow").attr('disabled','enabled');
+      $("#id_hosts_deny").attr('disabled','enabled');
+      var hosts_allow_val = $("#id_hosts_allow_choice").val();
+      if (hosts_allow_val == "restricted")
+          $("#id_hosts_allow").removeAttr('disabled');
+      var hosts_deny_val = $("#id_hosts_deny_choice").val();
+      if (hosts_deny_val == "restricted")
+          $("#id_hosts_deny").removeAttr('disabled');
+      $("#id_hosts_allow_choice").on('change',function(){
+        var val = $(this).val();
+        if (val == "restricted"){
+          $("#id_hosts_allow").removeAttr('disabled');
+        }
+	else {
+          $("#id_hosts_allow").attr('disabled','enabled');
+	}
+      })
+      $("#id_hosts_deny_choice").on('change',function(){
+        var val = $(this).val();
+        if (val == "restricted"){
+          $("#id_hosts_deny").removeAttr('disabled');
+        }
+	else {
+          $("#id_hosts_deny").attr('disabled','enabled');
+	}
+      })
+    });
+</script>
+
+{%endblock%}
+
+{%block help_header%}
+  Edit a share 
+{%endblock%}
+
+{%block help_body%}
+  <p>Shares are used to provide access to a certain directory within a certain volume to end users. Shares are used only for Windows access. Users accessing the system via NFS can directly mount the directory within the volume using NFS mount points.</p>
+  <p>You can set various options on shares : </p>
+  <ul>
+  <li> Share name : This is the name which will show up on Windows systems when you browse to the network storage.</li>
+  <li>Volume name : The IntegralStor volume which contains the directory being exported through this share.</li>
+  <li>Directory : The directory under the selected volume which is to be exported as the share. You can the browse button to select the directory. If you want to create a new directory under the volume to export, then please use the Create a directory option and then use this screen to create a share for that directory. </li>
+  <li>Description : An explanatory note for the administrator's use.</li>
+  <li>Read only : Setting this prevents all changes to files within this share.</li>
+  <li>Browseable : Setting this will result in this share being displayed when someone browses the IntegralStor storage.</li>
+  <li>Allow access from hosts : Select "All hosts" if you want to allow all hosts or else select "Specified hosts" to enable the form field to specify the list of allowed hosts.</li>
+  <li>Specific allowed access host list: The list of hosts from which access to this share is allowed (white list) in the form of a comma separated list of IP addresses of hostnames.</li>
+  <li>Deny access from hosts : Select "None" if you want to do not want to deny access from any host or else select "Specified hosts" to enable the form field to specify the list of denied hosts.</li>
+  <li>Specific denied access host list: The list of hosts from which access to this share is denied (black list) in the form of a comma separated list of IP addresses of hostnames.</li>
+  </ul>
+  If there is a clash between the allowed access list and denied access list then the allowed access list takes precedence.
+{%endblock%}
+
+{% block tab_active %}
+ <script>
+  make_tab_active("view_cifs_shares_tab")
+ </script>
+{% endblock %}
+

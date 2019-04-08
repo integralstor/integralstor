@@ -20,7 +20,7 @@
 
     <script type="text/javascript">
       function check_alerts(){
-        $.get('/refresh_alerts/',function(data){
+        $.get('/monitoring/refresh_alerts/',function(data){
           if (data == true) {
             $("#alerts_icon").removeClass("white").addClass("yellow faa-flash animated");
           }
@@ -38,27 +38,32 @@
     <div class="wrapper">
       <!-- Top Menu-->
       <header class="main-header">
-        <a href="/view_dashboard/sys_health" class="logo cover-page">
+        <a href="{{brand_website}}" target="_new" class="logo" style="background-color:{{brand_logo_background_color}}">
           <!-- Add the class icon to your logo image or logo icon to add the margining -->
-          <img src="/static/images/integralview-white.png" height="30" class="pull-left margin-left-10" style="margin-top:5px"/>
-          <sub style="font-size:50%;" onClick="window.open('http://fractalio.com');return false;">by </sub>
-          <sub style="font-size:50%;font-weight:bold;" onClick="window.open('http://fractalio.com');return false;">fractalio data </sub>
+          <img class="icon" src="/static/branding/{{brand_name_dir}}/images/{{brand_logo_image_file}}" style="height:{{brand_logo_image_height}}px;" {%if brand_name and brand_website%} %}title="Click to open {{brand_name}}'s home page in a new window"{%endif%} {%if brand_name%} alt="{{brand_name}}"{%endif%} />
+          {%if display_brand_name%}<sub style="font-size:60%;font-weight:bold;">{{brand_name}}</sub>{%endif%}
         </a>
         <!-- Header Navbar: style can be found in header.less -->
         <nav class="navbar navbar-static-top" role="navigation">
           <!-- Sidebar toggle button-->
           <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
             <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
           </a>
-          <a href="/view_dashboard/sys_health" class="white margin-left-30 hidden-phone" style="line-height:3em"><b>IntegralStor </b><sub style="color:white">&nbsp;&nbsp;version {{version}}</sub></a>
+          <!--<a href="/view_dashboard/sys_health" class="white hidden-phone" style="font-size:120%;line-height:3em"><b>Powered by IntegralSTOR </b><sub style="color:white">&nbsp;&nbsp;version {{version}}</sub></a>-->
+          <!--
+          <img  src="/static/images/integralview-white.png" style="margin-left:35%;margin-top:5px;margin-right:5px;height:35px;" />
+          <span style="font-weight:bold;color:white;margin-top:15px;font-size:normal">Powered by IntegralSTOR 
+          <sub style="font-weight:bold;color:white">&nbsp;&nbsp;version {{version}}</sub>
+          </span>
+          -->
+          <span class="margin-left-30" style="line-height:3em;font-weight:bold;color:white;%;font-size:normal">IntegralView 
+          <sub style="font-weight:bold;color:white">&nbsp;&nbsp;Powered by IntegralSTOR version {{version}}</sub>
+          </span>
           <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
               <!-- User Account: style can be found in dropdown.less -->
                   <li >
-                    <a  href="/view_alerts" title="Click to view alerts">
+                    <a  href="/monitoring/view_alerts" title="Click to view alerts">
                       <i class="fa fa-exclamation-triangle white fa-lg" id="alerts_icon"></i>
                     </a>
                   </li>
@@ -90,70 +95,60 @@
             </div>
             <!-- sidebar menu: : style can be found in sidebar.less -->
             <ul class="sidebar-menu">
-              <li id="dashboard_menu">
-                <a href="/view_dashboard/sys_health">
-                  <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+              <li id="logging_menu">
+                <a href="/monitoring/">
+                  <i class="fa fa-file"></i> Monitoring
                 </a>
               </li>
+              <hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #7d7676;">
               <li id="storage_menu">
-                <a href="/view_zfs_pools/">
+                <a href="/storage/">
                   <i class="fa fa-hdd-o"></i>
-                  <span>Disks and storage pools</span>
+                  <span>Storage management</span>
                 </a>
               </li>
               <li id="shares_menu">
-                <a href="/view_cifs_shares/">
-                  <i class="fa fa-files-o"></i> Directories, shares & targets
+                <a href="/storage_access/">
+                  <i class="fa fa-files-o"></i>Storage access management
                 </a>
               </li>
-              <li id="replication_snapshots_menu">
-                <a href="/view_zfs_snapshots/"> 
-                  <i class="fa fa-share"></i> Replication & snapshots
+              <li id="replication_menu">
+                <a href="/replication/"> 
+                  <i class="fa fa-share"></i> Replication/D.R.
                 </a>
               </li>
-              <li id="backup_menu">
-                <a href="/view_backup/"> 
-                  <i class="fa fa-save"></i> Data backup
-                </a>
-              </li>
-              <li id="scheduler_menu">
-                <a href="/view_scheduled_tasks/"> 
-                  <i class="fa fa-clock-o"></i> Tasks
+              <li id="tasks_menu">
+                <a href="/tasks/"> 
+                  <i class="fa fa-clock-o"></i> Task management
                 </a>
               </li>
               <hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #7d7676;">
               <li id="key_management_menu">
-                <a href="/view_user_ssh_keys/">
+                <a href="/keys_certs/">
                   <i class="fa fa-key"></i> Keys and Certificates
                 </a>
               </li>
               <li id="network_menu">
-                <a href="/view_interfaces/">
+                <a href="/networking/">
                   <i class="fa fa-retweet"></i>
                   <span>Networking</span>
                 </a>
               </li>
-              <li id="services_menu">
-                <a href="/view_services/">
-                  <i class="fa fa-laptop"></i>
-                  <span>Services</span>
-                </a>
-              </li>
               <li id="system_menu">
-                <a href="/view_system_info/">
+                <a href="/system/">
                   <i class="fa fa-building"></i>
                   <span>System</span>
                 </a>
               </li>
               <li id="users_menu">
-                <a href="/view_local_users/"> 
+                <a href="/users_groups/"> 
                   <i class="fa fa-users"></i> Users & groups
                 </a>
               </li>
               <hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #7d7676;">
-              <li id="logging_menu">
-                <a href="/view_audits/">
-                  <i class="fa fa-file"></i> Monitoring
+              <li id="applications_menu">
+                <a href="/application_management/"> 
+                  <i class="fa fa-save"></i> Applications
                 </a>
               </li>
             </ul>
@@ -327,4 +322,3 @@
   {% endblock %}
 
 </html>
-

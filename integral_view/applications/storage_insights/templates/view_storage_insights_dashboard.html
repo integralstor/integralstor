@@ -1,0 +1,153 @@
+{% extends 'storage_insights_base.html' %}
+
+{%block tab_header %}
+    Storage Insights dashboard
+{%endblock%}
+
+
+{% block inside_content %}
+    <div style="width:100%; min-height:400px;overflow:auto;clear:both;padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 0px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+      <div class="row" style="width:98%;margin:0 auto">
+        <div class="col-md-6">
+          <div class="box box-success">
+            <div  class="box-body">
+              <h5>
+                Configurations
+                <a href="/applications/storage_insights/view_scan_configurations"  class="pull-right cover-page" title="Click here to view detailed information about the configurations"> <i class="fa  fa-info-circle fa-lg"></i></a>
+              </h5>
+              <hr>
+              <table class="table table-hover table-responsive">
+                <tr>
+                  <th > Active configurations</th>
+                  <td > {{num_active_configurations}}</td>
+                </tr>
+                <tr>
+                  <th > Deleted configurationsScan path</th>
+                  <td > {{num_deleted_configurations}}</td>
+                </tr>
+               </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="box box-success">
+            <div  class="box-body">
+              <h5>
+                Storage insights database
+              </h5>
+              <hr>
+              <table class="table table-hover table-responsive">
+                <tr>
+                  <th > Database size</th>
+                  <td > {{db_details.size_str}}</td>
+                </tr>
+                <tr>
+                  <th > Number of file entries</th>
+                  <td > {{db_details.num_files}} file entries across {{num_configurations}} configurations</td>
+                </tr>
+               </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <br/>
+    {%if form%}
+      <form class="form-horizontal">
+        <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+          <div class="col-sm-2">
+            &nbsp;
+          </div>
+          <label class="col-sm-2 control-label" style="vertical-align:center"> Select scan folder to view details:</label>
+          <div class="col-sm-6">
+            <select name="scan_configuration_id" id="config_select" class="form-control">
+              {% for choice in form.scan_configuration_id.field.choices %}
+                <option value="{{choice.0}}" {%if choice.0 == form.initial.scan_configuration_id %} selected="selected"{%endif%}>{{choice.1}}</option>
+              {%endfor%}
+            </select>
+          </div>
+          <div class="col-sm-2">
+            &nbsp;
+          </div>
+        </div>
+      </form>
+  <script>
+    $(function(){
+      // bind change event to select
+      $('#config_select').on('change', function () {
+        var url = "/applications/storage_insights/view_dashboard?scan_configuration_id="+$(this).val(); // get selected value
+        if (url) { // require a URL
+          window.location = url; // redirect
+        }
+        return false;
+      });
+    });
+  </script>
+    {%endif%}
+    <br><br>
+    {%if selected_configuration%}
+      <div class="row" style="width:98%;margin:0 auto">
+        <div class="col-md-6">
+          <div class="box box-success">
+            <div  class="box-body">
+              <h5>
+                File details for scan folder {{selected_configuration.scan_dir}}
+              </h5>
+              <hr>
+              <table class="table table-hover table-responsive">
+                <tr>
+                  <th > Number of scanned files</th>
+                  <td > {{selected_configuration.num_files}}</td>
+                </tr>
+                <tr>
+                  <th > Number of scanned file extensions</th>
+                  <td > {{selected_configuration.num_extensions}}</td>
+                </tr>
+                <tr>
+                  <th > Total size of scanned files</th>
+                  <td > {{selected_configuration.total_size_human_readable}}</td>
+                </tr>
+                <tr>
+                  <th > Number of file duplicate sets</th>
+                  <td > {{ duplicate_sets|length }}</td>
+                </tr>
+               </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="box box-success">
+            <div  class="box-body">
+              <h5>
+                Scan details
+              </h5>
+              <hr>
+              <table class="table table-hover table-responsive">
+                <tr>
+                  <th > Total number of scans</th>
+                  <td > {%if scan_details%} {{scan_details|length}}{%else%}No scans{%endif%}</td>
+                </tr>
+                <tr>
+                  <th > Last scan</th>
+                  <td > {%if scan_details.latest_scan%} {{scan_details.latest_scan}}{%else%}No scans{%endif%}</td>
+                </tr>
+                <tr>
+                  <th > Last successful scan</th>
+                  <td > {%if scan_details.latest_successful_scan%} {{scan_details.latest_successful_scan}}{%else%}No successful scans{%endif%}</td>
+                </tr>
+               </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    {%endif%}
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+    make_tab_active("dashboard_tab")
+  </script>
+{% endblock %}
+
+

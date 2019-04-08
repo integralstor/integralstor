@@ -1,0 +1,42 @@
+{% extends 'system_base.html' %}
+
+{%block tab_header %}
+  Modify Network Time Protocol(NTP) server settings
+{%endblock%}
+
+{%block inside_content%}
+
+  <form action="" method="post">
+    {%csrf_token%}
+    <table class="table" >
+      <tr>
+        <td  style="max-width:100px;word-wrap: break-word"> 
+          NTP Server list <br>(enter comma separated list of NTP server IP addresses or hostnames):
+        </th>
+        <td>
+          <input type="text"  name="server_list" class="form-control" id="id_server_list" value="{{form.initial.server_list}}" placeholder="Enter comma separated list of NTP servers"> 
+        </td>
+        <td> {{ form.server_list.errors }} </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/system/view_ntp_settings/" role="button" class="btn btn-default"> Cancel</a>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+	NTP settings
+{%endblock%}
+
+{%block help_body%}
+	<p>The IntegralStor system need to be time synchronised with your Active Directory server in order for Active Directory based authentication to work properly. This requires that the NTP time synchronisation protocol be setup. Please ensure that NTP is running on the Active Directory server and that these NTP settings point to the Active Directory server. Alternatively, you could have IntegralStor and the Active Directory servers point to the same external NTP server in order to synchronize the times.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("ntp_settings_tab")
+  </script>
+{% endblock %}

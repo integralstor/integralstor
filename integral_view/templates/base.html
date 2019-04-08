@@ -5,26 +5,38 @@
     <link rel="icon" href="/static/images/favicon.ico">
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css" type="text/css" >
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/AdminLTE.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/skin-purple.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/fractalio.css">
     <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.6.3/css/font-awesome.css">
     <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.6.3/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="/static/css/modify_bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/AdminLTE.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/skin-purple.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/fractalio.css">
     <title> 
       {%block title%}
         IntegralView administration console 
       {%endblock%}
     </title>
   </head>
-  <body class="skin-purple">
+  <body class="skin-purple fixed">
     <div class="row" style="width:100%;margin:0 auto;border:0px solid;background-color:#000">
-      <div class="col-sm-2" style="background-color:#000000;min-height:50px;">
-        <img src="/static/images/LOGO-transparent.png" style="height:45px;width45px;margin-right:5px;" alt="Fractalio Data" class="pull-left margin-left-20"/>
+      <div class="col-sm-2" style="background-color:{{brand_logo_background_color}};min-height:50px;">
+        <!--<img src="/static/images/LOGO-transparent.png" style="height:45px;width45px;margin-right:5px;" alt="Fractalio Data" class="pull-left margin-left-20"/>-->
+        <a href="{{brand_website}}" target="_new" class="logo" style="background-color:{{brand_logo_background_color}}">
+          <img class="icon" src="/static/branding/{{brand_name_dir}}/images/{{brand_logo_image_file}}" style="height:{{brand_logo_image_height}}px;" {%if brand_name and brand_website%} %}title="Click to open {{brand_name}}'s home page in a new window"{%endif%} {%if brand_name%} alt="{{brand_name}}"{%endif%} />
+          {%if display_brand_name%}&nbsp;&nbsp;<sub style="color:#ffffff;font-size:100%;font-weight:bold;">{{brand_name}}</sub>{%endif%}
+        </a>
+        <!--<img src="/static/images/pixio_white.png" style="height:45px;width45px;margin-right:5px;" class="pull-left margin-left-20"/>-->
       </div>
       <div class="col-sm-8 " style="padding-top:5px;background-color:#000">
-        <img src="/static/images/istor.png" style="width:50px;border:0px solid;>
-        <a href="http://fractalio.com" class="white margin-left-30 hidden-phone" style="line-height:3em"><span style="color:white"><b></b></span><sub style="color:white">&nbsp;&nbsp;version {{version}}</sub></a>
+        <!--<img src="/static/images/istor.png" style="width:50px;border:0px solid;>-->
+        <!--<a href="http://fractalio.com" class="white margin-left-30 hidden-phone" style="line-height:3em"><span style="color:white"><b></b></span><sub style="color:white">&nbsp;&nbsp;version {{version}}</sub></a>-->
+        <!--<a href="/view_dashboard/sys_health" class="white margin-left-30 hidden-phone" style="line-height:3em"><b>Powered by IntegralSTOR </b><sub style="color:white">&nbsp;&nbsp;version {{version}}</sub></a>-->
+        <!--<span style="color:white"><b>Powered by IntegralSTOR</b></span><sub style="color:white">&nbsp;&nbsp;version {{version}}</sub>-->
+          <!--<img  src="/static/images/integralview-white.png" style="margin-left:35%;margin-top:5px;margin-right:5px;height:35px;" />-->
+          <!--<a href="/view_dashboard/sys_health" class="white hidden-phone" style="font-size:120%;line-height:3em"><b> Powered by IntegralSTOR </b><sub style="color:white">&nbsp;&nbsp;version {{version}}</sub></a>-->
+          <span class="margin-left-30" style="font-weight:bold;color:white;line-height:3em;font-size:normal">IntegralView 
+          <sub style="font-weight:bold;color:white">&nbsp;&nbsp;Powered by IntegralSTOR version {{version}}</sub>
+          </span>
       </div>
       <div class="col-sm-2 " style="background-color:#000">
         &nbsp;

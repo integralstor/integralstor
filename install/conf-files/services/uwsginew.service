@@ -1,5 +1,5 @@
 [Unit]
-Description=uWSGI instance to serve myapp
+Description=uWSGI instance to serve IntegralView
 
 [Service]
 Type=forking

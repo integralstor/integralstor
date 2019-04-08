@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+  <html lang="en" style="margin: 0; padding: 0; height: 100%; overflow: hidden;">
+  <head>
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <link rel="icon" href="/static/images/favicon.ico">
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/css/AdminLTE.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/skin-purple.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/fractalio.css">
+    <script src="/static/js/jquery-2.2.3.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js" ></script>
+    <script src="/static/js/app.js"></script>
+
+
+
+  </head>
+  <body class="skin-purple fixed" style="margin: 0; padding: 0; height: 100%; overflow: hidden;">
+    <div class="" style="min-height:100%">
+              <div class="nav-tabs-custom" style="min-height:900px">
+                <ul class="nav nav-tabs">
+
+                  <!-- tab items - begin -->
+                  {%block tab_items %}
+                  {%endblock tab_items %}
+                  <!-- tab items - end -->
+
+                </ul>
+                <div class="tab-content">
+                  <div class="tab-pane active" id="content">
+                    <div class="row" style="width:100%;margin:0 auto;border-top:0px solid #eee;padding-bottom:10px;border-bottom:1px solid #eee">
+                      <div class="col-sm-6" style="padding-left:0px;border:0px solid">
+                        <span class="bigger-120">
+                          <i class="fa fa-circle text-yellow"></i> 
+                          <span> 
+
+                            <!-- tab header - begin -->
+
+                            {% block tab_header %}
+                              Information
+                            {% endblock tab_header%}
+
+                            <!-- tab header - end -->
+
+
+                          </span>
+                        </span>
+                      </div>
+                      <div class="col-sm-6 pull-right" style="border:0px solid">
+                        {% block global_actions %}
+                          &nbsp;
+                        {% endblock global_actions%}
+                      </div>
+                    </div>
+                    <div style="clear:both"></div>
+                    <br/>
+                    <span class="white-space:pre-line"></span>
+                    {%block ack_message %}
+                      <!-- ack message contents - begin -->
+                      {% if ack_message %}
+                        <div style="margin:0 auto;border-radius: 10px;background: #A1A3A6; width: 90%; position:relative;height: 30px;line-height:30px;text-align:center;">
+                          <p style="color:white;align:center;"><b>{{ack_message}}</b></p>
+                        </div>
+                        <br>
+                      {%endif%}
+                      <!-- ack message contents - end -->
+                    {%endblock ack_message%}
+
+                    <!-- actual page contents - begin -->
+
+                    {% block inside_content %}
+                    {% endblock inside_content %}
+
+                    <!-- actual page contents - end -->
+
+                  </div>
+                </div>
+              </div>
+      </div>
+
+    <!-- /wrapper div -->
+  </body>
+  <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.6.3/css/font-awesome.css">
+  <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/datatables/css/jquery.dataTables.css">
+  <link rel="stylesheet" type="text/css" href="/static/datatables/css/dataTables.bootstrap.css">
+  <link rel="stylesheet" type="text/css" href="/static/datatables/css/dataTables.responsive.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/modify_bootstrap.css">
+  <script src="/static/datatables/js/jquery.dataTables.js"></script>
+  <script src="/static/datatables/js/dataTables.bootstrap.js"></script>
+  <script src="/static/datatables/js/dataTables.responsive.js"></script>
+  <script src="/static/js/jquery.slimscroll.min.js"></script>
+  <script src="/static/js/fractalio.js"></script>
+
+  {% block tab_active %}
+    <script>
+      make_tab_active(null)
+    </script>
+  {% endblock%}
+</html>

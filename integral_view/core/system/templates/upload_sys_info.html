@@ -1,0 +1,56 @@
+{% extends 'system_base.html' %}
+
+{% block tab_header %}
+  Restore system to a previous configuration
+{% endblock %}
+
+{% block inside_content %}
+
+  <form action="" method="POST" enctype="multipart/form-data" class="form-horizontal" id="upload-form" role="form"> 
+    {%csrf_token%}
+    <table class="table" >
+      <tr>
+        <td><b> Select a config file to be uploaded. </b><br>Select a previously downloaded configuration file to be applied</td>
+        <td>
+              <input id="upload_file" type="file" name="file_field" style="width:400px" required>
+        </td>
+        <td> {{form.auth_method.errors}} </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/system/view_system_info/" role="button" class="btn btn-default btn-sm"> Cancel</a>&nbsp;&nbsp;
+      <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#confirm-upload">Apply configuration file</button>
+    </div>
+  </form>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="confirm-upload">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Warning</h4>
+      </div>
+      <div class="modal-body">
+        <p>This will reset your server to a different configuration. Are you sure you want to do this? </p>
+        <p> This will delete your existing configuration and overwrite it with the applied configuration. </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+        <button type="button" id="go-ahead" class="btn btn-danger">I understand the risks ! Proceed.</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+  $("#go-ahead").on('click',function(){
+     $('form#upload-form').submit(); 
+  });
+</script>
+{% endblock %}
+
+{% block tab_active %}
+<script>
+   make_tab_active("system_info_tab")
+</script>
+{% endblock%}

@@ -1,0 +1,34 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  Delete a ZFS pool/dataset snapshot - confirmation
+{%endblock%}
+
+{%block inside_content %}
+
+  <p id="p-warning-text">Are you sure you want to delete the ZFS snapshot with name  "{{display_name}}"? </p>
+  <br>
+  <form action="" method="POST">
+    {%csrf_token%}
+    <input type=hidden name="name" value="{{name}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/storage/view_zfs_snapshots'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger" onClick ="$('#processing').modal('show');">Confirm and delete</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Deleting a ZFS snapshot
+{%endblock%}
+
+{%block help_body%}
+  <p>Confirming this operation results in the specified ZFS snapshot being deleted from the system. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}

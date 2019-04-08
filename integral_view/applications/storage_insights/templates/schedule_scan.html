@@ -1,0 +1,60 @@
+{% extends 'storage_insights_base.html' %}
+
+{%block tab_header %}
+  Schedule a folder scan 
+{%endblock%}
+
+
+{% block inside_content %}
+  <form class="form-horizontal" role="form" name=""  method="post">
+    {%csrf_token%}
+    <input type="hidden" name="scan_configuration_id" value="{{scan_configuration_id}}">
+    <h4> Schedule a scan for folder "{{configuration.scan_dir}}" {%if configuration.exclude_dirs%}, but excluding folder(s) : "{{configuration.exclude_dirs}}"{%endif%}.</h4>
+    <br/<br/>
+    <table  class="table " style="width:800px">
+      <style>
+        th {
+            width:35%;
+        }
+      </style>
+      <tr>
+        <th> Select scan schedule</th>
+        <td>
+          <div id="scheduler" class="form-control" style="border:0px ">
+          </div>
+          <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select schedule using time selector" type="hidden" required readonly>
+        </td>
+      </tr>
+    </table>
+    <br/><br/>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/applications/storage_insights/view_scan_configurations" role="button" class="btn btn-default"> Cancel</a>
+      <button type="submit" class="btn btn-primary" id="start">Schedule</button>
+    </div>
+  </form>
+  <script type="text/javascript" src="/static/js/jquery-cron-min.js"></script>
+  <link type="text/css" href="/static/css/jquery-cron.css" rel="stylesheet" />
+  <script>
+    $('#scheduler').cron({
+      onChange: function() {
+        $('#id_scheduler').val($(this).cron("value"));
+      },
+      customValues: {
+        "1 Minute" : "*/1 * * * *",
+        "5 Minutes" : "*/5 * * * *",
+        "10 Minutes" : "*/10 * * * *",
+        "15 Minutes" : "*/15 * * * *",
+        "30 Minutes" : "*/30 * * * *",
+    }
+     });
+  </script>
+{% endblock %}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("scan_configurations_tab")
+  </script>
+{% endblock%}
+
+
+

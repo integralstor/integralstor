@@ -1,0 +1,75 @@
+{% extends 'users_groups_base.html' %}
+
+{%block tab_header %}
+  Local users
+{%endblock%}
+
+{%block global_actions %}
+  <a class="btn btn-default btn-sm pull-right"  href="/users_groups/create_local_user" title="Create a new user" style="color:#000"> <i class="fa fa-plus-square-o fa-fw "></i>&nbsp;Create user </a>
+{%endblock%}
+
+{% block inside_content %}
+
+  {% if warnings %}
+    <p class="text-red">The following problems occurred during the process : {{warnings}}</p><br><br>
+  {%endif%}
+
+  {% if not user_list %}
+    No local users appear to have been created. Click <a href="/users_groups/create_local_user/"> here</a> to create a new local user. 
+  {%else %}
+    <div class="table-responsive" style="clear:both;width:100%;padding:0px 5px 0px 5px;margin-left:00px;margin-right:20px;border:1px solid #f4f4f4;height:350px;-webkit-overflow-scrolling: touch;">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th> Username </th>
+            <th> Name </th>
+            <th> Group membership </th>
+            <th> Actions </th>
+          </tr>
+        </thead>
+        {%for u in user_list %}
+          <tr>
+            <td> {{u.username}} </td>
+            <td>
+              {%if u.comment%}
+                {{u.comment |slice:"18:"}}
+              {%else%}
+                -
+              {%endif%}
+            </td>
+            <td>
+              {%for g in u.other_groups %}
+                {{g}},
+              {%endfor%}
+            </td>
+            <td>
+              <div class="btn-group btn-group-xs" >
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li><a class="action-dropdown" href="/users_groups/update_local_user_password?username={{u.username}}" ><i class="fa fa-exchange fa-fw"></i>&nbsp;Change password</a>
+                  <li><a class="action-dropdown" href="/users_groups/update_local_user_group_membership?username={{u.username}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Add user to additional groups</a>
+                  <li><a class="action-dropdown" href="/users_groups/delete_local_user?username={{u.username}}" style="color:red"><i class="fa fa-trash fa-fw"></i>&nbsp; Delete this user</a>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {%endfor%}
+      </table>
+    </div>
+  {%endif%}
+
+{%endblock%}
+
+{%block help_header%}
+  View local users 
+{%endblock%}
+
+{%block help_body%}
+  <p>Use local user authentication when you want Windows access but do not want to use or deploy Active Directory authentication. This page is used to view the list of local users who have been created for this purpose. These accounts are used only for IntegralStor access and not for any other purpose.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_local_users_tab")
+  </script>
+{% endblock %}
