@@ -1,0 +1,62 @@
+{% extends 'system_base.html' %}
+
+{%block tab_header %}
+  Download logs
+{%endblock%}
+
+{% block inside_content %}
+
+  <form name="myform"  method="post">
+    {%csrf_token%}
+    {{form.hostname}}
+    <table class="table" >
+      <tr>
+        <th> Select log type : </th>
+        <td >
+          <select name="log_type" class="form-control">
+            {% for choice in form.log_type.field.choices %} 
+              <option value="{{choice.0}}">{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td>  
+          {{ form.log_type.errors }}
+        </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      {%if hw_platform == 'dell'%}
+        <a href="/system/view_hardware_logs" role="button" class="btn btn-default cover-page"> View hardware logs</a>&nbsp;&nbsp;
+      {%endif%}
+      <button type="submit" id="download_logs"  class="btn btn-default btn-sm"><i class="fa fa-download fa-fw"></i>&nbsp;Download</button>
+    </div>
+  </form>
+  <br><br>
+  <p id="p-instruction-text"> The requested log will be fetched as a zip/text file which you can open or save on your computer.</p>
+
+
+  <script>
+    $("#download_logs").on('click',function(){
+      $(this).text("Processing");
+      setInterval(function(){
+        $("#download_logs").text("Download");
+        $('.lightbox').hide();
+      },10000);
+    });
+  </script>
+
+{%endblock%}
+
+{%block help_header%}
+  Download logs
+{%endblock%}
+
+{%block help_body%}
+  <p>Logs help in tracking down potential issues in the system. Please specify the log type before downloading it. The logs will be downloaded onto your system in the form of a compressed ZIP file or a normal text file.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("logs_tab")
+  </script>
+{% endblock %}

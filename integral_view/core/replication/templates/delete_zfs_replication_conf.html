@@ -1,0 +1,35 @@
+{% extends 'replication_base.html' %}
+
+{%block tab_header %}
+  Cancel ZFS replication - confirmation
+{%endblock%}
+
+{% block inside_content %}
+
+  <p id="p-warning-text">Are you sure you want to cancel the replication of "{{replication.source_dataset}} to pool "{{replication.destination_pool}}" on "{{replication.destination_ip}}"? </p>
+  <form action="/replication/delete_remote_replication/" method="POST">
+    {%csrf_token%}
+    <input type=hidden name="remote_replication_id" value="{{replication.remote_replication_id}}">
+    <input type=hidden name="cron_task_id" value="{{replication.cron_task_id}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/replication/view_remote_replications'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger cover-page" ">Confirm and delete</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Cancel a ZFS remote replication 
+{%endblock%}
+
+{%block help_body%}
+  This screen is a confirmation to ensure that you actually want to cancel the selected ZFS remote replication.
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_remote_replications_tab")
+  </script>
+{% endblock %}
+

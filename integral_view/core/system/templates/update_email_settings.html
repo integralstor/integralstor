@@ -1,0 +1,84 @@
+{% extends 'system_base.html' %}
+{%block tab_header %}
+  Modify e-mail settings
+{%endblock%}
+
+{%block inside_content %}
+  <div id="processing" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-body">
+      <br><br><br>
+      <i class="fa fa-spinner fa-spin fa-4 blue"></i>
+      <br><br><br>
+      <p id="p-node-text">Saving settings and sending a test mail.. Please wait.
+      <br><br><br>
+    </div>
+  </div>
+
+  <form role="form" action="" method="post">
+    {%csrf_token%}
+    <table class="table" >
+      <tr>
+        <th> SMTP server: </th>
+        <td>
+          <input type="text"  name="server" class="form-control" id="id_server" placeholder="Enter SMTP server" value="{{form.server.value}}"> 
+        </td>
+        <td> {{ form.server.errors }} </td>
+      </tr>
+      <tr>
+        <th> SMTP server port: </th>
+        <td>
+          <input type="text"  name="port" class="form-control" id="id_port" placeholder="Enter SMTP server port" value="{{form.port.value}}"> 
+        </td>
+        <td> {{ form.port.errors }} </td>
+      </tr>
+      <tr>
+        <th> SMTP server account username: </th>
+        <td>
+          <input type="text"  name="username" class="form-control" id="id_user_name" placeholder="Enter SMTP server username" value="{{form.username.value}}"> 
+        </td>
+        <td> {{ form.username.errors }} </td>
+      </tr>
+      <tr>
+        <th> SMTP server account password: </th>
+        <td>
+          <input type="password"  name="pswd" class="form-control" id="id_pswd" placeholder="Enter SMTP server account password" value="{{form.initial.pswd}}"> 
+        </td>
+        <td> {{ form.pswd.errors }} </td>
+      </tr>
+      <tr>
+        <th> Use TLS </th>
+        <td>
+          <input name="tls" type="checkbox" {% if form.initial.tls%} checked="checked" {%endif%}>
+        </td>
+        <td> {{ form.tls.errors }} </td>
+      </tr>
+      <tr>
+        <th> Email recipient list for test email: </th>
+        <td>
+          <input type="text"  name="rcpt_list" class="form-control" id="id_rcpt_list" placeholder="Enter email recipient list" value="{{form.rcpt_list.value}}"> 
+        </td>
+        <td> {{ form.rcpt_list.errors }} </td>
+      </tr>
+    </table>
+  <div class="btn-group btn-group-sm" role="group" aria-label="...">
+    <a href="/system/view_email_settings" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+    <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');"> Save </button>
+  </div>
+
+</form>
+
+{%endblock%}
+
+{%block help_header%}
+Email settings
+{%endblock%}
+
+{%block help_body%}
+<p>You can configure the IntegralStor systems to send emails for every alert that the system generates. For this to happen, use this screen to enter details about the SMTP server that the system should use to send emails. The SMTP server should be accessible to the IntegralStor system in order for the emails to go through properly. A test email will be sent once you enter all the details and save. You can enter multiple email recipients by entering a comma separated list of email addresses in the recipient list.</p>
+{%endblock%}
+
+{% block tab_active%}
+  <script>
+   make_tab_active("email_tab")
+   </script>
+{% endblock %}

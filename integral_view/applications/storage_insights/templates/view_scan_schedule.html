@@ -1,0 +1,55 @@
+{% extends 'storage_insights_base.html' %}
+
+{%block tab_header %}
+    Scan schedule
+{%endblock%}
+
+{%block global_actions %}
+  {% if not scan_cron_task %}
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click for scan actions" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a class="action-dropdown" href="/applications/storage_insights/create_scan_schedule"  title="Schedule a folder scan"> <i class="fa fa-plus fa-fw"></i>Schedule a folder scan</a> 
+    </ul>
+  </div>
+  {%endif%}
+{%endblock%}
+
+{% block inside_content %}
+  {% if not scan_cron_task %}
+    <p>No schedule has been created for a folder scan. </p>
+  {%else %}
+    <div style="width:60%; min-height:400px;overflow:auto;clear:both;padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 0px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+      <table  class="table table-striped" style="width:95%">
+        <tr>
+          <th > Schedule </th>
+          <th style="text-align:right"> Actions</th>
+        </tr>
+        <tr>
+            <td>
+                {{scan_cron_task.schedule_description}}
+            </td>
+            <td>
+              <div class="btn-group btn-group-xs pull-right" >
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for pool specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li><a  class="action-dropdown" href="/storage/create_zfs_dataset?pool={{d.pool_name}}&parent={{d.pool_name}}"  title="Create a new file system dataset" > <i class="fa fa-plus fa-fw"></i>Create a new dataset</a> 
+                  <li><a class="action-dropdown" href="/storage/create_zfs_zvol?pool={{d.pool_name}}"  title="Create a new block device volume" > <i class="fa fa-plus fa-fw"></i>Create a new block device volume</a> 
+                </ul>
+              </div>
+            </td>
+          </tr>
+      </table>
+    </div>
+  {%endif%}
+
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+    make_tab_active("scan_schedule_tab")
+  </script>
+{% endblock %}
+
+

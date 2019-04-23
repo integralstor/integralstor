@@ -1,0 +1,66 @@
+{% extends 'system_base.html' %}
+
+{%block tab_header %}
+  Hardware logs
+{%endblock%}
+
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right">
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      {%if logs_dict%}
+        <li><a class="action-dropdown" href="/system/download_hardware_logs" ><i class="fa fa-download fa-fw"></i>&nbsp;Download hardware logs</a></li>
+      {%endif%}
+    </ul>
+  </div>
+{%endblock%}
+
+{% block inside_content %}
+
+  {%if hw_platform%}
+    {%if hw_platform == 'dell'%}
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th> Time </th>
+            <th> Severity </th>
+            <th> Description </th>
+          </tr>
+        </thead>
+        {% if logs_dict %}
+          {% for timestamp, log_list in logs_dict.items %}
+            {%for log in log_list%}
+              <tr {%if log.Severity == 'Critical'%} style="background-color:red" {%elif log.Severity == 'Non-Critical'%} style="background-color:orange"{%endif%}>
+                <td style="width:200px"> {{log.date_time}} </td>
+                <td style="width:200px"> {{log.Severity}} </td>
+                <td> {{log.description|safe}} </td>
+              </tr>
+            {%endfor%}
+          {%endfor%}
+        {%endif%}
+      </table>
+    {%else%}
+      No hardware logs available.
+    {%endif%}
+  {%else%}
+    No hardware logs available.
+  {%endif%}
+
+
+{%endblock%}
+
+{%block help_header%}
+  View hardware logs 
+{%endblock%}
+
+{%block help_body%}
+  <p>
+    The IntegralStor system is able to display some logs from the underlying hardware platform for some supported hardware. This page displays those logs if available.
+  </p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_logs_tab")
+  </script>
+{% endblock %}

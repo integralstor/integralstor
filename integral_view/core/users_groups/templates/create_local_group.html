@@ -1,0 +1,43 @@
+{% extends 'users_groups_base.html' %}
+
+{%block tab_header %}
+  Create a local user group
+{%endblock%}
+
+{% block inside_content %}
+
+  <form class="form-horizontal" role="form" name="create_form" action="" method="post">
+    {%csrf_token%}
+    <table  class="table " style="width:100%">
+      <tr>
+        <th  style="max-width:60px;word-wrap: break-word">  
+          Group name :
+        </th>
+        <td>
+          <input type="text"  name="grpname" class="form-control" id="id_grpname" value="{%if form.grpname.value%}{{form.grpname.value}}{%endif%}" placeholder="Enter name for the new local group"> 
+        </td>
+        <td> {{ form.grpname.errors }} </td>
+      </tr>
+    </table>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/users_groups/view_local_groups" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary"> Create </button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Create local group help
+{%endblock%}
+
+{%block help_body%}
+  <p>Use local user authentication when you want Windows access but do not want to use or deploy Active Directory authentication. For local user authentication, users can be assigned to groups and permissions can be assigned for groups. You can create local groups using this screen and then deploy access control using these group accounts. These accounts are used only for IntegralStor access and not for any other purpose.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_local_groups_tab")
+  </script>
+{% endblock %}

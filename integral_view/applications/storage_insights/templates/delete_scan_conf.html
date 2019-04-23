@@ -1,0 +1,35 @@
+{% extends 'storage_insights_base.html' %}
+
+{%block tab_header %}
+    Remove scan details
+{%endblock%}
+
+{%block inside_content %}
+
+  <p id="p-warning-text">Are you sure you want to remove the details for the scan of folder  "{{scan.scan_dir}}" {%if scan.exclude_dirs%} (excluding folder(s) : "{{scan.exclude_dirs}}"){%endif%} that was initiated on {{scan.initiate_time_str}}? 
+  <br>
+  <form action="" method="POST">
+    {%csrf_token%}
+    <input type=hidden name="scan_id" value="{{scan.id}}">
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default cover-page" value="Cancel" onClick="window.location='/applications/storage_insights/view_scans'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger cover-page" >Confirm and remove</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Remove scan configuration - confirmation
+{%endblock%}
+
+{%block help_body%}
+  <p>Confirming this operation results in the scan details for the specified scan being removed from the system. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_scans_tab")
+  </script>
+{% endblock %}

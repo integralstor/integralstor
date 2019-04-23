@@ -1,0 +1,63 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  NFS exports
+{%endblock%}
+
+{%block global_actions %}
+    <a class="btn btn-default btn-sm pull-right"  href="/storage_access/create_nfs_share" title="Create a new NFS export" style="color:#000"> <i class="fa fa-plus-square-o fa-fw "></i>&nbsp;Create new export </a>
+{%endblock%}
+
+{%block inside_content %}
+
+  {% if not exports_list %}
+    No NFS shares appear to have been created. 
+  {%else %}
+    <div class="table-responsive" style="clear:both;width:100%;padding:0px 5px 0px 5px;margin-left:00px;margin-right:20px;border:1px solid #f4f4f4;height:350px;-webkit-overflow-scrolling: touch;">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th> Path </th>
+            <th> Client restrictions on </th>
+            <th> Actions </th>
+        </thead>
+        {%for d in exports_list %}
+          <tr>
+            <td> {{d.path}} </td>
+            <td>
+              {% for cd in d.clients %}
+                {{cd.name}}, 
+              {%endfor%}
+            </td>
+            <td>
+              <div class="btn-group btn-group-xs" >
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li><a class="action-dropdown" href="/storage_access/view_nfs_share?path={{d.path}}"  title="View and configure this share" class="cover-page"> <i class="fa fa-cog fa-fw"></i>View and configure</a> 
+                  <li><a class="action-dropdown" href="/storage_access/update_nfs_share?path={{d.path}}"  title="Modify the settings for this share" > <i class="fa fa-cog fa-fw"></i>Modify export settings</a> 
+                  <li class="divider"></li>
+                  <li><a class="action-dropdown" href="/storage_access/delete_nfs_share?path={{d.path}}"  title="Remove this share" style="color:red"> <i class="fa fa-trash fa-fw"></i>Remove this export </a> 
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {%endfor%}
+      </table>
+    </div>
+  {%endif%}
+
+{%endblock%}
+
+{%block help_header%}
+  View all NFS shares 
+{%endblock%}
+
+{%block help_body%}
+  <p> This screen provides the list of all the NFS shares that have been created on this IntegralStor system. To view details about a particular NFS share, please select the the desired share from the list.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_nfs_shares_tab")
+  </script>
+{% endblock %}

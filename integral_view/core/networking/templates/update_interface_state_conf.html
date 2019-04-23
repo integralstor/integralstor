@@ -1,0 +1,40 @@
+{% extends 'networking_base.html' %}
+
+{%block tab_header %}
+  Modify the state of a NIC/bond - confirmation
+{%endblock%}
+
+{%block inside_content%}
+
+  {%if state == 'up'%}
+    <p id="p-warning-text">Are you sure you want to enable the networking interface "{{name}}"? </p>
+  {%elif state == 'down'%}
+    <p id="p-warning-text">Are you sure you want to disable the networking interface "{{name}}"?  This will potentially result in a disruption of usage of the system.</p>
+  {%endif%}
+  <br>
+  <form action="" method="POST">
+    {%csrf_token%}
+    <input type=hidden name="name" value="{{name}}">
+    <input type=hidden name="state" value="{{state}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/networking/view_interface?name={{name}}'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and continue </button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Change network interface state
+{%endblock%}
+
+{%block help_body%}
+  <p>Confirming this operation results in the change of state of the specified interface in the system. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}
+
+{% block tab_active%}
+  <script>
+    make_tab_active("view_interfaces_tab")
+  </script>
+{% endblock %}
+

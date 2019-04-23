@@ -1,0 +1,60 @@
+{% extends 'system_base.html' %}
+
+{%block tab_header %}
+  Email settings
+{%endblock%}
+
+{%block inside_content %}
+
+  {% if err %}
+    <p id="p-error-text" class="text-red"> The following errors were reported : {{err}}</p><br>
+  {%endif%}
+
+  {%if sent_mail%}
+    <p id="p-instructional-text" class="text-green"> A test email has been sent using the new settings to the specified recipient list. Please check to confirm that the settings are correct.</p><br>
+  {%endif%}
+
+  {% if email_not_configured %}
+    <p id="p-instructional-text" class="text-red"> Email settings have not been configured. </p><br>
+    <a href="/system/update_email_settings/" role="button" class="btn btn-default btn-sm"><i class="fa fa-cog fa-fw"></i>&nbsp;Configure email settings</a>
+  {% else %}
+    <table class="table table-bordered">
+      <tr>
+        <th> SMTP  server </th>
+        <td> {{ email_settings.server }} </td>
+      </tr>
+      <tr>
+        <th> SMTP  server port </th>
+        <td> {{ email_settings.port }} </td>
+      </tr>
+      <tr>
+        <th> SMTP  server username </th>
+        <td> {{ email_settings.username }} </td>
+      </tr>
+      <tr>
+        <th> Use TLS </th>
+        <td>
+          {% if  email_settings.tls %} Yes {%else%} No {%endif%}
+        </td>
+      </tr>
+    </table>
+
+    <a href="/system/update_email_settings/" role="button" class="btn btn-default btn-sm"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify</a>
+
+  {%endif%}
+
+{%endblock%}
+
+{%block help_header%}
+  Email setting
+{%endblock%}
+
+{%block help_body%}
+<p>The administrator of an IntegralStor system can configure email settings for an email server and recipient email addresses if (s)he would like email alerts to be sent to them in case of errors in the system. This page provides details of the email settings that have been configured.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("email_tab")
+  </script>
+{% endblock %}

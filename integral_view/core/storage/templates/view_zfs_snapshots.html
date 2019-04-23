@@ -1,0 +1,109 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  ZFS pool/dataset snapshots
+{%endblock%}
+
+{%block global_actions %}
+              <div class="btn-group btn-group-sm pull-right">
+                <a class="btn btn-default dropdown-toggle " data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw" ></i> &nbsp;Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li><a class="action-dropdown" href="/storage/create_zfs_snapshot" title="Create a new snapshot" style="color:#000"> <i class="fa fa-plus-square-o fa-fw "></i>&nbsp;Create snapshot </a></li>
+                  <li class="divider"></li>
+                  <li><a class="action-dropdown" href="/storage/delete_all_zfs_snapshots/" title="Delete all snapshots" style="color:#000"> <i class="fa fa-trash-o fa-fw "></i>&nbsp;Delete snapshots </a></li>
+                </ul>
+              </div>
+{%endblock%}
+
+{%block inside_content %}
+
+  <div style="width:100%;position: relative; margin: 5px 0px; padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 1px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+
+
+    {%if form%}
+      <form class="form-horizontal"> 
+        <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+          <div class="col-sm-2">
+            &nbsp;
+          </div>
+          <label class="col-sm-2 control-label" style="vertical-align:center"> Filter by target :</label>
+          <div class="col-sm-6">
+            <select name="name" id="name_select" class="form-control">
+              {% for choice in form.name.field.choices %}
+                <option value="{{choice.0}}" {%if choice.0 == form.initial.name %} selected="selected"{%endif%}>{{choice.1}}</option>
+              {%endfor%}
+            </select>
+          </div>
+          <div class="col-sm-2">
+            &nbsp;
+          </div>
+        </div>
+      </form>
+    {%endif%}
+    <br><br>
+
+    {% if not snap_list %}
+      <span style="display:table;margin:0 auto;border:0px solid;text-align:center">No ZFS snapshots appear to have been created for the selected target.<br><br></span>
+    {%else %}
+      <table  class="table table-bordered table-striped table-responsive">
+        <tr>
+          <th> Target name </th>
+          <th > Snapshot name </th>
+          <th> Target type </th>
+          <th> Created on </th>
+          <th > Space consumed by snapshot </th>
+          <th > Space consumed by target </th>
+          <th > Actions </th>
+        </tr>
+        {%for d in snap_list %}
+          <tr>
+            <td>{{d.dataset}}</td>
+            <td> {{d.snapshot_name}} </td>
+            <td>{% if '/' in d.dataset%} Dataset {%else%} Pool{%endif%}</td>
+            <td>{{d.properties.creation.value}}</td>
+            <td>{{d.used}}</td>
+            <td>{{d.refer}}</td>
+            <td >
+              <div class="btn-group btn-group-xs pull-right">
+                <a class="btn btn-default dropdown-toggle " data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw" ></i> &nbsp;Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li><a class="action-dropdown" href="/storage/rename_zfs_snapshot?snapshot_name={{d.snapshot_name}}&ds_name={{d.dataset}}" title="Rename this snapshot"><i class="fa fa-pencil fa-fw"></i> Rename</a></li>
+                  <li class="divider"></li>
+                  <li><a class="action-dropdown" href="/storage/rollback_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" style="color:red" title="Rollback to this snapshot"><i class="fa fa-backward fa-fw" style="color:red"></i> Rollback</a></li>
+                  <li><a class="action-dropdown" href="/storage/delete_zfs_snapshot?name={{d.name}}&display_name={{d.snapshot_name}}" style="color:red" title="Delete this snapshot"><i class="fa fa-trash-o fa-fw" ></i> Delete</a></li>
+                </ul>
+              </div>
+          </tr>
+        {%endfor%}
+      </table>
+    {%endif%}
+
+  </div>
+  <script>
+    $(function(){
+      // bind change event to select
+      $('#name_select').on('change', function () {
+        var url = "/storage/view_zfs_snapshots?name="+$(this).val(); // get selected value
+        if (url) { // require a URL
+          window.location = url; // redirect
+        }
+        return false;
+      });
+    });
+  </script>
+
+{%endblock%}
+
+{%block help_header%}
+  View all ZFS snapshots
+{%endblock%}
+
+{%block help_body%}
+  <p> This screen provides the list of all the ZFS snapshots that have been created on this IntegralStor system.  </p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_snapshots_tab")
+  </script>
+{% endblock %}

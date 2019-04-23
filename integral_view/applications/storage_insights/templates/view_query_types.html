@@ -1,0 +1,67 @@
+{% extends 'storage_insights_base.html' %}
+
+{%block tab_header %}
+    Select Insight type
+{%endblock%}
+
+{% block inside_content %}
+    <div style="width:100%; min-height:400px;overflow:auto;clear:both;padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 0px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+
+      <form id="query_form" class="form-horizontal" role="form" name="query_form" action="" method="post">
+        {%csrf_token%}
+        <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+          <label class="col-sm-3 control-label" style="vertical-align:center"> Select desired Storage Insight scan folder :</label>
+          <div class="col-sm-6">
+            <select name="scan_configuration_id" id="config_select" class="form-control">
+              <option value="">--Select scan folder-- </option>
+              {% for choice in form.scan_configuration_id.field.choices %}
+                <option value="{{choice.0}}" {%if choice.0 == form.initial.scan_configuration_id %} selected="selected"{%endif%}>{{choice.1}}</option>
+              {%endfor%}
+            </select>
+          </div>
+          <div class="col-sm-3">
+            {{ form.scan_configuration_id.errors }}
+          </div>
+        </div>
+        <br/>
+        <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+          <label class="col-sm-3 control-label" style="vertical-align:center"> Select desired Storage Insight query:</label>
+          <div class="col-sm-6">
+            <select name="query_type" id="query_select" class="form-control">
+              <option value="">--Select Storage Insight query type-- </option>
+              {% for choice in form.query_type.field.choices %}
+                <option value="{{choice.0}}" {%if choice.0 == form.initial.query_type %} selected="selected"{%endif%}>{{choice.1}}</option>
+              {%endfor%}
+            </select>
+          </div>
+          <div class="col-sm-3">
+            {{ form.query_type.errors }}
+          </div>
+        </div>
+        <br/>
+        <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+          <div class="col-sm-2">
+            &nbsp;
+          </div>
+          <div class="col-sm-7, btn-group btn-group-sm">
+            <a href="/applications/storage_insights/view_query_types/" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+              <button type="submit" class="btn btn-primary"> Go </button>
+          </div>
+          <div class="col-sm-3">
+            &nbsp;
+          </div>
+        </div>
+      </form>
+    <br><br>
+
+    </div>
+
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+    make_tab_active("query_tab")
+  </script>
+{% endblock %}
+

@@ -1,0 +1,46 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  Replace a hard drive  - choose method
+{%endblock%}
+
+{% block inside_content %}
+
+  <form id="form_id" action="" method="POST">
+    {%csrf_token%}
+    <input type=hidden name="conf" value="1">
+    <input type=hidden name="node" value="{{node}}">
+    <input type=hidden name="serial_number" value="{{serial_number}}">
+    <input type=hidden name="step" id="step_id" value="replace_method_redirect">
+
+    Please choose your disk replacement method below : <br/><br/>
+
+    <input type="radio" id="id_replacement_method" name="replacement_method" value="use_existing_disk" /> &nbsp;Choose a replacement disk from one that is already part of the system.<br/>
+    <input type="radio" id="id_replacement_method" name="replacement_method" value="swap_out_disk" /> &nbsp;Remove the selected disk and insert a new disk in its place.<br/>
+    <br/>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/storage/view_disks'"> &nbsp;&nbsp; 
+      <button type="button" class="btn btn-primary " onClick="chked = radio_checked(); if (!chked) { alert('Please choose a replacement method');} else {if ($('input[type=radio]:checked').val() == 'swap_out_disk') { document.getElementById('step_id').value = 'offline_disk';} else { document.getElementById('step_id').value = 'select_replacement_disk';};document.getElementById('form_id').submit();}">Confirm and proceed >></button>
+    </div>
+</form>
+
+<script type="text/javascript">
+  function radio_checked() {
+    return ($('input[type=radio]:checked').size() > 0);
+  }
+</script>
+{%endblock%}
+
+{%block help_header%}
+  Replace a disk within a node 
+{%endblock%}
+
+{%block help_body%}
+  <p>This screen is intended for the administrator to confirm that the correct disk has been chosen to be replaced on the correct node . Replacing an incorrect disk may result in data loss so please confirm this information. The replace disk process involves multiple steps so please note down the information provided correctly and confirm that all is ok before proceeding.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_data_disks_tab")
+  </script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'logged_in_base.html' %}
+
+{%block tab_items %}
+  <li id="system_health_tab" class="cover-page">
+    <a href="/monitoring/view_dashboard/sys_health" >System health </a>
+  </li>
+  <li id="alerts_tab">
+    <a href="/monitoring/view_alerts">Alerts</a>
+  </li>
+  <li id="zfs_space_util_tab" class="cover-page">
+    <a href="/storage/view_zfs_historical_usage" >Space availability history</a>
+  </li>
+  <li id="cpu_tab" class="cover-page">
+    <a href="/monitoring/view_dashboard/cpu" >CPU statistics</a>
+  </li>
+  <li id="memory_tab" class="cover-page">
+    <a href="/monitoring/view_dashboard/memory" >Memory statistics</a>
+  </li>
+  <li id="network_tab" class="cover-page">
+    <a href="/monitoring/view_dashboard/network" >Network statistics</a>
+  </li>
+  <li id="remote_monitoring_tab" class="cover-page">
+    <a href="/monitoring/view_remote_monitoring_servers" >Remote monitoring</a>
+  </li>
+{%endblock tab_items %}
+
+{% block menu_active %}
+  <script>
+    make_side_menu_active("dashboard_menu")
+  </script>
+{% endblock%}

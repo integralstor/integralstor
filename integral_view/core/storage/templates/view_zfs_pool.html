@@ -1,0 +1,176 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  Basic ZFS pool information and usage
+{%endblock%}
+
+{%block inside_content %}
+
+  {% if not pool %}
+    No information for the specified pool. Click <a href="/storage/view_zfs_pools/"> here</a> to view all ZFS storage pools.
+  {%else %}
+
+    <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+      <div class="col-sm-9 form-group">
+        <form class="form-horizontal"> 
+          <label for="inputPassword" class="col-sm-2 control-label">View : </label>
+          <div class="col-sm-8">
+            <select class="form-control" onchange="$('.lightbox').show();location = this.options[this.selectedIndex].value;">
+              <option value="/storage/view_zfs_pool?name={{pool.pool_name}}&view=basic" selected="selected">Basic information and usage</option>
+              <option value="/storage/view_zfs_pool?name={{pool.pool_name}}&view=components" >Disk components, read & write caches and hot spares</option>
+              <option value="/storage/view_zfs_pool?name={{pool.pool_name}}&view=datasets_and_zvols">Filesystem datasets & block device volumes</option>        
+              <!-- <option value="/storage/view_zfs_pool?name={{pool.pool_name}}&view=quotas" >Pool quotas</option> -->
+            </select>
+          </div>
+        </form>
+      </div>
+      <form method='POST' action='/storage/clear_zfs_pool/' id='id_clear_pool_form' name='clear_pool_form'>
+        {% csrf_token  %}
+        <input name="pool_name" id="id_pool_name" value="{{pool.pool_name}}" hidden />
+      </form>
+      <div class="col-sm-3 btn-group btn-group-sm pull-right"  style="border:0px solid">
+        <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+        <ul class="dropdown-menu">
+          <li><a class="action-dropdown" href="/storage/create_zfs_dataset?pool={{pool.pool_name}}&parent={{pool.pool_name}}"  title="Create a new file system dataset" > <i class="fa fa-plus fa-fw"></i>Create a new dataset</a> 
+          <li><a class="action-dropdown" href="/storage/create_zfs_zvol?pool={{pool.pool_name}}"  title="Create a new block device volume" > <i class="fa fa-plus fa-fw"></i>Create a new block device volume</a> 
+          <li class="divider"></li>
+          <li> <a class="action-dropdown" href="/storage/scrub_zfs_pool?name={{pool.pool_name}}"><i class="fa fa-lemon-o fa-fw" ></i>Initiate a scrub</a>
+          <li> <a class="action-dropdown" href="/storage/create_zfs_pool_scrub_schedule?pool_name={{pool.pool_name}}"><i class="fa fa-lemon-o fa-fw" ></i>Schedule a pool scrub</a>
+          <li class="divider"></li>
+          <li> <a class="action-dropdown" role="button" onclick="document.clear_pool_form.submit()"><i class="fa fa-lemon-o fa-fw"></i>Clear pool errors</a>
+          <li class="divider"></li>
+          <li><a class="action-dropdown" href="/storage/view_zfs_pool_history_events?pool={{pool.pool_name}}&action=history"  title="View ZFS pool history" > <i class="fa fa-list fa-fw"></i>View pool history</a> 
+          <li><a class="action-dropdown" href="/storage/view_zfs_pool_history_events?pool={{pool.pool_name}}&action=events"  title="View ZFS pool events" > <i class="fa fa-list fa-fw"></i>View pool events</a> 
+          <li class="divider"></li>
+          <li><a class="action-dropdown" href="/storage/export_zfs_pool?pool_name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-cloud-download fa-fw" ></i>Export this pool</a>
+          <li><a class="action-dropdown" href="/storage/delete_zfs_pool?name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-trash-o fa-fw" ></i>Delete this pool</a>
+          <li class="divider"></li>
+          <li> <a class="action-dropdown" href="/storage/view_zfs_pools"><i class="fa fa-list fa-fw" ></i>Back to pool list</a>
+        </ul>
+      </div>
+    </div>
+
+    <hr/>
+
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="headingOne">
+          <h5 class="panel-title">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              Basic pool information <span class="caret"></span>
+            </a>
+          </h5>
+        </div>
+        <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+          <div class="panel-body">
+              <table class="table table-bordered table-hover table-responsive" style="width:800px">
+                <tr><th> Pool name </th> <td><b>{{pool.pool_name}}</b></td></tr>
+                <tr><th> Pool type </th> <td>{{pool.config.pool.type.upper}}</td></tr>
+                <tr><th> Pool state </th> <td>{{pool.state}}</td></tr>
+                <tr><th> Pool errors </th> <td>{{pool.errors}}</td></tr>
+                <tr> <th> Pool scan </th> <td>{{pool.scan}}</td></tr>
+              </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="heading2">
+          <h5 class="panel-title">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse2" aria-expanded="true" aria-controls="collapse2">
+              Pool Usage <span class="caret"></span>
+            </a>
+          </h5>
+        </div>
+        <div id="collapse2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading2">
+          <div class="panel-body">
+              <div class="progress" style="background: rgba(204, 188, 188, 1); border: 1px solid rgba(245, 245, 245, 1); ">
+                <div class="progress-bar {% if pool.usage.used_percent > 50 and pool.usage.used_percent < 70 %}  progress-bar-warning {% elif pool.usage.used_percent >= 70 %} progress-bar-danger {% else %} progress-bar-info {%endif%}" role="progressbar" aria-valuenow="{{pool.usage.used_percent}}" aria-valuemin="0" aria-valuemax="100.0" style="{%if pool.usage.used_percent %} width: {{pool.usage.used_percent}}%;{%endif%}min-width: 3em;">
+                  {{pool.usage.used_percent}}%
+                </div>
+              </div>
+              <table class="table table-bordered table-hover table-responsive" style="width:800px">
+                <tr><th> Total consumable space {% if pool.properties.quota.value != 'none' %}* {% endif %}</th> <td>{{pool.usage.total_space}}<td></tr>
+                <tr><th> Space consumed by data </th> <td>{{pool.usage.used_by_data.value}}{{pool.usage.used_by_data.unit}}<td></tr>
+                <tr><th> Space available for data </th> <td>{{pool.usage.available_for_data.value}}{{pool.usage.available_for_data.unit}}<td></tr>
+		<!--
+                <tr><th> Raw space from all data disks </th> <td>{{pool.usage.size.value}}{{pool.usage.size.unit}}<td></tr>
+                <tr><th> Space consumed by data & metadata </th> <td>{{pool.usage.allocated.value}}{{pool.usage.allocated.unit}}<td></tr>
+                <tr><th> Space consumed percentage </th> <td>{{pool.usage.capacity.value}}{{pool.usage.capacity.unit}}<td></tr>
+                <tr><th> Consumed space percentage </th> <td>{{pool.usage.used_percent}}%<td></tr>
+		-->
+                <tr><th> Percentage of space available </th> <td>{{pool.usage.avail_percent}}%<td></tr>
+                <tr><th> Pool dedup </th> <td>{{pool.usage.dedup}}<td></tr>
+                {%if pool.usage.dedup == 'on'%}
+                  <tr><th> Pool dedup ratio</th> <td>{{pool.usage.dedupratio.value}}{{pool.usage.dedupratio.unit}}<td></tr>
+                {%endif%}
+                <tr><th> Pool fragmentation percentage</th> <td>{{pool.usage.fragmentation.value}}{{pool.usage.fragmentation.unit}}<td></tr>
+                <tr><th> Pool autoexpand </th> <td>{%if pool.usage.autoexpand%} Enabled {%else%} Disabled{%endif%}<td></tr>
+		{% if pool.properties.quota.value != 'none' %}
+                  <tr><td>* This is the storage space after reserving the designated space for optimal system operation.</td></tr>
+                {%endif%}
+              </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="headingThree">
+          <h5 class="panel-title">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+              Scheduled pool scrubs<span class="caret"></span>
+            </a>
+          </h5>
+        </div>
+        <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+          <div class="panel-body">
+            {%if scrub_cron_tasks %}
+              <table class="table table-bordered table-hover table-responsive" style="width:800px">
+                <tr>
+                    <th> Schedule </th> 
+                    <th style="text-align:right">Actions</th>
+                </tr>
+                {%for scrub_cron_task in scrub_cron_tasks%}
+                    <tr>
+                        <td> {{scrub_cron_task.schedule_description}}</td> 
+                        <td>
+                            <div class="btn-group btn-group-xs pull-right" >
+                                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for pool specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                                <ul class="dropdown-menu">
+                                  <li><a  class="action-dropdown" href="/storage/delete_zfs_pool_scrub_schedule?pool_name={{pool.pool_name}}&cron_task_id={{scrub_cron_task.cron_task_id}}"  style="color:red" title="Remove this scheduled scrub" > <i class="fa fa-trash fa-fw"></i>Remove this schedule</a> 
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                {%endfor%}
+              </table>
+            {%else%}
+                No scrub tasks scheduled for this pool.
+            {%endif%}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  {%endif%}
+  
+  <a href="/storage/view_zfs_pools" role="button" class="btn btn-default btn-sm"> <i class="fa fa-list fa-fw" ></i> &nbsp;Back to pool list</a>
+
+{%endblock%}
+
+{%block help_header%}
+  View basic ZFS pool information
+{%endblock%}
+
+{%block help_body%}
+  <p> This screen displays the basic pool information and its usage properties.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}
+
+

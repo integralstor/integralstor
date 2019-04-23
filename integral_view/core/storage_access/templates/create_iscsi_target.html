@@ -1,0 +1,41 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  Create an ISCSI target
+{%endblock%}
+
+{% block inside_content %}
+
+  {{form.errors}}
+  <form class="form-horizontal" role="form" name="create_form" action="" method="post">
+    {%csrf_token%}
+    <table  class="table" style="width:80%">
+      <tr>
+        <th> Target name:</th>
+        <td>
+          <input type="text"  name="name" class="form-control" id="id_name" value="{%if form.name.value%}{{form.name.value}}{%endif%}" placeholder="Enter a name for ISCSI target"> 
+        </td>
+        <td> {{ form.name.errors }} </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/storage_access/view_iscsi_targets" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary"> Create </button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Create ISCSI users help
+{%endblock%}
+
+{%block help_body%}
+  <p>Use ISCSI user authentication when you want ISCSI CHAP access control. For ISCSI authentication, you will need to create ISCSI user accounts using this screen and then deploy access control using these user accounts. These accounts are used only for ISCSI access and not for any other purpose.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_iscsi_targets_tab")
+  </script>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'storage_insights_base.html' %}
+
+{%block tab_header %}
+    Scans
+{%endblock%}
+
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click for scan actions" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a class="action-dropdown" href="/applications/storage_insights/initiate_scan"  title="Initiate a folder scan"> <i class="fa fa-plus fa-fw"></i>Initiate a folder scan</a> 
+    </ul>
+  </div>
+{%endblock%}
+
+{% block inside_content %}
+  {% if not scans %}
+    <p>No scans appear to have been run. </p>
+  {%else %}
+    <div style="width:100%; min-height:400px;overflow:auto;clear:both;padding: 9px 9px 4px; background-color: rgb(255, 255, 255); border: 0px solid rgb(221, 221, 221); border-radius: 4px 4px 4px 4px;">
+
+    {%if form%}
+      <form class="form-horizontal">
+        <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+          <div class="col-sm-2">
+            &nbsp;
+          </div>
+          <label class="col-sm-2 control-label" style="vertical-align:center"> Filter by scan folder :</label>
+          <div class="col-sm-6">
+            <select name="scan_id" id="scan_select" class="form-control">
+              {% for choice in form.scan_id.field.choices %}
+                <option value="{{choice.0}}" {%if choice.0 == form.initial.scan_id %} selected="selected"{%endif%}>{{choice.1}}</option>
+              {%endfor%}
+            </select>
+          </div>
+          <div class="col-sm-2">
+            &nbsp;
+          </div>
+        </div>
+      </form>
+    {%endif%}
+    <br><br>
+
+      <table  class="table table-striped" style="width:95%">
+        <tr>
+          <th > Scan path</th>
+          <th > Initiate time</th>
+          <th > Status</th>
+          <th > Details</th>
+          <th> Total directories scanned</th>
+          <th> Total files scanned</th>
+          <th> New files <br/> (since last scan)</th>
+          <th> Modified files <br/> (since last scan)</th>
+          <th> Deleted files <br/> (since last scan)</th>
+          <th style="text-align:right"> Actions</th>
+        </tr>
+        {%for c in scans %}
+          <tr>
+            <td> {{c.scan_dir}} </td>
+            <td> {{c.initiate_time_str}} </td>
+            <td> {{c.status_desc}} </td>
+            <td> {{c.status_str}} </td>
+            <td> {{c.scanned_dirs_count}} </td>
+            <td> {{c.scanned_files_count}} </td>
+            <td> {{c.new_files_count}} </td>
+            <td> {{c.modified_files_count}} </td>
+            <td> {{c.deleted_files_count}} </td>
+            <td>
+              <div class="btn-group btn-group-xs pull-right" >
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for scan specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li><a  class="action-dropdown" href="/applications/storage_insights/delete_scan?scan_id={{c.id}}"  style="color:red" title="Remove this scan run details" > <i class="fa fa-trash fa-fw"></i>Remove this scan</a> 
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {%endfor%}
+      </table>
+    </div>
+  <script>
+    $(function(){
+      // bind change event to select
+      $('#scan_select').on('change', function () {
+        var url = "/applications/storage_insights/view_scans?scan_id="+$(this).val(); // get selected value
+        if (url) { // require a URL
+          window.location = url; // redirect
+        }
+        return false;
+      });
+    });
+  </script>
+  {%endif%}
+
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_scans_tab")
+  </script>
+{% endblock %}
+

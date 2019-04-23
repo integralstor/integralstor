@@ -1,0 +1,96 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  Windows share details
+{%endblock%}
+
+
+{%block inside_content %}
+  <div class="row" style="width:100%;margin:0 auto;border:0px solid">
+    <div class="col-sm-9 ">
+      <h5> Share configuration</h5>
+    </div>
+    <div class="col-sm-3  pull-right"  style="border:0px solid">
+      <a class="btn btn-default btn-sm pull-right dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Share actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+        <li><a class="action-dropdown" href="/storage_access/view_cifs_shares" role="button" ><i class="fa fa-list fa-fw">&nbsp; </i>Back to share list</a></li>
+        <li><a class="action-dropdown" href="/storage_access/update_cifs_share?share_id={{share.share_id}}" ><i class="fa fa-cog fa-fw">&nbsp; </i>Modify settings</a></li>
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/storage_access/delete_cifs_share?share_id={{share.share_id}}&name={{share.name}}" style="color:red"><i class="fa fa-trash fa-fw">&nbsp; </i>Remove this share</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <table class="table table-striped" width="300px;">
+    <tr>
+      <th> Share name: </th>
+      <td> {{ share.name }} </td>
+    </tr>
+    <tr>
+      <th> Share path : </th>
+      <td> {{ share.path }} </td>
+    </tr>
+    <tr>
+      <th> Description: </th>
+      <td> {{ share.comment }} </td>
+    </tr>
+    <tr>
+      <th> Writeable? </th>
+      <td>
+        {% if share.read_only %}
+          Readonly
+        {%else%}
+          Read/Write
+        {%endif%}
+      </td>
+    </tr>
+    <tr>
+      <th> Visibility </th>
+      <td>
+        {% if share.browseable %}
+          Browseable
+        {%else%}
+          Hidden
+        {%endif%}
+      </td>
+    </tr>
+    <tr>
+      <th> Allow from </th>
+      <td>
+        {% if share.hosts_allow %}
+          {{share.hosts_allow}}
+        {%else%}
+           All hosts
+        {%endif%}
+      </td>
+    </tr>
+    <tr>
+      <th> Deny from </th>
+      <td>
+        {% if share.hosts_deny %}
+          {{share.hosts_deny}}
+        {%else%}
+           None
+        {%endif%}
+      </td>
+    </tr>
+  </table>
+  <hr>
+  {% include 'ace_management.html' %}
+
+{%endblock%}
+
+{%block help_header%}
+  Share details
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to view details about a particular share that has been created. </p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_cifs_shares_tab")
+  </script>
+{% endblock %}
+

@@ -1,0 +1,246 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  Create a Windows share
+{%endblock%}
+
+
+{%block inside_content %}
+
+  <form id="share_form" class="form-horizontal" role="form" name="create_form" action="" method="post">
+    {%csrf_token%}
+    <table  class="table" style="border:0px solid;width:100%">
+      <tr>
+        <th style="word-wrap: break-word; max-width: 50px;"> Share name {%if form.fields.name.required %}<sup class="required"></sup>{%endif%}</th>
+        <td>
+          <input type="text"  name="name" class="form-control" id="id_name" placeholder="Share name" value="{{form.name.value|default_if_none:""}}"> 
+        </td>
+        <td> {{ form.name.errors }} </td>
+        <td> &nbsp;</td>
+      </tr>
+      <tr>
+        <th> Select underlying ZFS dataset {%if form.fields.dataset.required %}<sup class="required"></sup>{%endif%}</th>
+        <td>
+          <select id = "id_dataset" name="dataset" class="form-control" onchange="change_dataset(this);this.form.submit()">
+            {% for choice in dataset %}
+      		    <option value="{{choice.0}}" onclick="option_selected(this)" {%if form.initial.dataset == choice.0%} selected="selected" {%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.dataset.errors }} </td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <th> Selected directory {%if form.fields.path.required %}<sup class="required"></sup>{%endif%}</th>
+        <td>
+          <input type="text" name="path" class="form-control" id="id_path" placeholder="Click the Browse button to choose a directory.." readonly placeholder="Share Path" value="{{form.path.value|default_if_none:""}}"> <br/>
+        </td>
+        <td> {{ form.path.errors }} </td>
+        <td rowspan=4>
+          <a href="#" role="button" class="btn btn-primary btn-xs" onClick="displayTree();return false;"> Browse...</a>
+          <div id="pathdiv" style="min-height:200px;height:200px;min-width:200px;width:300px;overflow:auto;display:block;border:0px solid"> </div>
+        </td>
+      </tr>
+      <tr>
+        <th style="word-wrap: break-word; max-width: 50px;">Create a new sub-directory under the selected directory {%if form.fields.new_folder.required %}<sup class="required"></sup>{%endif%}</th>
+        <td>
+          <input type="text"  name="new_folder" class="form-control" id="id_new_folder" onkeyup="copyText();" placeholder="Enter new directory name" value={{form.new_folder.value|default_if_none:""}}> 
+        </td>
+        <td> {{ form.new_folder.errors }} </td>
+        <td> &nbsp;</td>
+      </tr>
+      <tr>
+        <th> Final share path <sup class="required"></sup></th>
+        <td>
+          <input type="text" name="final_path" class="form-control" id="id_final_path" readonly value="{{form.path.value|default_if_none:""}}"> <br>
+        </td>
+        <td> &nbsp;</td>
+        <td> &nbsp; </td>
+      </tr>
+
+      <tr>
+        <th> Description{%if form.fields.comment.required %}<sup class="required"></sup>{%endif%}</th>
+        <td>
+          <input type="text"  name="comment" class="form-control" id="id_comment" placeholder="Description of this share" value="{{form.comment.value|default_if_none:""}}"> 
+        </td>
+        <td> {{ form.comment.errors }} </td>
+        <td> &nbsp;</td>
+      </tr>
+      <tr>
+        <th> Readonly {%if form.fields.read_only.required %}<sup class="required"></sup>{%endif%}</th>
+        <td> {{ form.read_only }} </td>
+        <td> {{ form.read_only.errors }} </td>
+        <td> &nbsp;</td>
+      </tr>
+      <tr>
+        <th> Visible{%if form.fields.browseable.required %}<sup class="required"></sup>{%endif%}</th>
+        <td> {{ form.browseable }} </td>
+        <td> {{ form.browseable.errors }} </td>
+        <td> &nbsp;</td>
+      </tr>
+      <tr>
+        <th> Allow access from hosts :</th>
+        <td>
+          <select name="hosts_allow_choice" class="form-control" id="id_hosts_allow_choice">
+            {% for choice in form.hosts_allow_choice.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.hosts_allow_choice.value %} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.hosts_allow_choice.errors }} </td>
+      </tr>
+      <tr>
+        <th> Specific allowed hosts list : <br/> (Enter a comma separated list of hostnames or IP addresses)</th>
+        <td>
+          <input type="text" name="hosts_allow" class="form-control" id="id_hosts_allow" />
+        </td>
+        <td> {{ form.hosts_allow.errors }} </td>
+      </tr>
+      <tr>
+        <th> Deny access from hosts : </th>
+        <td>
+          <select name="hosts_deny_choice" class="form-control" id="id_hosts_deny_choice">
+            {% for choice in form.hosts_deny_choice.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.hosts_deny_choice.value %} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.hosts_deny_choice.errors }} </td>
+      </tr>
+      <tr>
+        <th> Specific denied hosts list : <br/>(Enter a comma separated list of hostnames or IP addresses)</th>
+        <td>
+          <input type="text" name="hosts_deny" class="form-control" id="id_hosts_deny" />
+        </td>
+        <td> {{ form.hosts_deny.errors }} </td>
+      </tr>
+    </table>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/storage_access/view_cifs_shares" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary"> Create </button>
+    </div>
+
+  </form>
+  <script src="/static/jstree/dist/jstree.js"></script>
+  <script>
+    var selected_path = '';
+    var e = document.getElementById("id_dataset")
+    if (document.forms["create_form"].elements["path"].value == '') {
+      document.forms["create_form"].elements["path"].value = e.options[e.selectedIndex].value;
+      document.forms["create_form"].elements["final_path"].value = e.options[e.selectedIndex].value;
+    }
+
+    function change_dataset(sel){
+      if (sel.value[0] != '/')
+        document.getElementById('id_path').value = '/' + sel.value;
+      else
+        document.getElementById('id_path').value = sel.value;
+      $('.lightbox').show();
+      $("#share_form").attr("method", "get");
+    };
+    function displayTree() {
+      document.getElementById("pathdiv").style.display = "block";
+      $('#pathdiv').jstree({ 'core' : {
+        'multiple':false,
+        'data' : {
+          'url' : function (node) {
+            return node.id === '#' ? 
+              '/storage/view_dir_contents?first=1' : 
+              '/storage/view_dir_contents'; 
+          },
+          'data' : function (node) {
+            var e = document.getElementById("id_dataset")
+            var ds_name = e.options[e.selectedIndex].text;
+            if (node.data) {              
+              return {'dir' : node.data['dir'] , 'id':node.id, "from": "dataset", "dataset_name": ds_name};
+            }
+            else
+              return { 'dir' : node.text , 'id':node.id, "from": "dataset", "dataset_name": ds_name};
+          }
+        }
+      }
+      });
+      $(function () {
+        $('#pathdiv').on('changed.jstree', function (e, data) {
+          var i, j, r = [];
+          var ds_elem = document.getElementById("id_dataset");
+          var ds_name = ds_elem.options[ds_elem.selectedIndex].value;
+          r = data.instance.get_node(data.selected[0]).text;
+          rfp = data.instance.get_node(data.selected[0]).data["dir"];
+          var name_elem = document.getElementById("id_name");
+          var name_value = name_elem.value;
+          $('.lightbox').show();
+          location.href = location.pathname+"?path="+rfp+"&dataset="+ds_name+"&name="+name_value
+        })
+        .jstree();
+      });
+    }
+    function copyText() {
+      if (selected_path == '') {
+        selected_path = document.forms["share_form"].elements["path"].value;
+      }
+      folder_val = $("#id_new_folder").val();
+      document.forms["create_form"].elements["final_path"].value = selected_path+'/'+folder_val;
+    }
+    $(document).ready(function(){
+      $("#id_hosts_allow").attr('disabled','enabled');
+      $("#id_hosts_deny").attr('disabled','enabled');
+      var hosts_allow_val = $("#id_hosts_allow_choice").val();
+      if (hosts_allow_val == "restricted")
+          $("#id_hosts_allow").removeAttr('disabled');
+      var hosts_deny_val = $("#id_hosts_deny_choice").val();
+      if (hosts_deny_val == "restricted")
+          $("#id_hosts_deny").removeAttr('disabled');
+      $("#id_hosts_allow_choice").on('change',function(){
+        var val = $(this).val();
+        if (val == "restricted"){
+          $("#id_hosts_allow").removeAttr('disabled');
+        }
+	else {
+          $("#id_hosts_allow").attr('disabled','enabled');
+	}
+      })
+      $("#id_hosts_deny_choice").on('change',function(){
+        var val = $(this).val();
+        if (val == "restricted"){
+          $("#id_hosts_deny").removeAttr('disabled');
+        }
+	else {
+          $("#id_hosts_deny").attr('disabled','enabled');
+	}
+      })
+    });
+  </script>
+
+{%endblock%}
+
+{%block help_header%}
+  Create share help
+{%endblock%}
+
+{%block help_body%}
+  <p>Shares are used to provide access to a certain directory within a certain volume to end users. Shares are used only for Windows access. Users accessing the system via NFS can directly mount the directory within the volume using NFS mount points.</p>
+  <p>You can set various options on shares : </p>
+  <ul>
+  <li> Share name : This is the name which will show up on Windows systems when you browse to the network storage.</li>
+  <li>Volume name : The IntegralStor volume which contains the directory being exported through this share.</li>
+  <li>Directory : The directory under the selected volume which is to be exported as the share. You can the browse button to select the directory. If you want to create a new directory under the volume to export, then please use the Create a directory option and then use this screen to create a share for that directory. </li>
+  <li>Description : An explanatory note for the administrator's use.</li>
+  <li>Read only : Setting this prevents all changes to files within this share.</li>
+  <li>Browseable : Setting this will result in this share being displayed when someone browses the IntegralStor storage.</li>
+  <li>Guest ok : Setting this will allow anyone to view and make changes to the contents of this share.</li>
+  <li>Allow access from hosts : Select "All hosts" if you want to allow all hosts or else select "Specified hosts" to enable the form field to specify the list of allowed hosts.</li>
+  <li>Specific allowed access host list: The list of hosts from which access to this share is allowed (white list) in the form of a comma separated list of IP addresses of hostnames.</li>
+  <li>Deny access from hosts : Select "None" if you want to do not want to deny access from any host or else select "Specified hosts" to enable the form field to specify the list of denied hosts.</li>
+  <li>Specific denied access host list: The list of hosts from which access to this share is denied (black list) in the form of a comma separated list of IP addresses of hostnames.</li>
+  </ul>
+  If there is a clash between the allowed access list and denied access list then the allowed access list takes precedence.
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_cifs_shares_tab")
+  </script>
+{% endblock %}
+

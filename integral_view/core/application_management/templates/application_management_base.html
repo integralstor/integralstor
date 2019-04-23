@@ -1,0 +1,14 @@
+{% extends 'logged_in_base.html' %}
+
+{%block tab_items %}
+  <li id="view_applications_tab">
+    <a href="/application_management/view_applications/">Manage applications</a>
+  </li>
+{%endblock tab_items %}
+
+{% block menu_active %}
+  <script>
+    make_side_menu_active("applications_menu")
+  </script>
+{% endblock%}
+

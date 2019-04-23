@@ -1,0 +1,169 @@
+{% extends 'monitoring_base.html' %}
+
+{%block tab_header %}
+ CPU and Load Information
+{%endblock%}
+
+{%block inside_content%}
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+      <span class="margin-left-5"> CPU Utilization Graph (Utilization VS Time)</span>
+      {% if data_dict %}
+        <canvas id="dashboard_chart" width="800" height="300" class="margin-left-5"></canvas>
+      {% else %}
+        <br /> <br />
+        <span class="margin-left-5 red">No Data Found</span>
+      {% endif %}
+    </div>
+    <div class="col-sm-12 col-md-12 col-lg-12">
+      <div class="row"><br/>
+        <div class="col-sm-1 col-md-1 col-lg-1">
+        </div>
+        {% for keys in data_dict.keys %}
+          <div class="col-sm-2 col-md-2 col-lg-2">
+            <span id="color_{{forloop.counter}}" class="color-box"></span><br/>&nbsp; &nbsp;<br /> {{keys|title}}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <br />
+  <hr>
+  <br />
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+      <span class="margin-left-5">Load Average Graph (Load Average VS Time) </span>
+      {% if data_dict_queue %}
+        <canvas id="queue_chart" width="800" height="300" class="margin-left-5"></canvas>
+      {% else %}
+        <br /> <br />
+        <span class="margin-left-5 red">No Data Found</span>
+      {% endif %}
+    </div>
+    <div class="col-sm-12 col-md-12 col-lg-12">
+      <div class="row"><br/>
+        <div class="col-sm-1 col-md-1 col-lg-1">
+        </div>
+        {% for keys in data_dict_queue.keys %}
+          <div class="col-sm-2 col-md-2 col-lg-2">
+            <span id="queue_{{forloop.counter}}" class="color-box"></span><br />&nbsp; &nbsp; <br />{{keys|title}}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {%if cpu_status.ipmi_status %}
+    <table class="table table-bordered table-hover table-responsive" style="width:800px">
+      <thead>
+        <tr>
+          <th colspan=1> Component Type </th>
+          <th colspan=3> Component Detail </th>
+          <th colspan=5> Status </th>
+        </tr>
+      </thead>
+      {%for ipmi in cpu_status.ipmi_status %}
+        <tr>
+          <td colspan=1> {{ipmi.component_name}} </td>
+          <td colspan=3> {{ipmi.parameter_name}} </td>
+          <td colspan=2> {{ipmi.reading}} </td>
+          <td colspan=2>
+        	  {% if ipmi.status == "ok" %}
+          		<i class="fa fa-check-circle green fa-2x"></i>	
+            {%else%}
+          		<i class="fa fa-remove red fa-2x"></i>	
+            {%endif%}
+          </td>
+        </tr>
+      {%endfor%}
+    </table>
+  {%endif%}
+{% endblock %}
+
+{%block help_header%}
+  View CPU status
+{%endblock%}
+
+{%block help_body%}
+  <p> 
+  This page displays the recent load average and the CPU utilization for the CPUs.
+  </p>
+{%endblock%}
+
+{% block tab_active%}
+  <script>
+    make_tab_active("cpu_tab")
+  </script>
+{% endblock%}
+
+{% block js %}
+  <script src="/static/js/Chart.js"></script>
+  <script>
+    var labels = []
+    {% for l in labels %}
+      labels.push("{{l}}")
+    {% endfor %}
+
+    Chart.defaults.global.animationSteps = 1;
+    Chart.types.Line.extend({
+      name: "LineAlt",
+      initialize: function (data) {
+        Chart.types.Line.prototype.initialize.apply(this, arguments);
+        var xLabels = this.scale.xLabels;
+        xLabels.forEach(function (label, i) {
+          if ( i % 60 == 0 )
+            xLabels[i] = '';
+        })
+      }
+    });
+    var colors = ["37,103,5","134,212,186","182,115,253","239,109,255"]
+    for (var i=1; i<=colors.length;i++){
+      $("#color_"+i).attr("data-color",colors[i-1]);
+      $("#color_"+i).attr("style","background:rgb("+colors[i-1]+")");
+    }
+    var queue_colors = ["37,103,5","134,212,186","182,115,253","239,109,255"]
+    for (var i=1; i<=colors.length;i++){
+      $("#queue_"+i).attr("data-color",queue_colors[i-1]);
+      $("#queue_"+i).attr("style","background:rgb("+queue_colors[i-1]+")");
+    }
+    var data = {
+      labels: labels, 
+      datasets: [
+        {% for keys,values in data_dict.items %}
+          {
+            label: "{{keys}}",
+            fillColor: "rgba("+$('#color_{{forloop.counter}}').attr('data-color')+",0.2)",
+            strokeColor: "rgba("+$('#color_{{forloop.counter}}').attr('data-color')+",1)",
+            pointColor: "rgba("+$('#color_{{forloop.counter}}').attr('data-color')+",1)",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba("+$('#color_{{forloop.counter}}').attr('data-color')+",1)",
+            data: {{values}}
+          },
+        {% endfor%}
+      ]
+    };
+    var ctx = document.getElementById("dashboard_chart").getContext("2d");
+    var myLineChart = new Chart(ctx).LineAlt(data, {});
+    var data = {
+      labels: labels, 
+      datasets: [
+        {% for keys,values in data_dict_queue.items %}
+          {
+            label: "{{keys}}",
+            fillColor: "rgba("+$('#queue_{{forloop.counter}}').attr('data-color')+",0.2)",
+            strokeColor: "rgba("+$('#queue_{{forloop.counter}}').attr('data-color')+",1)",
+            pointColor: "rgba("+$('#queue_{{forloop.counter}}').attr('data-color')+",1)",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba("+$('#queue_{{forloop.counter}}').attr('data-color')+",1)",
+            data: {{values}}
+          },
+        {% endfor%}
+      ]
+    };
+    var ctx = document.getElementById("queue_chart").getContext("2d");
+    var myLineChart = new Chart(ctx).LineAlt(data, {});
+  </script>
+{% endblock %}
+

@@ -1,0 +1,68 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  {%if type.value == 'filesystem' %}
+    Modify ZFS dataset properties - advanced
+  {%elif type.value == 'volume' %}
+    Modify ZFS block device volume properties - advanced
+  {%endif%}
+{%endblock%}
+
+{% block inside_content %}
+
+  <form id="edit_form" name="edit_form" action="" method="post">
+    {%csrf_token%}
+    <input name="name" type="hidden" value="{{ form.name.value }}">
+    <table class="table" style="width:800px">
+      <tr>
+        <th>
+          {%if type.value == 'filesystem' %}
+            Dataset name :
+          {%elif type.value == 'volume' %}
+            Block device volume name :
+          {%endif%}
+        </th>
+        <td> {{ form.name.value }} </td>
+        <td> &nbsp </td>
+      </tr>
+      <tr>
+        <th> Property:</th>
+        <td>
+          <select name="property_name" class="form-control" id="id_property_name">
+            {% for choice in form.property_name.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.initial.property_name %} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.property_name.errors }} </td>
+      </tr>
+      <tr>
+        <th> Value:</th>
+        <td>
+          <input type="text"  name="property_value" class="form-control" id="id_name" placeholder="Enter property value" > 
+        </td>
+        <td> {{ form.property_value.errors }} </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/storage/view_zfs_dataset/?name={{form.name.value}}" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Update ZFS {%if type.value == 'filesystem' %} dataset {%elif type.value == 'volume' %} block device volume {%endif%} advanced properties
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to update the advanced properties for a particular ZFS {%if type.value == 'filesystem' %} dataset {%elif type.value == 'volume' %} block device volume {%endif%}. The settings will take effect upon saving this information.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}
+

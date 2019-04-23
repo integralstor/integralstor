@@ -1,0 +1,59 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  {%if type == 'volume' %}
+    Delete a ZFS block device volume - confirmation
+  {%else%}
+    Delete a ZFS dataset - confirmation
+  {%endif%}
+{%endblock%}
+
+
+{%block inside_content %}
+
+  {%if type == 'volume' %}
+    <p id="p-warning-text">Are you sure you want to delete the ZFS block device volume with name  "{{name}}"? </p>
+  {%else %}
+    <p id="p-warning-text">Are you sure you want to delete the ZFS dataset with name  "{{name}}"? </p>
+  {%endif%}
+  <br>
+
+  <form action="" method="POST">
+    {%csrf_token%}
+    <input type=hidden name="name" value="{{name}}">
+    <input type=hidden name="type" value="{{type}}">
+    <input type=hidden name="pool_name" value="{{pool_name}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      {%if type == 'zvol' %}
+        <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/storage/view_zfs_zvol?name={{name}}'"> &nbsp;&nbsp;
+      {%else%}
+        <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/storage/view_zfs_dataset?name={{name}}'"> &nbsp;&nbsp;
+      {%endif%}
+      <button type="submit" class="btn btn-danger " onClick ="$('#processing').modal('show');">Confirm and delete</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  {%if type == 'volume' %}
+    Deleting a ZFS block device volume
+  {%else%}
+    Deleting a ZFS dataset
+  {%endif%}
+{%endblock%}
+
+{%block help_body%}
+  {%if type == 'volume' %}
+    <p>Confirming this operation results in the specified ZFS block device volume being deleted from the system. Please ensure that this is actually intended before continuing.</p>
+  {%else%}
+    <p>Confirming this operation results in the specified ZFS dataset being deleted from the system. Please ensure that this is actually intended before continuing.</p>
+  {%endif%}
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}
+
