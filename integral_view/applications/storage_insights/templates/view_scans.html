@@ -4,14 +4,6 @@
     Scans
 {%endblock%}
 
-{%block global_actions %}
-  <div class="btn-group btn-group-sm pull-right" >
-    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click for scan actions" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
-    <ul class="dropdown-menu">
-      <li><a class="action-dropdown" href="/applications/storage_insights/initiate_scan"  title="Initiate a folder scan"> <i class="fa fa-plus fa-fw"></i>Initiate a folder scan</a> 
-    </ul>
-  </div>
-{%endblock%}
 
 {% block inside_content %}
   {% if not scans %}
